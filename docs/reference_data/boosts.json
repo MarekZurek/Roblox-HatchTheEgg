@@ -1,0 +1,473 @@
+{
+  "schemaVersion": 1,
+  "status": "REFERENCE_ONLY",
+  "productionConfigurationApproved": false,
+  "gameImplementationTested": false,
+  "catalog": [
+    {
+      "index": 0,
+      "id": "jimbos_blue_v2",
+      "name": "JIMBO'S EXCELLENT BIRD FEED",
+      "dimension_raw": 2,
+      "priceGE": 50,
+      "durationSeconds": 1200.0,
+      "effect": 3.0
+    },
+    {
+      "index": 1,
+      "id": "jimbos_purple_v2",
+      "name": "JIMBO'S PREMIUM BIRD FEED",
+      "dimension_raw": 2,
+      "priceGE": 150,
+      "durationSeconds": 900.0,
+      "effect": 10.0
+    },
+    {
+      "index": 2,
+      "id": "jimbos_purple_big",
+      "name": "JIMBO'S PREMIUM BIRD FEED",
+      "dimension_raw": 2,
+      "priceGE": 750,
+      "durationSeconds": 10800.0,
+      "effect": 10.0
+    },
+    {
+      "index": 3,
+      "id": "jimbos_orange",
+      "name": "JIMBO'S BEST BIRD FEED",
+      "dimension_raw": 2,
+      "priceGE": 2500,
+      "durationSeconds": 600.0,
+      "effect": 50.0
+    },
+    {
+      "index": 4,
+      "id": "jimbos_orange_big",
+      "name": "JIMBO'S BEST BIRD FEED",
+      "dimension_raw": 2,
+      "priceGE": 7500,
+      "durationSeconds": 7200.0,
+      "effect": 50.0
+    },
+    {
+      "index": 5,
+      "id": "subsidy_application",
+      "name": "SUBSIDY APPLICATION",
+      "dimension_raw": 10,
+      "priceGE": 200,
+      "durationSeconds": 0.0,
+      "effect": 0.1
+    },
+    {
+      "index": 6,
+      "id": "blank_check",
+      "name": "BLANK CHECK",
+      "dimension_raw": 10,
+      "priceGE": 750,
+      "durationSeconds": 0.0,
+      "effect": 1.0
+    },
+    {
+      "index": 7,
+      "id": "money_printer",
+      "name": "MONEY PRINTER",
+      "dimension_raw": 10,
+      "priceGE": 2500,
+      "durationSeconds": 0.0,
+      "effect": 5.0
+    },
+    {
+      "index": 8,
+      "id": "tachyon_prism_blue_v2",
+      "name": "TACHYON PRISM",
+      "dimension_raw": 4,
+      "priceGE": 50,
+      "durationSeconds": 600.0,
+      "effect": 10.0
+    },
+    {
+      "index": 9,
+      "id": "tachyon_prism_blue_big",
+      "name": "LARGE TACHYON PRISM",
+      "dimension_raw": 4,
+      "priceGE": 500,
+      "durationSeconds": 14400.0,
+      "effect": 10.0
+    },
+    {
+      "index": 10,
+      "id": "tachyon_prism_purple_v2",
+      "name": "POWERFUL TACHYON PRISM",
+      "dimension_raw": 4,
+      "priceGE": 1000,
+      "durationSeconds": 600.0,
+      "effect": 100.0
+    },
+    {
+      "index": 11,
+      "id": "tachyon_prism_purple_big",
+      "name": "EPIC TACHYON PRISM",
+      "dimension_raw": 4,
+      "priceGE": 5000,
+      "durationSeconds": 7200.0,
+      "effect": 100.0
+    },
+    {
+      "index": 12,
+      "id": "tachyon_prism_orange",
+      "name": "LEGENDARY TACHYON PRISM",
+      "dimension_raw": 4,
+      "priceGE": 12000,
+      "durationSeconds": 600.0,
+      "effect": 1000.0
+    },
+    {
+      "index": 13,
+      "id": "tachyon_prism_orange_big",
+      "name": "SUPREME TACHYON PRISM",
+      "dimension_raw": 4,
+      "priceGE": 25000,
+      "durationSeconds": 3600.0,
+      "effect": 1000.0
+    },
+    {
+      "index": 14,
+      "id": "soul_beacon_blue_v2",
+      "name": "SOUL BEACON",
+      "dimension_raw": 9,
+      "priceGE": 200,
+      "durationSeconds": 1800.0,
+      "effect": 5.0
+    },
+    {
+      "index": 15,
+      "id": "soul_beacon_purple_v2",
+      "name": "EPIC SOUL BEACON",
+      "dimension_raw": 9,
+      "priceGE": 1000,
+      "durationSeconds": 1200.0,
+      "effect": 50.0
+    },
+    {
+      "index": 16,
+      "id": "soul_beacon_orange",
+      "name": "LEGENDARY SOUL BEACON",
+      "dimension_raw": 9,
+      "priceGE": 10000,
+      "durationSeconds": 600.0,
+      "effect": 500.0
+    },
+    {
+      "index": 17,
+      "id": "boost_beacon_blue",
+      "name": "BOOST BEACON",
+      "dimension_raw": 7,
+      "priceGE": 1000,
+      "durationSeconds": 1800.0,
+      "effect": 2.0
+    },
+    {
+      "index": 18,
+      "id": "boost_beacon_purple",
+      "name": "EPIC BOOST BEACON",
+      "dimension_raw": 7,
+      "priceGE": 8000,
+      "durationSeconds": 600.0,
+      "effect": 10.0
+    },
+    {
+      "index": 19,
+      "id": "boost_beacon_blue_big",
+      "name": "LARGE BOOST BEACON",
+      "dimension_raw": 7,
+      "priceGE": 15000,
+      "durationSeconds": 3600.0,
+      "effect": 5.0
+    },
+    {
+      "index": 20,
+      "id": "boost_beacon_orange",
+      "name": "LEGENDARY BOOST BEACON",
+      "dimension_raw": 7,
+      "priceGE": 50000,
+      "durationSeconds": 600.0,
+      "effect": 50.0
+    },
+    {
+      "index": 21,
+      "id": "soul_mirror_blue",
+      "name": "SOUL MIRROR",
+      "dimension_raw": 11,
+      "priceGE": 100,
+      "durationSeconds": 600.0,
+      "effect": 1.0
+    },
+    {
+      "index": 22,
+      "id": "soul_mirror_purple",
+      "name": "EPIC SOUL MIRROR",
+      "dimension_raw": 11,
+      "priceGE": 500,
+      "durationSeconds": 3600.0,
+      "effect": 1.0
+    },
+    {
+      "index": 23,
+      "id": "soul_mirror_orange",
+      "name": "LEGENDARY SOUL MIRROR",
+      "dimension_raw": 11,
+      "priceGE": 2000,
+      "durationSeconds": 86400.0,
+      "effect": 1.0
+    },
+    {
+      "index": 24,
+      "id": "quantum_bulb",
+      "name": "QUANTUM WARMING BULB",
+      "dimension_raw": 0,
+      "priceGE": 10,
+      "durationSeconds": 600.0,
+      "effect": 1.0
+    },
+    {
+      "index": 25,
+      "id": "dilithium_bulb",
+      "name": "DILITHIUM WARMING BULB",
+      "dimension_raw": 1,
+      "priceGE": 1000,
+      "durationSeconds": 600.0,
+      "effect": 1.0
+    },
+    {
+      "index": 26,
+      "id": "jimbos_blue",
+      "name": "JIMBO'S EXCELLENT BIRD FEED",
+      "dimension_raw": 2,
+      "priceGE": 50,
+      "durationSeconds": 3600.0,
+      "effect": 2.0
+    },
+    {
+      "index": 27,
+      "id": "jimbos_blue_big",
+      "name": "JIMBO'S EXCELLENT BIRD FEED",
+      "dimension_raw": 2,
+      "priceGE": 100,
+      "durationSeconds": 14400.0,
+      "effect": 3.0
+    },
+    {
+      "index": 28,
+      "id": "jimbos_purple",
+      "name": "JIMBO'S PREMIUM BIRD FEED",
+      "dimension_raw": 2,
+      "priceGE": 250,
+      "durationSeconds": 1800.0,
+      "effect": 10.0
+    },
+    {
+      "index": 29,
+      "id": "tachyon_prism_blue",
+      "name": "TACHYON PRISM",
+      "dimension_raw": 4,
+      "priceGE": 200,
+      "durationSeconds": 1800.0,
+      "effect": 10.0
+    },
+    {
+      "index": 30,
+      "id": "tachyon_prism_purple",
+      "name": "POWERFUL TACHYON PRISM",
+      "dimension_raw": 4,
+      "priceGE": 1000,
+      "durationSeconds": 1200.0,
+      "effect": 100.0
+    },
+    {
+      "index": 31,
+      "id": "soul_beacon_blue",
+      "name": "SOUL BEACON",
+      "dimension_raw": 9,
+      "priceGE": 200,
+      "durationSeconds": 3600.0,
+      "effect": 5.0
+    },
+    {
+      "index": 32,
+      "id": "soul_beacon_purple",
+      "name": "EPIC SOUL BEACON",
+      "dimension_raw": 9,
+      "priceGE": 1000,
+      "durationSeconds": 1800.0,
+      "effect": 50.0
+    }
+  ],
+  "referenceOffer": [
+    {
+      "boostId": "jimbos_blue_v2",
+      "price": 50,
+      "seRequired": 0.0
+    },
+    {
+      "boostId": "jimbos_purple_v2",
+      "price": 150,
+      "seRequired": 0.0
+    },
+    {
+      "boostId": "jimbos_purple_big",
+      "price": 750,
+      "seRequired": 1.0
+    },
+    {
+      "boostId": "jimbos_orange",
+      "price": 2500,
+      "seRequired": 100.0
+    },
+    {
+      "boostId": "jimbos_orange_big",
+      "price": 7500,
+      "seRequired": 100.0
+    },
+    {
+      "boostId": "subsidy_application",
+      "price": 200,
+      "seRequired": 0.0
+    },
+    {
+      "boostId": "blank_check",
+      "price": 750,
+      "seRequired": 100000.0
+    },
+    {
+      "boostId": "money_printer",
+      "price": 2500,
+      "seRequired": 5000000.0
+    },
+    {
+      "boostId": "tachyon_prism_blue_v2",
+      "price": 50,
+      "seRequired": 0.0
+    },
+    {
+      "boostId": "tachyon_prism_blue_big",
+      "price": 500,
+      "seRequired": 0.0
+    },
+    {
+      "boostId": "tachyon_prism_purple_v2",
+      "price": 1000,
+      "seRequired": 0.0
+    },
+    {
+      "boostId": "tachyon_prism_purple_big",
+      "price": 5000,
+      "seRequired": 100.0
+    },
+    {
+      "boostId": "tachyon_prism_orange",
+      "price": 12000,
+      "seRequired": 2500.0
+    },
+    {
+      "boostId": "tachyon_prism_orange_big",
+      "price": 25000,
+      "seRequired": 100000.0
+    },
+    {
+      "boostId": "soul_beacon_blue_v2",
+      "price": 200,
+      "seRequired": 10000.0
+    },
+    {
+      "boostId": "soul_beacon_purple_v2",
+      "price": 1000,
+      "seRequired": 1000000.0
+    },
+    {
+      "boostId": "soul_beacon_orange",
+      "price": 10000,
+      "seRequired": 10000000000.0
+    },
+    {
+      "boostId": "boost_beacon_blue",
+      "price": 1000,
+      "seRequired": 1000.0
+    },
+    {
+      "boostId": "boost_beacon_purple",
+      "price": 8000,
+      "seRequired": 100000.0
+    },
+    {
+      "boostId": "boost_beacon_blue_big",
+      "price": 15000,
+      "seRequired": 500000.0
+    },
+    {
+      "boostId": "boost_beacon_orange",
+      "price": 50000,
+      "seRequired": 100000000.0
+    },
+    {
+      "boostId": "soul_mirror_blue",
+      "price": 100,
+      "seRequired": 1000.0
+    },
+    {
+      "boostId": "soul_mirror_purple",
+      "price": 500,
+      "seRequired": 1000.0
+    },
+    {
+      "boostId": "soul_mirror_orange",
+      "price": 2000,
+      "seRequired": 10000.0
+    },
+    {
+      "boostId": "quantum_bulb",
+      "price": 10,
+      "seRequired": 0.0
+    },
+    {
+      "boostId": "dilithium_bulb",
+      "price": 1000,
+      "seRequired": 100000.0
+    },
+    {
+      "boostId": "jimbos_blue",
+      "price": 50,
+      "seRequired": 0.0
+    },
+    {
+      "boostId": "jimbos_blue_big",
+      "price": 100,
+      "seRequired": 0.0
+    },
+    {
+      "boostId": "jimbos_purple",
+      "price": 250,
+      "seRequired": 0.0
+    },
+    {
+      "boostId": "tachyon_prism_blue",
+      "price": 200,
+      "seRequired": 0.0
+    },
+    {
+      "boostId": "tachyon_prism_purple",
+      "price": 1000,
+      "seRequired": 0.0
+    },
+    {
+      "boostId": "soul_beacon_blue",
+      "price": 200,
+      "seRequired": 10000.0
+    },
+    {
+      "boostId": "soul_beacon_purple",
+      "price": 1000,
+      "seRequired": 1000000.0
+    }
+  ],
+  "offerRules": "Apply reference offer overrides by boostId separately from catalog effect and duration. This does not activate a store or approve prices for release."
+}

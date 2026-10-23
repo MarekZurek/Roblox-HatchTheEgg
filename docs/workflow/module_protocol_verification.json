@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-23",
+  "status": "PASS_STATIC_DOCUMENT_CHECKS",
+  "documentStatus": "P_PROPOSED",
+  "document": "28_modules_and_client_server_contract.md",
+  "documentSHA256": "0cd6f4d097dd3d8e73fb6f599b482df4653cf21e675902ba3cc55fe31e1fd680",
+  "updatedExistingDocs": [
+    "docs/07_roblox_architecture_and_roadmap.md",
+    "docs/CURRENT_SPEC.md",
+    "docs/README.md",
+    "docs/TODO.md",
+    "docs/WORKING_CONTEXT.md",
+    "docs/ecc/adaptations/error_handling_and_result_pattern.md",
+    "docs/ecc/adaptations/server_validation_and_security_checklist.md",
+    "docs/workflow/IMPLEMENTATION_STAGES.md",
+    "docs/workflow/README.md",
+    "docs/workflow/WORKFLOW.md"
+  ],
+  "unchangedExistingFiles": 73,
+  "contract27Unchanged": true,
+  "referenceDataUnchanged": true,
+  "balanceDocumentsUnchanged": true,
+  "skillsUnchanged": true,
+  "imagesUnchanged": true,
+  "implementationStarted": false,
+  "transportOrLibrarySelected": false,
+  "runtimeTestsExecuted": false,
+  "independentModelReviewExecuted": false,
+  "gitHistoryModified": false,
+  "limitations": [
+    "Logical module and protocol design only; no remotes, code, network measurements or platform API integration.",
+    "Concrete transport limits, queue budgets, numeric codec, persistence/retention and runtime harness remain future implementation dependencies.",
+    "Scenarios describe expected behavior, not executed tests."
+  ],
+  "localTargetsChecked": 457,
+  "brokenTargets": [],
+  "textFilesScanned": 81,
+  "removedMarkerMatches": 0
+}

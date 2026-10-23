@@ -1,0 +1,91 @@
+# Bieżąca specyfikacja i status ustaleń
+
+Stan porządkowania: **23.10.2026**. Zakres: farma domowa HatchTheEgg z petami w Roblox, bez implementacji. To indeks obowiązujących ustaleń, nie nowy bilans.
+
+## Jak czytać statusy
+
+| Status | Znaczenie |
+|---|---|
+| **N — referencyjne reguły obliczeń** | Opis zachowania matematycznego stanowiący punkt odniesienia. Nie oznacza wykonania ani testów implementacji HatchTheEgg. |
+| **S — referencyjne dane i tabele** | Dane opisane w dokumentacji. Nie są automatycznie zatwierdzoną konfiguracją wydania. |
+| **R — zatwierdzona decyzja projektu** | Reguła zaakceptowana przez użytkownika; rozstrzyga zachowanie HatchTheEgg w danym zakresie. |
+| **P — propozycja / szkic projektu** | Nie zatwierdza konfiguracji i nie zleca implementacji. |
+| **H — materiał historyczny** | Dawny wariant lub raport; aktualne decyzje i późniejsze ustalenia mają pierwszeństwo. |
+
+N/S rozróżniają rodzaj materiału referencyjnego, nie stopień przetestowania gry. Decyzja R nie zatwierdza automatycznie sąsiednich propozycji i liczb. Konfiguracja opisana w docs nie zastępuje przyszłej konfiguracji serwera HatchTheEgg. Implementacja nie została rozpoczęta; odłożony bilans pozostaje odłożony.
+
+## Referencyjne wzory i reguły
+
+| Temat | Status i obowiązująca reguła | Źródło szczegółów |
+|---|---|---|
+| Badania i infrastruktura | S/N: 56 Common, 24 rozpoznawane Epic, 19 kurników i 12 typów pojazdów. 17 to liczba miejsc floty, nie typów. Lista konfiguracji referencyjnej zawiera też legacy; nie dowodzi widoczności wszystkich wpisów w sklepie. | [01](01_upgrades_and_research.md), [03](03_habitats_and_population.md), [04](04_vehicles_and_shipping.md), dane konfiguracji referencyjnej |
+| Farm Value | N: wzór z osobnymi wejściami ResearchEngine, karą transportu, członem wolnej pojemności i przyszłego IHR. Nie podmieniać tych wejść pełnymi mnożnikami wyposażenia/boostów. | [02, sekcja 2](02_eggs_and_farm_value.md#2-wzór-farm-value-potwierdzony-w-modelu-referencyjnym), [16](16_pet_stacking_offline_and_package_schedule.md) |
+| Soul Eggs | N: funkcja przedziałowa o wykładnikach 0.15–0.21. Soul Beacon/Feather wzmacniają przyrosty przychodu wejściowego; collection i event prestiżu działają po tej funkcji. Gotówka jednorazowa ma własną ścieżkę księgowania. | [05](05_prestige_soul_eggs_and_boosts.md), [13](13_rewards_contracts_resets_and_gift_distributions.md) |
+| Produkcja i transport | N: sprzedaż ograniczona transportem, produkcja przed wzrostem populacji, ułamki per kurnik i sharing według wyboru wolnego miejsca. Hyperloop ma cenę wagonu z PriceCurve, nie prostą potęgę ceny pociągu. | [03](03_habitats_and_population.md), [04](04_vehicles_and_shipping.md), [10](10_verified_simulation_and_server_config.md) |
+| Offline | N: gałąź away dla nieobecności >60 s, produkcja ograniczona posiadanymi silosami, kroki do 0.3 s; dochód away 0.5 bez Pro / 1 z Pro, Calm tylko away. Nie zastępować całego offline jednym iloczynem bieżącego dochodu i czasu. | [10](10_verified_simulation_and_server_config.md), [16](16_pet_stacking_offline_and_package_schedule.md) |
+| Boosty | N: pełne siły jednej kategorii sumują się; Beacony sumują się i mnożą aktywne kategorie. Długość ustalana przy aktywacji, czas zużywany przez symulację. Wpis działa w kroku przed usunięciem przy remaining<0. Money Printer nie jest mnożnikiem czasowym. | [05](05_prestige_soul_eggs_and_boosts.md), [11](11_periodicals_calendar_events_and_boost_rules.md), [13](13_rewards_contracts_resets_and_gift_distributions.md) |
+| Zmiana jaja i prestiż | N: Common i infrastruktura farmy są przebudowywane; Epic i zasoby trwałe zachowane. Aktywne boosty wraz z czasem oraz termin podwajacza są zachowane. Zachowany wpis nie oznacza działania na jaju wyłączającym boosty. | [13, sekcja 5](13_rewards_contracts_resets_and_gift_distributions.md#5-zmiana-jaja-i-prestiż) |
+| Podwajacz | N: wymiar 2+0.5×level godzin, do 8 h. Callback sukcesu nadpisuje termin; inne gałęzie aktywacji mogą dawać 1 h. Reklama i Ultra Pro dają wspólnie ×2, nie ×4. | [12](12_calendar_scaling_and_video_doubler.md) |
+| Kalendarz | S, wysoka pewność: pięć nagród min(cap,base×2^m), m=floor(C/28). Bazy/capy i pozostała tabela z kodu. Dzień 28: PE przez 24 cykle, potem 100000 GE, bez równoczesnego 50000 GE. | [15](15_calendar_gameplay_formula_and_roblox_scope.md), tabela 28 dni w [11](11_periodicals_calendar_events_and_boost_rules.md) |
+| Odbiór nagród | N: konwersje maksymalnych Epic na GE, osobne obcięcia Piggy, przeliczenie źródeł PE. Kolejka jednego alertu blokuje wielokrotne potwierdzenie; funkcje wypłat same nie gwarantują trwałej idempotencji. | [13](13_rewards_contracts_resets_and_gift_distributions.md), [14](14_reward_claim_safety.md) |
+| Drony i prezenty | N/S: rozkłady i filtry zależą od stanu/progresji; częstość dronów nie jest stałym 15–30 s. Próba paczki/oferty: I×(0.6+0.5×U), z bramkami i ponowieniami. Brak stosu zaległych nagród za offline. | [06](06_drones_silos_and_events.md), [13](13_rewards_contracts_resets_and_gift_distributions.md), [16](16_pet_stacking_offline_and_package_schedule.md) |
+
+## Zatwierdzone zmiany i kierunek Roblox
+
+**Aktualizacja po odpowiedzi użytkownika — [rejestr D01–D07](22_gameplay_rules_for_approval.md):** D02–D07 mają status R. Obowiązują: dopuszczalne 100% elity, Enlightenment bez efektów petów i Clarity w v1, paczki 2+1 ze stałym zapisanym wynikiem i bez wygaśnięcia, zakres premiery i PE z kalendarza/trofeów, wymagania jednokrotnego rozliczania. D01: użytkownik zatwierdził premium +10 punktów procentowych, max 100%, zamiast dopłat $/GE/Robux do prób. R: stopień = tier pochodzenia × docelowy wariant; pety przed użyciem wymagają zdjęcia/odblokowania; zmiana bazowego nie podmienia automatycznie materiałów. R — skutek porażki: zachować peta bazowego, zużyć pozostałe wybrane kopie i zwiększyć trwały licznik gwarancji. Definicja nie dodaje osobnego ryzyka według gatunku/rarity; szczegóły w 22. Bazowe procenty i wartości gwarancji pozostają odłożone. D04 zatwierdzone: pierwsze użycie dnia UTC darmowe, kolejne GE/opcjonalnie Robux, z ujawnioną zawartością płatnego prezentu; ceny odłożone. Dawne P w raportach historycznych nie odwołują nowych decyzji R.
+
+| Decyzja użytkownika | Status / granica |
+|---|---|
+| Sumowanie premii petów | **R:** P[d]=1+sum(b_i[d]). Dwa +50% dają ×2. Nie sumować tą regułą pełnych sił referencyjnych boostów. |
+| Drone Hawk | **R:** zwiększa szansę elity, zamiast częstości dronów: min(1,pBase×P). Siła poszczególnych petów i ewolucji pozostaje P. |
+| Wydarzenia podczas offline | **R:** naliczać tylko faktyczny czas nakładania eventu na okno produkcji. Event dochodu ważyć czasem w granicznym kroku. Event prestiżu dotyczy chwili kolekcji, a wyprzedaż/bonus czasu boostu — chwili odpowiedniej czynności. To adaptacja, nie dowód historycznego rozliczania przez model referencyjny. |
+| Kierunek ekonomii | **R:** znaczenie Pro, GE i boostów oraz późnego spowolnienia; priorytet płacącego gracza. Nie zatwierdza konkretnych cen, limitów ani oferty Robux. **Dalszy bilans odłożony.** |
+| Zakres pracy | **R:** bez kontraktów, implementacji gry. |
+
+Mapa włączenia petów w potwierdzone wymiary jest w [16](16_pet_stacking_offline_and_package_schedule.md). Jest specyfikacją adaptacji popartą testami kontrolowanych wejść, nie referencyjnym systemem petów. Phoenix działa na przyszły przychód prestiżowy, Alien raz na aktywne kategorie, Cow na pojemność produkcyjną; nie dopisujemy tych mnożników wprost do FV. Przed zmianą zestawu rozliczamy czas starym wyposażeniem.
+
+**R — po przeglądzie 24:** opłacone zamówienie sprzed północy nie zużywa darmowego prawa nowego dnia; oferta przy nierozstrzygniętej płatności jest zarezerwowana bez kupna/odbioru/odrzucenia; istniejącą ofertę można odebrać na Enlightenment, otrzymany boost tylko do ekwipunku. Szczegóły w [22](22_gameplay_rules_for_approval.md) i [24](24_doubler_and_bonus_gift_acceptance_review.md).
+
+## Propozycje i otwarte decyzje
+
+Konkretne rekomendacje D01–D07: [22. Zasady do zatwierdzenia](22_gameplay_rules_for_approval.md). Aktualne odpowiedzi: R dla D02–D07; D01: premium +10 p.p. zamiast dopłat za próbę zatwierdzone; skutek porażki (pet bazowy/materiały/gwarancja) zatwierdzony; definicja stopnia (tier × cel) oraz zdjęcie/odblokowanie i brak automatycznej podmiany materiałów zatwierdzone. Kierunek trudności pozostaje w odłożonym bilansie; Rainbow jako końcowy wariant v1 zatwierdzono w 26. Nie wznowiono bilansu.
+
+- **P:** waluta inkubacji, ceny, szanse, siły, receptury Golden/Rainbow i limity inkubacji. Materiały [17–21](21_payer_progression_and_incubation.md) są wariantami analitycznymi. Nie ma zatwierdzonego końcowego cennika; V pozostaje nierozstrzygnięte. Bilans odłożony zgodnie z [TODO](TODO.md); nie zmieniono jego danych ani symulacji.
+- **R:** rozszerzenie miejsc petów i +10 p.p. do łączenia należą do Pro. **P:** konkretne liczby miejsc 3/5 z dawnych scenariuszy, ceny i saldo inkubacji. Nie zatwierdzono osobnego +2 Pet Equip. [25](25_approved_product_structure.md).
+- **R (D05):** ścisłe limity 2 zwykłych paczek +1 bonusowej, z dostawą zajmującą miejsce, to zatwierdzona reguła projektu z 16 i D05. Warunki zgłoszenia ciężarówki w modelu referencyjnym nie dowodzą identycznego limitu we wszystkich fazach animacji. Użytkownik następnie zatwierdził tę liczbę i trwałość oferty jako D05; status tego punktu to obecnie R.
+- **R (D04):** pierwsza aktywacja podwajacza i pierwszy bonusowy prezent dnia UTC darmowe; następne GE/opcjonalnie Robux, z ujawnieniem zawartości płatnego prezentu. **P:** ceny i szczegóły dodatkowych produktów. Ograniczenia petów na Enlightenment zatwierdzono w D03, a zakres trofeów/zadań/PE/eventów i wyłączenie ekspedycji w D06. Obecność w makiecie nie oznacza włączenia do pierwszej wersji.
+- **R:** Buy MAX i Auto-Hatch kurczaków to osobne passy poza Pro; GE i Piggy to zakupy powtarzalne. **P:** konkretna architektura, biblioteki, format zapisu, UI, ceny Robux, parametry produktów i dokładne terminy późniejszych wydań. Zakres premiery jest R według 26: Auto-Hatch i VIP później, Piggy warunkowo po bilansie. Wymagania zachowania zapisu i jednokrotnego rozliczania zatwierdzono jako D07. Rozdziały [07](07_roblox_architecture_and_roadmap.md), [08](08_monetization_and_economy.md), [09](09_pets_system_and_artifacts.md) i [UI](ui/ui_design_specification.md) nie są gotową implementacją ani zatwierdzonym zakresem produktów.
+
+Bieżące otwarte decyzje własnej adaptacji, bez odłożonego bilansu: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md). Task Opusa kalendarza/trofeów/PE pominięty; nie otwierać ponownie audytu tych mechanik.
+
+**R — [26](26_approved_launch_scope_and_pro_availability.md):** premiera Pro/Buy MAX/GE, Piggy warunkowo po bilansie, Auto-Hatch/VIP później; Rainbow kończy v1. Wariant A Pro: brak niedostępnego +10 p.p., reszta uprawnień działa, jawny opis przed zakupem, bez zamiennika w v1. Trzy grupy decyzji w spisie adaptacji zamknięte; pozostały odłożony bilans i przyszła realizacja.
+
+## Granice dowodu i historia
+
+Kalendarz ma opisaną specyfikację. Przyszłe testy odbioru i trwałości muszą dotyczyć implementacji HatchTheEgg; opis reguł nie zastępuje testów serwera.
+
+Raporty 10–16 zachowują adresy, testy i ograniczenia etapów. Wcześniejsze wnioski o braku skalowania zastępuje 15; ogólne uwagi o aktualizacji GiftConfig zastępuje dokładne zachowanie z 16. Historyczne manifesty są snapshotami i nie są regenerowane przy porządkowaniu docs. Wyniki symulacji 17–21 nie dowodzą pełnej zgodności 1:1 ani dokładnego tempa realnych graczy.
+
+## Dane referencyjne w projekcie
+
+Pełne dane maszynowe: [katalog danych referencyjnych](reference_data/README.md). Przywrócono brakującą tabelę dronów i czas silosów w 06. Przeniesienie danych nie nadaje im statusu zatwierdzonego bilansu ani testów implementacji.
+
+## Kontrakt techniczny przed implementacją — P
+
+[27 — liczby, czas i stan gracza](27_numbers_time_and_player_state_contract.md) jest propozycją techniczną opartą na obecnych regułach i danych. Rozdziela BigAmount/Real64/ExactUInt, zegary, trwały profil i operacje. Nie zmienia R, nie zatwierdza bibliotek, nie rozszerza zakresu binary64 bez osobnego projektu i nie wznawia bilansu. Scenariusze są opisane, nie wykonane.
+
+## Podział odpowiedzialności i komunikacja — P
+
+[28](28_modules_and_client_server_contract.md) rozwija kontrakt 27 o moduły i wiadomości: autorytatywny koordynator gracza, podglądy i komendy, idempotencja, statusy nieznanego wyniku, ograniczone projekcje i resync. commitRevision oznacza trwały stan, viewSeq kolejność projekcji. Jest propozycją techniczną, bez nowych reguł R, aktywacji funkcji lub zmian bilansu.
+
+Doprecyzowania P po lokalnym przeglądzie: zakupy badań/infrastruktury wymagają serwerowego quoteId, a Buy MAX wiąże także zakres i łączny koszt. NOT_ACCEPTED na etapie admission nie oznacza PENDING; utrata pracy po PENDING wymaga odtworzenia/rozstrzygnięcia przed ponowieniem. Prezent za Robux rozpoczyna PreparePurchase z offerId i quoteId; trwałe przygotowanie zamówienia nie jest wypłatą. Wypłatę realizuje wyłącznie zaufane potwierdzenie, jednokrotnie i bez dodatkowego ClaimOffer. Nie zmienia to kontraktu 27 ani zatwierdzonych zasad produktu.
+
+## Plan pierwszej farmy — P
+
+[29](29_first_farm_implementation_plan.md) konkretyzuje fragment etapów 0–2: jedno jajo, ręczny wylęg i RCB, IHR, produkcja/transport, pojedyncze zakupy Common/kurników/zwykłych pojazdów, zapis i minimalne UI. Neutralny powrót zachowuje próg away i limit silosów z 27; pełne efekty, resety, nagrody i płatności są poza tym fragmentem, bez zmiany zakresu premiery. Wymaga manifestu obsługiwanych ID, źródeł pól startowych i adapterów (F01), nie nadaje tabelom statusu produkcyjnego. F01–F09 i scenariusze A01–A16 są planem, nie wykonaniem lub testami. Bilans pozostaje odłożony.
+
+Dokumentacyjny manifest F01 przygotowano w [30](30_first_farm_manifest_and_technical_choices.md): siedem Common, po dwa typy kurników/zwykłych pojazdów, jedno jajo, ograniczony DTO i kierunki adapterów. Start opisano jako TEST_ONLY, odróżniając go od danych resetu i nieustalonego nowego konta. U01–U06 wskazują brak semantyki bramek, pełnego wylęgu/RCB i wybranych rozstrzygnięć technicznych; manifest nie oznacza pełnej gotowości wykonawczej F01. Nie zmienia R lub parametrów danych referencyjnych. Wszystkie zadania implementacyjne i testy nadal niewykonane.
+
+## Uzupełnienie pierwszej farmy — 24.10.2026
+
+[31](31_research_hatching_rcb_and_new_account.md) rozstrzyga N/S: punkty Common=sum(poziomów), inkluzywne progi; press=jedna próba, refill 3/s odrębny od holdRate=0 bez Epic; aktywne RCB q=min(c^n,K), mnożnik M tylko gdy q>1; rezerwację kury w drodze i zaliczenie populacji przy dotarciu. Potwierdzony referencyjny start ma jeden silos, pełne 250 wylęgarni i limit floty 4 przy jednym TRIKE. Są to N/S, nie nowe R lub zatwierdzony balans. HatchPress dopisano do 28 jako P. Rdzeń U01–U04 nie jest już niewiadomą; do realizacji pozostają trasa sceny oraz U05/U06. Bieżący podział zadań: [32](32_parallel_delivery_backlog.md).

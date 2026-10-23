@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-23",
+  "status": "PASS_LOCAL_STRUCTURE_AND_LINK_CHECKS",
+  "skills": [
+    {
+      "name": "hte-check-economy-state",
+      "lines": 23,
+      "sha256": "75817c71a655662472352348e60f654238e23498b89c2129201b08e420b2479d"
+    },
+    {
+      "name": "hte-design-visuals",
+      "lines": 22,
+      "sha256": "0ae4b5683b0e5e7d51b75b8db6bdf8ceaca0c3f2a73d8c6a482791977c08a3a0"
+    },
+    {
+      "name": "hte-investigate-bug",
+      "lines": 22,
+      "sha256": "eb19679df07365207ae6bcec7672a17b537fdc962f657cff1de64bacd1b4334a"
+    },
+    {
+      "name": "hte-plan-task",
+      "lines": 24,
+      "sha256": "df5c22571a9abb2ed0e25bec0da25b140fb3aba95e1fbd1c5a37138b05115ec8"
+    },
+    {
+      "name": "hte-review-change",
+      "lines": 26,
+      "sha256": "2bdb231bc6806803c9ef57476a8d22f7e014cd8cae374ec2a87426c869b24c9a"
+    },
+    {
+      "name": "hte-validate-studio",
+      "lines": 25,
+      "sha256": "82def2bedc943a55fe31ac89a7c5911bba4375ab7ed45acd5945d3838937b829"
+    },
+    {
+      "name": "hte-verify-domain-math",
+      "lines": 22,
+      "sha256": "519c00e7439694c5f920d7cb1212ff99f5d581ca8ccba4fb5a0d6209f2859d71"
+    }
+  ],
+  "changedSkills": [
+    "hte-design-visuals",
+    "hte-review-change",
+    "hte-plan-task",
+    "hte-validate-studio"
+  ],
+  "changedDocs": [
+    "docs/workflow/SOURCE_ADAPTATION.md",
+    "docs/workflow/SKILLS_PLAN.md"
+  ],
+  "validation": "Required simple frontmatter fields and local Markdown targets checked without full YAML parser; no runtime or behavioral tests.",
+  "clientDiscoveryConfirmed": true,
+  "clientDiscoveryEvidence": "All seven project skills listed in developer-provided available skills catalogue in this session.",
+  "historicalReportsPreserved": true,
+  "gameImplementationStarted": false,
+  "studioStarted": false,
+  "balanceChanged": false,
+  "localLinksChecked": 536,
+  "brokenLocalLinks": [],
+  "documentationRevisionNote": "Wcześniejsze hashe i wyniki odnoszą się do wersji sprzed redakcji; nie stanowią bieżącego PASS."
+}

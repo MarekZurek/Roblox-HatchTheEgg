@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-23",
+  "scope": "Editorial cleanup of docs only",
+  "status": "PASS_STATIC_DOCUMENTATION_CHECKS",
+  "localTargetsChecked": 347,
+  "brokenLocalTargets": [],
+  "contentScan": "No matches for removed provenance markers in Markdown and JSON",
+  "balanceDocumentsWithUnchangedNumericTablesAndCodeBlocks": [
+    "17_pet_balance_draft.md",
+    "18_incubator_prices_and_acquisition_pacing.md",
+    "19_integrated_farm_progression_simulation.md",
+    "20_paying_player_balance_direction.md",
+    "21_payer_progression_and_incubation.md"
+  ],
+  "workingDataFilesUnchanged": 1604,
+  "implementationStarted": false,
+  "balanceCalibrationPerformed": false,
+  "backupStoredOutsideRepository": true,
+  "limitations": [
+    "No image OCR or image content audit performed.",
+    "No Git history rewrite or cleanup outside docs performed.",
+    "Earlier report hashes refer to earlier document versions."
+  ]
+}

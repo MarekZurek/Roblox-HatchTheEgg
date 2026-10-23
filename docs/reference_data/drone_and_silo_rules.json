@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "status": "REFERENCE_ONLY",
+  "productionConfigurationApproved": false,
+  "gameImplementationTested": false,
+  "struggleRatio": "100 * farmValue / normalPriceCurveIntegral(population)",
+  "struggleBands": [
+    {
+      "lowerInclusive": null,
+      "upperExclusive": 3,
+      "multiplier": 30
+    },
+    {
+      "lowerInclusive": 3,
+      "upperExclusive": 15,
+      "multiplier": 15
+    },
+    {
+      "lowerInclusive": 15,
+      "upperExclusive": 30,
+      "multiplier": 8
+    },
+    {
+      "lowerInclusive": 30,
+      "upperExclusive": 100,
+      "multiplier": 5
+    },
+    {
+      "lowerInclusive": 100,
+      "upperExclusive": 200,
+      "multiplier": 2
+    },
+    {
+      "lowerInclusive": 200,
+      "upperExclusive": 1000,
+      "multiplier": 1
+    },
+    {
+      "lowerInclusive": 1000,
+      "upperExclusive": 50000,
+      "multiplier": 0.75
+    },
+    {
+      "lowerInclusive": 50000,
+      "upperExclusive": 1000000,
+      "multiplier": 0.5
+    },
+    {
+      "lowerInclusive": 1000000,
+      "upperExclusive": null,
+      "multiplier": 0.25
+    }
+  ],
+  "smallPopulationException": {
+    "populationMaxInclusive": 100,
+    "multiplier": 0.10000000149011612,
+    "precision": "float32(0.1) converted to double"
+  },
+  "alternateModeException": {
+    "scope": "outside_v1",
+    "multiplier": 0.1,
+    "precision": "double"
+  },
+  "siloSeconds": {
+    "baseSeconds": 3600,
+    "secondsPerResearchLevel": 360
+  },
+  "productionLimit": "silosOwned * siloSeconds; slot entitlement is not the same as owned silos.",
+  "awayThresholdSecondsExclusive": 60,
+  "awayIncomeFactor": {
+    "withoutPro": 0.5,
+    "withPro": 1.0
+  }
+}

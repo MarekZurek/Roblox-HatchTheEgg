@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-23",
+  "status": "PASS_DOCUMENTATION_CHECKS",
+  "newWorkflowFiles": [
+    "IMPLEMENTATION_STAGES.md",
+    "README.md",
+    "SKILLS_PLAN.md",
+    "SOURCE_ADAPTATION.md",
+    "TASK_TEMPLATES.md",
+    "WORKFLOW.md",
+    "source_snapshot.json"
+  ],
+  "updatedExistingFiles": [
+    "docs/07_roblox_architecture_and_roadmap.md",
+    "docs/README.md",
+    "docs/TODO.md",
+    "docs/WORKING_CONTEXT.md",
+    "docs/ecc/README.md",
+    "docs/ecc/implementation_workflow_draft.md"
+  ],
+  "localLinksChecked": 485,
+  "introducedBrokenLocalLinks": [],
+  "preexistingOtherBrokenLinks": [],
+  "sourceFilesUnchanged": 19,
+  "libraryUnchanged": true,
+  "skillsActivated": false,
+  "gameTestsExecuted": false,
+  "studioStarted": false,
+  "sourceGitCommitVerified": false,
+  "documentationRevisionNote": "Wcześniejsze hashe i wyniki odnoszą się do wersji sprzed redakcji; nie stanowią bieżącego PASS."
+}

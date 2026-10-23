@@ -1,0 +1,65 @@
+# Równoległy backlog HatchTheEgg
+
+24.10.2026. **P — mapa dostarczania, bez implementacji.** Dokumenty i przygotowanie nie są kodem gry. Zgłoszenia implementacyjne pozostają planem: ich utworzenie nie zleca realizacji, chmury, zakupów lub publikacji. Bilans 17–21 pozostaje odłożony. Reguły pierwszej farmy: [31](31_research_hatching_rcb_and_new_account.md); typy/protokół: [27](27_numbers_time_and_player_state_contract.md), [28](28_modules_and_client_server_contract.md); plan odbioru: [29](29_first_farm_implementation_plan.md).
+
+## Zasady współpracy
+
+Każdy task ma jednego właściciela logicznego obszaru plików. Konsument zależy od wyniku interfejsu lub funkcji, nie od zakończenia całej fazy. Testowy port/fake pozwala rozwijać klienta, Gateway i koordynator niezależnie; zastąpienie go prawdziwym adapterem i sprawdzenie to osobne zadanie integracji. Nie modyfikować wspólnego DTO/codec w kilku taskach bez uzgodnienia właściciela i wersji. Nie zakładamy konkretnych agentów, modeli, branchy lub bibliotek.
+
+**Możliwe fale równoległe:**
+
+1. PRE-01 / PRE-02 / PRE-03: trzy niezależne projekty techniczne, bez kodowania.
+2. Po IMP-01: katalog IMP-02, DTO IMP-03 i zapis IMP-07 mogą powstawać niezależnie; każdy ma własny zakres.
+3. Po katalogu: produkcja/badania IMP-04, IHR IMP-05, wylęg/RCB IMP-06 i FV/SE NEXT-01 są czystymi funkcjami i nie czekają na serwer/koordynator/UI.
+4. Po DTO: ClientStore IMP-12, scena IMP-13 i UI IMP-14 mogą postępować obok serwera; UI używa testowego portu klienta i nie czeka na gotowe IMP-12. Gateway IMP-11 używa wstrzykniętych portów. Prawdziwe połączenie UI z IMP-12 sprawdza IMP-15.
+5. Timeline IMP-09 i koordynator IMP-08 mają różne zależności. Dopiero zakupy IMP-10 i integracja IMP-15 składają potrzebne wyniki. Nie dublować w nich logiki pure math.
+6. Po podstawowych portach niezależne nagrody NEXT-06/07/08 mogą mieć różnych właścicieli. Pełne efekty wymagają wspólnego wyniku NEXT-03; produkty integrują wyłącznie kupowaną korzyść.
+
+To plan równoległości, nie automatyczna delegacja. Wydanie nadal wymaga wznowienia i zatwierdzenia odłożonego bilansu na nowe polecenie; nie blokuje to logiki na jawnych fixture.
+
+## Rejestr zadań
+
+| ID | Rezultat | Zależności | Status |
+|---|---|---|---|
+| DOC-01 | Specyfikacja domeny i decyzje v1 | brak | Materiał dokumentacyjny wykonany |
+| DOC-02 | Kompletne dane referencyjne i kontrola integralności | brak | Materiał dokumentacyjny wykonany |
+| DOC-03 | Workflow i siedem skills projektu | brak | Materiał dokumentacyjny wykonany |
+| DOC-04 | Kontrakty 27–28: liczby, stan, moduły i komunikacja | brak | Materiał dokumentacyjny wykonany |
+| DOC-05 | Plan 29, manifest 30 i reguły pierwszej farmy 31 | brak | Materiał dokumentacyjny wykonany |
+| PRE-01 | Warsztat testów, źródła do Studio i dostawcy czasu | DOC-04, DOC-05 | Plan; bez zlecenia realizacji |
+| PRE-02 | Projekt adaptera sesji, retencji i odzyskiwania | DOC-04 | Plan; bez zlecenia realizacji |
+| PRE-03 | Kontrakt trasy i autorytatywnego dotarcia kur | DOC-05 | Plan; bez zlecenia realizacji |
+| IMP-01 | NumericCodec: kwoty, dokładne liczniki i serializacja | PRE-01 | Plan; bez zlecenia realizacji |
+| IMP-02 | CatalogRegistry: wybrany katalog pierwszej farmy | IMP-01 | Plan; bez zlecenia realizacji |
+| IMP-03 | Schematy DTO i walidacja protokołu | IMP-01 | Plan; bez zlecenia realizacji |
+| IMP-04 | FarmMath: Common, pojemność, produkcja i sprzedaż | IMP-02 | Plan; bez zlecenia realizacji |
+| IMP-05 | IHR: ułamki, wolne miejsca i sharing | IMP-02 | Plan; bez zlecenia realizacji |
+| IMP-06 | Ręczny wylęg, rezerwacje i aktywne RCB | IMP-02 | Plan; bez zlecenia realizacji |
+| IMP-07 | SessionRepository i bezpieczne odtworzenie profilu | IMP-01, PRE-02 | Plan; bez zlecenia realizacji |
+| IMP-08 | PlayerCoordinator: serializacja komend i właściciel stanu | IMP-07 | Plan; bez zlecenia realizacji |
+| IMP-09 | TimelineSimulation: online i neutralny powrót | IMP-04, IMP-05, IMP-06 | Plan; bez zlecenia realizacji |
+| IMP-10 | FarmActions: wyceny i pojedyncze zakupy | IMP-08, IMP-09 | Plan; bez zlecenia realizacji |
+| IMP-11 | NetworkGateway i projekcja autorytatywnego stanu | IMP-03, IMP-08 | Plan; bez zlecenia realizacji |
+| IMP-12 | ClientTransport i ClientStateStore | IMP-03 | Plan; bez zlecenia realizacji |
+| IMP-13 | Scena podstawowej farmy i prezentacja tras | PRE-03, IMP-03 | Plan; bez zlecenia realizacji |
+| IMP-14 | Minimalny HUD i kontrolery intencji | IMP-03 | Plan; bez zlecenia realizacji |
+| IMP-15 | Integracja pierwszej farmy i inicjalizacji | IMP-10, IMP-11, IMP-12, IMP-13, IMP-14 | Plan; bez zlecenia realizacji |
+| QA-01 | Odbiór pierwszej farmy A01–A16 | IMP-15 | Plan; bez zlecenia realizacji |
+| NEXT-01 | Czyste funkcje Farm Value i Soul Eggs | IMP-02 | Plan; bez zlecenia realizacji |
+| NEXT-02 | Zmiana jaja, prestiż i księgowanie sesji | NEXT-01, IMP-08, IMP-09 | Plan; bez zlecenia realizacji |
+| NEXT-03 | Pełne offline, boosty, VD i historia wydarzeń | IMP-08, IMP-09 | Plan; bez zlecenia realizacji |
+| NEXT-04 | Pety: ekwipunek, wyposażenie i składanie efektów | IMP-08, NEXT-03 | Plan; bez zlecenia realizacji |
+| NEXT-05 | Łączenie petów i trwała gwarancja | NEXT-04 | Plan; bez zlecenia realizacji |
+| NEXT-06 | Drony: uprawniony spawn, trafienie i jedna nagroda | IMP-08, NEXT-03 | Plan; bez zlecenia realizacji |
+| NEXT-07 | Paczki i oferty bonusowe 2+1 | IMP-08, NEXT-03 | Plan; bez zlecenia realizacji |
+| NEXT-08 | Kalendarz, trofea i konwersje nagród | IMP-08 | Plan; bez zlecenia realizacji |
+| NEXT-09 | Adapter produktów Pro, Buy MAX, GE i warunkowego Piggy | IMP-08, NEXT-02, NEXT-03, NEXT-05, NEXT-07 | Plan; bez zlecenia realizacji |
+| NEXT-10 | Onboarding i odzyskiwanie kroku samouczka | IMP-15, NEXT-08 | Plan; bez zlecenia realizacji |
+| REL-01 | Kandydat wydania: integracja i jawne bramki | QA-01, NEXT-02, NEXT-03, NEXT-04, NEXT-05, NEXT-06, NEXT-07, NEXT-08, NEXT-09, NEXT-10 | Plan; bez zlecenia realizacji |
+
+## Odbiór i stan publikacji
+
+DOC-* oznaczają wyłącznie istniejące materiały; zamknięte zgłoszenie nie jest zaliczeniem scenariuszy gry. Pozostałe zgłoszenia mają zawierać zakres zapisu, zależności i konkretne kryteria, z dowodem L/S/D/H stosownie do zadania. PRE-* pozostają dokumentacyjne. Nie przypisywać wykonawców ani uruchamiać kodowania samym opublikowaniem backlogu.
+
+Opublikowano 35 zadań oraz [plan nadrzędny #1](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/1). Numery, adresy i zależności zapisano w [rejestrze GitHub](workflow/github_task_registry.json). Pięć materiałów DOC-* zamknięto, 30 zadań pozostaje otwartych. To rejestr publikacji zgłoszeń, nie wynik implementacji. Zadania odłożonego bilansu i kontraktów kooperacyjnych nie są aktywowane tym dokumentem.
+

@@ -1,0 +1,79 @@
+{
+  "date": "2026-10-23",
+  "status": "PASS_STATIC_DATA_AND_DOCUMENT_CHECKS",
+  "comparison": "Selected fields compared with preserved data; floats compared as IEEE754 double bit patterns, with list ordering retained.",
+  "sourceDataIntegrityChecked": true,
+  "restoredDroneTableMatchesPreservedCopy": true,
+  "siloFormulaRestored": true,
+  "counts": {
+    "commonResearch": 56,
+    "epicResearch": 24,
+    "researchPurchasePrices": 2998,
+    "researchNonzeroEffectLevels": 2998,
+    "vehicles": 12,
+    "vehiclePriceEntries": 204,
+    "curvePoints": [
+      500,
+      500
+    ],
+    "rewardCategories": 17,
+    "calendarDays": 28,
+    "homeFarmProbabilityExamples": 9
+  },
+  "referenceOnly": true,
+  "releaseConfigurationApproved": false,
+  "unchangedBalanceDocuments": [
+    "17_pet_balance_draft.md",
+    "18_incubator_prices_and_acquisition_pacing.md",
+    "19_integrated_farm_progression_simulation.md",
+    "20_paying_player_balance_direction.md",
+    "21_payer_progression_and_incubation.md"
+  ],
+  "balanceDocumentsByteIdenticalToPreRepair": true,
+  "archiveModified": false,
+  "imagesModified": false,
+  "implementationStarted": false,
+  "simulationExecuted": false,
+  "gitHistoryModified": false,
+  "limitations": [
+    "No Luau or Studio execution.",
+    "Probability tables cover nine stated home-farm input sets, not every possible state.",
+    "Alternate curve and inactive categories do not extend v1.",
+    "Export is a reference dataset, not approved release balancing."
+  ],
+  "files": [
+    {
+      "path": "boosts.json",
+      "sha256": "5dc7c898abdc6760305d5f9c012e1bbaab149020ec36bdca8b7d4674b57036ab"
+    },
+    {
+      "path": "drone_and_silo_rules.json",
+      "sha256": "6fbe9208c2a352f535358b53991ccf16d8700f1fc4dbceff52f811a44bdf7ccb"
+    },
+    {
+      "path": "infrastructure.json",
+      "sha256": "34f0dcc09d0dc5157f0f228e079fc06ceab735fa19d2fa11c79a0ad3e0c8f89f"
+    },
+    {
+      "path": "price_curves.json",
+      "sha256": "27eda017b8cf023043a5069d4ec7f6600c5acb2b2261378df4530b7e4e444dad"
+    },
+    {
+      "path": "research.json",
+      "sha256": "682948b3989c2ab3e91bb2ea282eeda71424bce9fa2ad8b738d42780d38788ef"
+    },
+    {
+      "path": "reward_probability_examples.json",
+      "sha256": "3c943882fee725276a9ed7af17d468539bd5118722e0999e03a343c2d14c5a94"
+    },
+    {
+      "path": "rewards.json",
+      "sha256": "e645cd9f054c2c315d2998ea0807f94dd57eea983cde0e8d14b61365f125db75"
+    }
+  ],
+  "textFilesScanned": 77,
+  "localTargetsChecked": 411,
+  "brokenTargets": [],
+  "removedMarkerMatches": 0,
+  "newReferenceDataPrivatePathMatches": 0
+}

@@ -1,0 +1,12 @@
+*.apk
+*.so
+*.env
+.env
+.env.*
+*_private_archive*/
+analysis/
+backups/
+node_modules/
+.cline/
+.gemini/
+.codex/

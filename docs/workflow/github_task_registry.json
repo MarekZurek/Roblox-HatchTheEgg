@@ -1,0 +1,383 @@
+{
+  "date": "2026-10-24",
+  "repository": "MarekZurek/Roblox-HatchTheEgg",
+  "status": "ISSUES_PUBLISHED",
+  "implementationAuthorized": false,
+  "parentIssue": {
+    "number": 1,
+    "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/1"
+  },
+  "tasks": [
+    {
+      "id": "DOC-01",
+      "number": 2,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/2",
+      "title": "[DOC-01] Specyfikacja domeny i decyzje v1",
+      "state": "closed",
+      "dependencies": []
+    },
+    {
+      "id": "DOC-02",
+      "number": 3,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/3",
+      "title": "[DOC-02] Kompletne dane referencyjne i kontrola integralności",
+      "state": "closed",
+      "dependencies": []
+    },
+    {
+      "id": "DOC-03",
+      "number": 4,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/4",
+      "title": "[DOC-03] Workflow i siedem skills projektu",
+      "state": "closed",
+      "dependencies": []
+    },
+    {
+      "id": "DOC-04",
+      "number": 5,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/5",
+      "title": "[DOC-04] Kontrakty 27–28: liczby, stan, moduły i komunikacja",
+      "state": "closed",
+      "dependencies": []
+    },
+    {
+      "id": "DOC-05",
+      "number": 6,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/6",
+      "title": "[DOC-05] Plan 29, manifest 30 i reguły pierwszej farmy 31",
+      "state": "closed",
+      "dependencies": []
+    },
+    {
+      "id": "PRE-01",
+      "number": 7,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/7",
+      "title": "[PRE-01] Warsztat testów, źródła do Studio i dostawcy czasu",
+      "state": "open",
+      "dependencies": [
+        "DOC-04",
+        "DOC-05"
+      ]
+    },
+    {
+      "id": "PRE-02",
+      "number": 8,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/8",
+      "title": "[PRE-02] Projekt adaptera sesji, retencji i odzyskiwania",
+      "state": "open",
+      "dependencies": [
+        "DOC-04"
+      ]
+    },
+    {
+      "id": "PRE-03",
+      "number": 9,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/9",
+      "title": "[PRE-03] Kontrakt trasy i autorytatywnego dotarcia kur",
+      "state": "open",
+      "dependencies": [
+        "DOC-05"
+      ]
+    },
+    {
+      "id": "IMP-01",
+      "number": 10,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/10",
+      "title": "[IMP-01] NumericCodec: kwoty, dokładne liczniki i serializacja",
+      "state": "open",
+      "dependencies": [
+        "PRE-01"
+      ]
+    },
+    {
+      "id": "IMP-02",
+      "number": 11,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/11",
+      "title": "[IMP-02] CatalogRegistry: wybrany katalog pierwszej farmy",
+      "state": "open",
+      "dependencies": [
+        "IMP-01"
+      ]
+    },
+    {
+      "id": "IMP-03",
+      "number": 12,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/12",
+      "title": "[IMP-03] Schematy DTO i walidacja protokołu",
+      "state": "open",
+      "dependencies": [
+        "IMP-01"
+      ]
+    },
+    {
+      "id": "IMP-04",
+      "number": 13,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/13",
+      "title": "[IMP-04] FarmMath: Common, pojemność, produkcja i sprzedaż",
+      "state": "open",
+      "dependencies": [
+        "IMP-02"
+      ]
+    },
+    {
+      "id": "IMP-05",
+      "number": 14,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/14",
+      "title": "[IMP-05] IHR: ułamki, wolne miejsca i sharing",
+      "state": "open",
+      "dependencies": [
+        "IMP-02"
+      ]
+    },
+    {
+      "id": "IMP-06",
+      "number": 15,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/15",
+      "title": "[IMP-06] Ręczny wylęg, rezerwacje i aktywne RCB",
+      "state": "open",
+      "dependencies": [
+        "IMP-02"
+      ]
+    },
+    {
+      "id": "IMP-07",
+      "number": 16,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/16",
+      "title": "[IMP-07] SessionRepository i bezpieczne odtworzenie profilu",
+      "state": "open",
+      "dependencies": [
+        "IMP-01",
+        "PRE-02"
+      ]
+    },
+    {
+      "id": "IMP-08",
+      "number": 17,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/17",
+      "title": "[IMP-08] PlayerCoordinator: serializacja komend i właściciel stanu",
+      "state": "open",
+      "dependencies": [
+        "IMP-07"
+      ]
+    },
+    {
+      "id": "IMP-09",
+      "number": 18,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/18",
+      "title": "[IMP-09] TimelineSimulation: online i neutralny powrót",
+      "state": "open",
+      "dependencies": [
+        "IMP-04",
+        "IMP-05",
+        "IMP-06"
+      ]
+    },
+    {
+      "id": "IMP-10",
+      "number": 19,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/19",
+      "title": "[IMP-10] FarmActions: wyceny i pojedyncze zakupy",
+      "state": "open",
+      "dependencies": [
+        "IMP-08",
+        "IMP-09"
+      ]
+    },
+    {
+      "id": "IMP-11",
+      "number": 20,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/20",
+      "title": "[IMP-11] NetworkGateway i projekcja autorytatywnego stanu",
+      "state": "open",
+      "dependencies": [
+        "IMP-03",
+        "IMP-08"
+      ]
+    },
+    {
+      "id": "IMP-12",
+      "number": 21,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/21",
+      "title": "[IMP-12] ClientTransport i ClientStateStore",
+      "state": "open",
+      "dependencies": [
+        "IMP-03"
+      ]
+    },
+    {
+      "id": "IMP-13",
+      "number": 22,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/22",
+      "title": "[IMP-13] Scena podstawowej farmy i prezentacja tras",
+      "state": "open",
+      "dependencies": [
+        "PRE-03",
+        "IMP-03"
+      ]
+    },
+    {
+      "id": "IMP-14",
+      "number": 23,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/23",
+      "title": "[IMP-14] Minimalny HUD i kontrolery intencji",
+      "state": "open",
+      "dependencies": [
+        "IMP-03"
+      ]
+    },
+    {
+      "id": "IMP-15",
+      "number": 24,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/24",
+      "title": "[IMP-15] Integracja pierwszej farmy i inicjalizacji",
+      "state": "open",
+      "dependencies": [
+        "IMP-10",
+        "IMP-11",
+        "IMP-12",
+        "IMP-13",
+        "IMP-14"
+      ]
+    },
+    {
+      "id": "QA-01",
+      "number": 25,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/25",
+      "title": "[QA-01] Odbiór pierwszej farmy A01–A16",
+      "state": "open",
+      "dependencies": [
+        "IMP-15"
+      ]
+    },
+    {
+      "id": "NEXT-01",
+      "number": 26,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/26",
+      "title": "[NEXT-01] Czyste funkcje Farm Value i Soul Eggs",
+      "state": "open",
+      "dependencies": [
+        "IMP-02"
+      ]
+    },
+    {
+      "id": "NEXT-02",
+      "number": 27,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/27",
+      "title": "[NEXT-02] Zmiana jaja, prestiż i księgowanie sesji",
+      "state": "open",
+      "dependencies": [
+        "NEXT-01",
+        "IMP-08",
+        "IMP-09"
+      ]
+    },
+    {
+      "id": "NEXT-03",
+      "number": 28,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/28",
+      "title": "[NEXT-03] Pełne offline, boosty, VD i historia wydarzeń",
+      "state": "open",
+      "dependencies": [
+        "IMP-08",
+        "IMP-09"
+      ]
+    },
+    {
+      "id": "NEXT-04",
+      "number": 29,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/29",
+      "title": "[NEXT-04] Pety: ekwipunek, wyposażenie i składanie efektów",
+      "state": "open",
+      "dependencies": [
+        "IMP-08",
+        "NEXT-03"
+      ]
+    },
+    {
+      "id": "NEXT-05",
+      "number": 30,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/30",
+      "title": "[NEXT-05] Łączenie petów i trwała gwarancja",
+      "state": "open",
+      "dependencies": [
+        "NEXT-04"
+      ]
+    },
+    {
+      "id": "NEXT-06",
+      "number": 31,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/31",
+      "title": "[NEXT-06] Drony: uprawniony spawn, trafienie i jedna nagroda",
+      "state": "open",
+      "dependencies": [
+        "IMP-08",
+        "NEXT-03"
+      ]
+    },
+    {
+      "id": "NEXT-07",
+      "number": 32,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/32",
+      "title": "[NEXT-07] Paczki i oferty bonusowe 2+1",
+      "state": "open",
+      "dependencies": [
+        "IMP-08",
+        "NEXT-03"
+      ]
+    },
+    {
+      "id": "NEXT-08",
+      "number": 33,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/33",
+      "title": "[NEXT-08] Kalendarz, trofea i konwersje nagród",
+      "state": "open",
+      "dependencies": [
+        "IMP-08"
+      ]
+    },
+    {
+      "id": "NEXT-09",
+      "number": 34,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/34",
+      "title": "[NEXT-09] Adapter produktów Pro, Buy MAX, GE i warunkowego Piggy",
+      "state": "open",
+      "dependencies": [
+        "IMP-08",
+        "NEXT-02",
+        "NEXT-03",
+        "NEXT-05",
+        "NEXT-07"
+      ]
+    },
+    {
+      "id": "NEXT-10",
+      "number": 35,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/35",
+      "title": "[NEXT-10] Onboarding i odzyskiwanie kroku samouczka",
+      "state": "open",
+      "dependencies": [
+        "IMP-15",
+        "NEXT-08"
+      ]
+    },
+    {
+      "id": "REL-01",
+      "number": 36,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/36",
+      "title": "[REL-01] Kandydat wydania: integracja i jawne bramki",
+      "state": "open",
+      "dependencies": [
+        "QA-01",
+        "NEXT-02",
+        "NEXT-03",
+        "NEXT-04",
+        "NEXT-05",
+        "NEXT-06",
+        "NEXT-07",
+        "NEXT-08",
+        "NEXT-09",
+        "NEXT-10"
+      ]
+    }
+  ]
+}

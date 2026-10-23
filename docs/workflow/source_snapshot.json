@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-23",
+  "purpose": "Workflow adaptation; source project read only; no game implementation",
+  "sourceRoot": "local-source-workflow",
+  "sourceGitCommit": null,
+  "sourceGitCommitNote": "git rev-parse could not access the source directory; file hashes identify the inspected snapshot, no commit claimed",
+  "readingScope": "Selected workflow files and skill entrypoints; long pipeline/environment docs read in relevant sections, not an audit of the source game or every referenced script",
+  "sourceFiles": {
+    "AGENTS.md": "cad7e26fe81faf7167f120effab5f96b06d10984335140a638745ddc8bd5bc8a",
+    "CURRENT_PROJECT_AUTHORITY.md": "847064b02cfbcb64b0078d0cd12ad1094567d4a95b9558ad781670a478adf82e",
+    "CONFIG_RUNTIME_WORKFLOW.md": "d09e627315e915a134db7c16f1f9f8141a9ed82ee5121cba72b541b497c0aa97",
+    "DEVELOPMENT_ENVIRONMENT.md": "bfc7411ef6a03f357987f9148008648ab8bcc0fccba153875b273ff320fb1c47",
+    ".agent/WORKFLOW.md": "5693a6cf7912e9cfb08be9b23c5dde5cbfce9664ad680cea0c0fd2114f61f9b8",
+    ".agent/MODEL_ROUTING.md": "2669d70a39ca675b832eb7b21ea1b91d169697b11943302c107201c926727fdf",
+    ".agent/VALIDATION.md": "42da9dd0159a979e11e4434a24ce4a39a0ee5d43ec58258b591fe77a70c56cbe",
+    ".agent/NATIVE_QA.md": "82ff0bd185d4b89c76db3df40c053304b7a928d386ac7b7ef198c53eb5cc5c0b",
+    "implementation_pipeline/AGENTS.md": "1e9cd497558aa8910873f59b9f11c559b223177cdeb46c1359d1375622ec768b",
+    "implementation_pipeline/REVIEW_GATES.md": "a2f3d83c5ca5c2bcbd304e1e529f18e2a41a0fd55226d1dae9dea46bb82245d4",
+    "implementation_pipeline/TEST_STRATEGY.md": "dd3fe75795293b3c951e8f7701b56a3c5433799c12305519d488037bb0ced867",
+    ".agents/skills/bug-investigator/SKILL.md": "7e44401a6f89f4204bf8bf2b0d55072fa5ac797a2b986f1fce078f0f143c2f86",
+    ".agents/skills/canonical-auditor/SKILL.md": "8702f22ef648240a40a81f979c154f0455317211fab7a0e763878af391f2cc74",
+    ".agents/skills/code-reviewer/SKILL.md": "7a3fce2f7a0467f969093c71ce08bbaf49d8a2131f59c48ac38f9dd8ec4ca7c1",
+    ".agents/skills/implementation-planner/SKILL.md": "842d45d3f97fec27b069852a84f77a694702bb885de6e86ffdb539e67e4f14b1",
+    ".agents/skills/roblox-qa-sentinel/SKILL.md": "d2ba7dcd907904d19bc6b49d2eb7016380c0d35820d275c937405f79a1798add",
+    ".agents/skills/roblox-studio-validator/SKILL.md": "785186b6b9047280cc9e10bd7ee4d402c2f74d2bda31c2d8c7d9bb8d9a926897",
+    ".agents/skills/tycoon-integrity-guard/SKILL.md": "fd3d3096434953c6ee7027b6f3a8cdf401966dc70843147dc93be54a6c19f7d8",
+    ".agents/skills/visual-designer/SKILL.md": "466bc55c38fe40f8053688a389cb3600237dd38e860fc5e6b4b224824d74d2fa"
+  },
+  "eccFiles": {
+    "docs/ecc/adaptations/adr_template_and_guide.md": "ce3a8c6d9f878233f4dfb6587d72d4ba7e62e579a6f3d7fad8ef03c7c0fee6a7",
+    "docs/ecc/adaptations/context_continuity_and_handoff.md": "a3bd598df76c03938b49538ca095e1b33e19d0486e8584599b0d9803c880c867",
+    "docs/ecc/adaptations/datastore_migration_and_session_lock.md": "ae7240e96e12fd976cb5095c6e028f88ee0df373e22d71a4ffa1c3ce504cd09b",
+    "docs/ecc/adaptations/error_handling_and_result_pattern.md": "0fe37dcfe88a7c5a02336ff4e3c599e15389426c1de46ef677aacfe04f38f45d",
+    "docs/ecc/adaptations/hexagonal_luau_architecture.md": "527f7db37437e40fd1a56b4101a1d7bba74e501f12bd8d49469ddf6c8c250beb",
+    "docs/ecc/adaptations/reference_testing_and_verification.md": "f98a239f28c77c38ad7931930ac60c5d0581245210dbb9816fc18fd65045b96e",
+    "docs/ecc/adaptations/server_validation_and_security_checklist.md": "cde3c93e9bdcab82cc4e81b8602b2dbfb70e6a867b5e5545aac5581d1b251ee5",
+    "docs/ecc/implementation_workflow_draft.md": "77c7414fb7a5fe9349cf5efdaeea6b83f59a8e5fc1acd18dc4b3d5b1429291ec",
+    "docs/ecc/README.md": "9f66d5b231ef0f46f5cc05ba109c857a3fd07ff948d1e6e85dcab1c6c2cd75d4",
+    "docs/ecc/selection.md": "be36f17c80fd9775e46f28dd6f79c02a2bc1b3da085e5311f850fa7b0dbb5698",
+    "docs/ecc/source_manifest.md": "c1a5278965ba326a246b5d4d92f1e3fd539e96ef87674777a2ffaf753586db20"
+  },
+  "baselineFiles": {
+    "docs/07_roblox_architecture_and_roadmap.md": "d32bc511c334a5ad26fde38a65b7ac0c57b50c7075db551a69668787ebbb5ee8",
+    "docs/WORKING_CONTEXT.md": "5e164e0bd2a92dd016ccd815cc1d80d6759c0cf3bba7222cac9620fcc1030465",
+    "docs/TODO.md": "6d13b254e8d1b597d7016f55a0ce7d96a48973bd46aa1a05988ac51b8fdbf88d",
+    "docs/README.md": "5946db0f69458d63d6aaa1cd1604758c97521d39a05b9a6685385bd3e251693e"
+  },
+  "constraints": {
+    "sourceUnchanged": true,
+    "gameImplemented": false,
+    "skillsInstalledOrActivated": false,
+    "balanceResumed": false
+  },
+  "documentationRevisionNote": "Wcześniejsze hashe i wyniki odnoszą się do wersji sprzed redakcji; nie stanowią bieżącego PASS."
+}

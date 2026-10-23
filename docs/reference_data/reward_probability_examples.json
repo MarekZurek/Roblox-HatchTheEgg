@@ -1,0 +1,862 @@
+{
+  "schemaVersion": 1,
+  "status": "REFERENCE_ONLY",
+  "productionConfigurationApproved": false,
+  "gameImplementationTested": false,
+  "chanceInputs": {
+    "goldChance": 1,
+    "cashChance": 1,
+    "goldGuaranteed": false,
+    "cashGuaranteed": false
+  },
+  "scope": "Home-farm reference examples only; other inputs require the documented filtering and weight calculation.",
+  "tables": [
+    {
+      "mu": 0.0,
+      "population": 100,
+      "capacity": 1000,
+      "mode": "packageNoGold",
+      "totalFloat32": 1.0399999618530273,
+      "items": [
+        {
+          "id": "ge_half_dozen",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_carton",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_four_dozen",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_box",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_crate",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "big_crate",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "cash_stack",
+          "weight": 0.5,
+          "probability": 0.4807692242940591
+        },
+        {
+          "id": "cash_pile",
+          "weight": 0.30000001192092896,
+          "probability": 0.288461546038867
+        },
+        {
+          "id": "cash_ton",
+          "weight": 0.019999999552965164,
+          "probability": 0.01923076854192118
+        },
+        {
+          "id": "shell_script_small",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "shell_script_big",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "chicken_box",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "chicken_box_large",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "boost_regular",
+          "weight": 0.20000000298023224,
+          "probability": 0.19230769258323152
+        },
+        {
+          "id": "boost_rare",
+          "weight": 0.019999999552965164,
+          "probability": 0.01923076854192118
+        },
+        {
+          "id": "boost_epic",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "boost_token",
+          "weight": 0.0,
+          "probability": 0.0
+        }
+      ]
+    },
+    {
+      "mu": 0.0,
+      "population": 100,
+      "capacity": 1000,
+      "mode": "package",
+      "totalFloat32": 1.8399999141693115,
+      "items": [
+        {
+          "id": "ge_half_dozen",
+          "weight": 0.10000000149011612,
+          "probability": 0.0543478266811368
+        },
+        {
+          "id": "ge_carton",
+          "weight": 0.44999998807907104,
+          "probability": 0.24456520994204417
+        },
+        {
+          "id": "ge_four_dozen",
+          "weight": 0.20000000298023224,
+          "probability": 0.1086956533622736
+        },
+        {
+          "id": "ge_box",
+          "weight": 0.05000000074505806,
+          "probability": 0.0271739133405684
+        },
+        {
+          "id": "ge_crate",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "big_crate",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "cash_stack",
+          "weight": 0.5,
+          "probability": 0.27173912935645544
+        },
+        {
+          "id": "cash_pile",
+          "weight": 0.30000001192092896,
+          "probability": 0.16304348409263897
+        },
+        {
+          "id": "cash_ton",
+          "weight": 0.019999999552965164,
+          "probability": 0.010869564931304504
+        },
+        {
+          "id": "shell_script_small",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "shell_script_big",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "chicken_box",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "chicken_box_large",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "boost_regular",
+          "weight": 0.20000000298023224,
+          "probability": 0.1086956533622736
+        },
+        {
+          "id": "boost_rare",
+          "weight": 0.019999999552965164,
+          "probability": 0.010869564931304504
+        },
+        {
+          "id": "boost_epic",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "boost_token",
+          "weight": 0.0,
+          "probability": 0.0
+        }
+      ]
+    },
+    {
+      "mu": 0.0,
+      "population": 100,
+      "capacity": 1000,
+      "mode": "video",
+      "totalFloat32": 1.0800000429153442,
+      "items": [
+        {
+          "id": "ge_half_dozen",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_carton",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_four_dozen",
+          "weight": 0.20000000298023224,
+          "probability": 0.1851851834605138
+        },
+        {
+          "id": "ge_box",
+          "weight": 0.18000000715255737,
+          "probability": 0.16666666925367377
+        },
+        {
+          "id": "ge_crate",
+          "weight": 0.019999999552965164,
+          "probability": 0.01851851765618282
+        },
+        {
+          "id": "big_crate",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "cash_stack",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "cash_pile",
+          "weight": 0.20000000298023224,
+          "probability": 0.1851851834605138
+        },
+        {
+          "id": "cash_ton",
+          "weight": 0.30000001192092896,
+          "probability": 0.27777778208945625
+        },
+        {
+          "id": "shell_script_small",
+          "weight": 0.05000000074505806,
+          "probability": 0.04629629586512845
+        },
+        {
+          "id": "shell_script_big",
+          "weight": 0.009999999776482582,
+          "probability": 0.00925925882809141
+        },
+        {
+          "id": "chicken_box",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "chicken_box_large",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "boost_regular",
+          "weight": 0.10000000149011612,
+          "probability": 0.0925925917302569
+        },
+        {
+          "id": "boost_rare",
+          "weight": 0.019999999552965164,
+          "probability": 0.01851851765618282
+        },
+        {
+          "id": "boost_epic",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "boost_token",
+          "weight": 0.0,
+          "probability": 0.0
+        }
+      ]
+    },
+    {
+      "mu": 0.5,
+      "population": 100,
+      "capacity": 1000,
+      "mode": "packageNoGold",
+      "totalFloat32": 0.8454999923706055,
+      "items": [
+        {
+          "id": "ge_half_dozen",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_carton",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_four_dozen",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_box",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_crate",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "big_crate",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "cash_stack",
+          "weight": 0.25,
+          "probability": 0.29568302983127254
+        },
+        {
+          "id": "cash_pile",
+          "weight": 0.32499998807907104,
+          "probability": 0.38438792468138877
+        },
+        {
+          "id": "cash_ton",
+          "weight": 0.08500000089406967,
+          "probability": 0.10053223120007759
+        },
+        {
+          "id": "shell_script_small",
+          "weight": 0.004999999888241291,
+          "probability": 0.005913660464444836
+        },
+        {
+          "id": "shell_script_big",
+          "weight": 0.0005000000237487257,
+          "probability": 0.0005913660877509257
+        },
+        {
+          "id": "chicken_box",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "chicken_box_large",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "boost_regular",
+          "weight": 0.15000000596046448,
+          "probability": 0.17740982494839633
+        },
+        {
+          "id": "boost_rare",
+          "weight": 0.029999999329447746,
+          "probability": 0.03548196278666902
+        },
+        {
+          "id": "boost_epic",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "boost_token",
+          "weight": 0.0,
+          "probability": 0.0
+        }
+      ]
+    },
+    {
+      "mu": 0.5,
+      "population": 100,
+      "capacity": 1000,
+      "mode": "package",
+      "totalFloat32": 1.4464999437332153,
+      "items": [
+        {
+          "id": "ge_half_dozen",
+          "weight": 0.05000000074505806,
+          "probability": 0.03456619510209332
+        },
+        {
+          "id": "ge_carton",
+          "weight": 0.22499999403953552,
+          "probability": 0.15554787152096447
+        },
+        {
+          "id": "ge_four_dozen",
+          "weight": 0.22499999403953552,
+          "probability": 0.15554787152096447
+        },
+        {
+          "id": "ge_box",
+          "weight": 0.09000000357627869,
+          "probability": 0.06221915272899729
+        },
+        {
+          "id": "ge_crate",
+          "weight": 0.009999999776482582,
+          "probability": 0.006913238762880446
+        },
+        {
+          "id": "big_crate",
+          "weight": 0.0010000000474974513,
+          "probability": 0.0006913239245764605
+        },
+        {
+          "id": "cash_stack",
+          "weight": 0.25,
+          "probability": 0.17283097293508443
+        },
+        {
+          "id": "cash_pile",
+          "weight": 0.32499998807907104,
+          "probability": 0.22468025657438676
+        },
+        {
+          "id": "cash_ton",
+          "weight": 0.08500000089406967,
+          "probability": 0.058762531416020426
+        },
+        {
+          "id": "shell_script_small",
+          "weight": 0.004999999888241291,
+          "probability": 0.003456619381440223
+        },
+        {
+          "id": "shell_script_big",
+          "weight": 0.0005000000237487257,
+          "probability": 0.00034566196228823026
+        },
+        {
+          "id": "chicken_box",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "chicken_box_large",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "boost_regular",
+          "weight": 0.15000000596046448,
+          "probability": 0.10369858788166215
+        },
+        {
+          "id": "boost_rare",
+          "weight": 0.029999999329447746,
+          "probability": 0.020739716288641335
+        },
+        {
+          "id": "boost_epic",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "boost_token",
+          "weight": 0.0,
+          "probability": 0.0
+        }
+      ]
+    },
+    {
+      "mu": 0.5,
+      "population": 100,
+      "capacity": 1000,
+      "mode": "video",
+      "totalFloat32": 1.3299998044967651,
+      "items": [
+        {
+          "id": "ge_half_dozen",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_carton",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_four_dozen",
+          "weight": 0.10000000149011612,
+          "probability": 0.07518797225193388
+        },
+        {
+          "id": "ge_box",
+          "weight": 0.26499998569488525,
+          "probability": 0.19924811274287083
+        },
+        {
+          "id": "ge_crate",
+          "weight": 0.10999999940395355,
+          "probability": 0.08270676779654515
+        },
+        {
+          "id": "big_crate",
+          "weight": 0.02500000037252903,
+          "probability": 0.01879699306298347
+        },
+        {
+          "id": "cash_stack",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "cash_pile",
+          "weight": 0.17499999701976776,
+          "probability": 0.131578947239429
+        },
+        {
+          "id": "cash_ton",
+          "weight": 0.4749999940395355,
+          "probability": 0.35714285839329024
+        },
+        {
+          "id": "shell_script_small",
+          "weight": 0.05000000074505806,
+          "probability": 0.03759398612596694
+        },
+        {
+          "id": "shell_script_big",
+          "weight": 0.019999999552965164,
+          "probability": 0.015037593890192737
+        },
+        {
+          "id": "chicken_box",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "chicken_box_large",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "boost_regular",
+          "weight": 0.054999999701976776,
+          "probability": 0.041353383898272575
+        },
+        {
+          "id": "boost_rare",
+          "weight": 0.05000000074505806,
+          "probability": 0.03759398612596694
+        },
+        {
+          "id": "boost_epic",
+          "weight": 0.004999999888241291,
+          "probability": 0.0037593984725481843
+        },
+        {
+          "id": "boost_token",
+          "weight": 0.0,
+          "probability": 0.0
+        }
+      ]
+    },
+    {
+      "mu": 1.0,
+      "population": 100,
+      "capacity": 1000,
+      "mode": "packageNoGold",
+      "totalFloat32": 0.6510000228881836,
+      "items": [
+        {
+          "id": "ge_half_dozen",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_carton",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_four_dozen",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_box",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_crate",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "big_crate",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "cash_stack",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "cash_pile",
+          "weight": 0.3499999940395355,
+          "probability": 0.5376343990994084
+        },
+        {
+          "id": "cash_ton",
+          "weight": 0.15000000596046448,
+          "probability": 0.23041475555097415
+        },
+        {
+          "id": "shell_script_small",
+          "weight": 0.009999999776482582,
+          "probability": 0.015360982749662922
+        },
+        {
+          "id": "shell_script_big",
+          "weight": 0.0010000000474974513,
+          "probability": 0.0015360983822615196
+        },
+        {
+          "id": "chicken_box",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "chicken_box_large",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "boost_regular",
+          "weight": 0.10000000149011612,
+          "probability": 0.15360983321904134
+        },
+        {
+          "id": "boost_rare",
+          "weight": 0.03999999910593033,
+          "probability": 0.06144393099865169
+        },
+        {
+          "id": "boost_epic",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "boost_token",
+          "weight": 0.0,
+          "probability": 0.0
+        }
+      ]
+    },
+    {
+      "mu": 1.0,
+      "population": 100,
+      "capacity": 1000,
+      "mode": "package",
+      "totalFloat32": 1.0529998540878296,
+      "items": [
+        {
+          "id": "ge_half_dozen",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_carton",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_four_dozen",
+          "weight": 0.25,
+          "probability": 0.23741690514335315
+        },
+        {
+          "id": "ge_box",
+          "weight": 0.12999999523162842,
+          "probability": 0.12345678614617554
+        },
+        {
+          "id": "ge_crate",
+          "weight": 0.019999999552965164,
+          "probability": 0.01899335198693374
+        },
+        {
+          "id": "big_crate",
+          "weight": 0.0020000000949949026,
+          "probability": 0.0018993353313604083
+        },
+        {
+          "id": "cash_stack",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "cash_pile",
+          "weight": 0.3499999940395355,
+          "probability": 0.3323836615402343
+        },
+        {
+          "id": "cash_ton",
+          "weight": 0.15000000596046448,
+          "probability": 0.14245014874647202
+        },
+        {
+          "id": "shell_script_small",
+          "weight": 0.009999999776482582,
+          "probability": 0.00949667599346687
+        },
+        {
+          "id": "shell_script_big",
+          "weight": 0.0010000000474974513,
+          "probability": 0.0009496676656802042
+        },
+        {
+          "id": "chicken_box",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "chicken_box_large",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "boost_regular",
+          "weight": 0.10000000149011612,
+          "probability": 0.09496676347245629
+        },
+        {
+          "id": "boost_rare",
+          "weight": 0.03999999910593033,
+          "probability": 0.03798670397386748
+        },
+        {
+          "id": "boost_epic",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "boost_token",
+          "weight": 0.0,
+          "probability": 0.0
+        }
+      ]
+    },
+    {
+      "mu": 1.0,
+      "population": 100,
+      "capacity": 1000,
+      "mode": "video",
+      "totalFloat32": 1.5799999237060547,
+      "items": [
+        {
+          "id": "ge_half_dozen",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_carton",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_four_dozen",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "ge_box",
+          "weight": 0.3499999940395355,
+          "probability": 0.22151898669263687
+        },
+        {
+          "id": "ge_crate",
+          "weight": 0.20000000298023224,
+          "probability": 0.12658228215198455
+        },
+        {
+          "id": "big_crate",
+          "weight": 0.05000000074505806,
+          "probability": 0.03164557053799614
+        },
+        {
+          "id": "cash_stack",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "cash_pile",
+          "weight": 0.15000000596046448,
+          "probability": 0.09493671397176713
+        },
+        {
+          "id": "cash_ton",
+          "weight": 0.6499999761581421,
+          "probability": 0.4113923957739415
+        },
+        {
+          "id": "shell_script_small",
+          "weight": 0.05000000074505806,
+          "probability": 0.03164557053799614
+        },
+        {
+          "id": "shell_script_big",
+          "weight": 0.029999999329447746,
+          "probability": 0.018987341615464073
+        },
+        {
+          "id": "chicken_box",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "chicken_box_large",
+          "weight": 0.0,
+          "probability": 0.0
+        },
+        {
+          "id": "boost_regular",
+          "weight": 0.009999999776482582,
+          "probability": 0.006329113871821358
+        },
+        {
+          "id": "boost_rare",
+          "weight": 0.07999999821186066,
+          "probability": 0.050632910974570865
+        },
+        {
+          "id": "boost_epic",
+          "weight": 0.009999999776482582,
+          "probability": 0.006329113871821358
+        },
+        {
+          "id": "boost_token",
+          "weight": 0.0,
+          "probability": 0.0
+        }
+      ]
+    }
+  ],
+  "precision": "Stored float32 weights and totals can make the displayed probability sum differ slightly from one. Do not re-normalize or round these fixtures during import."
+}

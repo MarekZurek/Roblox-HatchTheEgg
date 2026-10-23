@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-23",
+  "status": "PASS_LOCAL_STRUCTURE_AND_LINK_CHECKS",
+  "skills": [
+    {
+      "name": "hte-check-economy-state",
+      "frontmatter": "PASS_SIMPLE_TWO_SCALAR_YAML_CHECK",
+      "lines": 23,
+      "sha256": "75817c71a655662472352348e60f654238e23498b89c2129201b08e420b2479d"
+    },
+    {
+      "name": "hte-design-visuals",
+      "frontmatter": "PASS_SIMPLE_TWO_SCALAR_YAML_CHECK",
+      "lines": 20,
+      "sha256": "e36cd22cfa81faad0f166adff24b56f4e346cd7f67bb56579a8dad30c02e50da"
+    },
+    {
+      "name": "hte-investigate-bug",
+      "frontmatter": "PASS_SIMPLE_TWO_SCALAR_YAML_CHECK",
+      "lines": 22,
+      "sha256": "eb19679df07365207ae6bcec7672a17b537fdc962f657cff1de64bacd1b4334a"
+    },
+    {
+      "name": "hte-plan-task",
+      "frontmatter": "PASS_SIMPLE_TWO_SCALAR_YAML_CHECK",
+      "lines": 22,
+      "sha256": "5d036b027bd784dea5413493dca9028123e27ac24e8a8303ec081f7be4d081cd"
+    },
+    {
+      "name": "hte-review-change",
+      "frontmatter": "PASS_SIMPLE_TWO_SCALAR_YAML_CHECK",
+      "lines": 22,
+      "sha256": "b0ef37755f7d8a4192b730b94da7a379d046e2c98225577bf8db1d5a7bfbf2cf"
+    },
+    {
+      "name": "hte-validate-studio",
+      "frontmatter": "PASS_SIMPLE_TWO_SCALAR_YAML_CHECK",
+      "lines": 23,
+      "sha256": "cfad5f9b5ffbda033e061c188d3eafa0bb0dc5970e9c56fe8f7a0017a8af8091"
+    },
+    {
+      "name": "hte-verify-domain-math",
+      "frontmatter": "PASS_SIMPLE_TWO_SCALAR_YAML_CHECK",
+      "lines": 22,
+      "sha256": "519c00e7439694c5f920d7cb1212ff99f5d581ca8ccba4fb5a0d6209f2859d71"
+    }
+  ],
+  "updatedDocs": [
+    "docs/README.md",
+    "docs/TODO.md",
+    "docs/WORKING_CONTEXT.md",
+    "docs/ecc/README.md",
+    "docs/workflow/README.md",
+    "docs/workflow/SKILLS_PLAN.md",
+    "docs/workflow/WORKFLOW.md"
+  ],
+  "sourceWorkflowFilesUnchanged": 19,
+  "standardQuickValidator": {
+    "status": "BLOCKED_MISSING_DEPENDENCY",
+    "attempted": true,
+    "reason": "ModuleNotFoundError: yaml (PyYAML)",
+    "dependencyInstalled": false
+  },
+  "alternativeValidation": "Names and required fields checked; simple two-scalar YAML frontmatter syntax inspected without a full YAML parser. Local Markdown targets checked; anchors not checked.",
+  "scriptsOrHooksInstalled": false,
+  "globalConfigurationChanged": false,
+  "gameImplementationStarted": false,
+  "studioStarted": false,
+  "delegationStarted": false,
+  "clientDiscoveryConfirmed": false,
+  "behavioralForwardTestsExecuted": false,
+  "localLinksChecked": 511,
+  "brokenLocalLinks": [],
+  "documentationRevisionNote": "Wcześniejsze hashe i wyniki odnoszą się do wersji sprzed redakcji; nie stanowią bieżącego PASS."
+}

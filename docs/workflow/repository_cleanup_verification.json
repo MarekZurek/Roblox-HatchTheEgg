@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-23",
+  "status": "PASS_FILE_INTEGRITY_AND_STATIC_CHECKS",
+  "archivedFiles": 8078,
+  "archivedBytes": 793386404,
+  "archiveHashVerification": "All files match pre-move SHA256 and byte counts; no missing or extra files in moved entries.",
+  "privateArchiveStoredOutsideProject": true,
+  "preCleanupDocsAndSkillsSnapshotStoredOutsideProject": true,
+  "balanceDocumentsByteIdenticalToPreCleanupSnapshot": true,
+  "gameImplementationStarted": false,
+  "balanceCalibrationPerformed": false,
+  "gitHistoryRewritten": false,
+  "rootGitMetadataPresent": false,
+  "nestedRepositoryMetadataPreservedInPrivateArchive": true,
+  "limitations": [
+    "Content and structure checks do not test game behavior.",
+    "Earlier verification hashes describe previous versions.",
+    "No claim about removal of historical Git objects."
+  ],
+  "textFilesScanned": 68,
+  "contentScanMatches": [],
+  "localTargetsChecked": 375,
+  "brokenLocalTargets": [],
+  "skills": [
+    {
+      "name": "hte-check-economy-state",
+      "sha256": "5e6ead3b85c1bdd8c85451f0c57e45133fba0a0e1a8956098df34580e0a16dd1",
+      "lines": 23
+    },
+    {
+      "name": "hte-design-visuals",
+      "sha256": "8223e9f7f68de2f6debf12533b30be87be598e3ee3cbff392959c3ee5d6aa201",
+      "lines": 22
+    },
+    {
+      "name": "hte-investigate-bug",
+      "sha256": "57ab16e5d30f64ace2cf861655da163178960e8371eb9b9169cca010742cdcf6",
+      "lines": 22
+    },
+    {
+      "name": "hte-plan-task",
+      "sha256": "c3fd975f008b90db9a10a398ec35e33cb8daa91006e323cd2320ec58ed5ab6c9",
+      "lines": 24
+    },
+    {
+      "name": "hte-review-change",
+      "sha256": "5b3217bbf7521a067e414748af6daab73095f4a5a0a6280a09fa43206302c06e",
+      "lines": 26
+    },
+    {
+      "name": "hte-validate-studio",
+      "sha256": "07f9ed594eeb961f5324255367d0004eadb940634661f2c31db897afc87b3012",
+      "lines": 25
+    },
+    {
+      "name": "hte-verify-domain-math",
+      "sha256": "2f0be74a28aeacdf62f82b863b80374638fc0bba642da2a0f2a100df8927b075",
+      "lines": 22
+    }
+  ],
+  "frontmatterValidation": "Simple two-scalar frontmatter fields checked locally; no full YAML parser used.",
+  "imageInspection": {
+    "files": [
+      "docs/ui/roblox_avatar_farm_view.png",
+      "docs/ui/roblox_habitats_modal.png",
+      "docs/ui/roblox_inworld_coop_interaction.png",
+      "docs/ui/roblox_research_terminal_view.png"
+    ],
+    "visualReview": "No removed brand or provenance text observed in four mockups.",
+    "embeddedTextAndExifChunksPresent": false,
+    "imagesModified": false
+  }
+}
