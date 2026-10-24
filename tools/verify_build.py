@@ -35,7 +35,7 @@ def main():
                  "FarmMath/hatching_rcb", "FarmMath/PopulationMath",
                  "FarmMath/fv_se",
                  "PlayerCoordinator", "TimelineSimulation", "FarmActions",
-                 "ProgressActions", "EffectsManager",
+                 "ProgressActions", "EffectsManager", "pets/equipment",
                  "ViewProjector", "NetworkGateway", "Bootstrap"):
         assert private + name in modules, name
     for name in ("ClientTransport", "ClientStateStore", "RoutePresentation",
