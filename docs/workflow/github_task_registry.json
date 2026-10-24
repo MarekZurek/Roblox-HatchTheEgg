@@ -596,11 +596,12 @@
                       "number":  46,
                       "url":  "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/46",
                       "title":  "[PROD-04] Produkcyjna integracja chmury Roblox DataStoreService i blokowanie sesji",
-                      "state":  "open",
+                      "state":  "closed",
                       "dependencies":  [
                                            "PROD-01",
                                            "PROD-02"
-                                       ]
+                                       ],
+                      "deliveryStatus":  "VERIFIED_PASS"
                   },
                   {
                       "id":  "PROD-05",
