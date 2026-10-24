@@ -44,6 +44,10 @@ local HUD = resolve(function()
 	return script.Parent.HUD
 end, "./HUD")
 
+local AudioController = resolve(function()
+	return script.Parent.AudioController
+end, "./AudioController")
+
 local ClientBootstrap = {}
 ClientBootstrap.__index = ClientBootstrap
 
@@ -53,6 +57,12 @@ function ClientBootstrap.new(deps)
 	local codec = deps.codec or NumericCodec
 	local protocol = deps.protocol or ProtocolSchemas.new(codec)
 	local playerId = deps.playerId or "1"
+
+	local audioController = deps.audioController or AudioController.new({
+		sfxVolume = deps.sfxVolume,
+		bgmVolume = deps.bgmVolume,
+		muted = deps.muted,
+	})
 
 	local transport = deps.transport or ClientTransport.new({
 		protocol = protocol,
@@ -83,6 +93,7 @@ function ClientBootstrap.new(deps)
 		intentControllers = intentControllers,
 		codec = codec,
 		guiRoot = deps.guiRoot,
+		audioController = audioController,
 	})
 
 	local self = setmetatable({
@@ -94,6 +105,7 @@ function ClientBootstrap.new(deps)
 		intentControllers = intentControllers,
 		routePresentation = routePresentation,
 		hud = hud,
+		audioController = audioController,
 		wire = deps.wire,
 		onClaimDailyGift = deps.onClaimDailyGift,
 		onClaimTrophy = deps.onClaimTrophy,
@@ -206,6 +218,9 @@ end
 ClientBootstrap.start = ClientBootstrap.connect
 
 function ClientBootstrap:hatchPress(callback)
+	if self.audioController and type(self.audioController.playSFX) == "function" then
+		self.audioController:playSFX("cluck")
+	end
 	self._localHatchSerial += 1
 	local localId = "hatch-press-" .. tostring(self._localHatchSerial)
 	local nowMs = self.stateStore:getServerObservedAt() or 1000000
@@ -290,6 +305,9 @@ function ClientBootstrap:buyVehicle(slotId, vehicleId, callback)
 end
 
 function ClientBootstrap:upgradeEgg(targetEggIndex, callback)
+	if self.audioController and type(self.audioController.playSFX) == "function" then
+		self.audioController:playSFX("fanfare")
+	end
 	if not self.stateStore:isReady() then
 		if callback then callback({ status = "REJECTED", errorCode = "SESSION_NOT_READY" }) end
 		return nil, "SESSION_NOT_READY"
@@ -304,6 +322,9 @@ function ClientBootstrap:upgradeEgg(targetEggIndex, callback)
 end
 
 function ClientBootstrap:claimDailyGift(callback)
+	if self.audioController and type(self.audioController.playSFX) == "function" then
+		self.audioController:playSFX("fanfare")
+	end
 	if type(self.onClaimDailyGift) == "function" then
 		return self.onClaimDailyGift(callback)
 	end
@@ -313,6 +334,9 @@ function ClientBootstrap:claimDailyGift(callback)
 end
 
 function ClientBootstrap:claimTrophy(eggIndex, tierIndex, callback)
+	if self.audioController and type(self.audioController.playSFX) == "function" then
+		self.audioController:playSFX("fanfare")
+	end
 	if type(self.onClaimTrophy) == "function" then
 		return self.onClaimTrophy(eggIndex, tierIndex, callback)
 	end
@@ -322,6 +346,9 @@ function ClientBootstrap:claimTrophy(eggIndex, tierIndex, callback)
 end
 
 function ClientBootstrap:fusePets(basePetId, materialIds, callback)
+	if self.audioController and type(self.audioController.playSFX) == "function" then
+		self.audioController:playSFX("fanfare")
+	end
 	if type(self.onFusePets) == "function" then
 		return self.onFusePets(basePetId, materialIds, callback)
 	end
@@ -331,6 +358,9 @@ function ClientBootstrap:fusePets(basePetId, materialIds, callback)
 end
 
 function ClientBootstrap:equipPet(petId, slotIndex, callback)
+	if self.audioController and type(self.audioController.playSFX) == "function" then
+		self.audioController:playSFX("click")
+	end
 	if type(self.onEquipPet) == "function" then
 		return self.onEquipPet(petId, slotIndex, callback)
 	end
@@ -340,6 +370,9 @@ function ClientBootstrap:equipPet(petId, slotIndex, callback)
 end
 
 function ClientBootstrap:unequipPet(slotIndex, callback)
+	if self.audioController and type(self.audioController.playSFX) == "function" then
+		self.audioController:playSFX("click")
+	end
 	if type(self.onUnequipPet) == "function" then
 		return self.onUnequipPet(slotIndex, callback)
 	end
@@ -349,6 +382,9 @@ function ClientBootstrap:unequipPet(slotIndex, callback)
 end
 
 function ClientBootstrap:togglePetLock(petId, callback)
+	if self.audioController and type(self.audioController.playSFX) == "function" then
+		self.audioController:playSFX("click")
+	end
 	if type(self.onTogglePetLock) == "function" then
 		return self.onTogglePetLock(petId, callback)
 	end
@@ -358,6 +394,9 @@ function ClientBootstrap:togglePetLock(petId, callback)
 end
 
 function ClientBootstrap:buyBoost(boostId, callback)
+	if self.audioController and type(self.audioController.playSFX) == "function" then
+		self.audioController:playSFX("coin")
+	end
 	if type(self.onBuyBoost) == "function" then
 		return self.onBuyBoost(boostId, callback)
 	end
@@ -367,6 +406,9 @@ function ClientBootstrap:buyBoost(boostId, callback)
 end
 
 function ClientBootstrap:purchaseProduct(productId, callback)
+	if self.audioController and type(self.audioController.playSFX) == "function" then
+		self.audioController:playSFX("coin")
+	end
 	if type(self.onPurchaseProduct) == "function" then
 		return self.onPurchaseProduct(productId, callback)
 	end
@@ -376,6 +418,10 @@ function ClientBootstrap:purchaseProduct(productId, callback)
 end
 
 function ClientBootstrap:hitDrone(droneId, callback)
+	if self.audioController and type(self.audioController.playSFX) == "function" then
+		self.audioController:playSFX("pop")
+		self.audioController:playSFX("coin")
+	end
 	if type(self.onHitDrone) == "function" then
 		return self.onHitDrone(droneId, callback)
 	end
@@ -394,6 +440,10 @@ function ClientBootstrap:hitDrone(droneId, callback)
 end
 
 function ClientBootstrap:claimOffer(offerId, callback)
+	if self.audioController and type(self.audioController.playSFX) == "function" then
+		self.audioController:playSFX("pop")
+		self.audioController:playSFX("coin")
+	end
 	if type(self.onClaimOffer) == "function" then
 		return self.onClaimOffer(offerId, callback)
 	end
@@ -475,11 +525,18 @@ function ClientBootstrap:getIntentControllers()
 	return self.intentControllers
 end
 
+function ClientBootstrap:getAudioController()
+	return self.audioController
+end
+
 function ClientBootstrap:destroy()
 	for _, unsub in ipairs(self._unsubs) do
 		unsub()
 	end
 	self._unsubs = {}
+	if self.audioController and type(self.audioController.destroy) == "function" then
+		self.audioController:destroy()
+	end
 	if self.hud and type(self.hud.destroy) == "function" then
 		self.hud:destroy()
 	end

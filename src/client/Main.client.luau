@@ -57,6 +57,9 @@ else
 	screenGui.Name = "HatchTheEggHUD"
 	screenGui.ResetOnSpawn = false
 	screenGui.IgnoreGuiInset = false
+	pcall(function()
+		screenGui.ScreenInsets = Enum.ScreenInsets.SafeArea
+	end)
 	screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	screenGui.Parent = playerGui
 end
@@ -185,6 +188,11 @@ if hud then
 	end
 end
 
+local audio = client:getAudioController()
+if audio then
+	audio:playBGM("farm_bgm")
+end
+
 local tutorialController = TutorialController.new(client:getStore(), screenGui)
 
 local function showLootNotification(titleText, descText)
@@ -241,16 +249,27 @@ end
 if serverToClient then
 	serverToClient.OnClientEvent:Connect(function(message)
 		if type(message) == "table" and message.kind == "DroneRewardPopup" then
+			if audio then
+				audio:playSFX("pop")
+				audio:playSFX("coin")
+			end
 			local rw = message.reward
 			local desc = if rw and rw.formattedAmount then ("+" .. tostring(rw.formattedAmount)) elseif rw and rw.amount then ("+" .. tostring(rw.amount) .. " " .. tostring(rw.type or "")) else "+1 Nagroda"
 			showLootNotification("🎯 ZESTRZELONO DRONA!", desc)
 			return
 		elseif type(message) == "table" and message.kind == "OfferClaimedPopup" then
+			if audio then
+				audio:playSFX("pop")
+				audio:playSFX("coin")
+			end
 			local rw = message.reward
 			local desc = if rw and rw.amount then ("+" .. tostring(rw.amount) .. " " .. tostring(rw.rewardType or "")) else "+1 Paczka Otwarta"
 			showLootNotification("📦 PACZKA 2+1 ODEBRANA!", desc)
 			return
 		elseif type(message) == "table" and message.kind == "PetHatched" then
+			if audio then
+				audio:playSFX("fanfare")
+			end
 			if hud and hud.playEggHatchAnimation then
 				hud:playEggHatchAnimation(message.pet)
 			else
@@ -485,6 +504,9 @@ RunService.RenderStepped:Connect(function(dt)
 			pressurePlate.Color = Color3.fromRGB(255, 135, 145)
 			if nowClock - lastHatchStepAt >= 0.28 then
 				lastHatchStepAt = nowClock
+				if audio then
+					audio:playSFX("cluck")
+				end
 				client:hatchPress()
 			end
 		else

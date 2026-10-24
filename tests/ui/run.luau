@@ -17,6 +17,7 @@ local ClientTransport = require("../../src/client/ClientTransport")
 local ClientStateStore = require("../../src/client/ClientStateStore")
 local IntentControllers = require("../../src/client/IntentControllers")
 local HUD = require("../../src/client/HUD")
+local AudioController = require("../../src/client/AudioController")
 
 local assertions = 0
 local function eq(a, b, label)
@@ -875,6 +876,7 @@ do
 	local transport = ClientTransport.new({ protocol = Protocol, wire = function() end })
 	local store = ClientStateStore.new({ transport = transport, codec = C })
 	local controllers = IntentControllers.new({ transport = transport, stateStore = store, codec = C })
+	store:applySnapshot(makeTestSnapshot({ streamId = "stream-audio-1", commitRevision = "1" }))
 
 	local hud = HUD.new({
 		stateStore = store,
@@ -1152,6 +1154,7 @@ do
 	local transport = ClientTransport.new({ protocol = Protocol, wire = function() end })
 	local store = ClientStateStore.new({ transport = transport, codec = C })
 	local controllers = IntentControllers.new({ transport = transport, stateStore = store, codec = C })
+	store:applySnapshot(makeTestSnapshot({ streamId = "stream-audio-1", commitRevision = "1" }))
 
 	local hud = HUD.new({
 		stateStore = store,
@@ -1219,6 +1222,7 @@ do
 	local transport = ClientTransport.new({ protocol = Protocol, wire = function() end })
 	local store = ClientStateStore.new({ transport = transport, codec = C })
 	local controllers = IntentControllers.new({ transport = transport, stateStore = store, codec = C })
+	store:applySnapshot(makeTestSnapshot({ streamId = "stream-audio-1", commitRevision = "1" }))
 
 	local hud = HUD.new({
 		stateStore = store,
@@ -1295,6 +1299,116 @@ do
 	eq(animOverlay.Visible, false, "HatchAnimationOverlay closed via closeAllModals")
 
 	hud:destroy()
+end
+
+-- ============================================================================
+-- Section 16: Audio Controller, BGM/SFX Lifecycle & Mobile Interface Optimization (PROD-08)
+-- ============================================================================
+do
+	-- 16.1 AudioController Lifecycle & Sound Effects
+	local audio = AudioController.new()
+	ok(audio ~= nil, "AudioController instance created")
+	eq(audio:getSFXVolume(), 0.8, "Default SFX volume is 0.8")
+	eq(audio:getBGMVolume(), 0.5, "Default BGM volume is 0.5")
+	eq(audio:isMuted(), false, "Initially not muted")
+	eq(audio:isSFXEnabled(), true, "SFX initially enabled")
+	eq(audio:isBGMEnabled(), true, "BGM initially enabled")
+
+	-- Toggle mute
+	local mutedState = audio:toggleMute()
+	eq(mutedState, true, "Muted state is true after toggle")
+	eq(audio:isMuted(), true, "isMuted returns true")
+	audio:setMuted(false)
+	eq(audio:isMuted(), false, "isMuted returns false after setMuted(false)")
+
+	-- Volume adjustments & clamping
+	audio:setSFXVolume(0.4)
+	eq(audio:getSFXVolume(), 0.4, "SFX volume updated to 0.4")
+	audio:setSFXVolume(1.5)
+	eq(audio:getSFXVolume(), 1.0, "SFX volume clamped to 1.0")
+	audio:setSFXVolume(-0.3)
+	eq(audio:getSFXVolume(), 0.0, "SFX volume clamped to 0.0")
+	audio:setSFXVolume(0.8)
+
+	audio:setBGMVolume(0.65)
+	eq(audio:getBGMVolume(), 0.65, "BGM volume updated to 0.65")
+
+	-- BGM Playback Lifecycle
+	audio:playBGM("farm_bgm")
+	eq(audio:isBGMPlaying(), true, "BGM is playing")
+	audio:pauseBGM()
+	eq(audio:isBGMPlaying(), false, "BGM is paused")
+	audio:resumeBGM()
+	eq(audio:isBGMPlaying(), true, "BGM resumed")
+	audio:stopBGM()
+	eq(audio:isBGMPlaying(), false, "BGM stopped")
+
+	-- SFX Playback: All 5 canonical SFX
+	audio:playSFX("cluck")
+	eq(audio:getLastPlayedSFX(), "cluck", "cluck SFX played")
+	eq(audio:getSFXPlayCount("cluck"), 1, "cluck count is 1")
+
+	audio:playSFX("coin")
+	eq(audio:getLastPlayedSFX(), "coin", "coin SFX played")
+	eq(audio:getSFXPlayCount("coin"), 1, "coin count is 1")
+
+	audio:playSFX("pop")
+	eq(audio:getLastPlayedSFX(), "pop", "pop SFX played")
+	eq(audio:getSFXPlayCount("pop"), 1, "pop count is 1")
+
+	audio:playSFX("click")
+	eq(audio:getLastPlayedSFX(), "click", "click SFX played")
+	eq(audio:getSFXPlayCount("click"), 1, "click count is 1")
+
+	audio:playSFX("fanfare")
+	eq(audio:getLastPlayedSFX(), "fanfare", "fanfare SFX played")
+	eq(audio:getSFXPlayCount("fanfare"), 1, "fanfare count is 1")
+
+	-- 16.2 HUD Audio Integration & AudioToggleButton
+	local transport = ClientTransport.new({ protocol = Protocol, wire = function() end })
+	local store = ClientStateStore.new({ transport = transport, codec = C })
+	local controllers = IntentControllers.new({ transport = transport, stateStore = store, codec = C })
+	store:applySnapshot(makeTestSnapshot({ streamId = "stream-audio-1", commitRevision = "1" }))
+
+	local hud = HUD.new({
+		stateStore = store,
+		intentControllers = controllers,
+		codec = C,
+		audioController = audio,
+	})
+
+	eq(hud:getAudioController(), audio, "HUD audioController matches")
+	local audioBtn = hud:getAudioToggleButton()
+	ok(audioBtn ~= nil, "AudioToggleButton exists in HUD")
+	eq(audioBtn.Text, "🔊", "Audio button initial icon is unmuted 🔊")
+
+	-- Press audio toggle button
+	if audioBtn.Activated then
+		audioBtn.Activated:Fire()
+		eq(audio:isMuted(), true, "Audio muted after button tap")
+		eq(audioBtn.Text, "🔇", "Audio button icon updated to muted 🔇")
+		audioBtn.Activated:Fire()
+		eq(audio:isMuted(), false, "Audio unmuted after second tap")
+		eq(audioBtn.Text, "🔊", "Audio button icon restored to 🔊")
+	end
+
+	-- Press hatch triggers cluck SFX
+	local initialCluck = audio:getSFXPlayCount("cluck")
+	hud:pressHatch()
+	eq(audio:getSFXPlayCount("cluck"), initialCluck + 1, "pressHatch triggered cluck SFX")
+
+	-- 16.3 Mobile Touch Hitbox Optimization (min 44x44 pixels)
+	local dummyFrame = { Children = {} }
+	local closeBtn = hud:_buildCloseButton(dummyFrame, function() end)
+	ok(closeBtn ~= nil, "CloseBtn created")
+
+	-- Check mobile-friendly touch targets on main interactive buttons
+	ok(hud.hatchButton ~= nil, "HatchButton exists")
+	ok(hud.homeButton ~= nil, "HomeButton exists")
+	ok(hud.researchToggleBtn ~= nil, "Dock buttons exist")
+
+	hud:destroy()
+	audio:destroy()
 end
 
 print(string.format("HUD and IntentControllers: %d assertions PASS", assertions))

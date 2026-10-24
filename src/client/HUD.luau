@@ -611,6 +611,8 @@ function HUD.new(deps)
 		onTogglePetLock = deps.onTogglePetLock,
 		onBuyBoost = deps.onBuyBoost,
 		onPurchaseProduct = deps.onPurchaseProduct,
+		audioController = deps.audioController,
+		onToggleAudio = deps.onToggleAudio,
 
 		-- Cached view data
 		sessionStatus = "CONNECTING",
@@ -634,6 +636,8 @@ function HUD.new(deps)
 		hatcheryStockLabel = nil,
 		hatcheryRefillLabel = nil,
 		hatchButton = nil,
+		topBar = nil,
+		audioToggleButton = nil,
 
 		-- Right Dock Menu Buttons
 		researchToggleBtn = nil,
@@ -715,6 +719,12 @@ function HUD.new(deps)
 	return self
 end
 
+function HUD:_playClick()
+	if self.audioController and type(self.audioController.playSFX) == "function" then
+		self.audioController:playSFX("click")
+	end
+end
+
 function HUD:_buildInterface()
 	local root = self.guiRoot
 
@@ -746,6 +756,46 @@ function HUD:_buildInterface()
 		Position = isRoblox and UDim2.new(0.5, -240, 0, 6) or nil,
 		BackgroundTransparency = 1,
 	}, root)
+	self.topBar = topBar
+
+	-- Safe Area / Inset Adaptation for Mobile Notches & Dynamic Island
+	if isRoblox then
+		pcall(function()
+			local GuiService = game:GetService("GuiService")
+			local insetTopLeft, _ = GuiService:GetGuiInset()
+			if insetTopLeft and insetTopLeft.Y > 0 then
+				topBar.Position = UDim2.new(0.5, -240, 0, math.max(6, insetTopLeft.Y + 2))
+			end
+		end)
+	end
+
+	-- Audio Mute/Unmute Toggle Button (Top-Right, >= 44x44 hitbox for mobile touch)
+	local audioToggleBtn = createGuiElement("TextButton", {
+		Name = "AudioToggleButton",
+		Size = isRoblox and UDim2.new(0, 48, 0, 48) or nil,
+		Position = isRoblox and UDim2.new(1, -64, 0, 10) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(48, 25, 56) or nil,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = if self.audioController and self.audioController:isMuted() then "🔇" else "🔊",
+	}, root)
+	addCornerAndStroke(audioToggleBtn, 10, isRoblox and Color3.fromRGB(255, 215, 65) or nil, 2.5)
+
+	if audioToggleBtn.Activated then
+		audioToggleBtn.Activated:Connect(function()
+			self:_playClick()
+			local newMuted = false
+			if self.audioController and type(self.audioController.toggleMute) == "function" then
+				newMuted = self.audioController:toggleMute()
+			end
+			self:updateAudioButtonIcon(newMuted)
+			if type(self.onToggleAudio) == "function" then
+				self.onToggleAudio(newMuted)
+			end
+		end)
+	end
+	self.audioToggleButton = audioToggleBtn
 
 	self.homeButton = createGuiElement("TextButton", {
 		Name = "DomButton",
@@ -762,6 +812,7 @@ function HUD:_buildInterface()
 
 	if self.homeButton.Activated ~= nil then
 		self.homeButton.Activated:Connect(function()
+			self:_playClick()
 			if type(self.onHomeClicked) == "function" then
 				self.onHomeClicked()
 			elseif isRoblox then
@@ -922,7 +973,10 @@ function HUD:_buildInterface()
 		addCornerAndStroke(qBtn, 8, isRoblox and Color3.fromRGB(22, 48, 12) or nil, 3)
 		addTextStroke(qBtn, 2.5)
 		if qBtn.Activated then
-			qBtn.Activated:Connect(qSpec.action)
+			qBtn.Activated:Connect(function()
+				self:_playClick()
+				qSpec.action()
+			end)
 		end
 	end
 
@@ -1020,7 +1074,10 @@ function HUD:_buildInterface()
 		addCornerAndStroke(btn, 10, isRoblox and Color3.fromRGB(18, 12, 10) or nil, 3.0)
 		addTextStroke(btn, 2.0)
 		if btn.Activated then
-			btn.Activated:Connect(dSpec.action)
+			btn.Activated:Connect(function()
+				self:_playClick()
+				dSpec.action()
+			end)
 		end
 
 		if dSpec.name == "ResearchMenuButton" then self.researchToggleBtn = btn
@@ -1071,20 +1128,35 @@ function HUD:_buildInterface()
 	self:_buildHatchAnimationOverlay(root)
 end
 
+local function applyModalMobileConstraints(modalFrame)
+	if not isRoblox or not modalFrame then return end
+	pcall(function()
+		local constraint = Instance.new("UISizeConstraint")
+		constraint.Name = "MobileSizeConstraint"
+		constraint.MaxSize = Vector2.new(640, 560)
+		constraint.MinSize = Vector2.new(280, 240)
+		constraint.Parent = modalFrame
+	end)
+end
+
 function HUD:_buildCloseButton(parent, onClose)
 	local closeBtn = createGuiElement("TextButton", {
 		Name = "CloseBtn",
-		Size = isRoblox and UDim2.new(0, 32, 0, 32) or nil,
-		Position = isRoblox and UDim2.new(1, -40, 0, 8) or nil,
+		Size = isRoblox and UDim2.new(0, 44, 0, 44) or nil,
+		Position = isRoblox and UDim2.new(1, -50, 0, 6) or nil,
 		BackgroundColor3 = isRoblox and Color3.fromRGB(235, 65, 65) or nil,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
 		Text = "✕",
+		ZIndex = 20,
 	}, parent)
-	addCornerAndStroke(closeBtn, 6, isRoblox and Color3.fromRGB(85, 20, 20) or nil, 2)
+	addCornerAndStroke(closeBtn, 8, isRoblox and Color3.fromRGB(85, 20, 20) or nil, 2)
 	if closeBtn.Activated and type(onClose) == "function" then
-		closeBtn.Activated:Connect(onClose)
+		closeBtn.Activated:Connect(function()
+			self:_playClick()
+			onClose()
+		end)
 	end
 	return closeBtn
 end
@@ -1098,6 +1170,7 @@ function HUD:_buildHabitatsModal(root)
 		BackgroundColor3 = isRoblox and Color3.fromRGB(78, 42, 24) or nil,
 	}, root)
 	addCornerAndStroke(habitatsFrame, 14, isRoblox and Color3.fromRGB(255, 205, 95) or nil, 3.2)
+	applyModalMobileConstraints(habitatsFrame)
 	self.habitatsModal = habitatsFrame
 
 	createGuiElement("TextLabel", {
@@ -1197,6 +1270,7 @@ function HUD:_buildVehiclesModal(root)
 		BackgroundColor3 = isRoblox and Color3.fromRGB(48, 62, 38) or nil,
 	}, root)
 	addCornerAndStroke(vFrame, 14, isRoblox and Color3.fromRGB(115, 245, 125) or nil, 3.2)
+	applyModalMobileConstraints(vFrame)
 	self.vehiclesModal = vFrame
 
 	createGuiElement("TextLabel", {
@@ -1342,6 +1416,7 @@ function HUD:_buildResearchModal(root)
 		BackgroundColor3 = isRoblox and Color3.fromRGB(64, 34, 20) or nil,
 	}, root)
 	addCornerAndStroke(shopFrame, 14, isRoblox and Color3.fromRGB(115, 225, 255) or nil, 3.2)
+	applyModalMobileConstraints(shopFrame)
 	self.shopFrame = shopFrame
 
 	createGuiElement("TextLabel", {
@@ -1421,6 +1496,7 @@ function HUD:_buildPetsModal(root)
 		BackgroundColor3 = isRoblox and Color3.fromRGB(65, 30, 60) or nil,
 	}, root)
 	addCornerAndStroke(pFrame, 14, isRoblox and Color3.fromRGB(245, 145, 255) or nil, 3.2)
+	applyModalMobileConstraints(pFrame)
 	self.petsModal = pFrame
 
 	createGuiElement("TextLabel", {
@@ -1632,6 +1708,7 @@ function HUD:_buildShopModal(root)
 		BackgroundColor3 = isRoblox and Color3.fromRGB(56, 32, 48) or nil,
 	}, root)
 	addCornerAndStroke(sFrame, 14, isRoblox and Color3.fromRGB(255, 215, 65) or nil, 3.2)
+	applyModalMobileConstraints(sFrame)
 	self.shopModal = sFrame
 
 	createGuiElement("TextLabel", {
@@ -1907,6 +1984,7 @@ function HUD:_buildCalendarModal(root)
 		BackgroundColor3 = isRoblox and Color3.fromRGB(48, 32, 58) or nil,
 	}, root)
 	addCornerAndStroke(cFrame, 14, isRoblox and Color3.fromRGB(255, 175, 75) or nil, 3.2)
+	applyModalMobileConstraints(cFrame)
 	self.calendarModal = cFrame
 
 	createGuiElement("TextLabel", {
@@ -2092,6 +2170,7 @@ function HUD:_buildEggUpgradeModal(root)
 		BackgroundColor3 = isRoblox and Color3.fromRGB(68, 36, 22) or nil,
 	}, root)
 	addCornerAndStroke(eggModal, 14, isRoblox and Color3.fromRGB(255, 215, 65) or nil, 3.2)
+	applyModalMobileConstraints(eggModal)
 	self.eggUpgradeModal = eggModal
 
 	createGuiElement("TextLabel", {
@@ -2209,6 +2288,7 @@ function HUD:_buildPetHatchModal(root)
 		BackgroundColor3 = isRoblox and Color3.fromRGB(55, 25, 55) or nil,
 	}, root)
 	addCornerAndStroke(hFrame, 14, isRoblox and Color3.fromRGB(255, 215, 65) or nil, 3.2)
+	applyModalMobileConstraints(hFrame)
 	self.petHatchModal = hFrame
 
 	createGuiElement("TextLabel", {
@@ -2553,6 +2633,7 @@ function HUD:playEggHatchAnimation(petData, onFinished)
 	if self.revealEquipBtn and self.revealEquipBtn.Activated then
 		local conn
 		conn = self.revealEquipBtn.Activated:Connect(function()
+			self:_playClick()
 			if conn then conn:Disconnect() end
 			if type(self.onEquipPet) == "function" then
 				self.onEquipPet(pUid, 1)
@@ -2564,6 +2645,7 @@ function HUD:playEggHatchAnimation(petData, onFinished)
 	if self.revealLockBtn and self.revealLockBtn.Activated then
 		local connLock
 		connLock = self.revealLockBtn.Activated:Connect(function()
+			self:_playClick()
 			if type(self.onTogglePetLock) == "function" then
 				self.onTogglePetLock(pUid)
 			end
@@ -2574,6 +2656,7 @@ function HUD:playEggHatchAnimation(petData, onFinished)
 	if self.revealConfirmBtn and self.revealConfirmBtn.Activated then
 		local connConfirm
 		connConfirm = self.revealConfirmBtn.Activated:Connect(function()
+			self:_playClick()
 			if connConfirm then connConfirm:Disconnect() end
 			cleanup()
 		end)
@@ -2593,6 +2676,9 @@ function HUD:playEggHatchAnimation(petData, onFinished)
 			self.animatedEggVisual.Rotation = 0
 
 			-- Burst phase
+			if self.audioController and type(self.audioController.playSFX) == "function" then
+				self.audioController:playSFX("pop")
+			end
 			if self.hatchBurstGlow then
 				self.hatchBurstGlow.Visible = true
 			end
@@ -2605,10 +2691,17 @@ function HUD:playEggHatchAnimation(petData, onFinished)
 			end
 
 			-- Reveal card phase
+			if self.audioController and type(self.audioController.playSFX) == "function" then
+				self.audioController:playSFX("fanfare")
+			end
 			self.petRevealCard.Visible = true
 		end)
 	else
 		-- Lune mock direct reveal
+		if self.audioController and type(self.audioController.playSFX) == "function" then
+			self.audioController:playSFX("pop")
+			self.audioController:playSFX("fanfare")
+		end
 		self.animatedEggVisual.Visible = false
 		self.petRevealCard.Visible = true
 	end
@@ -3197,6 +3290,9 @@ end
 -- ============================================================================
 
 function HUD:pressHatch(callback)
+	if self.audioController and type(self.audioController.playSFX) == "function" then
+		self.audioController:playSFX("cluck")
+	end
 	if self.intentControllers and self.intentControllers.hatch then
 		return self.intentControllers.hatch:press(callback)
 	end
@@ -3286,6 +3382,27 @@ end
 function HUD:getCurrentResearchTier() return self.selectedResearchTier end
 function HUD:getCurrentShopTab() return self.selectedShopTab end
 function HUD:getCurrentCalendarTab() return self.selectedCalendarTab end
+
+function HUD:updateAudioButtonIcon(isMuted: boolean)
+	if self.audioToggleButton then
+		self.audioToggleButton.Text = if isMuted then "🔇" else "🔊"
+	end
+end
+
+function HUD:setAudioController(controller)
+	self.audioController = controller
+	if self.audioToggleButton and controller and type(controller.isMuted) == "function" then
+		self:updateAudioButtonIcon(controller:isMuted())
+	end
+end
+
+function HUD:getAudioController()
+	return self.audioController
+end
+
+function HUD:getAudioToggleButton()
+	return self.audioToggleButton
+end
 
 function HUD:destroy()
 	for _, unsub in ipairs(self._unsubs) do
