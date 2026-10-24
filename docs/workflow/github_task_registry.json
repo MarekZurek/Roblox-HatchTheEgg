@@ -387,10 +387,11 @@
       "number": 30,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/30",
       "title": "[NEXT-05] Łączenie petów i trwała gwarancja",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "NEXT-04"
-      ]
+      ],
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "NEXT-06",
