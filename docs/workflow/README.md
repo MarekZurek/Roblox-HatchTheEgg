@@ -38,3 +38,7 @@ Przygotowane projekty P: [33 — warsztat i zegary](../33_pre01_toolchain_and_cl
 ## Pierwszy wykonany zakres — IMP-01
 
 [36 — warsztat i NumericCodec](../36_imp01_numeric_codec_delivery.md) zawiera API i odtwarzalne komendy; [raport L](numeric_codec_verification.json) podaje wersje, hashe oraz ograniczenia. Uruchomienie Lune i build Rojo nie są testem Studio/DataStore. Implementacja użytkownika ograniczona do IMP-01; kolejne taski pozostają planem.
+
+## IMP-02/03/07
+
+[37](../37_imp02_imp03_imp07_delivery.md) opisuje wykonane moduły i granice; [raport](parallel_implementation_verification.json) utrwala wyniki L i scope QA. Nowy runner wymaga Python 3.10+ (stdlib) dla zgodności katalogu i statycznego pliku Rojo. Dawne manifesty weryfikacji są snapshotami wcześniejszych wersji; nie przepisano ich sum.

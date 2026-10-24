@@ -97,3 +97,7 @@ Dokumentacyjny manifest F01 przygotowano w [30](30_first_farm_manifest_and_techn
 ## IMP-01 — wykonano zakres lokalny
 
 [36 — NumericCodec i warsztat](36_imp01_numeric_codec_delivery.md): kod NumericCodec v1, warsztat Lune/Rojo, niezależne wektory i wykonane testy L. To pierwsza implementacja infrastruktury numerycznej, bez logiki farmy. Uprawnienie użytkownika obejmuje wyłącznie IMP-01; nie rozpoczynać pozostałych IMP-* samym zamknięciem zależności. Nie wykonano Studio/DataStore ani typecheckera. Historyczne stwierdzenia o braku kodu dotyczą wcześniejszych etapów. Kolejne możliwe zadania po osobnym zleceniu: równolegle IMP-02/03/07. Bilans i dane referencyjne bez zmian.
+
+## IMP-02, IMP-03 i IMP-07 — wykonano L
+
+[37 — katalog, DTO i SessionRepository](37_imp02_imp03_imp07_delivery.md): prywatny CatalogRegistry wewnętrznej farmy, ProtocolSchemas v1 oraz SessionRepository z wersjonowaniem, fencing i odzyskiwaniem UNKNOWN. Wspólny runner: NumericCodec 15702, katalog 2732, protokół 745, zapis 151 asercji PASS L (łącznie 19330); statyczny build rozdziela moduły prywatne i wspólne. Nie wykonano Studio/RPC/prawdziwego DataStore/typecheckera. Nowe zlecenie użytkownika obejmuje te trzy zadania oraz publikację kodu/testów/docs, nie pozostałe IMP-*. Bilans i JSON-y referencyjne bez zmian. Gotowość L nie jest gotowością produkcji lub zatwierdzeniem konfiguracji.

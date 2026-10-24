@@ -63,3 +63,7 @@ To skończony wariant wewnętrzny, nie obietnica nieskończonego działania. Prz
 | Cofnięcie UTC i restart elapsed | Brak wskrzeszenia uprawnień starej sesji |
 
 **Nie wykonano L/S/D.** Dokument zamyka wybór projektu PRE-02, nie odbiór działającej trwałości.
+
+## Realizacja IMP-07
+
+Po przygotowaniu PRE-02 wykonano adapter i testy opisane w [37](37_imp02_imp03_imp07_delivery.md). L jest wykonane, rzeczywisty D nie. Wewnętrzny limit retencji nie zalicza bramki długotrwałego wydania. Sformułowania o braku testów powyżej odnoszą się do wcześniejszego przygotowania.

@@ -5,6 +5,11 @@
   "tree": {
     "$className": "DataModel",
     "$ignoreUnknownInstances": true,
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "$ignoreUnknownInstances": true,
+      "HatchTheEgg": { "$path": "src/server", "$ignoreUnknownInstances": true }
+    },
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
       "$ignoreUnknownInstances": true,

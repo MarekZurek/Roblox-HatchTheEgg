@@ -107,20 +107,34 @@
       "number": 11,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/11",
       "title": "[IMP-02] CatalogRegistry: wybrany katalog pierwszej farmy",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-01"
-      ]
+      ],
+      "completionScope": "module_implementation_and_local_tests",
+      "verificationLevels": [
+        "L"
+      ],
+      "studioTested": false,
+      "dataStoreTested": false,
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "IMP-03",
       "number": 12,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/12",
       "title": "[IMP-03] Schematy DTO i walidacja protokołu",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-01"
-      ]
+      ],
+      "completionScope": "module_implementation_and_local_tests",
+      "verificationLevels": [
+        "L"
+      ],
+      "studioTested": false,
+      "dataStoreTested": false,
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "IMP-04",
@@ -157,11 +171,18 @@
       "number": 16,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/16",
       "title": "[IMP-07] SessionRepository i bezpieczne odtworzenie profilu",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-01",
         "PRE-02"
-      ]
+      ],
+      "completionScope": "module_implementation_and_local_tests",
+      "verificationLevels": [
+        "L"
+      ],
+      "studioTested": false,
+      "dataStoreTested": false,
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "IMP-08",
@@ -394,6 +415,9 @@
     }
   ],
   "implementationAuthorizationScope": [
-    "IMP-01"
+    "IMP-01",
+    "IMP-02",
+    "IMP-03",
+    "IMP-07"
   ]
 }

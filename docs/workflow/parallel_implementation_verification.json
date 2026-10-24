@@ -1,0 +1,197 @@
+{
+  "date": "2026-10-24",
+  "tasks": [
+    "IMP-02",
+    "IMP-03",
+    "IMP-07"
+  ],
+  "status": "PASS_L",
+  "testCommand": "./tools/test.ps1 -PythonExecutable <Python3 executable>",
+  "versions": {
+    "NumericCodec": 1,
+    "ProtocolSchemas": 1,
+    "ProfileSchema": 1,
+    "calculation": 1,
+    "Lune": "0.11.1",
+    "Rojo": "7.7.1"
+  },
+  "results": {
+    "numeric": {
+      "arithmeticPairs": 756,
+      "assertions": 15702,
+      "codecVersion": 1,
+      "dataStoreTested": false,
+      "floatVectors": 3011,
+      "level": "L",
+      "status": "PASS",
+      "studioTested": false,
+      "uint64Vectors": 449
+    },
+    "catalog": {
+      "assertions": 2732,
+      "dataStoreTested": false,
+      "effectRecords": 170,
+      "habitatPrices": 8,
+      "level": "L",
+      "researchPrices": 163,
+      "status": "PASS",
+      "studioTested": false,
+      "vehiclePrices": 34
+    },
+    "protocol": {
+      "assertions": 745,
+      "datastoreTested": false,
+      "protocolVersion": 1,
+      "runtime": "Lune",
+      "status": "PASS",
+      "studioTested": false
+    },
+    "persistence": {
+      "assertions": 151,
+      "dataStoreTested": false,
+      "level": "L",
+      "realDataStoreApiTested": false,
+      "status": "PASS",
+      "studioTested": false
+    },
+    "mapping": {
+      "status": "PASS_STATIC_BUILD",
+      "modules": [
+        "ReplicatedStorage/HatchTheEgg/Shared/NumericCodec",
+        "ReplicatedStorage/HatchTheEgg/Shared/ProtocolSchemas",
+        "ServerScriptService/HatchTheEgg/CatalogRegistry",
+        "ServerScriptService/HatchTheEgg/CatalogRegistry/Data",
+        "ServerScriptService/HatchTheEgg/PersistenceData",
+        "ServerScriptService/HatchTheEgg/ProfileSchema",
+        "ServerScriptService/HatchTheEgg/RobloxDataStorePort",
+        "ServerScriptService/HatchTheEgg/SessionRepository"
+      ],
+      "runtimeReplicationTested": false,
+      "studioTested": false
+    }
+  },
+  "totalAssertions": 19330,
+  "studioTested": false,
+  "dataStoreTested": false,
+  "luauAnalyzeRun": false,
+  "balanceChanged": false,
+  "referenceDataChanged": false,
+  "reviews": {
+    "Cline_DeepSeek_v4_1_Flash": {
+      "status": "CONCEPT_REVIEW_COMPLETE",
+      "scope": "Only a supplied persistence concept, text only; not code or runtime",
+      "discardedAdvice": "A fresh read missing a result is NOT proof of NOT_APPLIED; implementation requires a confirmed generation fence."
+    },
+    "AGY_Gemini_3_8_Flash": {
+      "catalog": "PASS",
+      "protocol": "PASS",
+      "persistence": "PASS",
+      "scope": "Supplied source code and contract summaries, no runtime/tool use. Catalog review included generator/runner, not full generated Data or oracle. Protocol/persistence reviewed modules, not all tests.",
+      "earlierTimeouts": [
+        "protocol",
+        "persistence"
+      ],
+      "finalSmallDelta": "After persistence review input, author added codec VERSION guard and preservation of opaque ownership fields, with one extra passing assertion. Catalog runner gained JSON result output; no separate repeat full model QA for these changes."
+    }
+  },
+  "files": [
+    {
+      "path": "default.project.json",
+      "sha256": "4cd306b68858bd5d520e62331a8a3355818eaa2d2309fc7d1b03d37c5ede639b"
+    },
+    {
+      "path": "src/server/CatalogRegistry/Data.luau",
+      "sha256": "f7f2893c6e5e06dff805635f65b5e5a11c71a8b665c7d13400f3df3ecb086e74"
+    },
+    {
+      "path": "src/server/CatalogRegistry/init.luau",
+      "sha256": "d0fd481b961ee8c5ce05ba790a5216baee03c007e39cfcfd06f6376ac5779b3d"
+    },
+    {
+      "path": "src/server/PersistenceData.luau",
+      "sha256": "9009b448dfae5311b69339b07e274688451d2dcf2c3d73501a9b743957afaa48"
+    },
+    {
+      "path": "src/server/ProfileSchema.luau",
+      "sha256": "699fc25237d15ccd40c735d3bda0e9e8d9b2fec2cd7a7d1fbc0ce971c944ce4d"
+    },
+    {
+      "path": "src/server/RobloxDataStorePort.luau",
+      "sha256": "0411a7918fcc20fa449c867c8d3faabce13b5b3c49d968af1b0ffcdd05ded7b3"
+    },
+    {
+      "path": "src/server/SessionRepository.luau",
+      "sha256": "64a75a15e96599cc501dde16c93e7fa67f1e73e529d4f400b4743d18801ac711"
+    },
+    {
+      "path": "src/shared/NumericCodec.luau",
+      "sha256": "f9c97ced4fe8e3a1c59f085b7fa8b153921f0716e34779958e11dc3b06261074"
+    },
+    {
+      "path": "src/shared/ProtocolSchemas.luau",
+      "sha256": "16b79794feca5f5adb3edb1d98a36b548088d7ccdd0f5493cf083816637846f6"
+    },
+    {
+      "path": "tests/catalog/build_oracle.py",
+      "sha256": "d37784541197aba3f2148351cbc98f22be91ec0ecab2526c8dbfb167edfa6339"
+    },
+    {
+      "path": "tests/catalog/numeric_bits.json",
+      "sha256": "0d21c290aed715826bfded8d26ce44bd6524c089d1306775671e75f1e36be893"
+    },
+    {
+      "path": "tests/catalog/run.luau",
+      "sha256": "d3c81ddccd8679fa2232c82ee4a9e7e3f3e325b847d5f5fce2ca272d92cf760e"
+    },
+    {
+      "path": "tests/numeric/README.md",
+      "sha256": "3c1a61658fbc6c1ff7c0d0481de77198e1ffc0004a84a1d9b38ef3b937b9b128"
+    },
+    {
+      "path": "tests/numeric/reference_vectors.luau",
+      "sha256": "430ede37b18cc88db3906760b1712714eb6ce9331fef1bae5eb861a84983f929"
+    },
+    {
+      "path": "tests/numeric/run.luau",
+      "sha256": "27cfd60a08881abd263abf77b028d35cb18bcd81bfe7ddf4685eaddbd0d92894"
+    },
+    {
+      "path": "tests/persistence/README.md",
+      "sha256": "c84aeba34d8021c71ecff6eb76407b0980af83e8a6bd3505ad7814e6ba838f17"
+    },
+    {
+      "path": "tests/persistence/run.luau",
+      "sha256": "68b328d4f92f2f153cc9c0f12135e55ae50c24d4ccfadb287c019898cb270ee7"
+    },
+    {
+      "path": "tests/protocol/run.luau",
+      "sha256": "1991a608c1f3facbf1b9f4ea52773192a0baa96929eb06f5db3a007ce841884e"
+    },
+    {
+      "path": "tools/bootstrap.ps1",
+      "sha256": "76112981ce65283de2716c3b3a68ea69eedab38c47b27696c773e9dd30ad528c"
+    },
+    {
+      "path": "tools/generate_catalog.py",
+      "sha256": "895548757e8699a30d2f13955869fa951e2bb6a23a4cf197280c3556ca3b85c7"
+    },
+    {
+      "path": "tools/generate_numeric_vectors.py",
+      "sha256": "6c5c1485b65947a21ef2221a0b82e17f2eff2d283e5fe9fa7983c1448fdb4efa"
+    },
+    {
+      "path": "tools/test.ps1",
+      "sha256": "7cb286443b504815c1f39a2311162868fc5b4b20e048cff2f6d03a4b99ef7e2a"
+    },
+    {
+      "path": "tools/toolchain.json",
+      "sha256": "cdff10a70a3cf9a21315971da8dff26f8476088c96b69d2fdd8fe5e03a174337"
+    },
+    {
+      "path": "tools/verify_build.py",
+      "sha256": "51e693efb19571a987739b0af4882ad2cfa5a5e0a898d23a2931c60167d67610"
+    }
+  ],
+  "exportReproduction": "PASS_ALL_FOUR_L_SUITES_AND_STATIC_MAPPING",
+  "publicSanitation": "PASS_NO_FORBIDDEN_REFERENCES_OR_PRIVATE_PATHS"
+}

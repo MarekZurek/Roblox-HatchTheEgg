@@ -74,3 +74,10 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 
 - [x] Przygotować przypięty warsztat Lune/Rojo oraz NumericCodec v1 i wykonać testy L — [36](36_imp01_numeric_codec_delivery.md).
 - [ ] Pozostałe adaptery czasu, sesji i ich S/D pozostają przy istniejących IMP-*; lokalny codec ich nie zalicza. Nie wznawiać odłożonego bilansu.
+
+## Wykonanie równoległe
+
+- [x] IMP-02: wybrany katalog referencyjny i niezależne kontrole bitowe.
+- [x] IMP-03: ścisłe schematy pierwszej farmy i adwersarialne testy L.
+- [x] IMP-07: repozytorium/port natywny i kontrolowany fake L; rzeczywisty test D niewykonany.
+- [ ] Studio/RPC, rzeczywiste konflikty DataStore oraz długotrwała retencja przed wydaniem pozostają przy odpowiednich integracjach, nie są zaliczone tymi checkboxami. [Wyniki](37_imp02_imp03_imp07_delivery.md).

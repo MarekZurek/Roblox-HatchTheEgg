@@ -39,3 +39,7 @@ Zachowano [27](27_numbers_time_and_player_state_contract.md): binary64 dla kwot 
 Sprawdzono Lune oraz budowanie Rojo. Nie uruchomiono analizy typów osobnym luau-analyze, Studio, synchronizacji, wielu klientów ani DataStore. Dyrektywa strict w module nie jest deklaracją wykonania typecheckera. Sam test L nie dowodzi identycznego działania innego przyszłego runtime; test S pozostaje przy integracji. Szczegóły dowodów i hashy: [raport](workflow/numeric_codec_verification.json).
 
 Podstawy API: [biblioteka Luau — formatowanie i buffer IEEE-754](https://luau.org/library/), [format projektu Rojo](https://rojo.space/docs/v7/project-format/). Znaczenie allowlist sprawdzono w [ApiContext przypiętego Rojo 7.7.1](https://github.com/rojo-rbx/rojo/blob/v7.7.1/plugin/src/ApiContext.lua); nie jest to test połączenia ze Studio.
+
+## Aktualizacja warsztatu po IMP-02/03/07
+
+[37](37_imp02_imp03_imp07_delivery.md) rozszerza runner o katalog, protokół, persistence i statyczną kontrolę mapowania. Pełny runner wymaga teraz Python 3.10+ przez parametr -PythonExecutable. Pierwotny raport IMP-01 pozostaje snapshotem, nie aktualną sumą zmienionego tools/test.ps1; sam NumericCodec nie został zmieniony.
