@@ -126,4 +126,4 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 - [x] **PROD-05 (#47)**: Produkcyjna obsługa płatności Roblox MarketplaceService (GamePasses & DevProducts). 94 asercje Purchases PASS.
 - [x] **PROD-06 (#48)**: Diegetyczne aktory 3D: Drony z celowaniem, Ciężarówka dostawcza 2+1 i Silosy z SurfaceGui. 444 asercje Presentation PASS, 89 Drones PASS.
 - [x] **PROD-07 (#49)**: Stacja Inkubacji Petów w świecie 3D i animacja wykluwania jaj. 181 asercji Pet Effects PASS, 457 Presentation PASS.
-- [ ] **PROD-08 (#50)**: Oprawa dźwiękowa (SFX & Muzyka BGM) oraz optymalizacja mobilna interfejsu.
+- [x] **PROD-08 (#50)**: Oprawa dźwiękowa (SFX & Muzyka BGM) oraz optymalizacja mobilna interfejsu. 377 asercji UI/Audio PASS.

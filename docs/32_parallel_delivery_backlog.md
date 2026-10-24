@@ -69,7 +69,7 @@ To plan równoległości, nie automatyczna delegacja. Wydanie nadal wymaga wznow
 | PROD-05 | Produkcyjna obsługa płatności Roblox MarketplaceService (GamePasses & DevProducts) | PROD-03, PROD-04 | Wykonano i zweryfikowano QA (#47, 94 asercje Purchases PASS) |
 | PROD-06 | Diegetyczne aktory 3D: Drony z celowaniem, Ciężarówka dostawcza 2+1 i Silosy z SurfaceGui | PROD-01 | Wykonano i zweryfikowano QA (#48, 444 asercje Presentation PASS, 89 Drones PASS) |
 | PROD-07 | Stacja Inkubacji Petów w świecie 3D i animacja wykluwania jaj | PROD-03, PROD-06 | Wykonano i zweryfikowano QA (#49, 181 asercji Pet Effects PASS, 457 Presentation PASS) |
-| PROD-08 | Oprawa dźwiękowa (SFX & Muzyka BGM) oraz optymalizacja mobilna interfejsu | PROD-03, PROD-06 | Zaplanowane (#50) |
+| PROD-08 | Oprawa dźwiękowa (SFX & Muzyka BGM) oraz optymalizacja mobilna interfejsu | PROD-03, PROD-06 | Wykonano i zweryfikowano QA (#50, 377 asercji UI/Audio PASS) |
 
 ## Odbiór i stan publikacji
 
