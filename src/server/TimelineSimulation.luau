@@ -1,5 +1,6 @@
 --!nocheck
 -- Pure neutral first-farm timeline; checkpoints preserve production and growth phases on the same model grid.
+local EffectsManager = require("./EffectsManager")
 local Timeline = {}
 function Timeline.new(codec, production, hatching, ihr, data, options)
  assert(options and options.mode == "INTERNAL_TEST_ONLY", "Timeline/TEST_MODE_REQUIRED")
@@ -16,7 +17,19 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
  end
  local function validateState(s)
   instant(s.settledWallThrough)
-  for _,key in {"effects","pets","boosts","events"} do assert(s[key]==nil,"Timeline/UNSUPPORTED_EFFECT") end
+  for _,key in {"pets","boosts","events"} do assert(s[key]==nil,"Timeline/UNSUPPORTED_EFFECT") end
+  if s.effects~=nil then
+   assert(type(s.effects)=="table","Timeline/INVALID_EFFECTS")
+   if s.effects.boosts~=nil then
+    assert(type(s.effects.boosts)=="table","Timeline/INVALID_BOOSTS")
+    for _,b in s.effects.boosts do
+     assert(type(b)=="table" and type(b.remainingSeconds)=="number","Timeline/INVALID_BOOST")
+    end
+   end
+   if s.effects.videoDoublerEndsAtMs~=nil then
+    assert(type(s.effects.videoDoublerEndsAtMs)=="number","Timeline/INVALID_VD")
+   end
+  end
   local f=s.farm; assert(type(f)=="table" and type(s.accounting)=="table","Timeline/INVALID_STATE")
   for _,key in {"effects","pets","boosts","events","rcbMultiplier"} do assert(f[key]==nil,"Timeline/UNSUPPORTED_EFFECT") end
   A.validate(f.cash);A.validate(f.hatcheryStock);integer(f.siloOwned)
@@ -30,8 +43,9 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
  end
  local function validateConfig(c)
   assert(type(c)=="table" and type(c.revision)=="string" and #c.revision>0 and type(c.pro)=="boolean","Timeline/INVALID_CONFIG")
-  for k in c do assert(k=="revision" or k=="pro" or k=="siloCapacityLevel","Timeline/UNSUPPORTED_EFFECT") end
+  for k in c do assert(k=="revision" or k=="pro" or k=="siloCapacityLevel" or k=="liveEvents","Timeline/UNSUPPORTED_EFFECT") end
   integer(c.siloCapacityLevel)
+  if c.liveEvents~=nil then assert(type(c.liveEvents)=="table","Timeline/INVALID_EVENTS") end
  end
  function api.begin(state,targetMs,config)
   state=data.copy(state);config=data.copy(config);validateState(state);validateConfig(config);instant(targetMs)
@@ -74,22 +88,35 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
    local dt=if cp.phase=="AFTER_PRODUCTION" then cp.stepDt else math.min(cp.remainingSeconds,0.3)
    local elapsed=R.add(cp.elapsedSeconds,dt)
    assert(elapsed>cp.elapsedSeconds,"Timeline/TIME_STALL")
+   local stepEndMs=R.add(cp.startInstantMs,elapsed*1000)
    if cp.phase=="BETWEEN_STEPS" then
    cp.state.accounting.lastBaseEarnings=A.add(cp.state.accounting.prestigeSessionArchivedCash,cp.state.accounting.currentFarmCash)
+   local mults=EffectsManager.calculateMultipliers(cp.state.effects,f,stepEndMs,cp.config.liveEvents)
    local types,pops={},{}
    for i,h in f.habitats do types[i]=if h.typeIndex==-1 then false else h.typeIndex;pops[i]=h.population end
    local result=production.productionStep({commonLevels=f.commonLevels,habitatTypes=types,settledPopulation=pops,vehicleTypes=f.vehicleTypes,rcbMultiplier=1},dt)
-   local income=if cp.mode=="AWAY" then A.multiply(result.cashIncome,if cp.config.pro then 1 else 0.5) else result.cashIncome
+   local baseIncome=if cp.mode=="AWAY" then A.multiply(result.cashIncome,if cp.config.pro then 1 else 0.5) else result.cashIncome
+   local income=A.multiply(baseIncome,mults.earningsMultiplier)
    f.cash=A.add(f.cash,income)
    local accounting=cp.state.accounting
    accounting.currentFarmCash=A.add(accounting.currentFarmCash,income)
    accounting.lastCashEarned=A.add(accounting.lastCashEarned,income)
-   -- Neutral prestige multiplier is one: the extra accumulator does not grow.
+   if mults.prestigeMultiplier>1.0 then
+    local extraRate=mults.prestigeMultiplier-1.0
+    local extraIncome=A.multiply(income,extraRate)
+    accounting.prestigeExtraEarnings=A.add(accounting.prestigeExtraEarnings,extraIncome)
+   end
    cp.phase="AFTER_PRODUCTION";cp.stepDt=dt
    else
    f=arrived(f,R.add(cp.startInstantMs/1000,elapsed))
    f.hatcheryStock=hatching.refill(f.hatcheryStock,research.hatcheryCapacity,research.refillPerSecond,dt)
-   f.habitats=ihr.step(f.habitats,R.divide(research.internalHatcheryPerHabPerMinute,60),dt,0,nil)
+   local mults=EffectsManager.calculateMultipliers(cp.state.effects,f,stepEndMs,cp.config.liveEvents)
+   local baseIHRRate=R.divide(research.internalHatcheryPerHabPerMinute,60)
+   local effectiveIHRRate=R.multiply(baseIHRRate,mults.ihrMultiplier)
+   f.habitats=ihr.step(f.habitats,effectiveIHRRate,dt,0,nil)
+   if cp.state.effects~=nil then
+    EffectsManager.stepDecay(cp.state.effects,f,dt)
+   end
    cp.phase="BETWEEN_STEPS";cp.stepDt=nil
    cp.elapsedSeconds=elapsed;cp.remainingSeconds=R.subtract(cp.remainingSeconds,dt);cp.stepIndex+=1
    if cp.remainingSeconds==0 then cp.done=true;cp.state.settledWallThrough=cp.targetInstantMs end

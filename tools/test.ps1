@@ -21,7 +21,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Independent population oracle check failed.' }
     & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run tests/numeric/run.luau
     if ($LASTEXITCODE -ne 0) { throw 'Numeric tests failed.' }
-    foreach ($taskSuite in @('catalog', 'protocol', 'persistence', 'math', 'fv_se', 'ihr', 'hatching', 'coordinator', 'timeline', 'integration89', 'purchases', 'resets', 'gateway', 'client_state', 'presentation', 'ui', 'integration', 'acceptance')) {
+    foreach ($taskSuite in @('catalog', 'protocol', 'persistence', 'math', 'fv_se', 'ihr', 'hatching', 'coordinator', 'timeline', 'integration89', 'purchases', 'resets', 'effect_boundaries', 'gateway', 'client_state', 'presentation', 'ui', 'integration', 'acceptance')) {
         & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
         if ($LASTEXITCODE -ne 0) { throw ('Tests failed: ' + $taskSuite) }
     }
