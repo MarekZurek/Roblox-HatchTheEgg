@@ -1,0 +1,225 @@
+{
+  "date": "2026-10-24",
+  "tasks": [
+    "IMP-08",
+    "IMP-09"
+  ],
+  "status": "PASS_L",
+  "testCommand": "./tools/test.ps1 -PythonExecutable <Python3 executable>",
+  "versions": {
+    "Lune": "0.11.1",
+    "Rojo": "7.7.1",
+    "NumericCodec": 1
+  },
+  "assertions": {
+    "numeric": 15702,
+    "catalog": 2732,
+    "protocol": 745,
+    "persistence": 155,
+    "productionResearch": 517,
+    "ihr": 91,
+    "hatching": 594,
+    "coordinator": 221,
+    "timeline": 58,
+    "integration89": 70
+  },
+  "totalAssertions": 20885,
+  "staticBuild": {
+    "status": "PASS_STATIC_BUILD",
+    "moduleScripts": 14,
+    "entrypointScripts": 0
+  },
+  "studioTested": false,
+  "dataStoreTested": false,
+  "realRouteTested": false,
+  "typecheckerRun": false,
+  "qa": {
+    "provider": "AGY / Gemini 3.8 Flash",
+    "scope": "Supplied module sources and scoped contract excerpts; source review, no execution or whole-project audit",
+    "highEffortAttempts": "Both timed out after 180 seconds with no response; not verification evidence",
+    "timeline": {
+      "finalVerdict": "PASS with explicit contract context",
+      "initialFindings": "Two claims rejected: IHR is not owed past silo production window; duration zero cannot select AWAY. Clarified review returned PASS without code changes."
+    },
+    "coordinator": {
+      "finalStatus": "Scoped review completed; reported findings refuted against actual dependencies and targeted regressions, not an unconditional whole-project PASS",
+      "initialContextGaps": "Internal queued ticks are tracked host work, not client operation IDs; repository retries fixed plans without rerunning execute/domain; quote validation belongs to injected domain plus repository revision/deadline checks.",
+      "finalFindings": [
+        {
+          "claim": "Stale revision commits provisional working patches",
+          "resolution": "Refuted: repository candidate skips all patches and records REJECTED on stale revision/failed validator. Targeted actual-repository regression confirms durable cash unchanged and later checkpoint credits once."
+        },
+        {
+          "claim": "Query loses local PENDING when repository returns NOT_FOUND or UNKNOWN",
+          "resolution": "Refuted: coordinator returns local entry after non-REPLAYED lookup. Tests confirm PENDING survives missing record and failed read without writes/domain calls."
+        }
+      ],
+      "targetedAdjudication": "AGY with actual repository candidate and coordinator query excerpts explicitly refuted both claims."
+    }
+  },
+  "independentEvidence": [
+    "Explicit expected arithmetic and initial wallet/earned divergence",
+    "JSON NumericCodec checkpoint after production, resume next phases bit-identically",
+    "Actual Coordinator + Timeline + SessionRepository with controlled storage and clock",
+    "Actual repository write response lost: replay and fencing, no second domain execution",
+    "Coroutine-yielding storage: single writer across tick/command/checkpoint/renew/release"
+  ],
+  "fixesDuringReview": [
+    "Keep earned accumulator distinct from wallet; manager accounting before production",
+    "Permit partial checkpoints while settling",
+    "Keep simulated progress through rejected command",
+    "Check local lease/clock before memory mutation",
+    "Refresh ownership metadata after renew without dropping provisional domain state"
+  ],
+  "limitations": [
+    "Injected clock and storage; no Roblox scheduler or live datastore",
+    "Memory-to-wire bridge in integration test is TEST_ONLY",
+    "No NetworkGateway, FarmActions, scene or production bootstrap",
+    "Neutral first farm only: no active pets/boosts/events",
+    "No production configuration or balance approval"
+  ],
+  "protectedFilesUnchanged": true,
+  "publicExportReproduction": "PASS: 20885 assertions, 14-module static build, same sources in prepared publication checkout",
+  "files": [
+    {
+      "path": "src/server/CatalogRegistry/Data.luau",
+      "sha256": "f7f2893c6e5e06dff805635f65b5e5a11c71a8b665c7d13400f3df3ecb086e74"
+    },
+    {
+      "path": "src/server/CatalogRegistry/init.luau",
+      "sha256": "d0fd481b961ee8c5ce05ba790a5216baee03c007e39cfcfd06f6376ac5779b3d"
+    },
+    {
+      "path": "src/server/FarmMath/hatching_rcb.luau",
+      "sha256": "f0089b87f879a7c571da17e1d03a59f35b26cd44429def8576e4eaaafae85a66"
+    },
+    {
+      "path": "src/server/FarmMath/ihr.luau",
+      "sha256": "346314f4264d96aa69244ab22ad29481c1cded2e342ba0849c23b4d0b1840ffd"
+    },
+    {
+      "path": "src/server/FarmMath/PopulationMath.luau",
+      "sha256": "d69246b2db2cbca2a3a49f8133a8895489ca3901bf66373c32cabe4246e3f527"
+    },
+    {
+      "path": "src/server/FarmMath/production_research.luau",
+      "sha256": "0b0574fc5a4deeb5f66188d3ad5ec7747d94373922396ec84534f661535fc42b"
+    },
+    {
+      "path": "src/server/PersistenceData.luau",
+      "sha256": "9009b448dfae5311b69339b07e274688451d2dcf2c3d73501a9b743957afaa48"
+    },
+    {
+      "path": "src/server/PlayerCoordinator.luau",
+      "sha256": "ce12238311f0c1c00991861dac89aa5e5749e8f4937214078d94cea37973e338"
+    },
+    {
+      "path": "src/server/ProfileSchema.luau",
+      "sha256": "9bf9629af759e8030ce6a37d0d5e8934ce6d4bfc1798ff737e413a35f6a35a0f"
+    },
+    {
+      "path": "src/server/RobloxDataStorePort.luau",
+      "sha256": "0411a7918fcc20fa449c867c8d3faabce13b5b3c49d968af1b0ffcdd05ded7b3"
+    },
+    {
+      "path": "src/server/SessionRepository.luau",
+      "sha256": "64a75a15e96599cc501dde16c93e7fa67f1e73e529d4f400b4743d18801ac711"
+    },
+    {
+      "path": "src/server/TimelineSimulation.luau",
+      "sha256": "1db575e56f36322af8a7b1e7d4f81f91da337c6f5046371e97b35da43ea43bdf"
+    },
+    {
+      "path": "src/shared/NumericCodec.luau",
+      "sha256": "f9c97ced4fe8e3a1c59f085b7fa8b153921f0716e34779958e11dc3b06261074"
+    },
+    {
+      "path": "src/shared/ProtocolSchemas.luau",
+      "sha256": "16b79794feca5f5adb3edb1d98a36b548088d7ccdd0f5493cf083816637846f6"
+    },
+    {
+      "path": "tests/catalog/build_oracle.py",
+      "sha256": "d37784541197aba3f2148351cbc98f22be91ec0ecab2526c8dbfb167edfa6339"
+    },
+    {
+      "path": "tests/catalog/numeric_bits.json",
+      "sha256": "0d21c290aed715826bfded8d26ce44bd6524c089d1306775671e75f1e36be893"
+    },
+    {
+      "path": "tests/catalog/run.luau",
+      "sha256": "d3c81ddccd8679fa2232c82ee4a9e7e3f3e325b847d5f5fce2ca272d92cf760e"
+    },
+    {
+      "path": "tests/coordinator/run.luau",
+      "sha256": "5e09fe50ffad69809ccc3dab5fe69c73529b2c60c75ec92cc5898c8f6dfc2007"
+    },
+    {
+      "path": "tests/hatching/population_vectors.luau",
+      "sha256": "9b362c9506859e84033c2bb10193b06ca036e4d443f7a75182d2f08615b0a19c"
+    },
+    {
+      "path": "tests/hatching/run.luau",
+      "sha256": "5034281dd20c7865459294142b51f9db6c7993dc0ba3644d1ce3459d6e9f4027"
+    },
+    {
+      "path": "tests/ihr/run.luau",
+      "sha256": "b87ac35ad2e5824d1b1608e16d54293a95d5d603c86fa59e0db94567c5b908bb"
+    },
+    {
+      "path": "tests/integration89/run.luau",
+      "sha256": "2f5bbd5089a0d3a38b3ac39dc5ba72a6fe269850354e220785e3a57835a8fc57"
+    },
+    {
+      "path": "tests/math/run.luau",
+      "sha256": "40718091327ff1df397a94a9103907d7e0699076638a415bc1fa9a561d997390"
+    },
+    {
+      "path": "tests/numeric/reference_vectors.luau",
+      "sha256": "430ede37b18cc88db3906760b1712714eb6ce9331fef1bae5eb861a84983f929"
+    },
+    {
+      "path": "tests/numeric/run.luau",
+      "sha256": "27cfd60a08881abd263abf77b028d35cb18bcd81bfe7ddf4685eaddbd0d92894"
+    },
+    {
+      "path": "tests/persistence/run.luau",
+      "sha256": "1984f232757110c8f79d21ce078da9836fad52e97a868a8237a511254a2e342d"
+    },
+    {
+      "path": "tests/protocol/run.luau",
+      "sha256": "1991a608c1f3facbf1b9f4ea52773192a0baa96929eb06f5db3a007ce841884e"
+    },
+    {
+      "path": "tests/timeline/run.luau",
+      "sha256": "5edb6a517f0151349b8e8a1c4954fc5234675f47481ba195744775d9b01c5aa9"
+    },
+    {
+      "path": "tools/bootstrap.ps1",
+      "sha256": "76112981ce65283de2716c3b3a68ea69eedab38c47b27696c773e9dd30ad528c"
+    },
+    {
+      "path": "tools/generate_catalog.py",
+      "sha256": "895548757e8699a30d2f13955869fa951e2bb6a23a4cf197280c3556ca3b85c7"
+    },
+    {
+      "path": "tools/generate_numeric_vectors.py",
+      "sha256": "6c5c1485b65947a21ef2221a0b82e17f2eff2d283e5fe9fa7983c1448fdb4efa"
+    },
+    {
+      "path": "tools/generate_population_vectors.py",
+      "sha256": "548eb3f10779d3eda23db10430a22ec9183de39c28ec307f05dd1ea6edbaf750"
+    },
+    {
+      "path": "tools/test.ps1",
+      "sha256": "b9d3f665072463220f46152a972e450ffac5e121c25f2e839600289fae07f1f5"
+    },
+    {
+      "path": "tools/toolchain.json",
+      "sha256": "cdff10a70a3cf9a21315971da8dff26f8476088c96b69d2fdd8fe5e03a174337"
+    },
+    {
+      "path": "tools/verify_build.py",
+      "sha256": "22c3f0ab6b049f6420ff1e1f0c9f90f96a8a78e235a932f11dcfa7457b6131bd"
+    }
+  ]
+}

@@ -13,7 +13,7 @@ Procedury zadaniowe są w [katalogu skills](SKILLS_PLAN.md) i `.agents/skills/`.
 3. Rozróżnij N (referencyjne reguły obliczeń), S (referencyjne dane i tabele), R (zatwierdzona adaptacja), P (propozycja) i H (historia). Akceptacja zasad Roblox zastępuje w danym miejscu referencyjne zachowanie; nie przenosi statusu R na wszystkie liczby w sąsiednim raporcie.
 4. Opisz wynik zadania, dozwolone pliki i najmniejszą potrzebną weryfikację. Krótka poprawka może mieć ten kontrakt w opisie zadania; osobny pakiet dokumentów nie jest obowiązkowy.
 
-Nie ma jeszcze zatwierdzonego `v1_canonical/config/`, generatora Luau, wybranego ProfileStore ani runtime'u agentów HatchTheEgg. Odczyt dokumentacji referencyjnej jest użyciem opisanych danych, nie pozwoleniem na przebudowę materiałów roboczych albo utworzenie nowego cennika.
+Nie ma jeszcze zatwierdzonego wydaniowego `v1_canonical/config/`, wybranego zewnętrznego ProfileStore ani wieloagentowego runtime'u HatchTheEgg (istniejący lokalny warsztat Lune/Rojo oraz moduły wewnętrzne `IMP-01–09` opisuje [39](../39_imp08_imp09_delivery.md)). Odczyt dokumentacji referencyjnej jest użyciem opisanych danych, nie pozwoleniem na przebudowę materiałów roboczych albo utworzenie nowego cennika.
 
 ## 2. Mapa kontekstu — czytać według zadania
 

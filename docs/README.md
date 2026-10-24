@@ -1,6 +1,6 @@
 # HatchTheEgg — dokumentacja
 
-Stan: 23.10.2026. Dokumentacja i planowanie, bez implementacji gry. Bilans progresji, inkubatorów, petów i produktów pozostaje odłożony.
+Stan: 24.10.2026. Dokumentacja, planowanie oraz lokalnie wykonane i zweryfikowane L moduły IMP-01–09 (bez uruchomionej pętli farmy w Studio i chmury). Bilans progresji, inkubatorów, petów i produktów pozostaje odłożony.
 
 ## Punkty startowe
 
@@ -74,3 +74,7 @@ Stan: 23.10.2026. Dokumentacja i planowanie, bez implementacji gry. Bilans progr
 ## IMP-04/05/06 — wykonano L (24.10.2026)
 
 [38 — produkcja, IHR i wylęg/RCB](38_imp04_imp05_imp06_delivery.md): ukończono trzy zlecone moduły i testy lokalne. Wspólny runner: **20 536 asercji PASS**, 490 niezależnych przypadków uint64, statyczny build 12 modułów bez skryptów startowych. AGY: PASS przeglądu dostarczonych źródeł każdego zakresu; nie jest to test silnika. ProfileSchema dopuszcza prawidłowy carry IHR >=1 i opcjonalny licznik grup. Nie wykonano Studio, rzeczywistych tras, RPC, DataStore ani typecheckera. Timeline, Gateway i integracja zapisu pozostają kolejnymi zadaniami. Bilans 17–21 i JSON-y referencyjne bez zmian. Wcześniejsze wyniki i ograniczenia uprawnień są historycznymi zapisami poprzednich dostaw; bieżące zlecenie obejmuje IMP-04/05/06 i publikację kodu/testów/docs, bez automatycznego rozpoczynania pozostałych zadań.
+
+## IMP-08/09 — wykonano L (24.10.2026)
+
+[39 — koordynator i neutralna symulacja](39_imp08_imp09_delivery.md): jeden autor komend/ticków/checkpointów, rozstrzyganie PENDING/UNKNOWN i odzyskiwanie sesji; neutralny Timeline z siatką do 0.3 s, fazowym checkpointem i pełnym zamknięciem away. Wspólny runner **20 885 asercji PASS L**, w tym 221 koordynatora, 58 Timeline i 70 integracji; statyczny build 14 modułów. Integracja używa rzeczywistych modułów z kontrolowanym storage i testowym adapterem pamięć–wire. Studio, prawdziwy DataStore, Gateway, produkcyjny bootstrap i typechecker niewykonane. Bieżące zlecenie obejmuje IMP-08/09 i publikację kodu/testów/docs; wcześniejsze ograniczenia zakresu są historyczne. Nie rozpoczęto kolejnych zadań. Bilans 17–21 i referencyjne JSON-y bez zmian.

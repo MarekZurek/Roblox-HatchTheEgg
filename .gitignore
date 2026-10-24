@@ -4,7 +4,11 @@ build/
 *.rbxlx
 *.rbxm
 *.rbxmx
+*.rbxl.lock
+*.rbxlx.lock
+sourcemap.json
 __pycache__/
+*.py[cod]
 *.apk
 *.so
 *.env
@@ -17,3 +21,14 @@ node_modules/
 .cline/
 .gemini/
 .codex/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+*.temp
+*.log
+*.bak
+*.swp
+*~

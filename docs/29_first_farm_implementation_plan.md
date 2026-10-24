@@ -114,6 +114,12 @@ Przyszły fragment jest odebrany w zadeklarowanym środowisku, gdy:
 
 Ten dokument nie rozstrzyga tempa zdobywania zasobów, cen inkubatorów, limitów petów, oferty Robux lub innych elementów bilansu. Nie wznawia 17–21 i nie zmienia historii Git. **Stan obecny: plan i dokumentacyjny manifest F01 sporządzone; F01 ma jawne niewykonane zależności sceny/adapterów z 30 i 33–35, F02–F09 oraz A01–A16 niewykonane.**
 
-## Stan po IMP-01
+## Stan po IMP-01–09
 
-Wykonano [codec i lokalny warsztat](36_imp01_numeric_codec_delivery.md), czyli część F02, z dowodem L. Nie zaliczono całego A01–A16 ani adapterów czasu, sesji lub sieci. Kolejne zakresy opisuje 32; implementacja pozostałych zadań wymaga osobnego polecenia.
+Wykonano i zweryfikowano lokalnie (poziom L):
+- [IMP-01 (36)](36_imp01_numeric_codec_delivery.md): NumericCodec v1 i lokalny warsztat Lune/Rojo (część F02).
+- [IMP-02, IMP-03 i IMP-07 (37)](37_imp02_imp03_imp07_delivery.md): prywatny CatalogRegistry, ProtocolSchemas v1 oraz SessionRepository z fencingiem i odzyskiwaniem UNKNOWN (część F02, F03 i F07).
+- [IMP-04, IMP-05 i IMP-06 (38)](38_imp04_imp05_imp06_delivery.md): czyste moduły FarmMath (produkcja/badania, IHR/PopulationMath, ręczny wylęg/RCB — F04).
+- [IMP-08 i IMP-09 (39)](39_imp08_imp09_delivery.md): PlayerCoordinator oraz TimelineSimulation z neutralnym powrotem i testem współpracy z repozytorium (F03 i F05 w zakresie L).
+
+Nie zaliczono pełnego A01–A16 w środowiskach S/D/H ani nie wykonano FarmActions (F06/IMP-10), NetworkGateway i klienta (F07/IMP-11–12), sceny/UI (F08/IMP-13–14) oraz pełnej integracji uruchomieniowej (F09/IMP-15). Kolejne zakresy opisuje [32](32_parallel_delivery_backlog.md); realizacja pozostałych zadań wymaga osobnego polecenia.

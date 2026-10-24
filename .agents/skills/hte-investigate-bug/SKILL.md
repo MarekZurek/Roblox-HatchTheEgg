@@ -13,7 +13,7 @@ Przyjmij opis objawu w języku użytkownika. Nie wymagaj gotowej diagnozy ani te
 2. Sprawdź wersję faktycznie testowanego kodu/sceny i znajdź najmniejszą reprodukcję. Rozdziel hipotezy: domena, czas, replikacja, zapis, prezentacja. Sam opis „podwójne pieniądze” nie dowodzi błędu wzoru.
 3. Porównaj z właściwą regułą R lub źródłem N/S. Jeżeli wymagane zachowanie jest otwartą decyzją produktu, wskaż tę jedną lukę; nie wymyślaj go w poprawce.
 4. W zakresie zleconej naprawy usuń przyczynę najmniejszą spójną zmianą. Gdy zlecono tylko analizę, zwróć diagnozę i proponowaną korektę, bez implementacji.
-5. Zweryfikuj zmienione zachowanie i właściwe granice. Dodaj trwały test regresji, gdy daje realną ochronę; nie twórz testu, który jedynie powtarza implementację lub zmieniony tekst.
+5. Zweryfikuj zmienione zachowanie i właściwe granice (`./tools/test.ps1 -PythonExecutable python`). Dodaj trwały test regresji, gdy daje realną ochronę; nie twórz testu, który jedynie powtarza implementację lub zmieniony tekst. Przy zmianie schematu/danych upewnij się, że nie rozjeżdżają się kontrakty `ProfileSchema`/`ProtocolSchemas`/`CatalogRegistry`, generatory `--check` ani nagłówki i sumy w aktualizowanych raportach.
 
 ## Wynik i granice
 

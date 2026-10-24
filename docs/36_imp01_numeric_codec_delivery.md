@@ -9,7 +9,7 @@
 - [Manifest narzędzi](../tools/toolchain.json), [bootstrap](../tools/bootstrap.ps1), [test](../tools/test.ps1) — Windows x86_64, przypięte Lune 0.11.1 i Rojo 7.7.1, sprawdzanie SHA-256. Bez instalacji globalnej lub zmiany PATH.
 - [Testy i instrukcja](../tests/numeric/README.md), [runner](../tests/numeric/run.luau), [niezależny generator wektorów](../tools/generate_numeric_vectors.py).
 
-W PowerShell z katalogu projektu: najpierw ./tools/bootstrap.ps1, potem ./tools/test.ps1. Pierwszy krok wymaga sieci i pobiera oficjalne binaria do ignorowanego .tools; drugi wykonuje Lune, lokalny build Rojo i sourcemap. Artefakty w build są ignorowane. Do zwykłych testów nie potrzeba Pythona. Wektory mają jawny generator i stały seed, bez zależności od parametrów gospodarki.
+W PowerShell z katalogu projektu: najpierw `./tools/bootstrap.ps1`, potem `./tools/test.ps1 -PythonExecutable python` (w pierwotnym zakresie samego IMP-01 skrypt nie wywoływał jeszcze Pythona; od IMP-02 wspólny runner wymaga Python 3.10+ stdlib do weryfikacji generatorów i statycznego drzewa Rojo). Pierwszy krok wymaga sieci i pobiera oficjalne binaria do ignorowanego `.tools`; drugi wykonuje kontrole generatorów, Lune, lokalny build Rojo i sourcemap. Artefakty w `build` są ignorowane. Wektory mają jawny generator i stały seed, bez zależności od parametrów gospodarki.
 
 Nie skonfigurowano aktywnego miejsca: servePlaceIds jest puste, nie uruchamiano serve ani połączenia ze Studio. Synchronizacja wymaga później wpisania konkretnego dopuszczonego miejsca testowego; nie usuwać tego ograniczenia dla wygody. Build pliku .rbxlx nie publikuje gry. src/server, src/client i scena nie powstały w tym zadaniu; będą dodawane przez swoich właścicieli z mapowaniem opisanym w 33.
 

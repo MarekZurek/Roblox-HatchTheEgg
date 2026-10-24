@@ -13,7 +13,7 @@ Wejście: konkretna funkcja, jej jednostki, wejścia i zmieniane zachowanie. Wyb
 2. Ustal jednostki czasu, indeksy, bazy i warstwy research vs pełne GDR/pety/boosty. W FV nie podmieniaj wejść ResearchEngine pełnymi bonusami wyposażenia; Phoenix wzmacnia przyszły przychód prestiżowy, nie końcowe SE ani historię wstecz.
 3. Dobierz istniejące wejścia/wyniki referencyjne z właściwego pliku. [Referencje ECC](../../../docs/ecc/adaptations/reference_testing_and_verification.md) są indeksem, nie dowodem wykonania. Nie generuj oczekiwań przez wywołanie testowanej funkcji.
 4. Sprawdź dotknięte granice: zero, próg, cap, obcięcie, ograniczenie transportu/pojemności, wygaśnięcie. Kontroluj zegar/RNG jako zależności. Historyczny event dochodu i koniec kroku VD mają różne reguły; pozostały czas boostu nie jest absolutnym terminem.
-5. Jeżeli zlecono i umożliwiono wykonanie Luau, uruchom odpowiedni istniejący runner. Dobierz tolerancję do pola i konwersji, nie jeden epsilon dla wszystkiego. Jeśli zlecono tylko projekt kontroli, oddaj scenariusze z NIE URUCHOMIONO, bez tworzenia implementacji.
+5. Jeżeli zlecono i umożliwiono wykonanie Luau, uruchom odpowiedni istniejący runner (`./tools/test.ps1 -PythonExecutable python`), w tym kontrole spójności generatorów danych i wektorów (`tools/generate_catalog.py --check`, `tests/catalog/build_oracle.py --check`, `tools/generate_population_vectors.py --check`). Dobierz tolerancję do pola i konwersji (bitowy round-trip IEEE-754 dla `NumericCodec`/katalogu, dokładny `ExactUInt` bez `tonumber` dla `PopulationMath` i liczników), nie jeden epsilon dla wszystkiego. Jeśli zlecono tylko projekt kontroli, oddaj scenariusze z NIE URUCHOMIONO, bez tworzenia implementacji.
 
 ## Wynik i granice
 

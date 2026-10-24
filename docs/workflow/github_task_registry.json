@@ -204,22 +204,32 @@
       "number": 17,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/17",
       "title": "[IMP-08] PlayerCoordinator: serializacja komend i właściciel stanu",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-07"
-      ]
+      ],
+      "verificationLevel": "L",
+      "studioTested": false,
+      "dataStoreTested": false,
+      "deliveryDocument": "docs/39_imp08_imp09_delivery.md",
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "IMP-09",
       "number": 18,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/18",
       "title": "[IMP-09] TimelineSimulation: online i neutralny powrót",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-04",
         "IMP-05",
         "IMP-06"
-      ]
+      ],
+      "verificationLevel": "L",
+      "studioTested": false,
+      "dataStoreTested": false,
+      "deliveryDocument": "docs/39_imp08_imp09_delivery.md",
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "IMP-10",
@@ -436,6 +446,8 @@
     "IMP-04",
     "IMP-05",
     "IMP-06",
-    "IMP-07"
+    "IMP-07",
+    "IMP-08",
+    "IMP-09"
   ]
 }

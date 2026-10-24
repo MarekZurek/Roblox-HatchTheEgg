@@ -117,6 +117,10 @@ AGY / Gemini 3.8 Flash Medium oceniło pełny tekst pierwszej redakcji tego doku
 
 [36](36_imp01_numeric_codec_delivery.md) realizuje część F02: NumericCodec i warsztat z testami L. Nie zamyka całego F02 obejmującego również adaptery czasu ani F03–F09. Wcześniejsze stwierdzenia o nieutworzonych źródłach dotyczą stanu manifestu; obecnie istnieje src/shared/NumericCodec i testy, natomiast moduły serwera/klienta i scena nadal są przyszłe. U06 ma wykonany lokalny warsztat, bez dowodu S/D.
 
-## Realizacja IMP-02/03/07
+## Realizacja IMP-02–09
 
-[37](37_imp02_imp03_imp07_delivery.md): katalog wybranego manifestu, schematy i adapter sesji wykonano i sprawdzono L. U05 ma implementację wewnętrzną bez dowodu D; konfiguracja premiery, pełna retencja, integracja i pozostałe etapy nadal nie są zaliczone. Nie zamieniono danych referencyjnych w zatwierdzony bilans.
+- [37](37_imp02_imp03_imp07_delivery.md): katalog wybranego manifestu (`IMP-02`), schematy DTO (`IMP-03`) i adapter sesji (`IMP-07`) wykonano i sprawdzono L.
+- [38](38_imp04_imp05_imp06_delivery.md): czyste moduły produkcji/badań (`IMP-04`), IHR/PopulationMath (`IMP-05`) oraz wylęgu/RCB (`IMP-06`) wykonano i sprawdzono L.
+- [39](39_imp08_imp09_delivery.md): PlayerCoordinator (`IMP-08`) oraz TimelineSimulation (`IMP-09`) wraz z integracją L wykonano i sprawdzono L.
+
+U05 ma implementację wewnętrzną bez dowodu D; konfiguracja premiery, pełna retencja, domena zakupów (`IMP-10`), Gateway/klient/scena (`IMP-11–15`) i testy S/D nadal nie są zaliczone. Nie zamieniono danych referencyjnych w zatwierdzony bilans.

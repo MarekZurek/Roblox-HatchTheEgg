@@ -11,7 +11,7 @@ Zastosuj tylko gdy zadanie potrzebuje faktycznej sceny, repliki, klientów lub c
 
 1. Ustal oczekiwane zachowanie, najmniejszy scenariusz, testowane źródła/wersję i istniejące narzędzie. Nie wymyślaj nazw runnerów ani działającej automatyzacji, której nie ma w projekcie.
 2. Zidentyfikuj właściwą instancję, jej bieżącego użytkownika i tryb danych. Nie zatrzymuj cudzego playtestu. Jedna instancja ma jednego wykonawcę w danym czasie; brak pewności własności blokuje dotykanie tej instancji, nie całą niezależną pracę.
-3. Sprawdź zgodność źródeł i sceny. Dobierz celowane kontrole; nie odpalaj całego walkthrough progresji z powodu zmiany koloru lub etykiety. Nie ignoruj dotkniętej usterki tańszego sprawdzenia.
+3. Sprawdź zgodność źródeł i sceny (w tym statyczną granicę modułów `ReplicatedStorage/HatchTheEgg/Shared` vs `ServerScriptService/HatchTheEgg` weryfikowaną przez `tools/verify_build.py`). Dobierz celowane kontrole; nie odpalaj całego walkthrough progresji z powodu zmiany koloru lub etykiety. Nie ignoruj dotkniętej usterki tańszego sprawdzenia.
 4. Wykonaj uzgodniony test. Potwierdzaj autorytatywny stan na serwerze, a widok na kliencie. Używaj sygnałów ukończenia i zegara testowanego systemu; sleep lub screenshot nie dowodzi poprawnego naliczenia.
 5. Zapisz liczbę klientów/serwerów, tryb local/mock/DEV-cloud, wejścia i faktyczne wyniki. Studio lokalne nie dowodzi trwałej chmury. Test serwera nie dowodzi czytelności UI.
 6. Zakończ własny Play i usuń własne tymczasowe fixture, oddając instancję w uzgodnionym stanie. Przy niepewności cleanup opisz pozostały stan; nie deklaruj czystego zakończenia.
