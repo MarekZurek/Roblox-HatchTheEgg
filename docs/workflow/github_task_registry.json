@@ -295,10 +295,14 @@
       "number": 23,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/23",
       "title": "[IMP-14] Minimalny HUD i kontrolery intencji",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-03"
-      ]
+      ],
+      "verificationLevel": "L",
+      "studioTested": false,
+      "dataStoreTested": false,
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "IMP-15",

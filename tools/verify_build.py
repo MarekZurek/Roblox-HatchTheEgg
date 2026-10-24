@@ -36,7 +36,8 @@ def main():
                  "PlayerCoordinator", "TimelineSimulation", "FarmActions",
                  "ViewProjector", "NetworkGateway"):
         assert private + name in modules, name
-    for name in ("ClientTransport", "ClientStateStore", "RoutePresentation"):
+    for name in ("ClientTransport", "ClientStateStore", "RoutePresentation",
+                 "IntentControllers", "HUD"):
         assert client + name in modules, name
     assert not scripts, scripts
     result = {"status": "PASS_STATIC_BUILD", "modules": modules,
