@@ -433,14 +433,15 @@
       "number": 34,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/34",
       "title": "[NEXT-09] Adapter produktów Pro, Buy MAX, GE i warunkowego Piggy",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-08",
         "NEXT-02",
         "NEXT-03",
         "NEXT-05",
         "NEXT-07"
-      ]
+      ],
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "NEXT-10",
