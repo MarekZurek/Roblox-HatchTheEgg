@@ -34,10 +34,10 @@ def main():
                  "FarmMath/production_research", "FarmMath/ihr",
                  "FarmMath/hatching_rcb", "FarmMath/PopulationMath",
                  "PlayerCoordinator", "TimelineSimulation", "FarmActions",
-                 "ViewProjector", "NetworkGateway"):
+                 "ViewProjector", "NetworkGateway", "Bootstrap"):
         assert private + name in modules, name
     for name in ("ClientTransport", "ClientStateStore", "RoutePresentation",
-                 "IntentControllers", "HUD"):
+                 "IntentControllers", "HUD", "Bootstrap"):
         assert client + name in modules, name
     assert not scripts, scripts
     result = {"status": "PASS_STATIC_BUILD", "modules": modules,

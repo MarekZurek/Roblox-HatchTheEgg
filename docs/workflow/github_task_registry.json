@@ -309,14 +309,18 @@
       "number": 24,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/24",
       "title": "[IMP-15] Integracja pierwszej farmy i inicjalizacji",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-10",
         "IMP-11",
         "IMP-12",
         "IMP-13",
         "IMP-14"
-      ]
+      ],
+      "verificationLevel": "L",
+      "studioTested": false,
+      "dataStoreTested": false,
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "QA-01",

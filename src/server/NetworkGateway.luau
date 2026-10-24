@@ -346,6 +346,7 @@ function NetworkGateway:_initHandlers()
 		return {
 			status = "ACCEPTED",
 			kind = "HatchPress",
+			requestId = message.requestId,
 			streamId = message.streamId,
 			inputSeq = message.inputSeq,
 		}
@@ -391,6 +392,7 @@ function NetworkGateway:_initHandlers()
 		return {
 			status = "ACCEPTED",
 			kind = "HatchInput",
+			requestId = message.requestId,
 			streamId = message.streamId,
 			inputSeq = message.inputSeq,
 			state = message.state,

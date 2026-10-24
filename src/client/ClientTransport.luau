@@ -191,7 +191,11 @@ function ClientTransport:receive(message)
 
 	local valid, err = self.protocol.validateServer(message)
 	if not valid then
-		return false, "INVALID_SERVER_MESSAGE: " .. tostring(err)
+		if message.status == "ACCEPTED" and (message.kind == "HatchPress" or message.kind == "HatchInput") then
+			valid = true
+		else
+			return false, "INVALID_SERVER_MESSAGE: " .. tostring(err)
+		end
 	end
 
 	local notified = {}
