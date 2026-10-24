@@ -145,6 +145,7 @@ clientToServer.OnServerEvent:Connect(function(player, message)
 		or message.kind == "BuyVehicle"
 		or message.kind == "HatchPress"
 		or message.kind == "HatchInput"
+		or message.kind == "UpgradeEgg"
 	then
 		syncWorldAndDelta(pId, player)
 	end

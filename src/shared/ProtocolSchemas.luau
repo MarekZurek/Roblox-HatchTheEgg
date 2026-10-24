@@ -106,6 +106,7 @@ function ProtocolSchemas.new(codec)
 		BuyResearch = record({ researchId = id, mode = literal("single"), quoteId = id }),
 		BuyHabitat = record({ slotId = slot, habitatId = id, quoteId = id }),
 		BuyVehicle = record({ slotId = slot, vehicleId = id, quoteId = id }),
+		UpgradeEgg = record({ targetEggIndex = index }),
 	}
 	local function target(value)
 		record({ kind = action, args = function(args) if type(value.kind) ~= "string" then fail() end; local check = targetSchemas[value.kind]; if not check then fail() end; check(args) end })(value)

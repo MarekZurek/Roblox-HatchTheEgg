@@ -241,6 +241,20 @@ function ClientBootstrap:buyVehicle(slotId, vehicleId, callback)
 	end)
 end
 
+function ClientBootstrap:upgradeEgg(targetEggIndex, callback)
+	if not self.stateStore:isReady() then
+		if callback then callback({ status = "REJECTED", errorCode = "SESSION_NOT_READY" }) end
+		return nil, "SESSION_NOT_READY"
+	end
+	local rev = self.stateStore:getCommitRevision()
+	local nowMs = self.stateStore:getServerObservedAt() or 1000000
+	self._localUpgradeSerial = (self._localUpgradeSerial or 0) + 1
+	local opId = "op-upgrade-egg-" .. tostring(nowMs) .. "-" .. tostring(self._localUpgradeSerial)
+	local reqId = "req-upgrade-" .. tostring(nowMs) .. "-" .. tostring(self._localUpgradeSerial)
+	local args = { targetEggIndex = targetEggIndex }
+	return self.transport:sendPurchase("UpgradeEgg", reqId, opId, rev, args, callback)
+end
+
 function ClientBootstrap:update(nowMs)
 	if self.routePresentation then
 		self.routePresentation:update(nowMs)

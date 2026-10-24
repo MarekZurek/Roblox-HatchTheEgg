@@ -56,8 +56,13 @@ local function calculateProfileFarmValue(
 	local epic = permanent.epic or {}
 
 	local eggIndex = farm.eggIndex or 0
+	local eggRow = nil
+	if catalog and type(catalog.getEgg) == "function" then
+		local okEgg, resEgg = pcall(catalog.getEgg, eggIndex)
+		if okEgg and resEgg then eggRow = resEgg end
+	end
 	local eggInfo = FvSe.EGGS[eggIndex]
-	local eggValueBase = if eggInfo then eggInfo.eggValueBase else 0.25
+	local eggValueBase = if eggRow and eggRow.value then eggRow.value elseif eggInfo then eggInfo.eggValueBase else 0.25
 
 	-- Sum settled population across 4 habitats
 	local population = 0
@@ -184,6 +189,7 @@ local function applyUpgradeEgg(candidateProfile: any, op: any, deps: any?): any
 			terminalStatus = "REJECTED",
 			result = {
 				terminalStatus = "REJECTED",
+				success = false,
 				errorCode = "INVALID_TARGET_EGG",
 			},
 			validate = function() return true end,
@@ -197,6 +203,7 @@ local function applyUpgradeEgg(candidateProfile: any, op: any, deps: any?): any
 			terminalStatus = "REJECTED",
 			result = {
 				terminalStatus = "REJECTED",
+				success = false,
 				errorCode = "FV_TOO_LOW",
 			},
 			validate = function() return true end,
@@ -253,13 +260,24 @@ local function applyUpgradeEgg(candidateProfile: any, op: any, deps: any?): any
 		return true, nil
 	end
 
+	local targetEggRow = nil
+	if catalog and type(catalog.getEgg) == "function" then
+		local okEgg, resEgg = pcall(catalog.getEgg, targetEggIndex)
+		if okEgg and resEgg then targetEggRow = resEgg end
+	end
+	local targetEggInfo = FvSe.EGGS[targetEggIndex]
+	local targetEggValueBase = if targetEggRow and targetEggRow.value then targetEggRow.value elseif targetEggInfo then targetEggInfo.eggValueBase else 0.25
+
 	return {
 		profile = candidateProfile,
 		terminalStatus = "APPLIED",
 		result = {
 			terminalStatus = "APPLIED",
+			success = true,
 			actionKind = "UpgradeEgg",
 			newEggIndex = targetEggIndex,
+			eggIndex = targetEggIndex,
+			eggValueBase = targetEggValueBase,
 		},
 		validate = validateFn,
 	}
@@ -394,6 +412,7 @@ function ProgressActions.new(codec: any?, catalog: any?, productionMath: any?, o
 		end
 		return applyUpgradeEgg(candidateProfile, op, merged)
 	end
+	instance.upgradeEgg = instance.applyUpgradeEgg
 
 	function instance.applyPrestige(candidateProfile: any, op: any, depsOverride: any?): any
 		local merged = { catalog = catalog, productionMath = productionMath }
@@ -419,6 +438,7 @@ ProgressActions.calculatePrestigeEarnings = calculatePrestigeEarnings
 ProgressActions.calculatePendingSoulEggs = calculatePendingSoulEggs
 ProgressActions.canUpgradeEgg = canUpgradeEgg
 ProgressActions.applyUpgradeEgg = applyUpgradeEgg
+ProgressActions.upgradeEgg = applyUpgradeEgg
 ProgressActions.applyPrestige = applyPrestige
 ProgressActions.apply = apply
 

@@ -98,6 +98,57 @@ local RESEARCH_DISPLAY_NAMES = table.freeze({
 	leafsprings = "Resory Pojazdów (+Pojemność floty)",
 })
 
+local EGGS_DATA = table.freeze({
+	[0] = { index = 0, name = "Edible", eggValueBase = 0.25, advanceFV = 0 },
+	[1] = { index = 1, name = "Superfood", eggValueBase = 1.25, advanceFV = 68000000 },
+	[2] = { index = 2, name = "Medical", eggValueBase = 6.25, advanceFV = 5300000000 },
+	[3] = { index = 3, name = "Rocket Fuel", eggValueBase = 30, advanceFV = 240000000000 },
+	[4] = { index = 4, name = "Super Material", eggValueBase = 150, advanceFV = 1.7e14 },
+	[5] = { index = 5, name = "Fusion", eggValueBase = 700, advanceFV = 5e16 },
+	[6] = { index = 6, name = "Quantum", eggValueBase = 3000, advanceFV = 2.3e19 },
+	[7] = { index = 7, name = "CRISPR", eggValueBase = 12500, advanceFV = 9.4e22 },
+	[8] = { index = 8, name = "Tachyon", eggValueBase = 50000, advanceFV = 1.7e26 },
+	[9] = { index = 9, name = "Graviton", eggValueBase = 175000, advanceFV = 9.8e29 },
+	[10] = { index = 10, name = "Dilithium", eggValueBase = 525000, advanceFV = 4.8e33 },
+	[11] = { index = 11, name = "Prodigy", eggValueBase = 1500000, advanceFV = 1.6e37 },
+	[12] = { index = 12, name = "Terraform", eggValueBase = 10000000, advanceFV = 2e40 },
+	[13] = { index = 13, name = "Antimatter", eggValueBase = 1000000000, advanceFV = 1.3e44 },
+	[14] = { index = 14, name = "Dark Matter", eggValueBase = 100000000000, advanceFV = 1.2e48 },
+	[15] = { index = 15, name = "A.I.", eggValueBase = 1e12, advanceFV = 3.2e52 },
+	[16] = { index = 16, name = "Nebula", eggValueBase = 1.5e13, advanceFV = 2e56 },
+	[17] = { index = 17, name = "Universe", eggValueBase = 1e14, advanceFV = 4e60 },
+	[18] = { index = 18, name = "Enlightenment", eggValueBase = 1e-7, advanceFV = 3.6e65 },
+})
+
+local function calculateClientFarmValue(farm)
+	if not farm then return 0 end
+	local eggIndex = farm.eggIndex or 0
+	local egg = EGGS_DATA[eggIndex] or EGGS_DATA[0]
+	local eggValueBase = egg.eggValueBase
+
+	local population = 0
+	local habCapacity = 0
+	if type(farm.habitats) == "table" then
+		for _, hab in ipairs(farm.habitats) do
+			population += tonumber(hab.population) or 0
+			habCapacity += tonumber(hab.capacity) or 0
+		end
+	end
+
+	local shippingPerMinute = 0
+	if farm.fleet and farm.fleet.shippingPerMinute then
+		shippingPerMinute = tonumber(farm.fleet.shippingPerMinute) or 0
+	end
+
+	local L = 1.0 / 30
+	local C = math.floor((shippingPerMinute / 60) / L)
+	local P = if population <= C then population else math.floor(C + 0.2 * (population - C))
+	local F = math.max(0, habCapacity - population) ^ 0.6
+	local K = if eggIndex < 18 then 1200 + 600 * eggIndex else 3600
+
+	return 50 * K * L * eggValueBase * (P + F)
+end
+
 -- ============================================================================
 -- GUI Instance Helpers (Studio & Lune Mock)
 -- ============================================================================
@@ -291,6 +342,15 @@ function HUD.new(deps)
 		shopResearch = {},
 		shopHabitats = {},
 		shopVehicles = {},
+		eggUpgradeModal = nil,
+		eggUpgradeCurrentLabel = nil,
+		eggUpgradeNextLabel = nil,
+		eggUpgradeMultLabel = nil,
+		eggUpgradeCurrentFvLabel = nil,
+		eggUpgradeReqFvLabel = nil,
+		eggUpgradeWarningLabel = nil,
+		eggUpgradeBtn = nil,
+		onUpgradeEggRequested = nil,
 
 		_unsubs = {},
 	}, HUD)
@@ -728,6 +788,135 @@ function HUD:_buildInterface()
 			end
 		end)
 	end
+
+	-- 9. Egg Upgrade Confirmation Modal (PROD-02)
+	local eggModal = createGuiElement("Frame", {
+		Name = "EggUpgradeModal",
+		Visible = false,
+		Size = isRoblox and UDim2.new(0, 440, 0, 390) or nil,
+		Position = isRoblox and UDim2.new(0.5, -220, 0.5, -195) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(68, 36, 22) or nil,
+	}, root)
+	addCornerAndStroke(eggModal, 14, isRoblox and Color3.fromRGB(255, 215, 65) or nil, 3.2)
+	self.eggUpgradeModal = eggModal
+
+	createGuiElement("TextLabel", {
+		Name = "EggUpgradeTitle",
+		Size = isRoblox and UDim2.new(1, -60, 0, 36) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 0, 10) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 225, 75) or nil,
+		Text = "✨ STACJA BADAWCZA JAJ",
+	}, eggModal)
+
+	local closeEggBtn = createGuiElement("TextButton", {
+		Name = "CloseBtn",
+		Size = isRoblox and UDim2.new(0, 32, 0, 32) or nil,
+		Position = isRoblox and UDim2.new(1, -42, 0, 12) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(235, 65, 65) or nil,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "✕",
+	}, eggModal)
+	addCornerAndStroke(closeEggBtn, 6, isRoblox and Color3.fromRGB(85, 20, 20) or nil, 2)
+	if closeEggBtn.Activated then
+		closeEggBtn.Activated:Connect(function()
+			self.eggUpgradeModal.Visible = false
+		end)
+	end
+
+	self.eggUpgradeCurrentLabel = createGuiElement("TextLabel", {
+		Name = "CurrentEggLabel",
+		Size = isRoblox and UDim2.new(1, -32, 0, 26) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 0, 52) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "🥚 Aktualne: Jajo Jadalne (Edible)",
+	}, eggModal)
+
+	self.eggUpgradeNextLabel = createGuiElement("TextLabel", {
+		Name = "NextEggLabel",
+		Size = isRoblox and UDim2.new(1, -32, 0, 26) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 0, 82) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(115, 245, 115) or nil,
+		Text = "✨ Następne: Jajo Superfood",
+	}, eggModal)
+
+	self.eggUpgradeMultLabel = createGuiElement("TextLabel", {
+		Name = "MultiplierLabel",
+		Size = isRoblox and UDim2.new(1, -32, 0, 24) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 0, 112) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 215, 100) or nil,
+		Text = "📈 Mnożnik Wartości: 5.0x",
+	}, eggModal)
+
+	self.eggUpgradeCurrentFvLabel = createGuiElement("TextLabel", {
+		Name = "CurrentFvLabel",
+		Size = isRoblox and UDim2.new(1, -32, 0, 24) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 0, 142) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(135, 225, 255) or nil,
+		Text = "💰 Twoje Farm Value: $0",
+	}, eggModal)
+
+	self.eggUpgradeReqFvLabel = createGuiElement("TextLabel", {
+		Name = "RequiredFvLabel",
+		Size = isRoblox and UDim2.new(1, -32, 0, 24) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 0, 170) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 185, 115) or nil,
+		Text = "🎯 Wymagane Farm Value: $68.0M",
+	}, eggModal)
+
+	self.eggUpgradeWarningLabel = createGuiElement("TextLabel", {
+		Name = "WarningLabel",
+		Size = isRoblox and UDim2.new(1, -32, 0, 50) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 0, 202) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 200, 180) or nil,
+		Text = "⚠️ Awans zresetuje bieżącą gotówkę, kurniki i pojazdy.\nPety, Złote Jaja i badania Epickie zostaną zachowane!",
+	}, eggModal)
+
+	local upgEggBtn = createGuiElement("TextButton", {
+		Name = "UpgradeEggButton",
+		Size = isRoblox and UDim2.new(1, -40, 0, 52) or nil,
+		Position = isRoblox and UDim2.new(0, 20, 0, 260) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(95, 235, 55) or nil,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "AWANSUJ NASTĘPNE JAJO",
+	}, eggModal)
+	addCornerAndStroke(upgEggBtn, 10, isRoblox and Color3.fromRGB(24, 60, 14) or nil, 2.5)
+	self.eggUpgradeBtn = upgEggBtn
+
+	if upgEggBtn.Activated then
+		upgEggBtn.Activated:Connect(function()
+			local farm = self.stateStore and self.stateStore:getFarm()
+			local curEggIdx = (farm and farm.eggIndex) or 0
+			local nextEggIdx = curEggIdx + 1
+			if nextEggIdx <= 18 and type(self.onUpgradeEggRequested) == "function" then
+				self.onUpgradeEggRequested(nextEggIdx)
+			end
+		end)
+	end
 end
 
 function HUD:toggleResearchModal(forceState)
@@ -740,6 +929,9 @@ function HUD:toggleResearchModal(forceState)
 	if self.shopFrame.Visible and self.habitatsModal then
 		self.habitatsModal.Visible = false
 	end
+	if self.shopFrame.Visible and self.eggUpgradeModal then
+		self.eggUpgradeModal.Visible = false
+	end
 end
 
 function HUD:toggleHabitatsModal(forceState)
@@ -751,6 +943,22 @@ function HUD:toggleHabitatsModal(forceState)
 	end
 	if self.habitatsModal.Visible and self.shopFrame then
 		self.shopFrame.Visible = false
+	end
+	if self.habitatsModal.Visible and self.eggUpgradeModal then
+		self.eggUpgradeModal.Visible = false
+	end
+end
+
+function HUD:toggleEggUpgradeModal(forceState)
+	if not self.eggUpgradeModal then return end
+	if forceState ~= nil then
+		self.eggUpgradeModal.Visible = forceState
+	else
+		self.eggUpgradeModal.Visible = not self.eggUpgradeModal.Visible
+	end
+	if self.eggUpgradeModal.Visible then
+		if self.shopFrame then self.shopFrame.Visible = false end
+		if self.habitatsModal then self.habitatsModal.Visible = false end
 	end
 end
 
@@ -866,6 +1074,66 @@ function HUD:update()
 				visibleIdx += 1
 			end
 			self:_updateResearchItem(research, visibleIdx)
+		end
+	end
+
+	-- 5. Egg Upgrade Modal Refresh (PROD-02)
+	if self.eggUpgradeModal and farm then
+		local curEggIdx = farm.eggIndex or 0
+		local nextEggIdx = curEggIdx + 1
+		local curEgg = EGGS_DATA[curEggIdx] or EGGS_DATA[0]
+		local nextEgg = EGGS_DATA[nextEggIdx]
+
+		local approxFv = calculateClientFarmValue(farm)
+		if self.eggUpgradeCurrentLabel then
+			self.eggUpgradeCurrentLabel.Text = string.format("🥚 Aktualne Jajo: %s ($%s)", curEgg.name, formatCompact(curEgg.eggValueBase))
+		end
+
+		if nextEgg then
+			local reqFv = nextEgg.advanceFV
+			local mult = nextEgg.eggValueBase / curEgg.eggValueBase
+			if self.eggUpgradeNextLabel then
+				self.eggUpgradeNextLabel.Text = string.format("✨ Następne Jajo: %s ($%s)", nextEgg.name, formatCompact(nextEgg.eggValueBase))
+			end
+			if self.eggUpgradeMultLabel then
+				self.eggUpgradeMultLabel.Text = string.format("📈 Mnożnik Wartości: %.1fx", mult)
+			end
+			if self.eggUpgradeCurrentFvLabel then
+				self.eggUpgradeCurrentFvLabel.Text = string.format("💰 Twoje Farm Value: $%s", formatCompact(approxFv))
+			end
+			if self.eggUpgradeReqFvLabel then
+				self.eggUpgradeReqFvLabel.Text = string.format("🎯 Wymagane Farm Value: $%s", formatCompact(reqFv))
+			end
+
+			if self.eggUpgradeBtn then
+				if approxFv >= reqFv then
+					self.eggUpgradeBtn.Text = "AWANSUJ NASTĘPNE JAJO (" .. string.upper(nextEgg.name) .. ")"
+					if isRoblox then
+						self.eggUpgradeBtn.BackgroundColor3 = Color3.fromRGB(95, 235, 55)
+					end
+				else
+					self.eggUpgradeBtn.Text = "WYMAGANE WIĘKSZE FARM VALUE"
+					if isRoblox then
+						self.eggUpgradeBtn.BackgroundColor3 = Color3.fromRGB(140, 140, 140)
+					end
+				end
+			end
+		else
+			if self.eggUpgradeNextLabel then
+				self.eggUpgradeNextLabel.Text = "🎉 Osiągnięto Oświecenie (MAX)!"
+			end
+			if self.eggUpgradeMultLabel then
+				self.eggUpgradeMultLabel.Text = "Maksymalny gatunek osiągnięty"
+			end
+			if self.eggUpgradeReqFvLabel then
+				self.eggUpgradeReqFvLabel.Text = "Brak dalszych poziomów"
+			end
+			if self.eggUpgradeBtn then
+				self.eggUpgradeBtn.Text = "MAKSYMALNE JAJO"
+				if isRoblox then
+					self.eggUpgradeBtn.BackgroundColor3 = Color3.fromRGB(140, 140, 140)
+				end
+			end
 		end
 	end
 end

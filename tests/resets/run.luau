@@ -12,6 +12,12 @@ local Catalog = require("../../src/server/CatalogRegistry").new(Codec, CatalogDa
 local ProductionMath = require("../../src/server/FarmMath/production_research").new(Codec, Catalog, { mode = "INTERNAL_TEST_ONLY" })
 local FvSe = require("../../src/server/FarmMath/fv_se")
 local ProgressActions = require("../../src/server/ProgressActions")
+local Schemas = require("../../src/shared/ProtocolSchemas")
+local FarmPlotBuilder = require("../../src/server/world/FarmPlotBuilder")
+local HUD = require("../../src/client/HUD")
+local ClientBootstrap = require("../../src/client/Bootstrap")
+local EffectsManager = require("../../src/server/EffectsManager")
+local PetEquipment = require("../../src/server/pets/equipment")
 
 local BigAmount = Codec.BigAmount
 local Real64 = Codec.Real64
@@ -618,7 +624,235 @@ do
 end
 
 -- ============================================================================
--- Section 7: Save Results and Report
+-- Section 7: Full 19-Egg Progression Tree & 3D Egg Upgrade Station Verification (#44 / PROD-02)
+-- ============================================================================
+do
+	-- 7.1 Consistency of all 19 eggs between CatalogRegistry and FvSe
+	for eggIdx = 0, 18 do
+		local catEgg = Catalog.getEgg(eggIdx)
+		local fvEgg = FvSe.EGGS[eggIdx]
+		ok(catEgg ~= nil, "catalog egg " .. tostring(eggIdx) .. " exists")
+		ok(fvEgg ~= nil, "FvSe egg " .. tostring(eggIdx) .. " exists")
+		eq(catEgg.index, eggIdx, "egg index " .. tostring(eggIdx))
+		eq(catEgg.value, fvEgg.eggValueBase, "egg base value matches for egg " .. tostring(eggIdx))
+		ok(fvEgg.name ~= nil and #fvEgg.name > 0, "egg has valid name")
+		if eggIdx > 0 and eggIdx < 18 then
+			ok(fvEgg.advanceFV > FvSe.EGGS[eggIdx - 1].advanceFV, "advanceFV strictly ascending for egg " .. tostring(eggIdx))
+			ok(fvEgg.discoveryFV <= fvEgg.advanceFV, "discoveryFV <= advanceFV for egg " .. tostring(eggIdx))
+		end
+	end
+
+	-- 7.2 Full Sequential 19-Egg Progression (0 -> 1 -> 2 -> ... -> 18)
+	local p = createTestProfile("player-progression-full", 1000000)
+	p.permanent.GE = ExactUInt.encode(ExactUInt.fromSafeNumber(50000))
+	p.permanent.epic = { soul_food = 25, epic_hatchery = 10, silo_capacity = 5 }
+	p.entitlements = { proPermit = true, buyMax = true }
+	p.inventory = {
+		pets = {
+			["pet-golden-1"] = { uid = "pet-golden-1", speciesId = "golden_rooster", tier = 2, variant = "golden", locked = false },
+			["pet-cat-1"] = { uid = "pet-cat-1", speciesId = "lucky_cat", tier = 1, variant = "normal", locked = false },
+		},
+		equipped = { "pet-golden-1" },
+	}
+	p.farm.equippedPets = { "pet-golden-1" }
+	p.effects = {
+		boosts = {
+			{ id = "boost-speed-1", dimension_raw = 4, effect = 10.0, remainingSeconds = 600, activatedAtMs = 1000000 },
+		},
+	}
+
+	for targetEgg = 1, 18 do
+		local curEgg = targetEgg - 1
+		eq(p.farm.eggIndex, curEgg, "farm is currently on egg " .. tostring(curEgg))
+
+		-- Setup dirty farm state: population, upgraded habitats, multiple vehicles, common research, wallet cash
+		p.farm.cash = BigAmount.encode(250000 * targetEgg)
+		p.accounting.currentFarmCash = BigAmount.encode(250000 * targetEgg)
+		p.accounting.lastCashEarned = BigAmount.encode(1000)
+		p.farm.habitats[1] = { typeIndex = 1, population = "1000", assignedInTransit = "10", fractionalIHR = "0.5" }
+		p.farm.habitats[2] = { typeIndex = 0, population = "500", assignedInTransit = "0", fractionalIHR = "0" }
+		p.farm.vehicles = { { typeIndex = 1 }, { typeIndex = 0 } }
+		p.farm.fleetLimit = 6
+		p.farm.common = { comfy_nests = 5, nutritional_sup = 3 }
+		p.farm.hatcheryStock = "150"
+		p.farm.runningCount = "5"
+		p.farm.siloOwned = 2
+
+		local prevArchived = BigAmount.decode(p.accounting.prestigeSessionArchivedCash or "0")
+		local expectedArchived = prevArchived + (250000 * targetEgg)
+
+		-- (A) Test rejection when FV is too low
+		p.permanent.SE = Real64.encode(0)
+		p.permanent.PE = ExactUInt.encode(ExactUInt.fromSafeNumber(0))
+		local canAdvLow, blkLow, _ = ProgressActions.canUpgradeEgg(p, targetEgg, Catalog, ProductionMath)
+		if targetEgg > 1 then
+			eq(canAdvLow, false, "cannot advance to egg " .. tostring(targetEgg) .. " with zero SE")
+			eq(blkLow, "FV_TOO_LOW")
+			local rejectOp = { kind = "UpgradeEgg", operationId = "op-low-" .. tostring(targetEgg), args = { targetEggIndex = targetEgg } }
+			local rejectRes = ProgressActions.applyUpgradeEgg(Data.copy(p), rejectOp, { catalog = Catalog, productionMath = ProductionMath })
+			eq(rejectRes.terminalStatus, "REJECTED")
+			eq(rejectRes.result.success, false)
+			eq(rejectRes.result.errorCode, "FV_TOO_LOW")
+		end
+
+		-- (B) Grant enough SE to meet/exceed targetEgg advanceFV
+		local targetAdvanceFV = FvSe.EGGS[targetEgg].advanceFV
+		local baseFV = 13732
+		local neededMult = math.max(1, targetAdvanceFV / baseFV)
+		local neededSE = (neededMult / 0.35) * 2
+		p.permanent.SE = Real64.encode(neededSE)
+
+		local qualifyFv = ProgressActions.calculateProfileFarmValue(p, Catalog, ProductionMath)
+		ok(qualifyFv >= targetAdvanceFV, "qualifyFv (" .. tostring(qualifyFv) .. ") >= advanceFV (" .. tostring(targetAdvanceFV) .. ") for egg " .. tostring(targetEgg))
+
+		local canAdv, blk, fv = ProgressActions.canUpgradeEgg(p, targetEgg, Catalog, ProductionMath)
+		eq(canAdv, true, "canUpgradeEgg true for egg " .. tostring(targetEgg))
+		eq(blk, nil)
+
+		-- (C) Execute UpgradeEgg via ProgressActions.upgradeEgg alias
+		local op = { kind = "UpgradeEgg", operationId = "op-adv-" .. tostring(targetEgg), args = { targetEggIndex = targetEgg } }
+		local outcome = ProgressActions.upgradeEgg(p, op, { catalog = Catalog, productionMath = ProductionMath })
+
+		-- Verify DTO
+		eq(outcome.terminalStatus, "APPLIED", "upgrade applied for egg " .. tostring(targetEgg))
+		eq(outcome.result.terminalStatus, "APPLIED")
+		eq(outcome.result.success, true, "DTO success is true")
+		eq(outcome.result.actionKind, "UpgradeEgg")
+		eq(outcome.result.newEggIndex, targetEgg, "DTO newEggIndex matches")
+		eq(outcome.result.eggIndex, targetEgg, "DTO eggIndex matches")
+		eq(outcome.result.eggValueBase, FvSe.EGGS[targetEgg].eggValueBase, "DTO eggValueBase matches catalog")
+
+		p = outcome.profile
+
+		-- (D) Verify state resets & preservations
+		eq(p.farm.eggIndex, targetEgg, "farm.eggIndex updated")
+		eq(p.farm.maxEggReached, targetEgg, "farm.maxEggReached updated")
+		eq(p.accounting.currentFarmCash, "0", "currentFarmCash reset to 0")
+		eq(p.accounting.lastCashEarned, "0", "lastCashEarned reset to 0")
+		eq(p.farm.cash, "0", "wallet cash reset to 0")
+		eq(BigAmount.decode(p.accounting.prestigeSessionArchivedCash), expectedArchived, "archived cash rolled over")
+
+		-- Infrastructure reset
+		eq(p.farm.habitats[1].typeIndex, 0, "habitat 1 reset to Coop")
+		eq(p.farm.habitats[1].population, "0", "habitat 1 pop reset to 0")
+		eq(p.farm.habitats[2].typeIndex, -1, "habitat 2 reset to empty")
+		eq(#p.farm.vehicles, 1, "fleet reset to 1 vehicle")
+		eq(p.farm.vehicles[1].typeIndex, 0, "vehicle reset to Trike")
+		eq(p.farm.fleetLimit, 4, "fleetLimit reset to 4")
+		eq(next(p.farm.common), nil, "common research reset to empty table")
+		eq(p.farm.hatcheryStock, "250", "hatcheryStock reset to 250")
+		eq(p.farm.runningCount, "0", "runningCount reset to 0")
+		eq(p.farm.siloOwned, 1, "siloOwned reset to 1")
+
+		-- Invariants: permanent fields, permits, pets, boosts PRESERVED
+		eq(ExactUInt.toSafeNumber(ExactUInt.decode(p.permanent.GE)), 50000, "Golden Eggs preserved")
+		eq(p.permanent.epic.soul_food, 25, "Epic research preserved")
+		eq(p.entitlements.proPermit, true, "Pro Permit preserved")
+		eq(p.entitlements.buyMax, true, "Buy Max preserved")
+		eq(#p.farm.equippedPets, 1, "Equipped pets preserved")
+		eq(#p.effects.boosts, 1, "Active boosts preserved")
+	end
+
+	-- 7.3 Rule D03 for Enlightenment (egg 18)
+	eq(p.farm.eggIndex, 18, "reached Enlightenment")
+	eq(Catalog.getEgg(18).value, 1e-7, "Enlightenment base egg value is 1e-7")
+	-- Verify EffectsManager pauses boosts on Enlightenment
+	local effMults = EffectsManager.calculateMultipliers(p.effects, p.farm, 1000000)
+	eq(effMults.earningsMultiplier, 1.0, "boosts paused on Enlightenment per D03")
+	-- Verify PetEquipment neutralizes multipliers on Enlightenment
+	local petMults = PetEquipment.calculatePetMultipliers(p.inventory, p.farm, Catalog)
+	eq(petMults.layingRateMult, 1.0, "pet laying rate neutralized to 1.0 on Enlightenment")
+	eq(petMults.eggValueMult, 1.0, "pet egg value neutralized to 1.0 on Enlightenment")
+	-- Verify Boost decay is paused on Enlightenment
+	local prevBoostSec = p.effects.boosts[1].remainingSeconds
+	EffectsManager.stepDecay(p.effects, p.farm, 60)
+	eq(p.effects.boosts[1].remainingSeconds, prevBoostSec, "boost duration does not decay on Enlightenment")
+
+	-- 7.4 3D World FarmPlotBuilder Verification
+	local world = FarmPlotBuilder.new()
+	world:build()
+	local pedestal = world:getEggUpgradePedestal()
+	ok(pedestal ~= nil, "EggUpgradePedestal created in world")
+	eq(pedestal.Name, "EggUpgradePedestal")
+
+	local prompt = world:getEggUpgradePrompt()
+	ok(prompt ~= nil, "EggUpgradePrompt created on pedestal")
+	eq(prompt.ObjectText, "Stacja Badawcza Jaj")
+	eq(prompt.ActionText, "Zbadaj Nowe Jajo / Awansuj")
+	eq(prompt.MaxActivationDistance, 15)
+
+	-- Update billboards from farmView
+	world:updateFromFarmView({ eggIndex = 0, habitats = {}, common = {} }, Catalog)
+	ok(#world.eggUpgradeBillboards >= 1, "at least 1 egg upgrade billboard registered")
+	eq(world.eggUpgradeBillboards[1].curLabel.Text, "🥚 Aktualne: EDIBLE")
+	eq(world.eggUpgradeBillboards[1].nextLabel.Text, "✨ Następne: SUPERFOOD")
+
+	-- Update for max egg (18)
+	world:updateFromFarmView({ eggIndex = 18, habitats = {}, common = {} }, Catalog)
+	eq(world.eggUpgradeBillboards[1].curLabel.Text, "🥚 Aktualne: ENLIGHTENMENT (MAX)")
+	eq(world.eggUpgradeBillboards[1].nextLabel.Text, "🎉 Osiągnięto Oświecenie (MAX)!")
+
+	-- 7.5 Client HUD Modal & ClientBootstrap Verification
+	local mockRoot = { Name = "ScreenGui", Children = {} }
+	local mockStore = {
+		isReady = function() return true end,
+		getStatus = function() return "READY" end,
+		getFarm = function()
+			return {
+				eggIndex = 0,
+				cash = "1000",
+				habitats = { { slotId = 1, population = "250", capacity = "250" } },
+				fleet = { shippingPerMinute = "5000", vehicles = {} },
+				common = {},
+			}
+		end,
+		getCommitRevision = function() return "5" end,
+		getServerObservedAt = function() return 1000000 end,
+		on = function() return function() end end,
+		onStatusChanged = function() return function() end end,
+		onStateChanged = function() return function() end end,
+	}
+	local hud = HUD.new({
+		stateStore = mockStore,
+		intentControllers = { transport = { onQuote = function() return function() end end } },
+		guiRoot = mockRoot,
+		codec = Codec,
+	})
+	ok(hud.eggUpgradeModal ~= nil, "HUD eggUpgradeModal created")
+	eq(hud.eggUpgradeModal.Visible, false, "modal initially hidden")
+
+	hud:toggleEggUpgradeModal(true)
+	eq(hud.eggUpgradeModal.Visible, true, "toggleEggUpgradeModal opens modal")
+	hud:toggleEggUpgradeModal(false)
+	eq(hud.eggUpgradeModal.Visible, false, "toggleEggUpgradeModal closes modal")
+
+	local requestedUpgradeEgg = nil
+	hud.onUpgradeEggRequested = function(eggIdx)
+		requestedUpgradeEgg = eggIdx
+	end
+	hud.eggUpgradeBtn.Activated:Fire()
+	eq(requestedUpgradeEgg, 1, "Upgrade button triggered onUpgradeEggRequested with nextEggIndex 1")
+
+	-- 7.6 ClientBootstrap:upgradeEgg dispatching
+	local sentMessage = nil
+	local client = ClientBootstrap.new({
+		playerId = "12345",
+		wire = function(msg)
+			sentMessage = msg
+		end,
+	})
+	client.stateStore = mockStore
+	client:upgradeEgg(1)
+	ok(sentMessage ~= nil, "client:upgradeEgg sent protocol message")
+	eq(sentMessage.kind, "UpgradeEgg", "sent message kind is UpgradeEgg")
+	eq(sentMessage.args.targetEggIndex, 1, "sent message targetEggIndex is 1")
+	eq(sentMessage.expectedRevision, "5", "expectedRevision matches store commit revision")
+	local validClient, errClient = Schemas.new(Codec).validateClient(sentMessage)
+	ok(validClient, "ProtocolSchemas validates client UpgradeEgg message: " .. tostring(errClient))
+end
+
+-- ============================================================================
+-- Section 8: Save Results and Report
 -- ============================================================================
 fs.writeFile("build/resets-results.json", serde.encode("json", {
 	status = "PASS",

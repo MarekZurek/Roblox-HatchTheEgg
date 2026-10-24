@@ -72,6 +72,10 @@ local FarmActions = resolve(function()
 	return script.Parent.FarmActions
 end, "./FarmActions")
 
+local ProgressActions = resolve(function()
+	return script.Parent.ProgressActions
+end, "./ProgressActions")
+
 local ViewProjector = resolve(function()
 	return script.Parent.ViewProjector
 end, "./ViewProjector")
@@ -425,6 +429,9 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 	end
 
 	local function domainApply(candidateProfile, op)
+		if op.kind == "UpgradeEgg" or op.kind == "Prestige" then
+			return ProgressActions.apply(candidateProfile, op, { catalog = self.catalog, productionMath = self.productionMath })
+		end
 		return self.farmActions.apply(candidateProfile, op)
 	end
 

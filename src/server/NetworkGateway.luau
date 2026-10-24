@@ -306,6 +306,7 @@ function NetworkGateway:_initHandlers()
 	handlers.BuyResearch = handleMutation
 	handlers.BuyHabitat = handleMutation
 	handlers.BuyVehicle = handleMutation
+	handlers.UpgradeEgg = handleMutation
 
 	handlers.HatchPress = function(selfRef, playerId, message, pData)
 		if pData.streamId ~= nil and message.streamId ~= pData.streamId then

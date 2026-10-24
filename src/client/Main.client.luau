@@ -152,6 +152,9 @@ if hud then
 	hud.onQuickBuyVehicle = function(slotId)
 		upgradeVehicleSlot(slotId)
 	end
+	hud.onUpgradeEggRequested = function(targetEggIndex)
+		client:upgradeEgg(targetEggIndex)
+	end
 end
 
 local tutorialController = TutorialController.new(client:getStore(), screenGui)
@@ -271,6 +274,10 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt, playerWhoTrigger
 		end
 	elseif pName == "DepotProximityPrompt" then
 		upgradeVehicleSlot(1)
+	elseif pName == "EggUpgradePrompt" or pName == "EggUpgradeProximityPrompt" or prompt.ObjectText == "Stacja Badawcza Jaj" then
+		if hud then
+			hud:toggleEggUpgradeModal(true)
+		end
 	end
 end)
 

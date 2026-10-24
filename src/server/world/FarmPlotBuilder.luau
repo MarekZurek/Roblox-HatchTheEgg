@@ -13,6 +13,20 @@
 -- All economy mutations go through authoritative PlayerCoordinator / NetworkGateway.
 
 local isRoblox = (typeof(Instance) == "table" and type(Instance.new) == "function")
+local isStudio = (typeof(script) == "Instance")
+local function resolve(studioGetter, lunePath)
+	if isStudio then
+		local ok, mod = pcall(studioGetter)
+		if ok and mod then
+			return if typeof(mod) == "Instance" then require(mod) else mod
+		end
+	end
+	return require(lunePath)
+end
+
+local FvSe = resolve(function()
+	return script.Parent.Parent.FarmMath.fv_se
+end, "../FarmMath/fv_se")
 
 local FarmPlotBuilder = {}
 FarmPlotBuilder.__index = FarmPlotBuilder
@@ -344,6 +358,126 @@ local function createBuyPad(parent, config)
 end
 
 -- ============================================================================
+-- Egg Upgrade Pedestal Builder (PROD-02)
+-- ============================================================================
+
+local function createEggUpgradePedestal(parent, pos, self)
+	local pedestal = makePart({
+		Name = "EggUpgradePedestal",
+		Size = v3(7, 3.6, 7),
+		Position = v3(pos.x, pos.y, pos.z),
+		Color = rgb(255, 215, 65),
+		StudsTop = true,
+		CanCollide = true,
+		CanTouch = true,
+		CanQuery = true,
+	}, parent, false)
+
+	-- Floating glowing mini egg atop the pedestal
+	makePart({
+		Name = "PedestalMiniEgg",
+		Shape = isRoblox and Enum.PartType.Ball or nil,
+		Size = v3(2.6, 3.6, 2.6),
+		Position = v3(pos.x, pos.y + 3.0, pos.z),
+		Color = rgb(255, 245, 140),
+		Material = isRoblox and Enum.Material.Neon or nil,
+	}, parent, true)
+
+	local prompt
+	if isRoblox then
+		prompt = Instance.new("ProximityPrompt")
+		prompt.Name = "EggUpgradeProximityPrompt"
+		prompt.ObjectText = "Stacja Badawcza Jaj"
+		prompt.ActionText = "Zbadaj Nowe Jajo / Awansuj"
+		prompt.KeyboardKeyCode = Enum.KeyCode.G
+		prompt.HoldDuration = 0
+		prompt.MaxActivationDistance = 15
+		prompt.RequiresLineOfSight = false
+		prompt.Parent = pedestal
+
+		local bb = Instance.new("BillboardGui")
+		bb.Name = "EggUpgradeBillboard"
+		bb.Adornee = pedestal
+		bb.Size = UDim2.new(0, 260, 0, 85)
+		bb.StudsOffset = Vector3.new(0, 6.2, 0)
+		bb.MaxDistance = 120
+		bb.AlwaysOnTop = false
+		bb.Parent = pedestal
+
+		local curLabel = makeOutlinedText(bb, {
+			Name = "CurrentEggLabel",
+			Size = UDim2.new(1, 0, 0.33, 0),
+			Position = UDim2.new(0, 0, 0, 0),
+			Text = "🥚 Aktualne: Jajo Jadalne (Edible)",
+			TextColor3 = Color3.fromRGB(255, 235, 100),
+			StrokeThickness = 2.8,
+		})
+
+		local nextLabel = makeOutlinedText(bb, {
+			Name = "NextEggLabel",
+			Size = UDim2.new(1, 0, 0.33, 0),
+			Position = UDim2.new(0, 0, 0.33, 0),
+			Text = "✨ Następne: Jajo Superfood",
+			TextColor3 = Color3.fromRGB(115, 245, 115),
+			StrokeThickness = 2.8,
+		})
+
+		local reqLabel = makeOutlinedText(bb, {
+			Name = "RequiredFvLabel",
+			Size = UDim2.new(1, 0, 0.33, 0),
+			Position = UDim2.new(0, 0, 0.66, 0),
+			Text = "Wymagane FV: $68.0M",
+			TextColor3 = Color3.fromRGB(255, 255, 255),
+			StrokeThickness = 2.8,
+		})
+
+		if self and self.eggUpgradeBillboards then
+			table.insert(self.eggUpgradeBillboards, {
+				bb = bb,
+				curLabel = curLabel,
+				nextLabel = nextLabel,
+				reqLabel = reqLabel,
+			})
+		end
+	else
+		prompt = {
+			Name = "EggUpgradeProximityPrompt",
+			ObjectText = "Stacja Badawcza Jaj",
+			ActionText = "Zbadaj Nowe Jajo / Awansuj",
+			KeyboardKeyCode = "G",
+			MaxActivationDistance = 15,
+			HoldDuration = 0,
+			Parent = pedestal,
+		}
+		if pedestal.Children then
+			table.insert(pedestal.Children, prompt)
+		end
+		local curLabel = { Text = "🥚 Aktualne: Jajo Jadalne (Edible)" }
+		local nextLabel = { Text = "✨ Następne: Jajo Superfood" }
+		local reqLabel = { Text = "Wymagane FV: $68.0M" }
+		if self and self.eggUpgradeBillboards then
+			table.insert(self.eggUpgradeBillboards, {
+				bb = { Name = "EggUpgradeBillboard" },
+				curLabel = curLabel,
+				nextLabel = nextLabel,
+				reqLabel = reqLabel,
+			})
+		end
+	end
+
+	if self then
+		if not self.eggUpgradePedestal then
+			self.eggUpgradePedestal = pedestal
+		end
+		if not self.eggUpgradePrompt then
+			self.eggUpgradePrompt = prompt
+		end
+	end
+
+	return pedestal
+end
+
+-- ============================================================================
 -- Decorative Farm Prop Builders (CanCollide=false, CanTouch=false, CanQuery=false)
 -- ============================================================================
 
@@ -402,7 +536,7 @@ local function buildRoundTree(parent, x, y, z, foliageColor)
 	}, parent, true)
 end
 
-local function buildGiantRainbowAndHub(worldFolder)
+local function buildGiantRainbowAndHub(worldFolder, self)
 	local hubFolder
 	if isRoblox then
 		hubFolder = Instance.new("Folder")
@@ -475,6 +609,9 @@ local function buildGiantRainbowAndHub(worldFolder)
 		Color = rgb(255, 215, 35),
 		Material = isRoblox and Enum.Material.Neon or nil,
 	}, hubFolder, true)
+
+	-- Interactive Egg Upgrade Pedestal under the Rainbow Monument (PROD-02)
+	createEggUpgradePedestal(hubFolder, { x = 0, y = 2.5, z = -148 }, self)
 
 	-- Giant 7-Color Rainbow Arch over the Central Hub (Screenshot 2!)
 	local rainbowColors = {
@@ -694,6 +831,9 @@ function FarmPlotBuilder.new(deps)
 		hatchPrompt = nil,
 		researchPrompt = nil,
 		depotPrompt = nil,
+		eggUpgradePedestal = nil,
+		eggUpgradePrompt = nil,
+		eggUpgradeBillboards = {},
 		siloSurfaceLabel = nil,
 		habitats = {},
 		buyPads = {},
@@ -736,7 +876,7 @@ function FarmPlotBuilder:build()
 	self:_buildFarmIslandBase(worldFolder)
 
 	-- 3. Central Rainbow Hub Island & Bridges (Screenshot 2 inspiration!)
-	buildGiantRainbowAndHub(worldFolder)
+	buildGiantRainbowAndHub(worldFolder, self)
 
 	-- 4. Paved Cobblestone / Sandy Chicken Roads matching RoutePresentation
 	self:_buildChickenPaths(worldFolder)
@@ -1106,6 +1246,9 @@ function FarmPlotBuilder:_buildHatchery(worldFolder)
 			StrokeThickness = 2.4,
 		})
 	end
+
+	-- Interactive Egg Upgrade Pedestal beside Hatchery walkway (PROD-02)
+	createEggUpgradePedestal(hatcheryModel, { x = 14, y = 1.8, z = 34 }, self)
 end
 
 function FarmPlotBuilder:_buildHabitats(worldFolder)
@@ -1616,10 +1759,53 @@ function FarmPlotBuilder:updateFromFarmView(farmView, catalog)
 			end
 		end
 	end
+
+	-- 3. Update Egg Upgrade Pedestals (Billboards)
+	if type(self.eggUpgradeBillboards) == "table" and farmView.eggIndex ~= nil then
+		local curEggIdx = farmView.eggIndex
+		local nextEggIdx = curEggIdx + 1
+		local curEgg = FvSe.EGGS[curEggIdx]
+		local nextEgg = FvSe.EGGS[nextEggIdx]
+		local curName = if curEgg then curEgg.name else ("Egg #" .. tostring(curEggIdx))
+
+		for _, entry in ipairs(self.eggUpgradeBillboards) do
+			if nextEgg then
+				local nextName = nextEgg.name
+				local reqFV = nextEgg.advanceFV
+				if entry.curLabel then
+					entry.curLabel.Text = string.format("🥚 Aktualne: %s", curName)
+				end
+				if entry.nextLabel then
+					entry.nextLabel.Text = string.format("✨ Następne: %s", nextName)
+				end
+				if entry.reqLabel then
+					entry.reqLabel.Text = string.format("Wymagane FV: $%s", formatCompact(reqFV))
+				end
+			else
+				if entry.curLabel then
+					entry.curLabel.Text = string.format("🥚 Aktualne: %s (MAX)", curName)
+				end
+				if entry.nextLabel then
+					entry.nextLabel.Text = "🎉 Osiągnięto Oświecenie (MAX)!"
+				end
+				if entry.reqLabel then
+					entry.reqLabel.Text = "Brak dalszych jaj"
+				end
+			end
+		end
+	end
 end
 
 function FarmPlotBuilder:getPressurePlate()
 	return self.pressurePlate
+end
+
+function FarmPlotBuilder:getEggUpgradePedestal()
+	return self.eggUpgradePedestal
+end
+
+function FarmPlotBuilder:getEggUpgradePrompt()
+	return self.eggUpgradePrompt
 end
 
 function FarmPlotBuilder:getBuyPads()
