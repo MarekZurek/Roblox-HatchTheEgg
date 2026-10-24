@@ -16,10 +16,12 @@ end
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DataStoreService = game:GetService("DataStoreService")
+local MarketplaceService = game:GetService("MarketplaceService")
 
 local ServerBootstrap = require(script.Parent.Bootstrap)
 local FarmPlotBuilder = require(script.Parent.world.FarmPlotBuilder)
 local RobloxDataStorePort = require(script.Parent.RobloxDataStorePort)
+local Products = require(script.Parent.platform.products)
 
 local function resolveNumericPlayerId(player)
 	local uid = player and player.UserId or 1
@@ -148,6 +150,25 @@ local function onPlayerAdded(player)
 			end
 		end)
 	end)
+
+	-- Asynchronously check and grant owned GamePasses (Pro Permit, Buy MAX)
+	task.spawn(function()
+		local passMapping = {
+			[Products.CATALOG_ID_TO_PRODUCT_ID.pro_permit or 2001] = "pro_permit",
+			[Products.CATALOG_ID_TO_PRODUCT_ID.buy_max or 2002] = "buy_max",
+		}
+		for passId, catalogId in pairs(passMapping) do
+			local ok, owns = pcall(function()
+				return MarketplaceService:UserOwnsGamePassAsync(player.UserId, passId)
+			end)
+			if ok and owns then
+				server:grantEntitlement(pId, catalogId)
+			end
+		end
+		if player.Parent == Players then
+			syncWorldAndDelta(pId, player)
+		end
+	end)
 end
 
 local function onPlayerRemoving(player)
@@ -194,7 +215,52 @@ clientToServer.OnServerEvent:Connect(function(player, message)
 	end
 end)
 
--- 7. Authoritative Server Simulation Loop (0.5s steps)
+-- 7. Platform Payments: ProcessReceipt for Developer Products & GamePass Handling
+local function processReceipt(receiptInfo)
+	if type(receiptInfo) ~= "table" then
+		return Enum.ProductPurchaseDecision.NotProcessedYet
+	end
+
+	local playerId = receiptInfo.PlayerId
+	if not playerId then
+		return Enum.ProductPurchaseDecision.NotProcessedYet
+	end
+
+	local pId = tostring(playerId)
+	local session = server:getPlayer(pId)
+	if not session then
+		-- Player not currently active on this server instance; keep in Roblox retry queue
+		return Enum.ProductPurchaseDecision.NotProcessedYet
+	end
+
+	local success, result = server:applyPurchase(pId, receiptInfo)
+	if success then
+		local playerObj = Players:GetPlayerByUserId(playerId)
+		if playerObj then
+			syncWorldAndDelta(pId, playerObj)
+		end
+		return Enum.ProductPurchaseDecision.PurchaseGranted
+	else
+		warn("[HatchTheEgg Server] ProcessReceipt failed for player " .. tostring(pId) .. ": " .. tostring(result))
+		return Enum.ProductPurchaseDecision.NotProcessedYet
+	end
+end
+
+MarketplaceService.ProcessReceipt = processReceipt
+
+-- In-game GamePass purchase completion
+MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, passId, wasPurchased)
+	if wasPurchased and player and player.Parent == Players then
+		local pId = resolveNumericPlayerId(player)
+		local catalogId = Products.resolveCatalogId(passId)
+		if catalogId then
+			server:grantEntitlement(pId, catalogId)
+			syncWorldAndDelta(pId, player)
+		end
+	end
+end)
+
+-- 8. Authoritative Server Simulation Loop (0.5s steps)
 task.spawn(function()
 	while true do
 		task.wait(0.5)

@@ -545,6 +545,32 @@ local function addTextStroke(label, thickness, color)
 	stroke.Parent = label
 end
 
+local function promptMarketplacePurchase(productId, onPurchaseProductCallback)
+	if type(onPurchaseProductCallback) == "function" then
+		onPurchaseProductCallback(productId)
+	end
+	if isRoblox then
+		local okMps, mps = pcall(function() return game:GetService("MarketplaceService") end)
+		local okPlrs, plrs = pcall(function() return game:GetService("Players") end)
+		local lp = okPlrs and plrs and plrs.LocalPlayer
+		if okMps and mps and lp then
+			local isGamepass = (productId == "pro_permit" or productId == "buy_max")
+			local robloxId = if productId == "ge_pack_small" then 1001
+				elseif productId == "ge_pack_large" then 1002
+				elseif productId == "piggy_break" then 1003
+				elseif productId == "pro_permit" then 2001
+				elseif productId == "buy_max" then 2002
+				else tonumber(productId) or 1001
+
+			if isGamepass then
+				pcall(function() mps:PromptGamePassPurchase(lp, robloxId) end)
+			else
+				pcall(function() mps:PromptProductPurchase(lp, robloxId) end)
+			end
+		end
+	end
+end
+
 -- ============================================================================
 -- HUD Constructor & Initialization
 -- ============================================================================
@@ -1706,9 +1732,7 @@ function HUD:_buildShopProducts(container)
 		addCornerAndStroke(buyBtn, 6, isRoblox and Color3.fromRGB(20, 50, 15) or nil, 1.8)
 		if buyBtn.Activated then
 			buyBtn.Activated:Connect(function()
-				if type(self.onPurchaseProduct) == "function" then
-					self.onPurchaseProduct(prod.id)
-				end
+				promptMarketplacePurchase(prod.id, self.onPurchaseProduct)
 			end)
 		end
 		self.shopProductCards[prod.id] = card
@@ -1847,9 +1871,7 @@ function HUD:_buildShopProducts(container)
 		addCornerAndStroke(buyBtn, 6, isRoblox and Color3.fromRGB(20, 50, 15) or nil, 1.8)
 		if buyBtn.Activated then
 			buyBtn.Activated:Connect(function()
-				if type(self.onPurchaseProduct) == "function" then
-					self.onPurchaseProduct(pass.id)
-				end
+				promptMarketplacePurchase(pass.id, self.onPurchaseProduct)
 			end)
 		end
 		self.shopProductCards[pass.id] = card

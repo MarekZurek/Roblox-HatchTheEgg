@@ -1,6 +1,6 @@
 --!strict
 -- Authoritative server adapter for platform products (Pro Permit, Buy MAX, GE, conditional Piggy).
--- Spec: docs/25; docs/26; docs/27 §3.3, §4, §5; docs/28; Issue #34 (NEXT-09).
+-- Spec: docs/25; docs/26; docs/27 §3.3, §4, §5; docs/28; Issue #34 (NEXT-09), Issue #47 (PROD-05).
 
 local isStudio = (typeof(script) == "Instance")
 local function resolve(studioGetter, lunePath)
@@ -48,11 +48,16 @@ export type PurchasePreview = {
 }
 
 export type ReceiptInfo = {
-	purchaseToken: string,
+	purchaseToken: string?,
+	PurchaseId: string?,
+	purchaseId: string?,
 	playerId: string?,
-	productId: string,
+	PlayerId: number?,
+	productId: (string | number)?,
+	ProductId: (string | number)?,
 	paidRandomAllowed: boolean?,
 	geAmount: number?,
+	GEAmount: number?,
 }
 
 export type PurchaseResult = {
@@ -110,6 +115,57 @@ local CATALOG: { [string]: ProductDef } = table.freeze({
 	}),
 })
 
+-- Maps Roblox Product IDs / Asset IDs to internal catalog IDs
+local PRODUCT_ID_TO_CATALOG_ID: { [any]: string } = {
+	-- Default Developer Products
+	[1001] = "ge_pack_small",
+	["1001"] = "ge_pack_small",
+	[1002] = "ge_pack_large",
+	["1002"] = "ge_pack_large",
+	[1003] = "piggy_break",
+	["1003"] = "piggy_break",
+
+	-- Default GamePasses
+	[2001] = "pro_permit",
+	["2001"] = "pro_permit",
+	[2002] = "buy_max",
+	["2002"] = "buy_max",
+
+	-- Identity lookup for catalog string keys
+	["ge_pack_small"] = "ge_pack_small",
+	["ge_pack_large"] = "ge_pack_large",
+	["piggy_break"] = "piggy_break",
+	["pro_permit"] = "pro_permit",
+	["buy_max"] = "buy_max",
+}
+
+-- Reverse mapping from catalog IDs to default Roblox Asset/Product IDs
+local CATALOG_ID_TO_PRODUCT_ID: { [string]: number } = {
+	ge_pack_small = 1001,
+	ge_pack_large = 1002,
+	piggy_break = 1003,
+	pro_permit = 2001,
+	buy_max = 2002,
+}
+
+local function resolveCatalogId(externalId: any): string?
+	if externalId == nil then return nil end
+	return PRODUCT_ID_TO_CATALOG_ID[externalId] or PRODUCT_ID_TO_CATALOG_ID[tostring(externalId)]
+end
+
+local function resolveProductId(catalogId: string): number?
+	return CATALOG_ID_TO_PRODUCT_ID[catalogId]
+end
+
+local function registerProductId(externalId: any, catalogId: string)
+	assert(CATALOG[catalogId] ~= nil, "UNKNOWN_CATALOG_ID")
+	PRODUCT_ID_TO_CATALOG_ID[externalId] = catalogId
+	PRODUCT_ID_TO_CATALOG_ID[tostring(externalId)] = catalogId
+	if type(externalId) == "number" then
+		CATALOG_ID_TO_PRODUCT_ID[catalogId] = externalId
+	end
+end
+
 -- Discloses transparent terms and eligibility before purchase (Variant A - docs/26 R).
 local function previewPurchase(
 	profile: any,
@@ -117,7 +173,8 @@ local function previewPurchase(
 	playerContext: PlayerContext?,
 	isPiggyEnabled: boolean?
 ): PurchasePreview
-	local def = CATALOG[productId]
+	local resolvedId = resolveCatalogId(productId) or productId
+	local def = CATALOG[resolvedId]
 	if not def then
 		return {
 			productId = productId,
@@ -132,7 +189,7 @@ local function previewPurchase(
 
 	if not def.availableAtLaunch then
 		return {
-			productId = productId,
+			productId = resolvedId,
 			productType = def.productType,
 			name = def.name,
 			description = "This product is unavailable at launch.",
@@ -144,7 +201,7 @@ local function previewPurchase(
 
 	if def.requiresPiggy and isPiggyEnabled ~= true then
 		return {
-			productId = productId,
+			productId = resolvedId,
 			productType = def.productType,
 			name = def.name,
 			description = "Piggy bank is disabled pending release calibration.",
@@ -154,9 +211,9 @@ local function previewPurchase(
 		}
 	end
 
-	if def.productType == "gamepass" and profile and profile.entitlements and profile.entitlements[productId] == true then
+	if def.productType == "gamepass" and profile and profile.entitlements and profile.entitlements[resolvedId] == true then
 		return {
-			productId = productId,
+			productId = resolvedId,
 			productType = def.productType,
 			name = def.name,
 			description = "You already own this permanent gamepass.",
@@ -169,19 +226,19 @@ local function previewPurchase(
 	local paidBonusAvailable = true
 	local desc = def.name
 
-	if productId == "pro_permit" then
+	if resolvedId == "pro_permit" then
 		paidBonusAvailable = if playerContext and playerContext.paidRandomAllowed == false then false else true
 		if paidBonusAvailable then
 			desc = "Pro Permit: 10 silos, 1.0x away rate, 5 boost slots, 5 pet slots, and +10 p.p. pet fusion chance."
 		else
 			desc = "Pro Permit: 10 silos, 1.0x away rate, 5 boost slots, and 5 pet slots. Note: Paid random chance modifier (+10 p.p.) is disabled for your account."
 		end
-	elseif productId == "buy_max" then
+	elseif resolvedId == "buy_max" then
 		desc = "Buy MAX Research: fast research purchase shortcut. Does not grant Pro Permit."
 	end
 
 	return {
-		productId = productId,
+		productId = resolvedId,
 		productType = def.productType,
 		name = def.name,
 		description = desc,
@@ -203,6 +260,8 @@ local function preparePurchase(
 	assert(profile ~= nil, "Products/INVALID_PROFILE")
 	assert(type(purchaseToken) == "string" and #purchaseToken > 0, "Products/INVALID_TOKEN")
 
+	local resolvedId = resolveCatalogId(productId) or productId
+
 	profile.operations = profile.operations or {}
 	if profile.operations[purchaseToken] ~= nil then
 		local existing = profile.operations[purchaseToken]
@@ -213,17 +272,17 @@ local function preparePurchase(
 		end
 	end
 
-	local preview = previewPurchase(profile, productId, playerContext, isPiggyEnabled)
+	local preview = previewPurchase(profile, resolvedId, playerContext, isPiggyEnabled)
 	if not preview.isAvailable then
 		return false, preview, preview.error
 	end
 
 	local opRecord = {
-		argsKey = productId,
+		argsKey = resolvedId,
 		terminalStatus = "RESERVED",
 		preparedAtMs = nowMs,
 		preparedUtcDay = math.floor(nowMs / 86400000),
-		productId = productId,
+		productId = resolvedId,
 		paidRandomAllowed = preview.paidBonusAvailable,
 		result = {},
 	}
@@ -243,14 +302,28 @@ local function confirmPurchase(
 	assert(profile ~= nil and profile.permanent ~= nil, "Products/INVALID_PROFILE")
 	profile.operations = profile.operations or {}
 	profile.entitlements = profile.entitlements or {}
+	profile.accounting = profile.accounting or {}
+	profile.accounting.processedReceipts = profile.accounting.processedReceipts or {}
+
+	-- Replay protection / idempotency: check processedReceipts
+	if profile.accounting.processedReceipts[purchaseToken] ~= nil then
+		local prev = profile.accounting.processedReceipts[purchaseToken]
+		return true, {
+			success = true,
+			productId = (prev and prev.productId) or "unknown",
+			alreadyApplied = true,
+		}
+	end
 
 	local op = profile.operations[purchaseToken]
 
-	-- Replay protection / idempotency: return previous success without duplicate grant
+	-- Replay protection / idempotency: check operations ledger
 	if op and op.terminalStatus == "APPLIED" then
+		local prevId = op.productId or (receiptInfo and (receiptInfo.productId or receiptInfo.ProductId)) or "unknown"
+		local resolvedPrevId = resolveCatalogId(prevId) or tostring(prevId)
 		return true, {
 			success = true,
-			productId = op.productId or (receiptInfo and receiptInfo.productId) or "unknown",
+			productId = resolvedPrevId,
 			alreadyApplied = true,
 		}
 	end
@@ -263,10 +336,12 @@ local function confirmPurchase(
 		}
 	end
 
-	local productId = (op and op.productId) or (receiptInfo and receiptInfo.productId)
-	if not productId then
+	local rawProductId = (op and op.productId) or (receiptInfo and (receiptInfo.productId or receiptInfo.ProductId))
+	if rawProductId == nil then
 		return false, { success = false, productId = "unknown", error = "MISSING_PRODUCT_ID" }
 	end
+
+	local productId = resolveCatalogId(rawProductId) or tostring(rawProductId)
 
 	local def = CATALOG[productId]
 	if not def or not def.availableAtLaunch then
@@ -295,21 +370,24 @@ local function confirmPurchase(
 		profile.piggy.rawAmount = 0
 		profile.piggy.breaksCount = (profile.piggy.breaksCount or 0) + 1
 	elseif string.sub(productId, 1, 7) == "ge_pack" then
-		local geAmount = (receiptInfo and receiptInfo.geAmount) or def.defaultGEAmount or 1000
+		local geAmount = (receiptInfo and (receiptInfo.geAmount or receiptInfo.GEAmount)) or def.defaultGEAmount or 1000
 		local curGE = ExactUInt.decode(profile.permanent.GE)
 		local addGE = ExactUInt.fromSafeNumber(geAmount)
 		profile.permanent.GE = ExactUInt.encode(ExactUInt.add(curGE, addGE))
 	end
 
-	-- Mark operation record APPLIED
-	if not op then
-		op = { argsKey = productId, productId = productId }
-		profile.operations[purchaseToken] = op
+	-- Mark operation record APPLIED only if it was prepared in operations
+	if op then
+		op.terminalStatus = "APPLIED"
+		op.resultRevision = profile.meta and profile.meta.revision or "1"
+		op.result = {
+			productId = productId,
+			fulfilledAtMs = nowMs,
+		}
 	end
 
-	op.terminalStatus = "APPLIED"
-	op.resultRevision = profile.meta.revision or "1"
-	op.result = {
+	-- Record in processedReceipts for explicit receipt auditing
+	profile.accounting.processedReceipts[purchaseToken] = {
 		productId = productId,
 		fulfilledAtMs = nowMs,
 	}
@@ -338,6 +416,11 @@ local function cancelPurchase(profile: any, purchaseToken: string): (boolean, st
 end
 
 Products.CATALOG = CATALOG
+Products.PRODUCT_ID_TO_CATALOG_ID = PRODUCT_ID_TO_CATALOG_ID
+Products.CATALOG_ID_TO_PRODUCT_ID = CATALOG_ID_TO_PRODUCT_ID
+Products.resolveCatalogId = resolveCatalogId
+Products.resolveProductId = resolveProductId
+Products.registerProductId = registerProductId
 Products.previewPurchase = previewPurchase
 Products.preparePurchase = preparePurchase
 Products.confirmPurchase = confirmPurchase

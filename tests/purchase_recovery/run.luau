@@ -195,6 +195,157 @@ do
 end
 
 -- ============================================================================
+-- Section 7: Product ID Mappings (Roblox Asset ID <-> Internal Catalog ID)
+-- ============================================================================
+do
+	eq(Products.resolveCatalogId(1001), "ge_pack_small", "1001 maps to ge_pack_small")
+	eq(Products.resolveCatalogId("1001"), "ge_pack_small", "'1001' maps to ge_pack_small")
+	eq(Products.resolveCatalogId(1002), "ge_pack_large", "1002 maps to ge_pack_large")
+	eq(Products.resolveCatalogId(1003), "piggy_break", "1003 maps to piggy_break")
+	eq(Products.resolveCatalogId(2001), "pro_permit", "2001 maps to pro_permit")
+	eq(Products.resolveCatalogId(2002), "buy_max", "2002 maps to buy_max")
+
+	eq(Products.resolveProductId("ge_pack_small"), 1001, "ge_pack_small maps to 1001")
+	eq(Products.resolveProductId("ge_pack_large"), 1002, "ge_pack_large maps to 1002")
+	eq(Products.resolveProductId("piggy_break"), 1003, "piggy_break maps to 1003")
+	eq(Products.resolveProductId("pro_permit"), 2001, "pro_permit maps to 2001")
+	eq(Products.resolveProductId("buy_max"), 2002, "buy_max maps to 2002")
+
+	-- Register custom external product ID
+	Products.registerProductId(987654, "ge_pack_large")
+	eq(Products.resolveCatalogId(987654), "ge_pack_large", "custom ID maps correctly")
+	eq(Products.resolveCatalogId("987654"), "ge_pack_large", "custom string ID maps correctly")
+end
+
+-- ============================================================================
+-- Section 8: Processed Receipts Auditing & Idempotency
+-- ============================================================================
+do
+	local p = makeProfile()
+	p.permanent.GE = "100"
+
+	-- Receive receipt with numeric Roblox ProductId
+	local receipt = {
+		PurchaseId = "purchase_test_123",
+		PlayerId = 42,
+		ProductId = 1001,
+	}
+
+	local okConf1, res1 = Products.confirmPurchase(p, "purchase_test_123", receipt, 500000)
+	eq(okConf1, true, "confirm receipt succeeds")
+	eq(res1.alreadyApplied, false, "first execution not already applied")
+	eq(p.permanent.GE, "1100", "GE increased by 1000")
+	eq(p.accounting.processedReceipts ~= nil, true, "processedReceipts table created")
+	eq(p.accounting.processedReceipts["purchase_test_123"] ~= nil, true, "receipt recorded in accounting")
+	eq(p.accounting.processedReceipts["purchase_test_123"].productId, "ge_pack_small")
+
+	-- Replay receipt
+	local okConf2, res2 = Products.confirmPurchase(p, "purchase_test_123", receipt, 501000)
+	eq(okConf2, true, "replay confirm succeeds")
+	eq(res2.alreadyApplied, true, "replay detected as already applied")
+	eq(p.permanent.GE, "1100", "GE balance unchanged on replay")
+end
+
+-- ============================================================================
+-- Section 9: Full ServerBootstrap Platform Receipt Integration & GamePasses
+-- ============================================================================
+do
+	local ServerBootstrap = require("../../src/server/Bootstrap")
+	local nowVal = 10000000
+	local clock = {
+		utcNowMs = function() return nowVal end,
+		elapsedNowSeconds = function() return nowVal / 1000 end,
+		advance = function(dt) nowVal += math.floor(dt * 1000 + 0.5) end,
+	}
+
+	local server = ServerBootstrap.new({
+		clock = clock,
+		initialNowMs = 10000000,
+	})
+
+	local j1 = server:playerJoined("7701")
+	eq(j1 ~= nil, true, "Player 7701 joined")
+
+	-- Mock Roblox ProcessReceipt logic
+	local function mockProcessReceipt(receiptInfo)
+		local pId = tostring(receiptInfo.PlayerId)
+		local session = server:getPlayer(pId)
+		if not session then
+			return "NotProcessedYet"
+		end
+		local success, result = server:applyPurchase(pId, receiptInfo)
+		if success then
+			return "PurchaseGranted"
+		end
+		return "NotProcessedYet"
+	end
+
+	-- Test 1: Active player purchases 1,000 GE Developer Product
+	local receipt1 = {
+		PurchaseId = "tx-roblox-1001-a",
+		PlayerId = 7701,
+		ProductId = 1001,
+		CurrencySpent = 80,
+	}
+	local decision1 = mockProcessReceipt(receipt1)
+	eq(decision1, "PurchaseGranted", "ProcessReceipt returns PurchaseGranted")
+
+	local snap = server:getCoordinator("7701"):snapshots().durable
+	eq(snap.permanent.GE, "1010", "10 initial GE + 1000 granted GE = 1010")
+
+	-- Test 2: Platform duplicate receipt retry (same PurchaseId)
+	local decision2 = mockProcessReceipt(receipt1)
+	eq(decision2, "PurchaseGranted", "Replayed receipt returns PurchaseGranted")
+	snap = server:getCoordinator("7701"):snapshots().durable
+	eq(snap.permanent.GE, "1010", "GE balance remains 1010 without double grant")
+
+	-- Test 3: Disconnected player receipt -> NotProcessedYet
+	local ghostReceipt = {
+		PurchaseId = "tx-roblox-ghost-1",
+		PlayerId = 9999,
+		ProductId = 1001,
+	}
+	local ghostDecision = mockProcessReceipt(ghostReceipt)
+	eq(ghostDecision, "NotProcessedYet", "Disconnected player returns NotProcessedYet")
+
+	-- Test 4: GamePass Pro Permit grant (qualified account: paidRandomAllowed = true)
+	local okPass, passRes = server:grantEntitlement("7701", "pro_permit", { paidRandomAllowed = true })
+	eq(okPass, true, "grantEntitlement pro_permit succeeds")
+	snap = server:getCoordinator("7701"):snapshots().durable
+	eq(snap.entitlements.pro_permit, true, "pro_permit entitlement active")
+	eq(snap.entitlements.pro_plus10_enabled, true, "pro_plus10 enabled for qualified player")
+
+	-- Test 5: GamePass Pro Permit grant with Variant A (non-qualified account: paidRandomAllowed = false)
+	local j2 = server:playerJoined("7702")
+	eq(j2 ~= nil, true, "Player 7702 joined")
+	local okPass2, _ = server:grantEntitlement("7702", "pro_permit", { paidRandomAllowed = false })
+	eq(okPass2, true, "grantEntitlement pro_permit non-qual succeeds")
+	local snap2 = server:getCoordinator("7702"):snapshots().durable
+	eq(snap2.entitlements.pro_permit, true, "pro_permit active")
+	eq(snap2.entitlements.pro_plus10_enabled, false, "pro_plus10 explicitly false (Variant A)")
+
+	-- Test 6: GamePass Buy MAX grant
+	local okBM, _ = server:grantEntitlement("7701", "buy_max")
+	eq(okBM, true, "grantEntitlement buy_max succeeds")
+	snap = server:getCoordinator("7701"):snapshots().durable
+	eq(snap.entitlements.buy_max, true, "buy_max entitlement active")
+
+	-- Test 7: Large GE pack (10,000 GE) receipt
+	local receiptLarge = {
+		PurchaseId = "tx-roblox-1002-large",
+		PlayerId = 7701,
+		ProductId = 1002,
+		CurrencySpent = 500,
+	}
+	local decisionLarge = mockProcessReceipt(receiptLarge)
+	eq(decisionLarge, "PurchaseGranted", "Large GE pack granted")
+	snap = server:getCoordinator("7701"):snapshots().durable
+	eq(snap.permanent.GE, "11010", "1010 + 10,000 = 11010 GE")
+
+	server:close()
+end
+
+-- ============================================================================
 -- Section 7: Save Results JSON
 -- ============================================================================
 fs.writeFile("build/purchase_recovery-results.json", serde.encode("json", {

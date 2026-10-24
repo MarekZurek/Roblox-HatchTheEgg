@@ -84,6 +84,10 @@ local NetworkGateway = resolve(function()
 	return script.Parent.NetworkGateway
 end, "./NetworkGateway")
 
+local Products = resolve(function()
+	return script.Parent.platform.products
+end, "./platform/products")
+
 -- Numeric accounting fields that decode/encode to BigAmount
 local NUMERIC_ACCOUNTING = table.freeze({
 	"prestigeSessionArchivedCash",
@@ -376,7 +380,12 @@ function ServerBootstrap:_simulationAdvance(playerSession, profile, request)
 	if profile.timeline.integrationCheckpoint then
 		cp = self.timeline.decodeCheckpoint(profile.timeline.integrationCheckpoint)
 	else
-		cp = self.timeline.begin(mem, targetMs, self.config)
+		local simConfig = {
+			revision = self.configRevision,
+			siloCapacityLevel = (self.config and self.config.siloCapacityLevel) or 0,
+			pro = if (profile.entitlements and profile.entitlements.pro_permit == true) then true else ((self.config and self.config.pro) or false),
+		}
+		cp = self.timeline.begin(mem, targetMs, simConfig)
 	end
 
 	cp = self.timeline.advance(cp, budget)
@@ -431,6 +440,36 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 	local function domainApply(candidateProfile, op)
 		if op.kind == "UpgradeEgg" or op.kind == "Prestige" then
 			return ProgressActions.apply(candidateProfile, op, { catalog = self.catalog, productionMath = self.productionMath })
+		elseif op.kind == "PlatformPurchase" or op.kind == "ConfirmPurchase" then
+			local pToken = (op.args and op.args.purchaseToken) or op.operationId
+			local receiptInfo = op.args and op.args.receiptInfo
+			local nowMs = self.clock.utcNowMs()
+			local isPiggyEnabled = (self.config and self.config.isPiggyEnabled ~= false)
+			local ok, res = Products.confirmPurchase(candidateProfile, pToken, receiptInfo, nowMs, isPiggyEnabled)
+			return {
+				profile = candidateProfile,
+				result = res,
+				terminalStatus = if ok then "APPLIED" else "REJECTED",
+				validate = function() return ok, if not ok then res.error else nil end,
+			}
+		elseif op.kind == "GrantEntitlement" then
+			local entId = op.args and op.args.entitlementId
+			local nowMs = self.clock.utcNowMs()
+			candidateProfile.entitlements = candidateProfile.entitlements or {}
+			if entId == "pro_permit" then
+				candidateProfile.entitlements.pro_permit = true
+				candidateProfile.entitlements.pro_permit_effective_at = nowMs
+				candidateProfile.entitlements.pro_plus10_enabled = (op.args and op.args.paidRandomAllowed ~= false)
+			elseif entId == "buy_max" then
+				candidateProfile.entitlements.buy_max = true
+				candidateProfile.entitlements.buy_max_effective_at = nowMs
+			end
+			return {
+				profile = candidateProfile,
+				result = { granted = entId },
+				terminalStatus = "APPLIED",
+				validate = function() return true end,
+			}
 		end
 		return self.farmActions.apply(candidateProfile, op)
 	end
@@ -565,6 +604,82 @@ function ServerBootstrap:close()
 		results[pId] = { ok = ok, result = res }
 	end
 	return results
+end
+
+function ServerBootstrap:applyPurchase(playerId, receiptInfo)
+	local pId = tostring(playerId)
+	local playerSession = self.players[pId]
+	if not playerSession then
+		return false, "PLAYER_NOT_CONNECTED"
+	end
+
+	if type(receiptInfo) ~= "table" then
+		return false, "INVALID_RECEIPT_INFO"
+	end
+
+	local purchaseId = receiptInfo.PurchaseId or receiptInfo.purchaseToken or receiptInfo.purchaseId
+	if not purchaseId then
+		return false, "MISSING_PURCHASE_ID"
+	end
+	local purchaseToken = tostring(purchaseId)
+
+	local coordinator = playerSession.coordinator
+	local snapshots = coordinator.snapshots()
+	local currentRev = (snapshots.durable and snapshots.durable.meta and snapshots.durable.meta.revision) or "0"
+
+	local op = {
+		operationId = "receipt-" .. purchaseToken,
+		kind = "PlatformPurchase",
+		expectedRevision = currentRev,
+		args = {
+			purchaseToken = purchaseToken,
+			receiptInfo = receiptInfo,
+		},
+	}
+
+	coordinator.submit(op)
+	coordinator.drain()
+
+	local res = coordinator.resultOf(op.operationId)
+	if res and (res.status == "APPLIED" or res.status == "REPLAYED") then
+		self:checkpointPlayer(pId)
+		return true, res
+	end
+
+	return false, (res and res.errorCode) or "PURCHASE_FAILED"
+end
+
+function ServerBootstrap:grantEntitlement(playerId, entitlementId, opts)
+	local pId = tostring(playerId)
+	local playerSession = self.players[pId]
+	if not playerSession then
+		return false, "PLAYER_NOT_CONNECTED"
+	end
+
+	local coordinator = playerSession.coordinator
+	local snapshots = coordinator.snapshots()
+	local currentRev = (snapshots.durable and snapshots.durable.meta and snapshots.durable.meta.revision) or "0"
+
+	local op = {
+		operationId = "entitlement-" .. pId .. "-" .. entitlementId .. "-" .. tostring(self.clock.utcNowMs()),
+		kind = "GrantEntitlement",
+		expectedRevision = currentRev,
+		args = {
+			entitlementId = entitlementId,
+			paidRandomAllowed = if opts and opts.paidRandomAllowed ~= nil then opts.paidRandomAllowed else true,
+		},
+	}
+
+	coordinator.submit(op)
+	coordinator.drain()
+
+	local res = coordinator.resultOf(op.operationId)
+	if res and (res.status == "APPLIED" or res.status == "REPLAYED") then
+		self:checkpointPlayer(pId)
+		return true, res
+	end
+
+	return false, (res and res.errorCode) or "GRANT_FAILED"
 end
 
 function ServerBootstrap:tick(dtSeconds, nowMs)
