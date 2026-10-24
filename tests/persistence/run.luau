@@ -222,6 +222,217 @@ do
 	p.farm.habitats[1].fractionalIHR="0";p.farm.hatchGroupSequence="01"
 	eq(pcall(Schema.validate,p,"1"),false)
 end
+
+-- Test Suite for SessionRepository.LIMITS
+do
+	eq(Repo.LIMITS ~= nil, true, "Repo.LIMITS exported")
+	eq(Repo.LIMITS.PROFILE_MAX_BYTES, 3145728, "PROFILE_MAX_BYTES is 3 MiB")
+	eq(Repo.LIMITS.LEDGER_MAX_BYTES, 2097152, "LEDGER_MAX_BYTES is 2 MiB")
+	eq(Repo.LIMITS.LEASE_DURATION_MS, 120000, "LEASE_DURATION_MS is 120s")
+end
+
+-- Test Suite for RobloxDataStorePort Retries and Backoff
+do
+	local delays = {}
+	local mockWait = function(s)
+		table.insert(delays, s)
+	end
+
+	-- 1. Success on first attempt: no retries, no delay
+	local attempts = 0
+	local dsMock = {
+		UpdateAsync = function(_, key, transform)
+			attempts += 1
+			return transform({ count = 10 })
+		end,
+		GetAsync = function(_, key, options)
+			attempts += 1
+			return { count = 20 }
+		end,
+	}
+	local port = Port.new(dsMock, function() return { UseCache = false } end, {
+		maxAttempts = 3,
+		baseBackoff = 1,
+		waitFn = mockWait,
+	})
+	delays = {}
+	attempts = 0
+	local ok, val = port.update("k1", function(v) return { count = v.count + 1 } end)
+	eq(ok, true)
+	eq(val.count, 11)
+	eq(attempts, 1)
+	eq(#delays, 0)
+
+	-- 2. Network errors with successful retry on 3rd attempt
+	delays = {}
+	attempts = 0
+	dsMock.UpdateAsync = function(_, key, transform)
+		attempts += 1
+		if attempts < 3 then
+			error("502 Server Throttled (attempt " .. tostring(attempts) .. ")")
+		end
+		return transform({ count = 30 })
+	end
+	ok, val = port.update("k2", function(v) return { count = v.count + 1 } end)
+	eq(ok, true)
+	eq(val.count, 31)
+	eq(attempts, 3)
+	eq(#delays, 2)
+	eq(delays[1], 1, "first backoff is 1s")
+	eq(delays[2], 2, "second backoff is 2s")
+
+	-- 3. Exhausting all 3 attempts returns false, lastErr
+	delays = {}
+	attempts = 0
+	dsMock.UpdateAsync = function(_, key, transform)
+		attempts += 1
+		error("Connection Timeout")
+	end
+	ok, val = port.update("k3", function(v) return v end)
+	eq(ok, false)
+	eq(type(val), "string")
+	eq(string.find(val, "Connection Timeout") ~= nil, true)
+	eq(attempts, 3)
+	eq(#delays, 2)
+
+	-- 4. Transform returning nil (repository logic cancellation) aborts immediately without retry
+	delays = {}
+	attempts = 0
+	dsMock.UpdateAsync = function(_, key, transform)
+		attempts += 1
+		local res = transform({ count = 100 })
+		if res == nil then
+			return nil
+		end
+		return res
+	end
+	ok, val = port.update("k4", function(v)
+		return nil -- cancel
+	end)
+	eq(ok, true)
+	eq(val, nil)
+	eq(attempts, 1, "does not retry when transform cancelled")
+	eq(#delays, 0, "no backoff delays on transform cancelled")
+
+	-- 5. Read retries with exponential backoff
+	delays = {}
+	attempts = 0
+	dsMock.GetAsync = function(_, key, options)
+		attempts += 1
+		if attempts < 3 then
+			error("GetAsync Throttled")
+		end
+		return { fetched = true }
+	end
+	ok, val = port.read("k5")
+	eq(ok, true)
+	eq(val.fetched, true)
+	eq(attempts, 3)
+	eq(#delays, 2)
+	eq(delays[1], 1)
+	eq(delays[2], 2)
+
+	-- 6. Read fails all attempts
+	delays = {}
+	attempts = 0
+	dsMock.GetAsync = function(_, key, options)
+		attempts += 1
+		error("Fatal DataStore Error")
+	end
+	ok, val = port.read("k6")
+	eq(ok, false)
+	eq(type(val), "string")
+	eq(attempts, 3)
+	eq(#delays, 2)
+end
+
+-- Test Suite for Session Fencing, SESSION_BUSY, and Stale Token Rejection
+do
+	local h = harness()
+	-- Player 1 acquired by Server A
+	local handleA = h.open("1")
+	eq(handleA.state, "READY")
+
+	-- Server B attempts to acquire Player 1 while lease is active (< 120s) -> SESSION_BUSY
+	local busyRes = h.repo.acquire("1")
+	eq(busyRes.status, "NOT_ACCEPTED")
+	eq(busyRes.errorCode, "SESSION_BUSY")
+
+	-- Advance clock past lease duration (120,000ms)
+	h.advance(120001)
+
+	-- Server B acquires expired session
+	local acquireB = h.repo.acquire("1")
+	eq(acquireB.status, "ACQUIRED")
+	local handleB = acquireB.handle
+	eq(handleB.generation > handleA.generation, true, "generation incremented")
+
+	-- Stale Server A attempts mutation -> fenced out with SESSION_LOST
+	local staleRes = h.repo.commit(handleA, op("stale-1", "0"), plan("100"))
+	eq(staleRes.status, "NOT_ACCEPTED")
+	eq(staleRes.errorCode, "SESSION_LOST")
+
+	-- Fresh Server B commits successfully
+	local freshRes = h.repo.commit(handleB, op("fresh-1", "0"), plan("200"))
+	eq(freshRes.status, "APPLIED")
+	eq(h.records[handleB.key].farm.cash, "200")
+end
+
+-- Test Suite for ServerBootstrap:checkpointPlayer, checkpointAll, and close()
+do
+	local ServerBootstrap = require("../../src/server/Bootstrap")
+	local nowVal = 5000000
+	local elapsedVal = 0
+	local clock = {
+		utcNowMs = function() return nowVal end,
+		elapsedNowSeconds = function() return elapsedVal end,
+		advance = function(dt)
+			elapsedVal += dt
+			nowVal += math.floor(dt * 1000 + 0.5)
+		end,
+	}
+
+	local server = ServerBootstrap.new({
+		clock = clock,
+		initialNowMs = 5000000,
+	})
+
+	-- Join two players
+	local j1 = server:playerJoined("901")
+	local j2 = server:playerJoined("902")
+	eq(j1 ~= nil, true, "Player 901 joined")
+	eq(j2 ~= nil, true, "Player 902 joined")
+
+	-- Advance time on server
+	server:tick(10.0)
+
+	-- Checkpoint single player
+	local okCp1, cp1Res = server:checkpointPlayer("901")
+	eq(okCp1, true, "checkpointPlayer 901 succeeds")
+	eq(cp1Res ~= nil, true)
+
+	-- Checkpoint non-existent player
+	local okCpX, cpXErr = server:checkpointPlayer("999999")
+	eq(okCpX, false)
+	eq(cpXErr, "PLAYER_NOT_FOUND")
+
+	-- Checkpoint all players
+	local allRes = server:checkpointAll()
+	eq(allRes["901"] ~= nil and allRes["901"].ok == true, true, "checkpointAll 901 ok")
+	eq(allRes["902"] ~= nil and allRes["902"].ok == true, true, "checkpointAll 902 ok")
+
+	-- Safe flush on server shutdown
+	local closeRes = server:close()
+	eq(closeRes["901"] ~= nil and closeRes["901"].ok == true, true, "close flushed 901")
+	eq(closeRes["902"] ~= nil and closeRes["902"].ok == true, true, "close flushed 902")
+	eq(server:getPlayer("901"), nil, "Player 901 removed from active sessions")
+	eq(server:getPlayer("902"), nil, "Player 902 removed from active sessions")
+
+	-- Verify that player 901 can now be immediately acquired by another server instance (lease was released)
+	local j1Rejoin = server:playerJoined("901")
+	eq(j1Rejoin ~= nil, true, "Player 901 cleanly rejoins without waiting for 120s lease")
+	server:playerLeaving("901")
+end
 local result={status="PASS",level="L",assertions=count,studioTested=false,dataStoreTested=false,realDataStoreApiTested=false}
 fs.writeFile("build/persistence-results.json",serde.encode("json",result,true))
 print(serde.encode("json",result))

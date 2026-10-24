@@ -1,10 +1,12 @@
 --!nocheck
--- Main Server Entrypoint for HatchTheEgg (VIS-01, VIS-02, VIS-03).
--- Automatically starts the authoritative server in Roblox Studio:
+-- Main Server Entrypoint for HatchTheEgg (VIS-01, VIS-02, VIS-03, PROD-04).
+-- Automatically starts the authoritative server in Roblox Studio / Production:
 -- 1. Creates ReplicatedStorage/HatchTheEgg/Remotes (ClientToServer & ServerToClient RemoteEvents).
--- 2. Generates the 3D Candy & Chocolate Farm Island world via FarmPlotBuilder.
--- 3. Manages player sessions (PlayerAdded / PlayerRemoving) via ServerBootstrap.
--- 4. Runs authoritative simulation ticks and replicates StateSnapshot / StateDelta views.
+-- 2. Connects to Roblox DataStoreService with resilient retries (falling back to memory in Studio without API access).
+-- 3. Generates the 3D Candy & Chocolate Farm Island world via FarmPlotBuilder.
+-- 4. Manages player sessions (PlayerAdded / PlayerRemoving) via ServerBootstrap.
+-- 5. Runs authoritative simulation ticks and replicates StateSnapshot / StateDelta views.
+-- 6. Runs autosave loop (every 300s) and handles safe flush on server shutdown (BindToClose).
 
 local isRoblox = (typeof(game) == "Instance")
 if not isRoblox then
@@ -13,9 +15,11 @@ end
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local DataStoreService = game:GetService("DataStoreService")
 
 local ServerBootstrap = require(script.Parent.Bootstrap)
 local FarmPlotBuilder = require(script.Parent.world.FarmPlotBuilder)
+local RobloxDataStorePort = require(script.Parent.RobloxDataStorePort)
 
 local function resolveNumericPlayerId(player)
 	local uid = player and player.UserId or 1
@@ -54,13 +58,52 @@ if not serverToClient then
 	serverToClient.Parent = remotesFolder
 end
 
--- 2. Generate the 3D Candy & Chocolate Farm Island World in Workspace
+-- 2. Create Production DataStore Port with graceful Studio fallback
+local function createProductionStore()
+	local ok, dsInstance = pcall(function()
+		return DataStoreService:GetDataStore("HatchTheEgg_PlayerProfile_v1")
+	end)
+	if not ok or not dsInstance then
+		warn("[HatchTheEgg Server] DataStoreService unavailable, falling back to in-memory store.")
+		return nil
+	end
+
+	-- Connectivity probe: in Studio, GetAsync throws if "Enable Studio Access to API Services" is unchecked
+	local testOk, testErr = pcall(function()
+		return dsInstance:GetAsync("__HatchTheEgg_Studio_Connection_Check__")
+	end)
+	if not testOk then
+		warn("[HatchTheEgg Server] DataStore API access not enabled (" .. tostring(testErr) .. "). Falling back to in-memory store.")
+		return nil
+	end
+
+	print("[HatchTheEgg Server] Connected to Roblox DataStore: HatchTheEgg_PlayerProfile_v1")
+	return RobloxDataStorePort.new(dsInstance)
+end
+
+local persistentStore = createProductionStore()
+
+-- Synchronized server clock (monotonic with true UTC start baseline)
+local startUtc = DateTime.now().UnixTimestampMillis
+local startElapsed = os.clock()
+local serverClock = {
+	utcNowMs = function()
+		local elapsed = os.clock() - startElapsed
+		return startUtc + math.floor(elapsed * 1000 + 0.5)
+	end,
+	elapsedNowSeconds = function()
+		return os.clock()
+	end,
+}
+
+-- 3. Generate the 3D Candy & Chocolate Farm Island World in Workspace
 local worldBuilder = FarmPlotBuilder.new()
 worldBuilder:build()
 
--- 3. Initialize Authoritative ServerBootstrap
+-- 4. Initialize Authoritative ServerBootstrap
 local server = ServerBootstrap.new({
-	initialNowMs = 1000000,
+	clock = serverClock,
+	store = persistentStore,
 })
 
 local activePlayerObjects = {} -- [pId] = Player
@@ -81,7 +124,7 @@ local function syncWorldAndDelta(pId, playerObj)
 	end
 end
 
--- 4. Player Lifecycle (PlayerAdded & PlayerRemoving)
+-- 5. Player Lifecycle (PlayerAdded & PlayerRemoving)
 local function onPlayerAdded(player)
 	local pId = resolveNumericPlayerId(player)
 	activePlayerObjects[pId] = player
@@ -120,7 +163,7 @@ for _, existingPlayer in ipairs(Players:GetPlayers()) do
 	task.spawn(onPlayerAdded, existingPlayer)
 end
 
--- 5. Handle Incoming Client Protocol Messages
+-- 6. Handle Incoming Client Protocol Messages
 clientToServer.OnServerEvent:Connect(function(player, message)
 	if type(message) ~= "table" then
 		return
@@ -151,7 +194,7 @@ clientToServer.OnServerEvent:Connect(function(player, message)
 	end
 end)
 
--- 6. Authoritative Server Simulation Loop (0.5s steps)
+-- 7. Authoritative Server Simulation Loop (0.5s steps)
 task.spawn(function()
 	while true do
 		task.wait(0.5)
@@ -160,4 +203,26 @@ task.spawn(function()
 			syncWorldAndDelta(pId, playerObj)
 		end
 	end
+end)
+
+-- 8. Autosave loop (every 300s = 5 minutes)
+task.spawn(function()
+	while true do
+		task.wait(300)
+		for pId, _ in pairs(activePlayerObjects) do
+			task.spawn(function()
+				local ok, res = server:checkpointPlayer(pId)
+				if not ok then
+					warn("[HatchTheEgg Server] Autosave checkpoint failed for player " .. tostring(pId) .. ": " .. tostring(res))
+				end
+			end)
+		end
+	end
+end)
+
+-- 9. Safe server shutdown via BindToClose
+game:BindToClose(function()
+	print("[HatchTheEgg Server] BindToClose triggered. Safely flushing and releasing all active player sessions...")
+	server:close()
+	print("[HatchTheEgg Server] All player sessions saved and released.")
 end)

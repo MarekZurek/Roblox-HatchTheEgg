@@ -1,6 +1,11 @@
 --!nocheck
 -- One aggregate, native-port UpdateAsync, fenced sessions. No live services at import.
 local Repository = {}
+Repository.LIMITS = table.freeze({
+	PROFILE_MAX_BYTES = 3145728,
+	LEDGER_MAX_BYTES = 2097152,
+	LEASE_DURATION_MS = 120000,
+})
 local DOMAIN = {farm=true,accounting=true,permanent=true,inventory=true,effects=true,timeline=true,rewards=true,piggy=true,entitlements=true}
 local function answer(status, code, extra)
 	local out = extra or {}; out.status=status;out.errorCode=code;return out
@@ -26,7 +31,7 @@ function Repository.new(deps)
 	end
 	local function fits(p)
 		local ok,profile,ledger=pcall(function() return deps.encodeJson(p),deps.encodeJson(p.operations) end)
-		return ok and type(profile)=="string" and type(ledger)=="string" and #profile<=3145728 and #ledger<=2097152
+		return ok and type(profile)=="string" and type(ledger)=="string" and #profile<=Repository.LIMITS.PROFILE_MAX_BYTES and #ledger<=Repository.LIMITS.LEDGER_MAX_BYTES
 	end
 	local function sample(h)
 		local now,elapsed=clock.utcNowMs(),clock.elapsedNowSeconds()
@@ -92,7 +97,7 @@ function Repository.new(deps)
 				return nil,answer("NOT_ACCEPTED","SESSION_BUSY")
 			end
 			p.ownership.generation=nextUInt(p.ownership.generation)
-			p.ownership.ownerToken=token;p.ownership.endsAtMs=now+120000
+			p.ownership.ownerToken=token;p.ownership.endsAtMs=now+Repository.LIMITS.LEASE_DURATION_MS
 			if not fits(p) then return nil,answer("NOT_ACCEPTED","STORAGE_CAPACITY") end
 			return p,answer("ACQUIRED")
 		end)
@@ -216,7 +221,7 @@ function Repository.new(deps)
 			local allowed,code=valid(p,h.playerId)
 			if not allowed then return nil,answer("NOT_APPLIED",code) end
 			if not owned(p,h,now) then h.blocked=true;return nil,answer("NOT_APPLIED","SESSION_LOST") end
-			local candidate=data.copy(p);candidate.ownership.endsAtMs=now+120000
+			local candidate=data.copy(p);candidate.ownership.endsAtMs=now+Repository.LIMITS.LEASE_DURATION_MS
 			if not fits(candidate) then return nil,answer("NOT_APPLIED","STORAGE_CAPACITY") end
 			return candidate,answer("RENEWED")
 		end)

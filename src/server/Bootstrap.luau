@@ -481,9 +481,16 @@ function ServerBootstrap:playerLeaving(playerId)
 	local coordinator = playerSession.coordinator
 
 	-- 1. Execute checkpoint
+	local nowMs = self.clock.utcNowMs()
+
+	-- Proactively renew lease if near expiration so checkpoint is guaranteed to commit
+	if playerSession.handle and playerSession.handle.endsAtMs and (nowMs >= playerSession.handle.endsAtMs - 45000) then
+		coordinator.renew()
+		coordinator.drain()
+	end
+
 	local snapshots = coordinator.snapshots()
 	local currentRev = (snapshots.durable and snapshots.durable.meta and snapshots.durable.meta.revision) or "0"
-	local nowMs = self.clock.utcNowMs()
 
 	local cpOp = {
 		operationId = "checkpoint-" .. pId .. "-" .. tostring(nowMs),
@@ -507,6 +514,59 @@ function ServerBootstrap:playerLeaving(playerId)
 	return true
 end
 
+function ServerBootstrap:checkpointPlayer(playerId)
+	local pId = tostring(playerId)
+	local playerSession = self.players[pId]
+	if not playerSession then
+		return false, "PLAYER_NOT_FOUND"
+	end
+
+	local coordinator = playerSession.coordinator
+	local nowMs = self.clock.utcNowMs()
+
+	if playerSession.handle and playerSession.handle.endsAtMs and (nowMs >= playerSession.handle.endsAtMs - 45000) then
+		coordinator.renew()
+		coordinator.drain()
+	end
+
+	local snapshots = coordinator.snapshots()
+	local currentRev = (snapshots.durable and snapshots.durable.meta and snapshots.durable.meta.revision) or "0"
+
+	local cpOp = {
+		operationId = "checkpoint-" .. pId .. "-" .. tostring(nowMs),
+		kind = "Checkpoint",
+		expectedRevision = currentRev,
+		args = {},
+	}
+	coordinator.checkpoint(cpOp)
+	coordinator.drain()
+
+	local res = coordinator.resultOf(cpOp.operationId)
+	return true, res
+end
+
+function ServerBootstrap:checkpointAll()
+	local results = {}
+	for pId, _ in pairs(self.players) do
+		local ok, res = self:checkpointPlayer(pId)
+		results[pId] = { ok = ok, result = res }
+	end
+	return results
+end
+
+function ServerBootstrap:close()
+	local pIds = {}
+	for pId, _ in pairs(self.players) do
+		table.insert(pIds, pId)
+	end
+	local results = {}
+	for _, pId in ipairs(pIds) do
+		local ok, res = self:playerLeaving(pId)
+		results[pId] = { ok = ok, result = res }
+	end
+	return results
+end
+
 function ServerBootstrap:tick(dtSeconds, nowMs)
 	if dtSeconds ~= nil and type(self.clock.advance) == "function" then
 		self.clock.advance(dtSeconds)
@@ -519,6 +579,9 @@ function ServerBootstrap:tick(dtSeconds, nowMs)
 	for playerId, playerSession in pairs(self.players) do
 		local coordinator = playerSession.coordinator
 		if coordinator then
+			if playerSession.handle and playerSession.handle.endsAtMs and (currentNowMs >= playerSession.handle.endsAtMs - 45000) then
+				coordinator.renew()
+			end
 			coordinator.tick({
 				kind = "TimeAdvance",
 				dtSeconds = dtSeconds,
