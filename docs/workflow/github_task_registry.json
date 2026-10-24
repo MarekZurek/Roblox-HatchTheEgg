@@ -608,11 +608,12 @@
                       "number":  47,
                       "url":  "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/47",
                       "title":  "[PROD-05] Produkcyjna obsługa płatności Roblox MarketplaceService (GamePasses \u0026 DevProducts)",
-                      "state":  "open",
+                      "state":  "closed",
                       "dependencies":  [
                                            "PROD-03",
                                            "PROD-04"
-                                       ]
+                                       ],
+                      "deliveryStatus":  "VERIFIED_PASS"
                   },
                   {
                       "id":  "PROD-06",

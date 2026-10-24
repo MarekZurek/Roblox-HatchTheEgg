@@ -123,7 +123,7 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 - [x] **PROD-02 (#44)**: Progresja 19 Jaj i Stacja Ulepszania Jaja w świecie 3D. 67 196 asercji PASS.
 - [x] **PROD-03 (#45)**: Kompletne okna modalne UI (Kurniki, Flota, Badania, Pety, Sklep GE, Kalendarz & Trofea). 321 asercji UI PASS.
 - [x] **PROD-04 (#46)**: Produkcyjna integracja chmury Roblox DataStoreService i blokowanie sesji. 211 asercji DataStore PASS.
-- [ ] **PROD-05 (#47)**: Produkcyjna obsługa płatności Roblox MarketplaceService (GamePasses & DevProducts).
+- [x] **PROD-05 (#47)**: Produkcyjna obsługa płatności Roblox MarketplaceService (GamePasses & DevProducts). 94 asercje Purchases PASS.
 - [ ] **PROD-06 (#48)**: Diegetyczne aktory 3D: Drony z celowaniem, Ciężarówka dostawcza 2+1 i Silosy z SurfaceGui.
 - [ ] **PROD-07 (#49)**: Stacja Inkubacji Petów w świecie 3D i animacja wykluwania jaj.
 - [ ] **PROD-08 (#50)**: Oprawa dźwiękowa (SFX & Muzyka BGM) oraz optymalizacja mobilna interfejsu.
