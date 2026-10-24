@@ -398,11 +398,12 @@
       "number": 31,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/31",
       "title": "[NEXT-06] Drony: uprawniony spawn, trafienie i jedna nagroda",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-08",
         "NEXT-03"
-      ]
+      ],
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "NEXT-07",
