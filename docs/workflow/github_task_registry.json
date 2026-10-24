@@ -280,11 +280,15 @@
       "number": 22,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/22",
       "title": "[IMP-13] Scena podstawowej farmy i prezentacja tras",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "PRE-03",
         "IMP-03"
-      ]
+      ],
+      "verificationLevel": "L",
+      "studioTested": false,
+      "dataStoreTested": false,
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "IMP-14",
