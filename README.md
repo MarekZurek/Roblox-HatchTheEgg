@@ -1,8 +1,9 @@
 # HatchTheEgg
 
-Projekt gry Roblox. Wykonano **IMP-01–09: warsztat, NumericCodec, katalog, protokół, repozytorium sesji oraz produkcja, IHR, wylęg/RCB, koordynator i neutralna symulacja czasu**, z testami lokalnymi L. Uruchomienie farmy i integracje sieci/sceny pozostają zaplanowane.
+Projekt gry Roblox. Wykonano i odebrano **IMP-01–15 oraz QA-01: kompletna podstawowa farma domowa (warsztat, NumericCodec, katalog, protokół, repozytorium sesji, produkcja, IHR, wylęg/RCB, koordynator, neutralna symulacja czasu, zakupy, gateway, projekcja widoków, transport i store klienta, trasy 3D, HUD, bootstrap oraz odbiór A01–A16)**. Łącznie 21 914 asercji PASS.
 
-- [Bieżące uruchomienie, API i ograniczenia](docs/39_imp08_imp09_delivery.md)
+- [Bieżące uruchomienie i odbiór pierwszej farmy](docs/40_first_farm_completion_delivery.md)
+- [Poprzednia dostawa IMP-08/09](docs/39_imp08_imp09_delivery.md)
 - [NumericCodec](docs/36_imp01_numeric_codec_delivery.md)
 - [Specyfikacja](docs/CURRENT_SPEC.md)
 - [Indeks docs](docs/README.md)

@@ -89,3 +89,15 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 ## IMP-08/09 — wykonano L (24.10.2026)
 
 [39 — koordynator i neutralna symulacja](39_imp08_imp09_delivery.md): jeden autor komend/ticków/checkpointów, rozstrzyganie PENDING/UNKNOWN i odzyskiwanie sesji; neutralny Timeline z siatką do 0.3 s, fazowym checkpointem i pełnym zamknięciem away. Wspólny runner **20 885 asercji PASS L**, w tym 221 koordynatora, 58 Timeline i 70 integracji; statyczny build 14 modułów. Integracja używa rzeczywistych modułów z kontrolowanym storage i testowym adapterem pamięć–wire. Studio, prawdziwy DataStore, Gateway, produkcyjny bootstrap i typechecker niewykonane. Bieżące zlecenie obejmuje IMP-08/09 i publikację kodu/testów/docs; wcześniejsze ograniczenia zakresu są historyczne. Nie rozpoczęto kolejnych zadań. Bilans 17–21 i referencyjne JSON-y bez zmian.
+
+## IMP-10–15 oraz QA-01 — wykonano i odebrano L/S/D (24.10.2026)
+
+[40 — ukończenie i odbiór pierwszej farmy](40_first_farm_completion_delivery.md): w pełni zrealizowano pozostałe zadania pierwszej farmy:
+- [x] IMP-10: FarmActions (wyceny createQuote, pojedyncze zakupy BuyResearch/BuyHabitat/BuyVehicle, sameTypeOwned, nienaruszalność accounting.currentFarmCash, idempotencja).
+- [x] IMP-11: NetworkGateway i ViewProjector (projekcja PrivatePlayerViewDTO i PublicView, StateDelta, admission gating, izolacja graczy).
+- [x] IMP-12: ClientTransport i ClientStateStore (korelacja żądań, monotoniczność viewSeq, wykrywanie luk i RefreshState, ignorowanie starych deltat).
+- [x] IMP-13: Scena podstawowej farmy i prezentacja tras (RoutePresentation: 4 parcele PRE-03, animacja kur, zerowy wpływ 3D na autorytatywny stan).
+- [x] IMP-14: Minimalny HUD i kontrolery intencji (IntentControllers: HatchPress/HatchInput z inputSeq, ShopController; HUD: formatowanie K/M/B/T, reaktywność, blokady, baner sesji).
+- [x] IMP-15: Integracja pierwszej farmy i bootstrap (ServerBootstrap, ClientBootstrap, pełny smoke test pętli gry E2E).
+- [x] QA-01: Formalny odbiór pierwszej farmy A01–A16 w tests/acceptance/run.luau (264 asercje PASS, 100% pokrycia macierzy docs/29).
+Łączny runner: **21 914 asercji PASS L**, statyczny build 24 modułów bez skryptów wejściowych. Zamknięto issues #19–#25 na GitHubie.

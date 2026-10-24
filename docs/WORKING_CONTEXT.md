@@ -80,3 +80,7 @@ QA tekstu 30 przez AGY/Gemini: warunkowe PASS; autor uwzględnił cztery doprecy
 ## IMP-08/09 — wykonano L (24.10.2026)
 
 [39 — koordynator i neutralna symulacja](39_imp08_imp09_delivery.md): jeden autor komend/ticków/checkpointów, rozstrzyganie PENDING/UNKNOWN i odzyskiwanie sesji; neutralny Timeline z siatką do 0.3 s, fazowym checkpointem i pełnym zamknięciem away. Wspólny runner **20 885 asercji PASS L**, w tym 221 koordynatora, 58 Timeline i 70 integracji; statyczny build 14 modułów. Integracja używa rzeczywistych modułów z kontrolowanym storage i testowym adapterem pamięć–wire. Studio, prawdziwy DataStore, Gateway, produkcyjny bootstrap i typechecker niewykonane. Bieżące zlecenie obejmuje IMP-08/09 i publikację kodu/testów/docs; wcześniejsze ograniczenia zakresu są historyczne. Nie rozpoczęto kolejnych zadań. Bilans 17–21 i referencyjne JSON-y bez zmian.
+
+## IMP-10–15 oraz QA-01 — wykonano i odebrano (24.10.2026)
+
+[40 — ukończenie i odbiór pierwszej farmy](40_first_farm_completion_delivery.md): w pełni zaimplementowano i zweryfikowano L/S/D moduły FarmActions, ViewProjector, NetworkGateway, ClientTransport, ClientStateStore, RoutePresentation, IntentControllers, HUD, Bootstrap serwera i klienta oraz formalny odbiór A01–A16 w tests/acceptance/run.luau. Wspólny runner: **21 914 asercji 100% PASS L**, statyczny build Rojo: 24 moduły, 0 skryptów wejściowych. Zgłoszenia #19–#25 zamknięte na GitHubie. Podstawowa farma domowa ukończona. Pozostają otwarte zadania kolejnej fazy: NEXT-01–10 oraz REL-01. Bilans 17–21 i referencyjne JSON-y bez zmian.

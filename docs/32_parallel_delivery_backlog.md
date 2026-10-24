@@ -38,13 +38,13 @@ To plan równoległości, nie automatyczna delegacja. Wydanie nadal wymaga wznow
 | IMP-07 | SessionRepository i bezpieczne odtworzenie profilu | IMP-01, PRE-02 | [Wykonano i sprawdzono L](37_imp02_imp03_imp07_delivery.md); S/D niewykonane |
 | IMP-08 | PlayerCoordinator: serializacja komend i właściciel stanu | IMP-07 | [Wykonano i sprawdzono L — 39](39_imp08_imp09_delivery.md); S/D niewykonane |
 | IMP-09 | TimelineSimulation: online i neutralny powrót | IMP-04, IMP-05, IMP-06 | [Wykonano i sprawdzono L — 39](39_imp08_imp09_delivery.md); S/D niewykonane |
-| IMP-10 | FarmActions: wyceny i pojedyncze zakupy | IMP-08, IMP-09 | Plan; bez zlecenia realizacji |
-| IMP-11 | NetworkGateway i projekcja autorytatywnego stanu | IMP-03, IMP-08 | Plan; bez zlecenia realizacji |
-| IMP-12 | ClientTransport i ClientStateStore | IMP-03 | Plan; bez zlecenia realizacji |
-| IMP-13 | Scena podstawowej farmy i prezentacja tras | PRE-03, IMP-03 | Plan; bez zlecenia realizacji |
-| IMP-14 | Minimalny HUD i kontrolery intencji | IMP-03 | Plan; bez zlecenia realizacji |
-| IMP-15 | Integracja pierwszej farmy i inicjalizacji | IMP-10, IMP-11, IMP-12, IMP-13, IMP-14 | Plan; bez zlecenia realizacji |
-| QA-01 | Odbiór pierwszej farmy A01–A16 | IMP-15 | Plan; bez zlecenia realizacji |
+| IMP-10 | FarmActions: wyceny i pojedyncze zakupy | IMP-08, IMP-09 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja zatwierdzona |
+| IMP-11 | NetworkGateway i projekcja autorytatywnego stanu | IMP-03, IMP-08 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja zatwierdzona |
+| IMP-12 | ClientTransport i ClientStateStore | IMP-03 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja zatwierdzona |
+| IMP-13 | Scena podstawowej farmy i prezentacja tras | PRE-03, IMP-03 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja zatwierdzona |
+| IMP-14 | Minimalny HUD i kontrolery intencji | IMP-03 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja zatwierdzona |
+| IMP-15 | Integracja pierwszej farmy i inicjalizacji | IMP-10, IMP-11, IMP-12, IMP-13, IMP-14 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja zatwierdzona |
+| QA-01 | Odbiór pierwszej farmy A01–A16 | IMP-15 | [Wykonano i sprawdzono L/S/D — 40](40_first_farm_completion_delivery.md); A01–A16 100% PASS |
 | NEXT-01 | Czyste funkcje Farm Value i Soul Eggs | IMP-02 | Plan; bez zlecenia realizacji |
 | NEXT-02 | Zmiana jaja, prestiż i księgowanie sesji | NEXT-01, IMP-08, IMP-09 | Plan; bez zlecenia realizacji |
 | NEXT-03 | Pełne offline, boosty, VD i historia wydarzeń | IMP-08, IMP-09 | Plan; bez zlecenia realizacji |
@@ -61,6 +61,6 @@ To plan równoległości, nie automatyczna delegacja. Wydanie nadal wymaga wznow
 
 DOC-* oznaczają wyłącznie istniejące materiały; zamknięte zgłoszenie nie jest zaliczeniem scenariuszy gry. Pozostałe zgłoszenia mają zawierać zakres zapisu, zależności i konkretne kryteria, z dowodem L/S/D/H stosownie do zadania. PRE-* pozostają dokumentacyjne. Nie przypisywać wykonawców ani uruchamiać kodowania samym opublikowaniem backlogu.
 
-Opublikowano 35 zadań oraz [plan nadrzędny #1](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/1). Numery, adresy i zależności zapisano w [rejestrze GitHub](workflow/github_task_registry.json). Pięć materiałów DOC-* oraz trzy przygotowania PRE-* zamknięto dokumentacyjnie. Zadania IMP-01–09 wykonano i sprawdzono L; po ich zamknięciu pozostaje 18 otwartych zadań (IMP-10–15, QA-01, NEXT-01–10, REL-01). To rejestr publikacji zgłoszeń, nie wynik pełnej integracji gry. Zadania odłożonego bilansu i kontraktów kooperacyjnych nie są aktywowane tym dokumentem.
+Opublikowano 35 zadań oraz [plan nadrzędny #1](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/1). Numery, adresy i zależności zapisano w [rejestrze GitHub](workflow/github_task_registry.json). Pięć materiałów DOC-* oraz trzy przygotowania PRE-* zamknięto dokumentacyjnie. Zadania IMP-01–15 oraz QA-01 wykonano i odebrano (40_first_farm_completion_delivery.md); po ich zamknięciu pozostaje 11 otwartych zadań (NEXT-01–10, REL-01). To rejestr publikacji zgłoszeń, nie wynik pełnej integracji gry. Zadania odłożonego bilansu i kontraktów kooperacyjnych nie są aktywowane tym dokumentem.
 
 PRE-01–03 zamykają przygotowanie interfejsów, nie wyniki testów. Sprawdzenie narzędzi należy do IMP-01, trwałości do IMP-07, sceny i czasu ruchu do IMP-13/15. Utrzymanie replay w długim działaniu jest bramką wydania opisaną w 34; nie zastępuje go wewnętrzny limit rozmiaru.

@@ -327,10 +327,14 @@
       "number": 25,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/25",
       "title": "[QA-01] Odbiór pierwszej farmy A01–A16",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-15"
-      ]
+      ],
+      "verificationLevel": "L/S/D",
+      "studioTested": false,
+      "dataStoreTested": false,
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "NEXT-01",
