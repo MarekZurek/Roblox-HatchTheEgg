@@ -1,17 +1,13 @@
 --!nocheck
--- HUD for HatchTheEgg.
--- Minimal HUD and user interface binding for HatchTheEgg:
--- 1. Numeric formatting for UI display (K, M, B, T suffixes) - presentation only, NEVER parsed back into domain numbers.
--- 2. StateStore subscription:
---    - Economy balances: cash, producedEggsPerSecond, soldEggsPerSecond, shippingPerMinute.
---    - Hatchery indicator: stock / capacity and refill rate.
---    - Habitat coops 1..4: population / capacity.
---    - Shop view: Common research, habitats, vehicles with quote prices and button states (active or blocked by TIER_LOCKED, MAX_LEVEL, INSUFFICIENT_CASH).
---    - Session status banner: CONNECTING, LOADING, READY, RESYNCING, SESSION_LOST.
--- 3. Compatible with pure Lune mock GUI and Roblox Studio instances (ScreenGui, Frame, TextLabel, TextButton).
+-- HUD for HatchTheEgg (IMP-14 & VIS-04).
+-- Candy & Classic Studs styled responsive 2D HUD for PC and Mobile, inspired by
+-- the user's reference screenshots (Dom button at top, Koszyk Jajek at bottom center,
+-- huge green $ counter at bottom-left, studded quick-upgrade buttons on the left,
+-- framed icon dock on the right, and total chicken counter at bottom-right).
 --
 -- CRITICAL ARCHITECTURAL INVARIANT:
 -- HUD and controllers NEVER modify authoritative state, grant resources, or alter economy balances.
+-- All numeric formatting (K, M, B, T) is presentation-only and NEVER parsed back into domain numbers.
 
 local HUD = {}
 HUD.__index = HUD
@@ -91,6 +87,16 @@ function HUD.formatRate(selfOrAmount, maybeAmountOrUnit, maybeUnit)
 
 	return formatCompact(amount) .. unit
 end
+
+local RESEARCH_DISPLAY_NAMES = table.freeze({
+	comfy_nests = "Wygodne Gniazda (+Tempo znoszenia)",
+	nutritional_sup = "Cukrowe Suplementy (+Wartość jaj)",
+	better_incubators = "Słodkie Inkubatory (+Wylęgarnia)",
+	hab_capacity1 = "Rozbudowa Kurników (+Pojemność)",
+	internal_hatchery1 = "Wewnętrzny Wylęg (+Kurczaki/min)",
+	hatchery_expansion = "Pojemniejsza Wylęgarnia (+Zapas jaj)",
+	leafsprings = "Resory Pojazdów (+Pojemność floty)",
+})
 
 -- ============================================================================
 -- GUI Instance Helpers (Studio & Lune Mock)
@@ -198,6 +204,33 @@ local function createGuiElement(className, properties, parent)
 	return inst
 end
 
+local function addCornerAndStroke(inst, radiusScaleOrOffset, strokeColor, strokeThickness)
+	if not isRoblox or typeof(inst) ~= "Instance" then return end
+	local corner = Instance.new("UICorner")
+	if type(radiusScaleOrOffset) == "number" and radiusScaleOrOffset <= 1 then
+		corner.CornerRadius = UDim.new(radiusScaleOrOffset, 0)
+	else
+		corner.CornerRadius = UDim.new(0, radiusScaleOrOffset or 10)
+	end
+	corner.Parent = inst
+
+	if strokeThickness and strokeThickness > 0 then
+		local stroke = Instance.new("UIStroke")
+		stroke.Color = strokeColor or Color3.fromRGB(22, 12, 8)
+		stroke.Thickness = strokeThickness
+		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		stroke.Parent = inst
+	end
+end
+
+local function addTextStroke(label, thickness, color)
+	if not isRoblox or typeof(label) ~= "Instance" then return end
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = color or Color3.fromRGB(18, 10, 6)
+	stroke.Thickness = thickness or 2.5
+	stroke.Parent = label
+end
+
 -- ============================================================================
 -- HUD Constructor & Initialization
 -- ============================================================================
@@ -210,7 +243,12 @@ function HUD.new(deps)
 
 	local guiRoot = deps.guiRoot
 	if guiRoot == nil then
-		guiRoot = createGuiElement("ScreenGui", { Name = "HatchTheEggHUD" })
+		guiRoot = createGuiElement("ScreenGui", {
+			Name = "HatchTheEggHUD",
+			ResetOnSpawn = false,
+			IgnoreGuiInset = false,
+			ZIndexBehavior = isRoblox and Enum.ZIndexBehavior.Sibling or nil,
+		})
 	end
 
 	local self = setmetatable({
@@ -218,6 +256,9 @@ function HUD.new(deps)
 		intentControllers = deps.intentControllers,
 		codec = deps.codec,
 		guiRoot = guiRoot,
+		onHomeClicked = deps.onHomeClicked,
+		onQuickBuyHabitat = deps.onQuickBuyHabitat,
+		onQuickBuyVehicle = deps.onQuickBuyVehicle,
 
 		-- Cached view data
 		sessionStatus = "CONNECTING",
@@ -225,19 +266,28 @@ function HUD.new(deps)
 		habitatFillRatios = { 0, 0, 0, 0 },
 		habitatPopulations = { "0", "0", "0", "0" },
 		habitatCapacities = { "0", "0", "0", "0" },
+		totalChickensCount = 0,
 
 		-- UI Component hierarchy
 		sessionBanner = nil,
 		sessionStatusLabel = nil,
+		homeButton = nil,
 		cashLabel = nil,
 		producedEggsLabel = nil,
 		soldEggsLabel = nil,
 		shippingLabel = nil,
+		rebirthLabel = nil,
+		totalChickensLabel = nil,
+		tutorialLabel = nil,
 		hatcheryStockLabel = nil,
 		hatcheryRefillLabel = nil,
+		hatcheryFillBar = nil,
 		hatchButton = nil,
+		habitatsModal = nil,
 		habitatCards = {},
 		habitatLabels = {},
+		shopFrame = nil,
+		shopListContainer = nil,
 		shopResearch = {},
 		shopHabitats = {},
 		shopVehicles = {},
@@ -255,25 +305,236 @@ end
 function HUD:_buildInterface()
 	local root = self.guiRoot
 
-	-- 1. Session Status Banner
-	self.sessionBanner = createGuiElement("Frame", { Name = "SessionBanner" }, root)
+	-- 1. Session Status Banner (Top notification pill; auto-hides when READY in Studio)
+	self.sessionBanner = createGuiElement("Frame", {
+		Name = "SessionBanner",
+		Size = isRoblox and UDim2.new(0, 220, 0, 32) or nil,
+		Position = isRoblox and UDim2.new(0.5, -110, 0, 68) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(45, 25, 15) or nil,
+		BackgroundTransparency = 0.2,
+	}, root)
+	addCornerAndStroke(self.sessionBanner, 8, isRoblox and Color3.fromRGB(255, 215, 65) or nil, 2)
+
 	self.sessionStatusLabel = createGuiElement("TextLabel", {
 		Name = "StatusLabel",
+		Size = isRoblox and UDim2.new(1, 0, 1, 0) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 245, 120) or nil,
 		Text = "CONNECTING",
 	}, self.sessionBanner)
+	addTextStroke(self.sessionStatusLabel, 2)
 
-	-- 2. Top Bar (Cash & Global Rates)
-	local topBar = createGuiElement("Frame", { Name = "TopBar" }, root)
-	self.cashLabel = createGuiElement("TextLabel", { Name = "CashLabel", Text = "$0" }, topBar)
-	self.producedEggsLabel = createGuiElement("TextLabel", { Name = "ProducedEggsLabel", Text = "0/s" }, topBar)
-	self.soldEggsLabel = createGuiElement("TextLabel", { Name = "SoldEggsLabel", Text = "0/s" }, topBar)
-	self.shippingLabel = createGuiElement("TextLabel", { Name = "ShippingLabel", Text = "0/min" }, topBar)
+	-- 2. Top-Center "Dom" Button & Boost/Rate Status Cluster (Screenshot 2 exact style!)
+	local topBar = createGuiElement("Frame", {
+		Name = "TopBar",
+		Size = isRoblox and UDim2.new(0, 480, 0, 96) or nil,
+		Position = isRoblox and UDim2.new(0.5, -240, 0, 6) or nil,
+		BackgroundTransparency = 1,
+	}, root)
 
-	-- 3. Hatchery Control Frame
-	local hatcheryFrame = createGuiElement("Frame", { Name = "HatcheryFrame" }, root)
-	self.hatcheryStockLabel = createGuiElement("TextLabel", { Name = "StockLabel", Text = "0 / 0" }, hatcheryFrame)
-	self.hatcheryRefillLabel = createGuiElement("TextLabel", { Name = "RefillLabel", Text = "+0/s" }, hatcheryFrame)
-	self.hatchButton = createGuiElement("TextButton", { Name = "HatchButton", Text = "HATCH" }, hatcheryFrame)
+	self.homeButton = createGuiElement("TextButton", {
+		Name = "DomButton",
+		Size = isRoblox and UDim2.new(0, 165, 0, 44) or nil,
+		Position = isRoblox and UDim2.new(0.5, -82, 0, 0) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(78, 195, 255) or nil,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "Dom",
+	}, topBar)
+	addCornerAndStroke(self.homeButton, 8, isRoblox and Color3.fromRGB(18, 42, 68) or nil, 3)
+	addTextStroke(self.homeButton, 2.6)
+
+	if self.homeButton.Activated ~= nil then
+		self.homeButton.Activated:Connect(function()
+			if type(self.onHomeClicked) == "function" then
+				self.onHomeClicked()
+			elseif isRoblox then
+				pcall(function()
+					local Players = game:GetService("Players")
+					local lp = Players.LocalPlayer
+					if lp and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+						lp.Character.HumanoidRootPart.CFrame = CFrame.new(0, 4, 24)
+					end
+				end)
+			end
+		end)
+	end
+
+	-- Colorful Outlined Rate Counters under "Dom" button (Screenshot 2 style!)
+	self.producedEggsLabel = createGuiElement("TextLabel", {
+		Name = "ProducedEggsLabel",
+		Size = isRoblox and UDim2.new(0.33, -4, 0, 26) or nil,
+		Position = isRoblox and UDim2.new(0, 0, 0, 48) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 165, 245) or nil,
+		Text = "0/s",
+	}, topBar)
+	addTextStroke(self.producedEggsLabel, 2.2)
+
+	self.soldEggsLabel = createGuiElement("TextLabel", {
+		Name = "SoldEggsLabel",
+		Size = isRoblox and UDim2.new(0.34, -4, 0, 26) or nil,
+		Position = isRoblox and UDim2.new(0.33, 0, 0, 48) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 235, 75) or nil,
+		Text = "0/s",
+	}, topBar)
+	addTextStroke(self.soldEggsLabel, 2.2)
+
+	self.shippingLabel = createGuiElement("TextLabel", {
+		Name = "ShippingLabel",
+		Size = isRoblox and UDim2.new(0.33, -4, 0, 26) or nil,
+		Position = isRoblox and UDim2.new(0.67, 0, 0, 48) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(115, 255, 135) or nil,
+		Text = "0/min",
+	}, topBar)
+	addTextStroke(self.shippingLabel, 2.2)
+
+	self.tutorialLabel = createGuiElement("TextLabel", {
+		Name = "TutorialBannerLabel",
+		Size = isRoblox and UDim2.new(1, 0, 0, 22) or nil,
+		Position = isRoblox and UDim2.new(0, 0, 0, 74) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 250, 210) or nil,
+		Text = "🎯 Cel: Kliknij koszyk 'Jajka' na dole lub stań na czerwonym przycisku!",
+	}, topBar)
+	addTextStroke(self.tutorialLabel, 2.0)
+
+	-- 3. Bottom-Left Cash & Rebirth Display (Screenshot 2 exact style!)
+	local bottomLeft = createGuiElement("Frame", {
+		Name = "BottomLeftCluster",
+		Size = isRoblox and UDim2.new(0, 310, 0, 95) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 1, -108) or nil,
+		BackgroundTransparency = 1,
+	}, root)
+
+	self.rebirthLabel = createGuiElement("TextLabel", {
+		Name = "RebirthLabel",
+		Size = isRoblox and UDim2.new(1, 0, 0, 26) or nil,
+		Position = isRoblox and UDim2.new(0, 0, 0, 0) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 165, 125) or nil,
+		Text = "Odrodzenie 0 • 🍫 Cukierkowa Farma",
+	}, bottomLeft)
+	addTextStroke(self.rebirthLabel, 2.4)
+
+	-- Note: tests/ui/run.luau creates cashLabel under TopBar or accesses self.cashLabel directly.
+	-- We parent cashLabel to bottomLeft (and keep self.cashLabel reference intact).
+	self.cashLabel = createGuiElement("TextLabel", {
+		Name = "CashLabel",
+		Size = isRoblox and UDim2.new(1, 0, 0, 58) or nil,
+		Position = isRoblox and UDim2.new(0, 0, 0, 28) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+		TextColor3 = isRoblox and Color3.fromRGB(115, 255, 45) or nil,
+		Text = "$0",
+	}, bottomLeft)
+	addTextStroke(self.cashLabel, 3.4)
+
+	-- 4. Left-Side Green Studded Quick-Action Buttons (Screenshot 2 left side!)
+	local leftQuickCluster = createGuiElement("Frame", {
+		Name = "LeftQuickButtons",
+		Size = isRoblox and UDim2.new(0, 155, 0, 175) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 0.5, -60) or nil,
+		BackgroundTransparency = 1,
+	}, root)
+
+	local quickButtonsSpec = {
+		{
+			name = "QuickResearchBtn",
+			text = "🔬 +Badanie",
+			yPos = 0,
+			bg = isRoblox and Color3.fromRGB(102, 232, 48) or nil,
+			action = function()
+				if type(self.onQuickBuyResearch) == "function" then
+					self.onQuickBuyResearch("comfy_nests")
+				else
+					self:buyResearch("comfy_nests")
+				end
+			end,
+		},
+		{
+			name = "QuickHabitatBtn",
+			text = "🏠 +Kurnik",
+			yPos = 58,
+			bg = isRoblox and Color3.fromRGB(102, 232, 48) or nil,
+			action = function()
+				if type(self.onQuickBuyHabitat) == "function" then
+					self.onQuickBuyHabitat()
+				elseif self.habitatsModal then
+					self.habitatsModal.Visible = not self.habitatsModal.Visible
+				end
+			end,
+		},
+		{
+			name = "QuickVehicleBtn",
+			text = "🚚 +Pojazd",
+			yPos = 116,
+			bg = isRoblox and Color3.fromRGB(102, 232, 48) or nil,
+			action = function()
+				if type(self.onQuickBuyVehicle) == "function" then
+					self.onQuickBuyVehicle()
+				end
+			end,
+		},
+	}
+
+	for _, qSpec in ipairs(quickButtonsSpec) do
+		local qBtn = createGuiElement("TextButton", {
+			Name = qSpec.name,
+			Size = isRoblox and UDim2.new(1, 0, 0, 48) or nil,
+			Position = isRoblox and UDim2.new(0, 0, 0, qSpec.yPos) or nil,
+			BackgroundColor3 = qSpec.bg,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextScaled = true,
+			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+			Text = qSpec.text,
+		}, leftQuickCluster)
+		addCornerAndStroke(qBtn, 8, isRoblox and Color3.fromRGB(22, 48, 12) or nil, 3)
+		addTextStroke(qBtn, 2.5)
+		if qBtn.Activated then
+			qBtn.Activated:Connect(qSpec.action)
+		end
+	end
+
+	-- 5. Bottom-Center Egg Basket ("Jajka" / Hatchery Control Frame from Screenshot 2!)
+	local hatcheryFrame = createGuiElement("Frame", {
+		Name = "HatcheryFrame",
+		Size = isRoblox and UDim2.new(0, 210, 0, 118) or nil,
+		Position = isRoblox and UDim2.new(0.5, -105, 1, -128) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(235, 152, 48) or nil,
+	}, root)
+	addCornerAndStroke(hatcheryFrame, 18, isRoblox and Color3.fromRGB(58, 30, 12) or nil, 3.5)
+
+	self.hatchButton = createGuiElement("TextButton", {
+		Name = "HatchButton",
+		Size = isRoblox and UDim2.new(1, -12, 0, 56) or nil,
+		Position = isRoblox and UDim2.new(0, 6, 0, 6) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(255, 232, 135) or nil,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "🥚 Jajka (WYLĘG)",
+	}, hatcheryFrame)
+	addCornerAndStroke(self.hatchButton, 14, isRoblox and Color3.fromRGB(72, 38, 14) or nil, 2.8)
+	addTextStroke(self.hatchButton, 2.8)
 
 	if self.hatchButton.Activated ~= nil then
 		self.hatchButton.Activated:Connect(function()
@@ -291,17 +552,206 @@ function HUD:_buildInterface()
 		end)
 	end
 
-	-- 4. Habitats Frame (Coops 1..4)
-	local habitatsFrame = createGuiElement("Frame", { Name = "HabitatsFrame" }, root)
+	self.hatcheryStockLabel = createGuiElement("TextLabel", {
+		Name = "StockLabel",
+		Size = isRoblox and UDim2.new(0.62, 0, 0, 36) or nil,
+		Position = isRoblox and UDim2.new(0.04, 0, 0, 68) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(255, 245, 225) or nil,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "0 / 0",
+	}, hatcheryFrame)
+	addCornerAndStroke(self.hatcheryStockLabel, 10, isRoblox and Color3.fromRGB(72, 38, 14) or nil, 2.2)
+	addTextStroke(self.hatcheryStockLabel, 2.2)
+
+	self.hatcheryRefillLabel = createGuiElement("TextLabel", {
+		Name = "RefillLabel",
+		Size = isRoblox and UDim2.new(0.30, 0, 0, 36) or nil,
+		Position = isRoblox and UDim2.new(0.68, 0, 0, 68) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(135, 255, 115) or nil,
+		Text = "+0/s",
+	}, hatcheryFrame)
+	addTextStroke(self.hatcheryRefillLabel, 2.2)
+
+	-- 6. Right-Side Framed Icon Buttons ("Indeks / Badania", "Kurniki") & Bottom-Right Chicken Counter
+	local rightDock = createGuiElement("Frame", {
+		Name = "RightDock",
+		Size = isRoblox and UDim2.new(0, 86, 0, 190) or nil,
+		Position = isRoblox and UDim2.new(1, -100, 0.5, -80) or nil,
+		BackgroundTransparency = 1,
+	}, root)
+
+	local researchToggleBtn = createGuiElement("TextButton", {
+		Name = "ResearchMenuButton",
+		Size = isRoblox and UDim2.new(0, 82, 0, 82) or nil,
+		Position = isRoblox and UDim2.new(0, 0, 0, 0) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(32, 68, 128) or nil,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "📕\nBadania",
+	}, rightDock)
+	addCornerAndStroke(researchToggleBtn, 10, isRoblox and Color3.fromRGB(14, 28, 58) or nil, 3.2)
+	addTextStroke(researchToggleBtn, 2.2)
+
+	local habitatsToggleBtn = createGuiElement("TextButton", {
+		Name = "HabitatsMenuButton",
+		Size = isRoblox and UDim2.new(0, 82, 0, 82) or nil,
+		Position = isRoblox and UDim2.new(0, 0, 0, 96) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(32, 68, 128) or nil,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "🏠\nKurniki",
+	}, rightDock)
+	addCornerAndStroke(habitatsToggleBtn, 10, isRoblox and Color3.fromRGB(14, 28, 58) or nil, 3.2)
+	addTextStroke(habitatsToggleBtn, 2.2)
+
+	self.totalChickensLabel = createGuiElement("TextLabel", {
+		Name = "TotalChickensLabel",
+		Size = isRoblox and UDim2.new(0, 320, 0, 32) or nil,
+		Position = isRoblox and UDim2.new(1, -336, 1, -42) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextXAlignment = isRoblox and Enum.TextXAlignment.Right or nil,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 225, 65) or nil,
+		Text = "Całkowita liczba kurczaków: 0",
+	}, root)
+	addTextStroke(self.totalChickensLabel, 2.6)
+
+	-- 7. Habitats Modal Drawer (Coops 1..4)
+	local habitatsFrame = createGuiElement("Frame", {
+		Name = "HabitatsFrame",
+		Visible = false,
+		Size = isRoblox and UDim2.new(0, 360, 0, 310) or nil,
+		Position = isRoblox and UDim2.new(0.5, -180, 0.5, -155) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(78, 42, 24) or nil,
+	}, root)
+	addCornerAndStroke(habitatsFrame, 14, isRoblox and Color3.fromRGB(255, 205, 95) or nil, 3.2)
+	self.habitatsModal = habitatsFrame
+
+	createGuiElement("TextLabel", {
+		Name = "ModalHeader",
+		Size = isRoblox and UDim2.new(1, -20, 0, 36) or nil,
+		Position = isRoblox and UDim2.new(0, 10, 0, 8) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 235, 115) or nil,
+		Text = "🏠 TWOJE KURNIKI (1-4)",
+	}, habitatsFrame)
+
 	for slotId = 1, 4 do
-		local card = createGuiElement("Frame", { Name = "HabitatCard_" .. tostring(slotId) }, habitatsFrame)
-		local popLabel = createGuiElement("TextLabel", { Name = "PopulationLabel", Text = "0 / 0" }, card)
+		local card = createGuiElement("Frame", {
+			Name = "HabitatCard_" .. tostring(slotId),
+			Size = isRoblox and UDim2.new(1, -24, 0, 54) or nil,
+			Position = isRoblox and UDim2.new(0, 12, 0, 50 + (slotId - 1) * 62) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(112, 64, 36) or nil,
+		}, habitatsFrame)
+		addCornerAndStroke(card, 8, isRoblox and Color3.fromRGB(42, 22, 12) or nil, 2)
+
+		local popLabel = createGuiElement("TextLabel", {
+			Name = "PopulationLabel",
+			Size = isRoblox and UDim2.new(0.65, 0, 1, 0) or nil,
+			Position = isRoblox and UDim2.new(0.04, 0, 0, 0) or nil,
+			BackgroundTransparency = 1,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextScaled = true,
+			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+			Text = "0 / 0",
+		}, card)
+		addTextStroke(popLabel, 2)
+
+		local upgBtn = createGuiElement("TextButton", {
+			Name = "UpgradeHabitatBtn",
+			Size = isRoblox and UDim2.new(0.28, 0, 0.76, 0) or nil,
+			Position = isRoblox and UDim2.new(0.69, 0, 0.12, 0) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(95, 235, 45) or nil,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextScaled = true,
+			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+			Text = "ULEPSZ",
+		}, card)
+		addCornerAndStroke(upgBtn, 6, isRoblox and Color3.fromRGB(22, 48, 12) or nil, 2)
+		if upgBtn.Activated then
+			upgBtn.Activated:Connect(function()
+				if type(self.onQuickBuyHabitat) == "function" then
+					self.onQuickBuyHabitat(slotId)
+				end
+			end)
+		end
+
 		self.habitatCards[slotId] = card
 		self.habitatLabels[slotId] = popLabel
 	end
 
-	-- 5. Shop Frame
-	self.shopFrame = createGuiElement("Frame", { Name = "ShopFrame" }, root)
+	-- 8. Shop Frame (Common Research Drawer)
+	self.shopFrame = createGuiElement("Frame", {
+		Name = "ShopFrame",
+		Visible = false,
+		Size = isRoblox and UDim2.new(0, 420, 0, 380) or nil,
+		Position = isRoblox and UDim2.new(0.5, -210, 0.5, -190) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(68, 36, 22) or nil,
+	}, root)
+	addCornerAndStroke(self.shopFrame, 14, isRoblox and Color3.fromRGB(115, 225, 255) or nil, 3.2)
+
+	createGuiElement("TextLabel", {
+		Name = "ShopTitle",
+		Size = isRoblox and UDim2.new(1, -20, 0, 36) or nil,
+		Position = isRoblox and UDim2.new(0, 10, 0, 8) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(135, 235, 255) or nil,
+		Text = "🔬 SŁODKIE BADANIA (ULEPSZENIA)",
+	}, self.shopFrame)
+
+	if researchToggleBtn.Activated then
+		researchToggleBtn.Activated:Connect(function()
+			self.shopFrame.Visible = not self.shopFrame.Visible
+			if self.habitatsModal and self.shopFrame.Visible then
+				self.habitatsModal.Visible = false
+			end
+		end)
+	end
+
+	if habitatsToggleBtn.Activated then
+		habitatsToggleBtn.Activated:Connect(function()
+			self.habitatsModal.Visible = not self.habitatsModal.Visible
+			if self.shopFrame and self.habitatsModal.Visible then
+				self.shopFrame.Visible = false
+			end
+		end)
+	end
+end
+
+function HUD:toggleResearchModal(forceState)
+	if not self.shopFrame then return end
+	if forceState ~= nil then
+		self.shopFrame.Visible = forceState
+	else
+		self.shopFrame.Visible = not self.shopFrame.Visible
+	end
+	if self.shopFrame.Visible and self.habitatsModal then
+		self.habitatsModal.Visible = false
+	end
+end
+
+function HUD:toggleHabitatsModal(forceState)
+	if not self.habitatsModal then return end
+	if forceState ~= nil then
+		self.habitatsModal.Visible = forceState
+	else
+		self.habitatsModal.Visible = not self.habitatsModal.Visible
+	end
+	if self.habitatsModal.Visible and self.shopFrame then
+		self.shopFrame.Visible = false
+	end
 end
 
 function HUD:_setupSubscriptions()
@@ -336,6 +786,9 @@ function HUD:updateStatus(newStatus)
 	self.sessionStatus = newStatus or self.stateStore:getStatus()
 	if self.sessionStatusLabel ~= nil then
 		self.sessionStatusLabel.Text = self.sessionStatus
+	end
+	if isRoblox and self.sessionBanner ~= nil then
+		self.sessionBanner.Visible = (self.sessionStatus ~= "READY")
 	end
 end
 
@@ -380,7 +833,8 @@ function HUD:update()
 		self.hatcheryRatio = if cNum > 0 then math.clamp(sNum / cNum, 0, 1) else 0
 	end
 
-	-- 3. Habitats 1..4 (Population / Capacity)
+	-- 3. Habitats 1..4 (Population / Capacity) & Total Chickens Counter
+	local totalPop = 0
 	if type(farm.habitats) == "table" then
 		for _, hab in ipairs(farm.habitats) do
 			local slotId = hab.slotId
@@ -394,30 +848,100 @@ function HUD:update()
 
 				local pNum = tonumber(hab.population) or 0
 				local cNum = tonumber(hab.capacity) or 1
+				totalPop += pNum
 				self.habitatFillRatios[slotId] = if cNum > 0 then math.clamp(pNum / cNum, 0, 1) else 0
 			end
 		end
 	end
+	self.totalChickensCount = totalPop
+	if self.totalChickensLabel ~= nil then
+		self.totalChickensLabel.Text = "Całkowita liczba kurczaków: " .. formatCompact(totalPop)
+	end
 
 	-- 4. Shop View (Common Research)
+	local visibleIdx = 0
 	if type(farm.common) == "table" then
 		for _, research in ipairs(farm.common) do
-			self:_updateResearchItem(research)
+			if research.blockedReason ~= "UNSUPPORTED" then
+				visibleIdx += 1
+			end
+			self:_updateResearchItem(research, visibleIdx)
 		end
 	end
 end
 
-function HUD:_updateResearchItem(research)
+function HUD:_updateResearchItem(research, displayOrder)
 	local id = research.researchId
 	local item = self.shopResearch[id]
 
 	if item == nil then
-		local card = createGuiElement("Frame", { Name = "ResearchCard_" .. id }, self.shopFrame)
-		local nameLabel = createGuiElement("TextLabel", { Name = "Title", Text = id }, card)
-		local levelLabel = createGuiElement("TextLabel", { Name = "Level", Text = "Lv 0" }, card)
-		local priceLabel = createGuiElement("TextLabel", { Name = "Price", Text = "$0" }, card)
-		local statusLabel = createGuiElement("TextLabel", { Name = "Status", Text = "BUY" }, card)
-		local buyBtn = createGuiElement("TextButton", { Name = "BuyButton", Text = "BUY" }, card)
+		local orderIdx = displayOrder or 1
+		local isSupported = (research.blockedReason ~= "UNSUPPORTED")
+		local card = createGuiElement("Frame", {
+			Name = "ResearchCard_" .. id,
+			Visible = isSupported,
+			Size = isRoblox and UDim2.new(1, -24, 0, 42) or nil,
+			Position = isRoblox and UDim2.new(0, 12, 0, 48 + (orderIdx - 1) * 46) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(102, 56, 32) or nil,
+		}, self.shopFrame)
+		addCornerAndStroke(card, 6, isRoblox and Color3.fromRGB(38, 18, 10) or nil, 1.8)
+
+		local friendlyName = RESEARCH_DISPLAY_NAMES[id] or id
+		local nameLabel = createGuiElement("TextLabel", {
+			Name = "Title",
+			Size = isRoblox and UDim2.new(0.46, 0, 1, 0) or nil,
+			Position = isRoblox and UDim2.new(0.02, 0, 0, 0) or nil,
+			BackgroundTransparency = 1,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextScaled = true,
+			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+			Text = friendlyName,
+		}, card)
+		addTextStroke(nameLabel, 1.8)
+
+		local levelLabel = createGuiElement("TextLabel", {
+			Name = "Level",
+			Size = isRoblox and UDim2.new(0.14, 0, 1, 0) or nil,
+			Position = isRoblox and UDim2.new(0.49, 0, 0, 0) or nil,
+			BackgroundTransparency = 1,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextScaled = true,
+			TextColor3 = isRoblox and Color3.fromRGB(255, 235, 95) or nil,
+			Text = "Lv 0",
+		}, card)
+		addTextStroke(levelLabel, 1.8)
+
+		local priceLabel = createGuiElement("TextLabel", {
+			Name = "Price",
+			Size = isRoblox and UDim2.new(0.16, 0, 1, 0) or nil,
+			Position = isRoblox and UDim2.new(0.64, 0, 0, 0) or nil,
+			BackgroundTransparency = 1,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextScaled = true,
+			TextColor3 = isRoblox and Color3.fromRGB(115, 255, 85) or nil,
+			Text = "$0",
+		}, card)
+		addTextStroke(priceLabel, 1.8)
+
+		local statusLabel = createGuiElement("TextLabel", {
+			Name = "Status",
+			Visible = false,
+			Text = "BUY",
+		}, card)
+
+		local buyBtn = createGuiElement("TextButton", {
+			Name = "BuyButton",
+			Size = isRoblox and UDim2.new(0.17, 0, 0.78, 0) or nil,
+			Position = isRoblox and UDim2.new(0.81, 0, 0.11, 0) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(95, 235, 45) or nil,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextScaled = true,
+			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+			Text = "KUP",
+		}, card)
+		addCornerAndStroke(buyBtn, 6, isRoblox and Color3.fromRGB(22, 48, 12) or nil, 2)
+		addTextStroke(buyBtn, 1.8)
 
 		item = {
 			id = id,
@@ -475,10 +999,18 @@ function HUD:_updateResearchItem(research)
 	if available then
 		item.buyButton.Active = true
 		item.statusLabel.Text = "BUY"
+		if isRoblox then
+			item.buyButton.BackgroundColor3 = Color3.fromRGB(95, 235, 45)
+			item.buyButton.Text = "KUP"
+		end
 	else
 		item.buyButton.Active = false
 		local reasonText = blockedReason or "LOCKED"
 		item.statusLabel.Text = reasonText
+		if isRoblox then
+			item.buyButton.BackgroundColor3 = Color3.fromRGB(130, 115, 105)
+			item.buyButton.Text = reasonText
+		end
 	end
 end
 
@@ -546,12 +1078,13 @@ function HUD:buyResearch(researchId, callback)
 		args = { researchId = researchId, mode = "single" },
 	}
 
+	local currentRevision = if self.stateStore then self.stateStore:getCommitRevision() else nil
 	local quote = self.intentControllers.shop:getCachedQuote(target)
-	if quote ~= nil then
+	if quote ~= nil and quote.available and (currentRevision == nil or quote.expectedRevision == currentRevision) then
 		return self.intentControllers.shop:confirmPurchase(quote, callback)
 	else
 		return self.intentControllers.shop:requestQuote(target, function(newQuote)
-			if newQuote and newQuote.kind == "QuoteView" then
+			if newQuote and newQuote.kind == "QuoteView" and newQuote.available then
 				self.intentControllers.shop:confirmPurchase(newQuote, callback)
 			elseif callback then
 				callback({ status = "REJECTED", errorCode = "NO_QUOTE" })

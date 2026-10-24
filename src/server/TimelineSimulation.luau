@@ -1,6 +1,19 @@
 --!nocheck
 -- Pure neutral first-farm timeline; checkpoints preserve production and growth phases on the same model grid.
-local EffectsManager = require("./EffectsManager")
+local isStudio = (typeof(script) == "Instance")
+local function resolve(studioGetter, lunePath)
+	if isStudio then
+		local ok, mod = pcall(studioGetter)
+		if ok and mod then
+			return if typeof(mod) == "Instance" then require(mod) else mod
+		end
+	end
+	return require(lunePath)
+end
+
+local EffectsManager = resolve(function()
+	return script.Parent.EffectsManager
+end, "./EffectsManager")
 local Timeline = {}
 function Timeline.new(codec, production, hatching, ihr, data, options)
  assert(options and options.mode == "INTERNAL_TEST_ONLY", "Timeline/TEST_MODE_REQUIRED")

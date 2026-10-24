@@ -151,6 +151,7 @@ function ShopController:getCachedQuote(targetOrKey)
 		if key ~= nil then
 			return self._quotes[key]
 		end
+		return nil
 	end
 	return self._latestQuote
 end

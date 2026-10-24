@@ -23,7 +23,7 @@ def main():
             visit(child, current)
 
     for item in model.findall("Item"):
-        visit(item, [])
+        visit(child := item, [])
     shared = "ReplicatedStorage/HatchTheEgg/Shared/"
     private = "ServerScriptService/HatchTheEgg/"
     client = "StarterPlayer/StarterPlayerScripts/HatchTheEggClient/"
@@ -38,17 +38,22 @@ def main():
                  "ProgressActions", "EffectsManager", "pets/equipment", "pets/fusion",
                  "rewards/drones", "rewards/offers", "rewards/calendar", "rewards/trophies",
                  "platform/products", "onboarding/manager",
+                 "world/FarmPlotBuilder",
                  "ViewProjector", "NetworkGateway", "Bootstrap"):
         assert private + name in modules, name
     for name in ("ClientTransport", "ClientStateStore", "RoutePresentation",
                  "IntentControllers", "HUD", "onboarding/TutorialController", "Bootstrap"):
         assert client + name in modules, name
-    assert not scripts, scripts
-    result = {"status": "PASS_STATIC_BUILD", "modules": modules,
+    expected_scripts = {
+        private + "Main",
+        client + "Main",
+    }
+    assert set(scripts) == expected_scripts, scripts
+    result = {"status": "PASS_STATIC_BUILD", "modules": modules, "scripts": scripts,
               "runtimeReplicationTested": False, "studioTested": False}
     (ROOT / "build/mapping-results.json").write_text(
         json.dumps(result, indent=2) + "\n", encoding="utf-8")
-    print(f"Rojo mapping PASS_STATIC_BUILD: {len(modules)} modules, no entrypoint scripts")
+    print(f"Rojo mapping PASS_STATIC_BUILD: {len(modules)} modules, {len(scripts)} entrypoint scripts")
 
 
 if __name__ == "__main__":

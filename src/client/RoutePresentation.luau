@@ -1,17 +1,19 @@
 --!nocheck
--- RoutePresentation for HatchTheEgg.
--- Visual presentation of the 4 habitat plots, hatchery zone, and chicken movement routes
--- based on PRE-03 (docs/35_pre03_routes_and_arrivals.md).
+-- RoutePresentation for HatchTheEgg (IMP-13 & VIS-05).
+-- Visual presentation of the 4 habitat plots, hatchery zone, cute 3D kawaii chicken models,
+-- arrival particle puffs, and 3D flying candy drones based on PRE-03 (docs/35_pre03_routes_and_arrivals.md).
 --
 -- CRITICAL ARCHITECTURAL INVARIANT:
 -- The presentation layer is strictly a one-way consumer of state.
--- Removing, destroying, slowing down, or colliding chicken models in 3D
+-- Removing, destroying, slowing down, or colliding chicken/drone models in 3D
 -- DOES NOT affect the server authoritative population, running chickens in transit,
 -- egg laying rate, or player cash balances!
 
 local SCENE_VERSION = "CANONICAL_V1"
 local ROUTE_VERSION = 1
 local DEFAULT_SPEED = 25.0 -- studs per second
+
+local isRoblox = (typeof(Instance) == "table" and type(Instance.new) == "function")
 
 -- ============================================================================
 -- Geometry and Vector Helpers
@@ -50,31 +52,42 @@ local function lerpPoint(p1, p2, alpha: number)
 	return createPoint(x, y, z)
 end
 
-local function applyModelPosition(model, pt)
+local function applyModelPosition(model, pt, lookAtPt, hopY, waddleAngle)
 	if model == nil then return end
-	if model.destroyed then return end
+	if type(model) == "table" and model.destroyed then return end
 
 	local x, y, z = getCoords(pt)
 
 	-- If model has custom setPosition method (mock)
-	if type(model.setPosition) == "function" then
+	if type(model) == "table" and type(model.setPosition) == "function" then
 		model:setPosition(pt)
 		return
 	end
 
 	-- Roblox Studio environment
-	if typeof(CFrame) == "table" and type(CFrame.new) == "function" and typeof(Vector3) == "table" and type(Vector3.new) == "function" then
-		local v3 = Vector3.new(x, y, z)
-		if typeof(model.PivotTo) == "function" then
-			model:PivotTo(CFrame.new(v3))
-			return
-		elseif typeof(model.SetPrimaryPartCFrame) == "function" and model.PrimaryPart ~= nil then
-			model:SetPrimaryPartCFrame(CFrame.new(v3))
-			return
-		elseif model.Position ~= nil then
-			model.Position = v3
-			return
+	if isRoblox and typeof(model) == "Instance" then
+		local vy = y + 0.85 + (hopY or 0)
+		local v3 = Vector3.new(x, vy, z)
+		local targetCF = CFrame.new(v3)
+		if lookAtPt then
+			local lx, _, lz = getCoords(lookAtPt)
+			local lookV = Vector3.new(lx, vy, lz)
+			if (lookV - v3).Magnitude > 0.05 then
+				targetCF = CFrame.lookAt(v3, lookV)
+			end
 		end
+		if waddleAngle then
+			targetCF = targetCF * CFrame.Angles(0, 0, waddleAngle)
+		end
+
+		pcall(function()
+			if model:IsA("Model") then
+				model:PivotTo(targetCF)
+			elseif model:IsA("BasePart") then
+				model.CFrame = targetCF
+			end
+		end)
+		return
 	end
 
 	-- Pure Lune environment / table mock
@@ -85,18 +98,57 @@ end
 
 local function destroyModel(model)
 	if model == nil then return end
-	if typeof(model.Destroy) == "function" then
+	if typeof(model) == "Instance" then
 		pcall(function() model:Destroy() end)
-	elseif typeof(model.destroy) == "function" then
-		pcall(function() model:destroy() end)
+		return
 	end
 	if type(model) == "table" then
+		if type(model.Destroy) == "function" then
+			pcall(function() model:Destroy() end)
+		elseif type(model.destroy) == "function" then
+			pcall(function() model:destroy() end)
+		end
 		model.destroyed = true
 	end
 end
 
+-- ============================================================================
+-- 3D Kawaii Candy Chicken Model & Arrival Particle Puff (Roblox Studio)
+-- ============================================================================
+
+local CHICKEN_PALETTE = table.freeze({
+	{ 255, 248, 235 }, -- Cream White
+	{ 255, 232, 95 },  -- Sunny Chick Yellow
+	{ 255, 195, 225 }, -- Strawberry Milk Pink
+	{ 195, 238, 255 }, -- Cotton Candy Blue
+})
+
+local function makeChickenSubPart(parent, name, size, offsetCF, color, baseCF)
+	local p = Instance.new("Part")
+	p.Name = name
+	p.Size = size
+	p.Color = color
+	p.Material = Enum.Material.SmoothPlastic
+	p.TopSurface = Enum.SurfaceType.Smooth
+	p.BottomSurface = Enum.SurfaceType.Smooth
+	p.Anchored = true
+	p.CanCollide = false
+	p.CanTouch = false
+	p.CanQuery = false
+	p.CastShadow = false
+	p.CFrame = baseCF * offsetCF
+	p.Parent = parent
+
+	local weld = Instance.new("WeldConstraint")
+	weld.Part0 = parent.PrimaryPart
+	weld.Part1 = p
+	weld.Parent = p
+	p.Anchored = false
+	return p
+end
+
 local function createDefaultModel(groupId, index, startPos, container, chickenTemplate)
-	if chickenTemplate ~= nil and typeof(chickenTemplate.Clone) == "function" then
+	if chickenTemplate ~= nil and typeof(chickenTemplate) == "Instance" then
 		local clone = chickenTemplate:Clone()
 		clone.Name = "Chicken_" .. tostring(groupId) .. "_" .. tostring(index)
 		applyModelPosition(clone, startPos)
@@ -106,20 +158,104 @@ local function createDefaultModel(groupId, index, startPos, container, chickenTe
 		return clone
 	end
 
-	-- Check if running inside Roblox with Instance.new
-	if typeof(Instance) == "table" and type(Instance.new) == "function" and typeof(Vector3) == "table" and type(Vector3.new) == "function" then
-		local part = Instance.new("Part")
-		part.Name = "Chicken_" .. tostring(groupId) .. "_" .. tostring(index)
-		part.Size = Vector3.new(1.2, 1.2, 1.2)
-		part.CanCollide = false
-		part.CanTouch = false
-		part.CanQuery = false
-		part.Anchored = true
-		applyModelPosition(part, startPos)
+	-- Roblox Studio: Build multi-part 3D Kawaii Cube Chicken!
+	if isRoblox then
+		local model = Instance.new("Model")
+		model.Name = "Chicken_" .. tostring(groupId) .. "_" .. tostring(index)
+
+		local sx, sy, sz = getCoords(startPos)
+		local baseCF = CFrame.new(sx, sy + 0.85, sz)
+		local pal = CHICKEN_PALETTE[((index - 1) % #CHICKEN_PALETTE) + 1]
+		local bodyColor = Color3.fromRGB(pal[1], pal[2], pal[3])
+
+		-- Chubby Cube Body (PrimaryPart)
+		local body = Instance.new("Part")
+		body.Name = "Body"
+		body.Size = Vector3.new(1.45, 1.4, 1.65)
+		body.Color = bodyColor
+		body.Material = Enum.Material.SmoothPlastic
+		body.TopSurface = Enum.SurfaceType.Studs
+		body.BottomSurface = Enum.SurfaceType.Smooth
+		body.Anchored = true
+		body.CanCollide = false
+		body.CanTouch = false
+		body.CanQuery = false
+		body.CFrame = baseCF
+		body.Parent = model
+		model.PrimaryPart = body
+
+		-- Red Comb on Head (Grzebień)
+		makeChickenSubPart(
+			model,
+			"Comb",
+			Vector3.new(0.28, 0.45, 0.78),
+			CFrame.new(0, 0.88, -0.15),
+			Color3.fromRGB(255, 65, 85),
+			baseCF
+		)
+
+		-- Orange Beak (Dziób)
+		makeChickenSubPart(
+			model,
+			"Beak",
+			Vector3.new(0.42, 0.28, 0.45),
+			CFrame.new(0, 0.12, -0.95),
+			Color3.fromRGB(255, 165, 35),
+			baseCF
+		)
+
+		-- Red Wattle under Beak
+		makeChickenSubPart(
+			model,
+			"Wattle",
+			Vector3.new(0.24, 0.28, 0.24),
+			CFrame.new(0, -0.14, -0.88),
+			Color3.fromRGB(245, 55, 75),
+			baseCF
+		)
+
+		-- Cute Left & Right Eyes
+		makeChickenSubPart(
+			model,
+			"EyeLeft",
+			Vector3.new(0.18, 0.24, 0.12),
+			CFrame.new(-0.36, 0.32, -0.82),
+			Color3.fromRGB(25, 20, 20),
+			baseCF
+		)
+		makeChickenSubPart(
+			model,
+			"EyeRight",
+			Vector3.new(0.18, 0.24, 0.12),
+			CFrame.new(0.36, 0.32, -0.82),
+			Color3.fromRGB(25, 20, 20),
+			baseCF
+		)
+
+		-- Plump Side Wings
+		makeChickenSubPart(
+			model,
+			"Wings",
+			Vector3.new(1.82, 0.58, 0.92),
+			CFrame.new(0, 0.0, 0.05),
+			bodyColor,
+			baseCF
+		)
+
+		-- Cute Tail Feathers
+		makeChickenSubPart(
+			model,
+			"Tail",
+			Vector3.new(0.55, 0.55, 0.42),
+			CFrame.new(0, 0.35, 0.88),
+			bodyColor,
+			baseCF
+		)
+
 		if container ~= nil then
-			part.Parent = container
+			model.Parent = container
 		end
-		return part
+		return model
 	end
 
 	-- Pure Lune mock model
@@ -136,6 +272,45 @@ local function createDefaultModel(groupId, index, startPos, container, chickenTe
 		end,
 	}
 	return mock
+end
+
+local function spawnArrivalPuff(pos, container)
+	if not isRoblox or container == nil then return end
+	pcall(function()
+		local x, y, z = getCoords(pos)
+		local puffPart = Instance.new("Part")
+		puffPart.Name = "ArrivalCandyPuff"
+		puffPart.Shape = Enum.PartType.Ball
+		puffPart.Size = Vector3.new(2.2, 2.2, 2.2)
+		puffPart.Position = Vector3.new(x, y + 1.5, z)
+		puffPart.Color = Color3.fromRGB(255, 235, 145)
+		puffPart.Material = Enum.Material.Neon
+		puffPart.Transparency = 0.25
+		puffPart.Anchored = true
+		puffPart.CanCollide = false
+		puffPart.CanTouch = false
+		puffPart.CanQuery = false
+		puffPart.Parent = container
+
+		local pe = Instance.new("ParticleEmitter")
+		pe.Color = ColorSequence.new(Color3.fromRGB(255, 145, 215), Color3.fromRGB(255, 245, 115))
+		pe.Size = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0.8),
+			NumberSequenceKeypoint.new(1, 0),
+		})
+		pe.Lifetime = NumberRange.new(0.25, 0.45)
+		pe.Speed = NumberRange.new(6, 12)
+		pe.SpreadAngle = Vector2.new(180, 180)
+		pe.Rate = 0
+		pe.Parent = puffPart
+		pe:Emit(10)
+
+		task.delay(0.45, function()
+			if puffPart and puffPart.Parent then
+				puffPart:Destroy()
+			end
+		end)
+	end)
 end
 
 -- ============================================================================
@@ -376,10 +551,11 @@ function RoutePresentation.new(deps)
 		maxVisualsPerGroup = d.maxVisualsPerGroup or 5,
 		modelFactory = d.modelFactory,
 		chickenTemplate = d.chickenTemplate,
-		container = d.container,
+		container = d.container or d.modelsContainer,
 		clientStateStore = d.clientStateStore,
 		_activeGroups = {},
 		_completedGroups = {},
+		_activeDrones = {},
 		_listeners = {},
 	}, RoutePresentation)
 
@@ -423,6 +599,7 @@ function RoutePresentation:spawnGroup(groupId: any, count: any, targetSlotId: nu
 	end
 
 	local startPos = route.waypoints[1]
+	local nextPos = route.waypoints[2] or startPos
 	local visualCount = math.clamp(numCount, 1, self.maxVisualsPerGroup)
 	local models = {}
 
@@ -433,6 +610,7 @@ function RoutePresentation:spawnGroup(groupId: any, count: any, targetSlotId: nu
 			applyModelPosition(model, startPos)
 		else
 			model = createDefaultModel(groupId, i, startPos, self.container, self.chickenTemplate)
+			applyModelPosition(model, startPos, nextPos, 0, 0)
 		end
 		table.insert(models, model)
 	end
@@ -467,19 +645,22 @@ function RoutePresentation:update(nowMs: number)
 
 		group.currentProgress = progress
 		local pos = self:interpolateRoutePosition(group.targetSlotId, progress)
+		local lookAheadPos = self:interpolateRoutePosition(group.targetSlotId, math.min(1, progress + 0.05))
 		group.currentPosition = pos
 
 		-- Update visual model positions (if models are still alive and valid)
 		local numModels = #group.models
 		for idx, model in ipairs(group.models) do
-			if model ~= nil and not model.destroyed then
-				-- Optional slight lateral offset when multiple models are in the group
+			local isDestroyed = (type(model) == "table" and model.destroyed == true)
+			if model ~= nil and not isDestroyed then
 				local modelPos = pos
 				if numModels > 1 then
-					local spreadOffset = (idx - (numModels + 1) / 2) * 0.4
+					local spreadOffset = (idx - (numModels + 1) / 2) * 0.75
 					modelPos = createPoint(pos.x + spreadOffset, pos.y, pos.z)
 				end
-				applyModelPosition(model, modelPos)
+				local hopY = math.abs(math.sin(progress * math.pi * 16 + idx)) * 0.48
+				local waddleAngle = math.sin(progress * math.pi * 16 + idx) * 0.14
+				applyModelPosition(model, modelPos, lookAheadPos, hopY, waddleAngle)
 			end
 		end
 
@@ -490,8 +671,9 @@ function RoutePresentation:update(nowMs: number)
 		end
 	end
 
-	-- Clean up arrived groups: chickens visually disappear in target coop
+	-- Clean up arrived groups: chickens visually disappear in target coop with a candy puff
 	for _, group in ipairs(arrivedGroups) do
+		spawnArrivalPuff(group.currentPosition, self.container)
 		for _, model in ipairs(group.models) do
 			destroyModel(model)
 		end
@@ -503,7 +685,144 @@ function RoutePresentation:update(nowMs: number)
 		self:_emit("groupCompleted", group.groupId, group)
 	end
 
+	self:updateDrones(nowMs)
+
 	return self:getActiveGroupCount()
+end
+
+-- ============================================================================
+-- 3D Flying Candy Drones Presentation (VIS-05)
+-- ============================================================================
+
+function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startInstantMs: number, durationSeconds: number?, onClicked: ((string) -> ())?)
+	local durSec = durationSeconds or 9.0
+	local startPos = createPoint(-75, 22, -15)
+	local endPos = createPoint(75, 22, 10)
+
+	local model
+	if isRoblox then
+		model = Instance.new("Model")
+		model.Name = "CandyDrone_" .. tostring(droneId)
+
+		local core = Instance.new("Part")
+		core.Name = "DroneCore"
+		core.Shape = Enum.PartType.Ball
+		core.Size = if isElite then Vector3.new(5.2, 5.2, 5.2) else Vector3.new(3.8, 3.8, 3.8)
+		core.Color = if isElite then Color3.fromRGB(255, 215, 35) else Color3.fromRGB(255, 95, 175)
+		core.Material = Enum.Material.Neon
+		core.Anchored = true
+		core.CanCollide = false
+		core.CanTouch = false
+		core.CanQuery = true
+		core.Position = Vector3.new(startPos.x, startPos.y, startPos.z)
+		core.Parent = model
+		model.PrimaryPart = core
+
+		-- Gift Box Payload hanging underneath
+		local box = Instance.new("Part")
+		box.Name = "GiftCrate"
+		box.Size = Vector3.new(2.8, 2.8, 2.8)
+		box.Color = if isElite then Color3.fromRGB(255, 235, 85) else Color3.fromRGB(115, 235, 95)
+		box.TopSurface = Enum.SurfaceType.Studs
+		box.Anchored = false
+		box.CanCollide = false
+		box.CanTouch = false
+		box.CanQuery = true
+		box.Position = Vector3.new(startPos.x, startPos.y - 3.0, startPos.z)
+		box.Parent = model
+
+		local weld = Instance.new("WeldConstraint")
+		weld.Part0 = core
+		weld.Part1 = box
+		weld.Parent = box
+
+		-- ClickDetector & ProximityPrompt so player can click or tap the flying drone!
+		local cd = Instance.new("ClickDetector")
+		cd.MaxActivationDistance = 140
+		cd.Parent = core
+		cd.MouseClick:Connect(function()
+			if onClicked then onClicked(droneId) end
+			self:claimDroneVisual(droneId)
+		end)
+
+		local bb = Instance.new("BillboardGui")
+		bb.Name = "DroneBillboard"
+		bb.Adornee = core
+		bb.Size = UDim2.new(0, 180, 0, 50)
+		bb.StudsOffset = Vector3.new(0, 4.5, 0)
+		bb.AlwaysOnTop = true
+		bb.Parent = core
+
+		local lbl = Instance.new("TextLabel")
+		lbl.Size = UDim2.new(1, 0, 1, 0)
+		lbl.BackgroundTransparency = 1
+		lbl.Font = Enum.Font.FredokaOne
+		lbl.TextScaled = true
+		lbl.Text = if isElite then "👑 ELITARNY DRON! [KLIKNIJ]" else "🎁 CUKIERKOWY DRON! [KLIKNIJ]"
+		lbl.TextColor3 = Color3.fromRGB(255, 245, 95)
+		lbl.Parent = bb
+
+		local st = Instance.new("UIStroke")
+		st.Thickness = 2.4
+		st.Color = Color3.fromRGB(20, 10, 5)
+		st.Parent = lbl
+
+		if self.container then
+			model.Parent = self.container
+		end
+	else
+		model = {
+			id = droneId,
+			position = startPos,
+			destroyed = false,
+		}
+	end
+
+	local entry = {
+		droneId = droneId,
+		isElite = isElite == true,
+		startInstantMs = startInstantMs,
+		durationSeconds = durSec,
+		startPos = startPos,
+		endPos = endPos,
+		currentPosition = startPos,
+		model = model,
+		claimed = false,
+	}
+	self._activeDrones[droneId] = entry
+	return entry
+end
+
+function RoutePresentation:updateDrones(nowMs: number)
+	local finished = {}
+	for droneId, d in pairs(self._activeDrones) do
+		local alpha = math.clamp((nowMs - d.startInstantMs) / (d.durationSeconds * 1000), 0, 1)
+		local pos = lerpPoint(d.startPos, d.endPos, alpha)
+		local bobY = math.sin(alpha * math.pi * 6) * 2.5
+		d.currentPosition = createPoint(pos.x, pos.y + bobY, pos.z)
+		applyModelPosition(d.model, d.currentPosition)
+		if alpha >= 1 then
+			table.insert(finished, droneId)
+		end
+	end
+	for _, droneId in ipairs(finished) do
+		local d = self._activeDrones[droneId]
+		if d then
+			destroyModel(d.model)
+			self._activeDrones[droneId] = nil
+		end
+	end
+end
+
+function RoutePresentation:claimDroneVisual(droneId: string)
+	local d = self._activeDrones[droneId]
+	if not d then return false end
+	d.claimed = true
+	spawnArrivalPuff(d.currentPosition, self.container)
+	destroyModel(d.model)
+	self._activeDrones[droneId] = nil
+	self:_emit("droneClaimed", droneId)
+	return true
 end
 
 function RoutePresentation:getGroup(groupId: any)
@@ -561,6 +880,10 @@ function RoutePresentation:clearAllGroups()
 		group.isDestroyed = true
 	end
 	self._activeGroups = {}
+	for _, d in pairs(self._activeDrones) do
+		destroyModel(d.model)
+	end
+	self._activeDrones = {}
 end
 
 -- ============================================================================

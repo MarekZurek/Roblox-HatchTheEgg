@@ -2,11 +2,32 @@
 -- ProgressActions: authoritative domain port for egg transition (UpgradeEgg), prestige, and session accounting.
 -- Spec: docs/02 §1, §3; docs/05 §1-§4; docs/13 §5; docs/27 §2, §4.1, §4.2; NEXT-02 (#27).
 
-local NumericCodec = require("../shared/NumericCodec")
-local FvSe = require("./FarmMath/fv_se")
-local CatalogData = require("./CatalogRegistry/Data")
-local CatalogRegistry = require("./CatalogRegistry")
-local ProductionResearch = require("./FarmMath/production_research")
+local isStudio = (typeof(script) == "Instance")
+local function resolve(studioGetter, lunePath)
+	if isStudio then
+		local ok, mod = pcall(studioGetter)
+		if ok and mod then
+			return if typeof(mod) == "Instance" then require(mod) else mod
+		end
+	end
+	return require(lunePath)
+end
+
+local NumericCodec = resolve(function()
+	return game:GetService("ReplicatedStorage").HatchTheEgg.Shared.NumericCodec
+end, "../shared/NumericCodec")
+local FvSe = resolve(function()
+	return script.Parent.FarmMath.fv_se
+end, "./FarmMath/fv_se")
+local CatalogData = resolve(function()
+	return script.Parent.CatalogRegistry.Data
+end, "./CatalogRegistry/Data")
+local CatalogRegistry = resolve(function()
+	return script.Parent.CatalogRegistry
+end, "./CatalogRegistry")
+local ProductionResearch = resolve(function()
+	return script.Parent.FarmMath.production_research
+end, "./FarmMath/production_research")
 
 local defaultCatalog = CatalogRegistry.new(NumericCodec, CatalogData, { mode = "INTERNAL_TEST_ONLY" })
 local defaultProductionMath = ProductionResearch.new(NumericCodec, defaultCatalog, { mode = "INTERNAL_TEST_ONLY" })

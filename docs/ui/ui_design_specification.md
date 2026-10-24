@@ -166,3 +166,13 @@ Awatar podbiega do parceli kurnika, gdzie aktywuje się prompt `[E] Upgrade Habi
 Awatar podchodzi do futurystycznej konsoli w stodole/laboratorium. Na ekranie pojawia się pływający, holograficzny interfejs badań technologicznych z podziałem na tiery, zachowujący widoczność awatara w tle z delikatnym efektem głębi ostrości.
 
 ![Research Terminal View](roblox_research_terminal_view.png)
+
+
+---
+
+## 6. Przyjazna dla Dzieci Stylistyka Wysp i Płytek Zakupowych (VIS-01–VIS-05)
+
+W ramach realizacji zadań `VIS-01`–`VIS-05` (#37–#41) wdrożono generator świata 3D (`src/server/world/FarmPlotBuilder.luau`), prezentację kurcząt i dronów (`src/client/RoutePresentation.luau`) oraz responsywny HUD (`src/client/HUD.luau`), zachowując powyższą architekturę przestrzenną z lekkim, kolorowym wykończeniem dla młodszych graczy:
+- **Archipelag wysp na wodzie z tęczą (`OceanWater` & `CentralHubAndIslands`):** Działka farmy znajduje się na słonecznej wyspie z piaszczystym brzegiem i jasnozieloną trawą z klasycznymi wypustkami Roblox (`Enum.SurfaceType.Studs`), otoczonej turkusową wodą z białymi falami. Drewniany most prowadzi na centralną wyspę z pomnikiem Złotego Jajka i wielką, 7-kolorową tęczą z chmurami.
+- **Fizyczne płytki do kupowania (`Step-On Buy Pads`):** Obok tradycyjnych `ProximityPrompt`ów (`[E]`) i bocznych szuflad UI, przy 4 parcelach kurników, stacji transportowej i budynku badań umieszczono kwadratowe płytki podłogowe z wypustkami (`Studs`) oraz trójliniowym napisem `BillboardGui` (`FredokaOne` z obrysem). Wejście awatarem na płytkę pobiera z serwera `quoteId` (`GetPurchaseQuote`) i wywołuje ten sam autorytatywny zakup (`BuyHabitat`, `BuyVehicle`, `BuyResearch`) co kliknięcie w HUD.
+- **Urocze modele 3D kurcząt (`RoutePresentation.luau`):** Kurczęta biegnące z wylęgarni (`(0, 0, 45)`) po czterech kanonicznych ścieżkach (`PRE-03`) są wieloczęściowymi modelami low-poly (korpus, czerwony grzebień, dziób, oczka, skrzydełka), które podskakują w trakcie biegu i wyzwalają efekt `ParticleEmitter` przy wejściu do kurnika (`CanCollide = false, CanTouch = false, CanQuery = false`).

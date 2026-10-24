@@ -64,8 +64,9 @@ def check_build_artifacts():
     assert mapping_path.is_file(), "build/mapping-results.json missing"
     mapping = json.loads(mapping_path.read_text(encoding="utf-8"))
     assert mapping.get("status") == "PASS_STATIC_BUILD", f"Invalid status: {mapping.get('status')}"
-    assert len(mapping.get("modules", [])) == 36, f"Expected 36 modules, got {len(mapping.get('modules', []))}"
-    print("  PASS: 36 Rojo modules mapped, 0 entrypoint scripts.")
+    assert len(mapping.get("modules", [])) == 37, f"Expected 37 modules, got {len(mapping.get('modules', []))}"
+    assert len(mapping.get("scripts", [])) == 2, f"Expected 2 entrypoint scripts, got {len(mapping.get('scripts', []))}"
+    print("  PASS: 37 Rojo modules mapped, 2 entrypoint scripts.")
 
     print("Checking Release Candidate test results ...")
     rc_results_path = ROOT / "build/release_candidate-results.json"

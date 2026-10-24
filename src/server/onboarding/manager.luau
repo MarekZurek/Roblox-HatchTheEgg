@@ -2,10 +2,25 @@
 -- Authoritative server logic for new player onboarding, tutorial lifecycle, and state reconciliation.
 -- Spec: docs/31 §4; docs/27 §4; docs/28; Issue #35 (NEXT-10).
 
-local Codec = require("../../shared/NumericCodec")
+local isStudio = (typeof(script) == "Instance")
+local function resolve(studioGetter, lunePath)
+	if isStudio then
+		local ok, mod = pcall(studioGetter)
+		if ok and mod then
+			return if typeof(mod) == "Instance" then require(mod) else mod
+		end
+	end
+	return require(lunePath)
+end
+
+local Codec = resolve(function()
+	return game:GetService("ReplicatedStorage").HatchTheEgg.Shared.NumericCodec
+end, "../../shared/NumericCodec")
 local ExactUInt = Codec.ExactUInt
 local BigAmount = Codec.BigAmount
-local Trophies = require("../rewards/trophies")
+local Trophies = resolve(function()
+	return script.Parent.Parent.rewards.trophies
+end, "../rewards/trophies")
 
 local Onboarding = {
 	VERSION = 1,

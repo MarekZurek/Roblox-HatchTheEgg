@@ -45,17 +45,23 @@ To plan równoległości, nie automatyczna delegacja. Wydanie nadal wymaga wznow
 | IMP-14 | Minimalny HUD i kontrolery intencji | IMP-03 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja zatwierdzona |
 | IMP-15 | Integracja pierwszej farmy i inicjalizacji | IMP-10, IMP-11, IMP-12, IMP-13, IMP-14 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja zatwierdzona |
 | QA-01 | Odbiór pierwszej farmy A01–A16 | IMP-15 | [Wykonano i sprawdzono L/S/D — 40](40_first_farm_completion_delivery.md); A01–A16 100% PASS |
-| NEXT-01 | Czyste funkcje Farm Value i Soul Eggs | IMP-02 | Plan; bez zlecenia realizacji |
-| NEXT-02 | Zmiana jaja, prestiż i księgowanie sesji | NEXT-01, IMP-08, IMP-09 | Plan; bez zlecenia realizacji |
-| NEXT-03 | Pełne offline, boosty, VD i historia wydarzeń | IMP-08, IMP-09 | Plan; bez zlecenia realizacji |
-| NEXT-04 | Pety: ekwipunek, wyposażenie i składanie efektów | IMP-08, NEXT-03 | Plan; bez zlecenia realizacji |
-| NEXT-05 | Łączenie petów i trwała gwarancja | NEXT-04 | Plan; bez zlecenia realizacji |
-| NEXT-06 | Drony: uprawniony spawn, trafienie i jedna nagroda | IMP-08, NEXT-03 | Plan; bez zlecenia realizacji |
-| NEXT-07 | Paczki i oferty bonusowe 2+1 | IMP-08, NEXT-03 | Plan; bez zlecenia realizacji |
-| NEXT-08 | Kalendarz, trofea i konwersje nagród | IMP-08 | Plan; bez zlecenia realizacji |
-| NEXT-09 | Adapter produktów Pro, Buy MAX, GE i warunkowego Piggy | IMP-08, NEXT-02, NEXT-03, NEXT-05, NEXT-07 | Plan; bez zlecenia realizacji |
-| NEXT-10 | Onboarding i odzyskiwanie kroku samouczka | IMP-15, NEXT-08 | Plan; bez zlecenia realizacji |
-| REL-01 | Kandydat wydania: integracja i jawne bramki | QA-01, NEXT-02, NEXT-03, NEXT-04, NEXT-05, NEXT-06, NEXT-07, NEXT-08, NEXT-09, NEXT-10 | Plan; bez zlecenia realizacji |
+| NEXT-01 | Czyste funkcje Farm Value i Soul Eggs | IMP-02 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
+| NEXT-02 | Zmiana jaja, prestiż i księgowanie sesji | NEXT-01, IMP-08, IMP-09 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
+| NEXT-03 | Pełne offline, boosty, VD i historia wydarzeń | IMP-08, IMP-09 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
+| NEXT-04 | Pety: ekwipunek, wyposażenie i składanie efektów | IMP-08, NEXT-03 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
+| NEXT-05 | Łączenie petów i trwała gwarancja | NEXT-04 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
+| NEXT-06 | Drony: uprawniony spawn, trafienie i jedna nagroda | IMP-08, NEXT-03 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
+| NEXT-07 | Paczki i oferty bonusowe 2+1 | IMP-08, NEXT-03 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
+| NEXT-08 | Kalendarz, trofea i konwersje nagród | IMP-08 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
+| NEXT-09 | Adapter produktów Pro, Buy MAX, GE i warunkowego Piggy | IMP-08, NEXT-02, NEXT-03, NEXT-05, NEXT-07 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
+| NEXT-10 | Onboarding i odzyskiwanie kroku samouczka | IMP-15, NEXT-08 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
+| REL-01 | Kandydat wydania: integracja i jawne bramki | QA-01, NEXT-02, NEXT-03, NEXT-04, NEXT-05, NEXT-06, NEXT-07, NEXT-08, NEXT-09, NEXT-10 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
+| VIS-01 | Entrypointy wykonawcze i sieć RemoteEvents dla Roblox Studio | REL-01 | Wykonano (`Main.server.luau`, `Main.client.luau`) |
+| VIS-02 | Generator świata 3D: działka farmy, wylęgarnia, parcele i drogi | VIS-01 | Wykonano (`FarmPlotBuilder.luau`) |
+| VIS-03 | Diegetyczne wskaźniki 3D (BillboardGui, ProximityPrompts, BuyPads) | VIS-02 | Wykonano (`FarmPlotBuilder.luau`, `Main.client.luau`) |
+| VIS-04 | Ostylowany, responsywny HUD ekranowy w PlayerGui | VIS-01, VIS-03 | Wykonano (`HUD.luau`) |
+| VIS-05 | Wizualna animacja kurcząt i dronów w świecie 3D | VIS-02, VIS-04 | Wykonano (`RoutePresentation.luau`) |
+| VIS-06 | Odbiór w Roblox Studio i weryfikacja end-to-end (Poziom S/H) | VIS-01..05 | W weryfikacji Studio (Poziom S/H) |
 
 ## Odbiór i stan publikacji
 

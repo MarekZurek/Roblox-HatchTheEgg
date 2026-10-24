@@ -2,8 +2,23 @@
 -- drones.luau: authoritative server domain logic for drone spawning, hit qualification, and single reward claims.
 -- Spec: docs/06; docs/13 §2; docs/16 §1; docs/27 §3.3, §4; NEXT-06 (#31).
 
-local Codec = require("../../shared/NumericCodec")
-local Equipment = require("../pets/equipment")
+local isStudio = (typeof(script) == "Instance")
+local function resolve(studioGetter, lunePath)
+	if isStudio then
+		local ok, mod = pcall(studioGetter)
+		if ok and mod then
+			return if typeof(mod) == "Instance" then require(mod) else mod
+		end
+	end
+	return require(lunePath)
+end
+
+local Codec = resolve(function()
+	return game:GetService("ReplicatedStorage").HatchTheEgg.Shared.NumericCodec
+end, "../../shared/NumericCodec")
+local Equipment = resolve(function()
+	return script.Parent.Parent.pets.equipment
+end, "../pets/equipment")
 
 local BigAmount = Codec.BigAmount
 local ExactUInt = Codec.ExactUInt

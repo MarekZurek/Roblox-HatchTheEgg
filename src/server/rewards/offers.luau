@@ -2,7 +2,20 @@
 -- Authoritative server logic for 2+1 delivery channels (packages and bonus offers).
 -- Spec: docs/16 §4; docs/22 §3 (D04), §4 (D05); docs/24; docs/27 §3.3, §4; Issue #32 (NEXT-07).
 
-local Codec = require("../../shared/NumericCodec")
+local isStudio = (typeof(script) == "Instance")
+local function resolve(studioGetter, lunePath)
+	if isStudio then
+		local ok, mod = pcall(studioGetter)
+		if ok and mod then
+			return if typeof(mod) == "Instance" then require(mod) else mod
+		end
+	end
+	return require(lunePath)
+end
+
+local Codec = resolve(function()
+	return game:GetService("ReplicatedStorage").HatchTheEgg.Shared.NumericCodec
+end, "../../shared/NumericCodec")
 local ExactUInt = Codec.ExactUInt
 local BigAmount = Codec.BigAmount
 

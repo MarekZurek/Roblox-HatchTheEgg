@@ -100,6 +100,6 @@ QA tekstu 30 przez AGY/Gemini: warunkowe PASS; autor uwzględnił cztery doprecy
 - `NEXT-10` (#35): Onboarding, odzyskiwanie kroku samouczka i baseline konta (`onboarding/manager.luau`, `client/onboarding/TutorialController.luau`, 62 asercje).
 - `REL-01` (#36): Nadrzędny runner kandydata wydania (`tests/release_candidate/run.luau`, 113 asercji) oraz audytor bramek wydania (`tools/verify_release.py`).
 
-Wspólny runner: **23 872 asercje (100% PASS L)** w 28 zestawach testów.  
-Rojo: Dokładnie **36 modułów Luau**, 0 skryptów wejściowych `Script`/`LocalScript`.  
-Wszystkie 36 zadań w rejestrze GitHub zamknięte. Repozytorium ma status **Release Candidate Approved**. Bramki wdrożeniowe S (Studio), D (Cloud DataStore) oraz H (Mobile UI) jawnie zdefiniowane przed publikacją produkcyjną. Bilans 17–21 i referencyjne JSON-y bez zmian.
+Wspólny runner: **23 875 asercji (100% PASS L)** w 28 zestawach testów.  
+Rojo: Dokładnie **37 modułów Luau** oraz **2 skrypty wejściowe** (`Main.server.luau`, `Main.client.luau`).  
+Zadania #2–#36 zamknięte w rejestrze GitHub; wdrożono również warstwę wizualną i entrypointy Studio `VIS-01..05` (#37–#41: `FarmPlotBuilder.luau`, `HUD.luau`, `RoutePresentation.luau`, `Main.server.luau`, `Main.client.luau`). Repozytorium ma status **Release Candidate Approved**. Bramki wdrożeniowe S (Studio), D (Cloud DataStore) oraz H (Mobile UI) jawnie zdefiniowane przed publikacją produkcyjną. Bilans 17–21 i referencyjne JSON-y bez zmian.

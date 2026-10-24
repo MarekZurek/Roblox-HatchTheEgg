@@ -2,9 +2,26 @@
 -- Authoritative pricing and coordinator domain port for HatchTheEgg farm purchases.
 -- Pure Luau domain actions; no direct storage writes, networking, or UI side-effects.
 
-local NumericCodec = require("../shared/NumericCodec")
-local CatalogData = require("./CatalogRegistry/Data")
-local CatalogRegistry = require("./CatalogRegistry")
+local isStudio = (typeof(script) == "Instance")
+local function resolve(studioGetter, lunePath)
+	if isStudio then
+		local ok, mod = pcall(studioGetter)
+		if ok and mod then
+			return if typeof(mod) == "Instance" then require(mod) else mod
+		end
+	end
+	return require(lunePath)
+end
+
+local NumericCodec = resolve(function()
+	return game:GetService("ReplicatedStorage").HatchTheEgg.Shared.NumericCodec
+end, "../shared/NumericCodec")
+local CatalogData = resolve(function()
+	return script.Parent.CatalogRegistry.Data
+end, "./CatalogRegistry/Data")
+local CatalogRegistry = resolve(function()
+	return script.Parent.CatalogRegistry
+end, "./CatalogRegistry")
 
 local defaultCatalog = CatalogRegistry.new(NumericCodec, CatalogData, { mode = "INTERNAL_TEST_ONLY" })
 
@@ -56,7 +73,21 @@ function FarmActions.createQuote(profile, catalog, target, requestId, expectedRe
 		assert(type(researchId) == "string", "INVALID_RESEARCH_ID")
 		cleanTarget = { kind = "BuyResearch", args = { researchId = researchId, mode = "single" } }
 
-		local row = catalog.getCommon(researchId)
+		local okRow, row = pcall(function()
+			return catalog.getCommon(researchId)
+		end)
+		if not okRow or not row then
+			return {
+				kind = "QuoteView",
+				quoteId = quoteId or "quote-" .. tostring(nowMs),
+				target = cleanTarget,
+				cashCost = BigAmount.encode(0),
+				available = false,
+				blockedReason = "UNSUPPORTED_RESEARCH",
+				nextLevel = 0,
+				expectedRevision = expectedRevision,
+			}
+		end
 		local currentLevel = profile.farm.common[researchId] or 0
 
 		local points = 0
@@ -203,7 +234,17 @@ function FarmActions.apply(candidateProfile, op, options)
 
 	if kind == "BuyResearch" then
 		local researchId = args.researchId
-		local row = catalog.getCommon(researchId)
+		local okRow, row = pcall(function()
+			return catalog.getCommon(researchId)
+		end)
+		if not okRow or not row then
+			return {
+				profile = candidateProfile,
+				terminalStatus = "REJECTED",
+				result = { terminalStatus = "REJECTED", errorCode = "UNSUPPORTED_RESEARCH" },
+				validate = function() return true end,
+			}
+		end
 		local currentLevel = candidateProfile.farm.common[researchId] or 0
 
 		local points = 0

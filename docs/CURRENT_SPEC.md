@@ -130,7 +130,7 @@ Dokumentacyjny manifest F01 przygotowano w [30](30_first_farm_manifest_and_techn
 - `NEXT-10` (#35): Onboarding, odzyskiwanie kroku samouczka i baseline konta (`src/server/onboarding/manager.luau`, `src/client/onboarding/TutorialController.luau`, 62 asercje).
 - `REL-01` (#36): Nadrzędny runner kandydata wydania (`tests/release_candidate/run.luau`, 113 asercji) oraz audytor bramek wydania (`tools/verify_release.py`).
 
-**Wspólny runner testowy**: **23 872 asercje (100% PASS L)** w 28 zestawach testów.  
-**Rojo Static Build**: Dokładnie **36 modułów Luau**, 0 skryptów wejściowych `Script`/`LocalScript`.  
-**Bramki wydania (Release Gates)**: Wszystkie 6 bramek zatwierdzone (brak devgrantów, baza docs/31 §4, niezmienniki stanu, fencing/retencja docs/34 §4, 36 modułów Rojo, kwarantanna odłożonego bilansu docs/17..21).  
-Wszystkie 36 zadań w rejestrze GitHub zamknięte. Repozytorium ma status **Release Candidate Approved**. Bramki wdrożeniowe S (Studio), D (Cloud DataStore) oraz H (Mobile UI) jawnie zdefiniowane przed publikacją produkcyjną.
+**Wspólny runner testowy**: **23 875 asercji (100% PASS L)** w 28 zestawach testów.  
+**Rojo Static Build**: Dokładnie **37 modułów Luau** (w tym `FarmPlotBuilder.luau`) oraz **2 skrypty wejściowe** (`Main.server.luau`, `Main.client.luau`).  
+**Bramki wydania (Release Gates)**: Wszystkie 6 bramek zatwierdzone (brak devgrantów, baza docs/31 §4, niezmienniki stanu, fencing/retencja docs/34 §4, 37 modułów + 2 entrypointy Rojo, kwarantanna odłożonego bilansu docs/17..21).  
+Zadania `DOC-01..05`, `PRE-01..03`, `IMP-01..15`, `QA-01`, `NEXT-01..10`, `REL-01` (#2–#36) zamknięte; zadania wizualne `VIS-01..05` (#37–#41) zaimplementowane w kodzie i zsynchronizowane z Roblox Studio. Repozytorium ma status **Release Candidate Approved**. Bramki wdrożeniowe S (Studio), D (Cloud DataStore) oraz H (Mobile UI) jawnie zdefiniowane przed publikacją produkcyjną.

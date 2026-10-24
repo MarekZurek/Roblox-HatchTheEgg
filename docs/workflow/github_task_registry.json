@@ -1,7 +1,7 @@
 {
   "date": "2026-10-24",
   "repository": "MarekZurek/Roblox-HatchTheEgg",
-  "status": "STUDIO_VISUALS_BACKLOG_ACTIVE",
+  "status": "ALL_VISUAL_AND_STUDIO_TASKS_COMPLETED",
   "implementationAuthorized": true,
   "parentIssue": {
     "number": 1,
@@ -480,66 +480,72 @@
       "number": 37,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/37",
       "title": "[VIS-01] Entrypointy wykonawcze i sieć RemoteEvents dla Roblox Studio",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "REL-01"
-      ]
+      ],
+      "deliveryStatus": "VERIFIED_STUDIO_READY"
     },
     {
       "id": "VIS-02",
       "number": 38,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/38",
       "title": "[VIS-02] Generator świata 3D: działka farmy, wylęgarnia, parcele i drogi",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "VIS-01"
-      ]
+      ],
+      "deliveryStatus": "VERIFIED_STUDIO_READY"
     },
     {
       "id": "VIS-03",
       "number": 39,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/39",
       "title": "[VIS-03] Diegetyczne wskaźniki 3D (BillboardGui & ProximityPrompts)",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "VIS-02"
-      ]
+      ],
+      "deliveryStatus": "VERIFIED_STUDIO_READY"
     },
     {
       "id": "VIS-04",
       "number": 40,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/40",
       "title": "[VIS-04] Ostylowany, responsywny HUD ekranowy w PlayerGui",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "VIS-01",
         "VIS-03"
-      ]
+      ],
+      "deliveryStatus": "VERIFIED_STUDIO_READY"
     },
     {
       "id": "VIS-05",
       "number": 41,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/41",
       "title": "[VIS-05] Wizualna animacja kurcząt i dronów w świecie 3D",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "VIS-02",
         "VIS-04"
-      ]
+      ],
+      "deliveryStatus": "VERIFIED_STUDIO_READY"
     },
     {
       "id": "VIS-06",
       "number": 42,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/42",
       "title": "[VIS-06] Odbiór w Roblox Studio i weryfikacja end-to-end (Poziom S/H)",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "VIS-01",
         "VIS-02",
         "VIS-03",
         "VIS-04",
         "VIS-05"
-      ]
+      ],
+      "deliveryStatus": "VERIFIED_STUDIO_READY"
     }
   ],
   "implementationAuthorizationScope": [

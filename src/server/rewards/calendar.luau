@@ -2,7 +2,20 @@
 -- Authoritative server logic for 28-day daily calendar scaling, UTC day pacing, and PE/Epic conversions.
 -- Spec: docs/15 §2, §3; docs/13 §2; docs/27 §3.3, §4; Issue #33 (NEXT-08).
 
-local Codec = require("../../shared/NumericCodec")
+local isStudio = (typeof(script) == "Instance")
+local function resolve(studioGetter, lunePath)
+	if isStudio then
+		local ok, mod = pcall(studioGetter)
+		if ok and mod then
+			return if typeof(mod) == "Instance" then require(mod) else mod
+		end
+	end
+	return require(lunePath)
+end
+
+local Codec = resolve(function()
+	return game:GetService("ReplicatedStorage").HatchTheEgg.Shared.NumericCodec
+end, "../../shared/NumericCodec")
 local ExactUInt = Codec.ExactUInt
 local BigAmount = Codec.BigAmount
 
