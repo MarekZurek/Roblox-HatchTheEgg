@@ -448,11 +448,12 @@
       "number": 35,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/35",
       "title": "[NEXT-10] Onboarding i odzyskiwanie kroku samouczka",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-15",
         "NEXT-08"
-      ]
+      ],
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "REL-01",
