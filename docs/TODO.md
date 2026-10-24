@@ -121,7 +121,7 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 
 - [x] **PROD-01 (#43)**: Pełny katalog badań, kurników i floty (Tiers 1–13, Epic, 19 Kurników, 12 Pojazdów). 66 358 asercji PASS.
 - [x] **PROD-02 (#44)**: Progresja 19 Jaj i Stacja Ulepszania Jaja w świecie 3D. 67 196 asercji PASS.
-- [ ] **PROD-03 (#45)**: Kompletne okna modalne UI (Kurniki, Flota, Badania, Pety, Sklep GE, Kalendarz & Trofea).
+- [x] **PROD-03 (#45)**: Kompletne okna modalne UI (Kurniki, Flota, Badania, Pety, Sklep GE, Kalendarz & Trofea). 321 asercji UI PASS.
 - [ ] **PROD-04 (#46)**: Produkcyjna integracja chmury Roblox DataStoreService i blokowanie sesji.
 - [ ] **PROD-05 (#47)**: Produkcyjna obsługa płatności Roblox MarketplaceService (GamePasses & DevProducts).
 - [ ] **PROD-06 (#48)**: Diegetyczne aktory 3D: Drony z celowaniem, Ciężarówka dostawcza 2+1 i Silosy z SurfaceGui.

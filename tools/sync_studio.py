@@ -82,7 +82,7 @@ def run_sync_server():
             pass
             
     server = http.server.HTTPServer(("127.0.0.1", 28989), SyncHandler)
-    server.timeout = 15.0
+    server.timeout = 45.0
     print(f"Collected {len(scripts)} scripts ({len(payload)} bytes). Ready on port 28989.")
     return server
 
@@ -91,6 +91,6 @@ if __name__ == "__main__":
     # Handle single request
     t = threading.Thread(target=server.handle_request)
     t.start()
-    t.join(10.0)
+    t.join(35.0)
     server.server_close()
     print("Sync server finished.")

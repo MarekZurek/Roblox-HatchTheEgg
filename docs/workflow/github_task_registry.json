@@ -585,10 +585,11 @@
                       "number":  45,
                       "url":  "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/45",
                       "title":  "[PROD-03] Kompletne okna modalne UI (Kurniki, Flota, Badania, Pety, Sklep GE, Kalendarz \u0026 Trofea)",
-                      "state":  "open",
+                      "state":  "closed",
                       "dependencies":  [
                                            "PROD-01"
-                                       ]
+                                       ],
+                      "deliveryStatus":  "VERIFIED_PASS"
                   },
                   {
                       "id":  "PROD-04",
