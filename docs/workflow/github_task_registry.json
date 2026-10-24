@@ -236,11 +236,15 @@
       "number": 19,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/19",
       "title": "[IMP-10] FarmActions: wyceny i pojedyncze zakupy",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-08",
         "IMP-09"
-      ]
+      ],
+      "verificationLevel": "L",
+      "studioTested": false,
+      "dataStoreTested": false,
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "IMP-11",

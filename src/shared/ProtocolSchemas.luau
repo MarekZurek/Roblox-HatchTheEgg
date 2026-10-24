@@ -20,7 +20,7 @@ local index = integer(0, 65535)
 local slot = integer(1, 4)
 local instant = integer(0, 9007199254740991)
 local function id(value)
-	if type(value) ~= "string" or #value < 1 or #value > 96 or not string.match(value, "^[A-Za-z0-9_:.%-]+$") then fail() end
+	if type(value) ~= "string" or #value < 1 or #value > 96 or not string.match(value, "^[A-Za-z0-9_:.%- ]+$") then fail() end
 end
 local function record(required, optional)
 	optional = optional or {}
