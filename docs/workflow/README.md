@@ -42,3 +42,9 @@ Przygotowane projekty P: [33 — warsztat i zegary](../33_pre01_toolchain_and_cl
 ## IMP-02/03/07
 
 [37](../37_imp02_imp03_imp07_delivery.md) opisuje wykonane moduły i granice; [raport](parallel_implementation_verification.json) utrwala wyniki L i scope QA. Nowy runner wymaga Python 3.10+ (stdlib) dla zgodności katalogu i statycznego pliku Rojo. Dawne manifesty weryfikacji są snapshotami wcześniejszych wersji; nie przepisano ich sum.
+
+## IMP-04/05/06 — wykonano L (24.10.2026)
+
+[38 — produkcja, IHR i wylęg/RCB](../38_imp04_imp05_imp06_delivery.md): ukończono trzy zlecone moduły i testy lokalne. Wspólny runner: **20 536 asercji PASS**, 490 niezależnych przypadków uint64, statyczny build 12 modułów bez skryptów startowych. AGY: PASS przeglądu dostarczonych źródeł każdego zakresu; nie jest to test silnika. ProfileSchema dopuszcza prawidłowy carry IHR >=1 i opcjonalny licznik grup. Nie wykonano Studio, rzeczywistych tras, RPC, DataStore ani typecheckera. Timeline, Gateway i integracja zapisu pozostają kolejnymi zadaniami. Bilans 17–21 i JSON-y referencyjne bez zmian. Wcześniejsze wyniki i ograniczenia uprawnień są historycznymi zapisami poprzednich dostaw; bieżące zlecenie obejmuje IMP-04/05/06 i publikację kodu/testów/docs, bez automatycznego rozpoczynania pozostałych zadań.
+
+[Bieżący raport L i QA](math_implementation_verification.json). Historyczne manifesty zachowują swoje pierwotne sumy.

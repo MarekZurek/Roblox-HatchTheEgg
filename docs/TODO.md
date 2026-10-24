@@ -81,3 +81,7 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 - [x] IMP-03: ścisłe schematy pierwszej farmy i adwersarialne testy L.
 - [x] IMP-07: repozytorium/port natywny i kontrolowany fake L; rzeczywisty test D niewykonany.
 - [ ] Studio/RPC, rzeczywiste konflikty DataStore oraz długotrwała retencja przed wydaniem pozostają przy odpowiednich integracjach, nie są zaliczone tymi checkboxami. [Wyniki](37_imp02_imp03_imp07_delivery.md).
+
+## IMP-04/05/06 — wykonano L (24.10.2026)
+
+[38 — produkcja, IHR i wylęg/RCB](38_imp04_imp05_imp06_delivery.md): ukończono trzy zlecone moduły i testy lokalne. Wspólny runner: **20 536 asercji PASS**, 490 niezależnych przypadków uint64, statyczny build 12 modułów bez skryptów startowych. AGY: PASS przeglądu dostarczonych źródeł każdego zakresu; nie jest to test silnika. ProfileSchema dopuszcza prawidłowy carry IHR >=1 i opcjonalny licznik grup. Nie wykonano Studio, rzeczywistych tras, RPC, DataStore ani typecheckera. Timeline, Gateway i integracja zapisu pozostają kolejnymi zadaniami. Bilans 17–21 i JSON-y referencyjne bez zmian. Wcześniejsze wyniki i ograniczenia uprawnień są historycznymi zapisami poprzednich dostaw; bieżące zlecenie obejmuje IMP-04/05/06 i publikację kodu/testów/docs, bez automatycznego rozpoczynania pozostałych zadań.

@@ -32,9 +32,9 @@ To plan równoległości, nie automatyczna delegacja. Wydanie nadal wymaga wznow
 | IMP-01 | NumericCodec: kwoty, dokładne liczniki i serializacja | PRE-01 | [Wykonano i sprawdzono L](36_imp01_numeric_codec_delivery.md); publikacja zatwierdzona, S/D niewykonane |
 | IMP-02 | CatalogRegistry: wybrany katalog pierwszej farmy | IMP-01 | [Wykonano i sprawdzono L](37_imp02_imp03_imp07_delivery.md); S/D niewykonane |
 | IMP-03 | Schematy DTO i walidacja protokołu | IMP-01 | [Wykonano i sprawdzono L](37_imp02_imp03_imp07_delivery.md); S/D niewykonane |
-| IMP-04 | FarmMath: Common, pojemność, produkcja i sprzedaż | IMP-02 | Plan; bez zlecenia realizacji |
-| IMP-05 | IHR: ułamki, wolne miejsca i sharing | IMP-02 | Plan; bez zlecenia realizacji |
-| IMP-06 | Ręczny wylęg, rezerwacje i aktywne RCB | IMP-02 | Plan; bez zlecenia realizacji |
+| IMP-04 | FarmMath: Common, pojemność, produkcja i sprzedaż | IMP-02 | Wykonano L — 38; S/D niewykonane |
+| IMP-05 | IHR: ułamki, wolne miejsca i sharing | IMP-02 | Wykonano L — 38; S/D niewykonane |
+| IMP-06 | Ręczny wylęg, rezerwacje i aktywne RCB | IMP-02 | Wykonano L — 38; S/D niewykonane |
 | IMP-07 | SessionRepository i bezpieczne odtworzenie profilu | IMP-01, PRE-02 | [Wykonano i sprawdzono L](37_imp02_imp03_imp07_delivery.md); S/D niewykonane |
 | IMP-08 | PlayerCoordinator: serializacja komend i właściciel stanu | IMP-07 | Plan; bez zlecenia realizacji |
 | IMP-09 | TimelineSimulation: online i neutralny powrót | IMP-04, IMP-05, IMP-06 | Plan; bez zlecenia realizacji |

@@ -1,8 +1,8 @@
 # HatchTheEgg
 
-Projekt gry Roblox. Wykonano **IMP-01/02/03/07: NumericCodec, katalog, schematy protokołu i repozytorium sesji**, z testami lokalnymi L. Pętla farmy i integracje pozostają zaplanowane.
+Projekt gry Roblox. Wykonano **IMP-01–07: warsztat, NumericCodec, katalog, protokół, repozytorium sesji oraz czyste moduły produkcji, IHR i wylęgu/RCB**, z testami lokalnymi L. Pętla farmy i integracje pozostają zaplanowane.
 
-- [Bieżące uruchomienie, API i ograniczenia](docs/37_imp02_imp03_imp07_delivery.md)
+- [Bieżące uruchomienie, API i ograniczenia](docs/38_imp04_imp05_imp06_delivery.md)
 - [NumericCodec](docs/36_imp01_numeric_codec_delivery.md)
 - [Specyfikacja](docs/CURRENT_SPEC.md)
 - [Indeks docs](docs/README.md)

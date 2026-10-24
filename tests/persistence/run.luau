@@ -212,6 +212,16 @@ do
 	local native={UpdateAsync=function(_,_,fn)local record,users,metadata=fn({existing=1},info);eq(users[1],7);eq(metadata.private,"kept");return record end}
 	local p=Port.new(native,function()return{}end);local ok=p.update("k",function(v)return v end);eq(ok,true)
 end
+do
+	local p=Schema.createReference("1",1000000)
+	p.farm.habitats[1].fractionalIHR="1.5"
+	eq(Schema.validate(p,"1"),true,"clipped IHR carry may exceed one")
+	eq(p.farm.hatchGroupSequence,"0")
+	p.farm.habitats[1].fractionalIHR="-0.01"
+	eq(pcall(Schema.validate,p,"1"),false)
+	p.farm.habitats[1].fractionalIHR="0";p.farm.hatchGroupSequence="01"
+	eq(pcall(Schema.validate,p,"1"),false)
+end
 local result={status="PASS",level="L",assertions=count,studioTested=false,dataStoreTested=false,realDataStoreApiTested=false}
 fs.writeFile("build/persistence-results.json",serde.encode("json",result,true))
 print(serde.encode("json",result))

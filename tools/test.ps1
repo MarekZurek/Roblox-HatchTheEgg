@@ -17,9 +17,11 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Catalog generation check failed.' }
     & $PythonExecutable tests/catalog/build_oracle.py --check
     if ($LASTEXITCODE -ne 0) { throw 'Independent catalog oracle check failed.' }
+    & $PythonExecutable tools/generate_population_vectors.py --check
+    if ($LASTEXITCODE -ne 0) { throw 'Independent population oracle check failed.' }
     & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run tests/numeric/run.luau
     if ($LASTEXITCODE -ne 0) { throw 'Numeric tests failed.' }
-    foreach ($taskSuite in @('catalog', 'protocol', 'persistence')) {
+    foreach ($taskSuite in @('catalog', 'protocol', 'persistence', 'math', 'ihr', 'hatching')) {
         & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
         if ($LASTEXITCODE -ne 0) { throw ('Tests failed: ' + $taskSuite) }
     }

@@ -141,30 +141,45 @@
       "number": 13,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/13",
       "title": "[IMP-04] FarmMath: Common, pojemność, produkcja i sprzedaż",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-02"
-      ]
+      ],
+      "verificationLevel": "L",
+      "studioTested": false,
+      "dataStoreTested": false,
+      "deliveryDocument": "docs/38_imp04_imp05_imp06_delivery.md",
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "IMP-05",
       "number": 14,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/14",
       "title": "[IMP-05] IHR: ułamki, wolne miejsca i sharing",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-02"
-      ]
+      ],
+      "verificationLevel": "L",
+      "studioTested": false,
+      "dataStoreTested": false,
+      "deliveryDocument": "docs/38_imp04_imp05_imp06_delivery.md",
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "IMP-06",
       "number": 15,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/15",
       "title": "[IMP-06] Ręczny wylęg, rezerwacje i aktywne RCB",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-02"
-      ]
+      ],
+      "verificationLevel": "L",
+      "studioTested": false,
+      "dataStoreTested": false,
+      "deliveryDocument": "docs/38_imp04_imp05_imp06_delivery.md",
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "IMP-07",
@@ -418,6 +433,9 @@
     "IMP-01",
     "IMP-02",
     "IMP-03",
+    "IMP-04",
+    "IMP-05",
+    "IMP-06",
     "IMP-07"
   ]
 }

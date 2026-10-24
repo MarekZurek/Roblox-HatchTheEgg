@@ -29,7 +29,9 @@ def main():
     assert set(p for p in modules if p.startswith(shared)) == {
         shared + "NumericCodec", shared + "ProtocolSchemas"}
     for name in ("SessionRepository", "ProfileSchema", "PersistenceData",
-                 "RobloxDataStorePort", "CatalogRegistry", "CatalogRegistry/Data"):
+                 "RobloxDataStorePort", "CatalogRegistry", "CatalogRegistry/Data",
+                 "FarmMath/production_research", "FarmMath/ihr",
+                 "FarmMath/hatching_rcb", "FarmMath/PopulationMath"):
         assert private + name in modules, name
     assert not scripts, scripts
     result = {"status": "PASS_STATIC_BUILD", "modules": modules,

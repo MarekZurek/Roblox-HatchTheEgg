@@ -1,0 +1,182 @@
+{
+  "date": "2026-10-24",
+  "tasks": [
+    "IMP-04",
+    "IMP-05",
+    "IMP-06"
+  ],
+  "status": "PASS_L",
+  "testCommand": "./tools/test.ps1 -PythonExecutable <Python3 executable>",
+  "versions": {
+    "Lune": "0.11.1",
+    "Rojo": "7.7.1",
+    "NumericCodec": 1
+  },
+  "assertions": {
+    "numeric": 15702,
+    "catalog": 2732,
+    "protocol": 745,
+    "persistence": 155,
+    "productionResearch": 517,
+    "ihr": 91,
+    "hatching": 594
+  },
+  "totalAssertions": 20536,
+  "populationOracleCases": 490,
+  "staticBuild": {
+    "status": "PASS_STATIC_BUILD",
+    "moduleScripts": 12,
+    "entrypointScripts": 0
+  },
+  "studioTested": false,
+  "dataStoreTested": false,
+  "realRouteTested": false,
+  "typecheckerRun": false,
+  "qa": {
+    "provider": "AGY / Gemini 3.8 Flash",
+    "scope": "Supplied final module sources and relevant rule excerpts; static model review, not execution or whole-project audit",
+    "IMP-04": "PASS",
+    "IMP-05": "PASS after explicit multiplication-order correction; earlier request timed out without result",
+    "IMP-06": "PASS including PopulationMath",
+    "Cline": "Attempt timed out/aborted without result; not used as verification evidence"
+  },
+  "independentEvidence": [
+    "Python integer oracle: 490 exact modulo cases",
+    "Documented expected values and explicit boundary cases",
+    "IHR FP witness: (rate * sharing) * dt = 0.1332456616008755, not 0.13324566160087548"
+  ],
+  "relatedSchemaChanges": [
+    "Allow nonnegative finite IHR carry >=1 after clipping",
+    "Optional canonical hatchGroupSequence; new reference account starts at zero"
+  ],
+  "limitations": [
+    "No TimelineSimulation, Gateway or durable coordinator integration",
+    "No full memory-to-wire profile adapter",
+    "No scene movement or server/client runtime test",
+    "First-farm internal catalog only; reference data not approved production configuration"
+  ],
+  "protectedFilesUnchanged": true,
+  "publicExportReproduction": "PASS: same 20536 assertions and static 12-module build in prepared publication checkout",
+  "files": [
+    {
+      "path": "src/server/CatalogRegistry/Data.luau",
+      "sha256": "f7f2893c6e5e06dff805635f65b5e5a11c71a8b665c7d13400f3df3ecb086e74"
+    },
+    {
+      "path": "src/server/CatalogRegistry/init.luau",
+      "sha256": "d0fd481b961ee8c5ce05ba790a5216baee03c007e39cfcfd06f6376ac5779b3d"
+    },
+    {
+      "path": "src/server/FarmMath/hatching_rcb.luau",
+      "sha256": "f0089b87f879a7c571da17e1d03a59f35b26cd44429def8576e4eaaafae85a66"
+    },
+    {
+      "path": "src/server/FarmMath/ihr.luau",
+      "sha256": "346314f4264d96aa69244ab22ad29481c1cded2e342ba0849c23b4d0b1840ffd"
+    },
+    {
+      "path": "src/server/FarmMath/PopulationMath.luau",
+      "sha256": "d69246b2db2cbca2a3a49f8133a8895489ca3901bf66373c32cabe4246e3f527"
+    },
+    {
+      "path": "src/server/FarmMath/production_research.luau",
+      "sha256": "0b0574fc5a4deeb5f66188d3ad5ec7747d94373922396ec84534f661535fc42b"
+    },
+    {
+      "path": "src/server/PersistenceData.luau",
+      "sha256": "9009b448dfae5311b69339b07e274688451d2dcf2c3d73501a9b743957afaa48"
+    },
+    {
+      "path": "src/server/ProfileSchema.luau",
+      "sha256": "9bf9629af759e8030ce6a37d0d5e8934ce6d4bfc1798ff737e413a35f6a35a0f"
+    },
+    {
+      "path": "src/server/RobloxDataStorePort.luau",
+      "sha256": "0411a7918fcc20fa449c867c8d3faabce13b5b3c49d968af1b0ffcdd05ded7b3"
+    },
+    {
+      "path": "src/server/SessionRepository.luau",
+      "sha256": "64a75a15e96599cc501dde16c93e7fa67f1e73e529d4f400b4743d18801ac711"
+    },
+    {
+      "path": "src/shared/NumericCodec.luau",
+      "sha256": "f9c97ced4fe8e3a1c59f085b7fa8b153921f0716e34779958e11dc3b06261074"
+    },
+    {
+      "path": "src/shared/ProtocolSchemas.luau",
+      "sha256": "16b79794feca5f5adb3edb1d98a36b548088d7ccdd0f5493cf083816637846f6"
+    },
+    {
+      "path": "tests/catalog/build_oracle.py",
+      "sha256": "d37784541197aba3f2148351cbc98f22be91ec0ecab2526c8dbfb167edfa6339"
+    },
+    {
+      "path": "tests/catalog/numeric_bits.json",
+      "sha256": "0d21c290aed715826bfded8d26ce44bd6524c089d1306775671e75f1e36be893"
+    },
+    {
+      "path": "tests/catalog/run.luau",
+      "sha256": "d3c81ddccd8679fa2232c82ee4a9e7e3f3e325b847d5f5fce2ca272d92cf760e"
+    },
+    {
+      "path": "tests/hatching/population_vectors.luau",
+      "sha256": "9b362c9506859e84033c2bb10193b06ca036e4d443f7a75182d2f08615b0a19c"
+    },
+    {
+      "path": "tests/hatching/run.luau",
+      "sha256": "5034281dd20c7865459294142b51f9db6c7993dc0ba3644d1ce3459d6e9f4027"
+    },
+    {
+      "path": "tests/ihr/run.luau",
+      "sha256": "b87ac35ad2e5824d1b1608e16d54293a95d5d603c86fa59e0db94567c5b908bb"
+    },
+    {
+      "path": "tests/math/run.luau",
+      "sha256": "40718091327ff1df397a94a9103907d7e0699076638a415bc1fa9a561d997390"
+    },
+    {
+      "path": "tests/numeric/reference_vectors.luau",
+      "sha256": "430ede37b18cc88db3906760b1712714eb6ce9331fef1bae5eb861a84983f929"
+    },
+    {
+      "path": "tests/numeric/run.luau",
+      "sha256": "27cfd60a08881abd263abf77b028d35cb18bcd81bfe7ddf4685eaddbd0d92894"
+    },
+    {
+      "path": "tests/persistence/run.luau",
+      "sha256": "1984f232757110c8f79d21ce078da9836fad52e97a868a8237a511254a2e342d"
+    },
+    {
+      "path": "tests/protocol/run.luau",
+      "sha256": "1991a608c1f3facbf1b9f4ea52773192a0baa96929eb06f5db3a007ce841884e"
+    },
+    {
+      "path": "tools/bootstrap.ps1",
+      "sha256": "76112981ce65283de2716c3b3a68ea69eedab38c47b27696c773e9dd30ad528c"
+    },
+    {
+      "path": "tools/generate_catalog.py",
+      "sha256": "895548757e8699a30d2f13955869fa951e2bb6a23a4cf197280c3556ca3b85c7"
+    },
+    {
+      "path": "tools/generate_numeric_vectors.py",
+      "sha256": "6c5c1485b65947a21ef2221a0b82e17f2eff2d283e5fe9fa7983c1448fdb4efa"
+    },
+    {
+      "path": "tools/generate_population_vectors.py",
+      "sha256": "548eb3f10779d3eda23db10430a22ec9183de39c28ec307f05dd1ea6edbaf750"
+    },
+    {
+      "path": "tools/test.ps1",
+      "sha256": "637ea8288ec4fb5a9aefd530e04f34df152d8e8ab098b1fd0f7b11c713a3534c"
+    },
+    {
+      "path": "tools/toolchain.json",
+      "sha256": "cdff10a70a3cf9a21315971da8dff26f8476088c96b69d2fdd8fe5e03a174337"
+    },
+    {
+      "path": "tools/verify_build.py",
+      "sha256": "7ebd05214f34459caa10e55181f0fc9bcc54139014a1ea443a28f1c1c307e23d"
+    }
+  ]
+}

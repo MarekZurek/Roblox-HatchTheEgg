@@ -18,11 +18,12 @@ function Schema.new(codec)
 		uint(p.ownership.generation); instant(p.ownership.endsAtMs)
 		assert(type(p.ownership.ownerToken)=="string", "INVALID_OWNER")
 		A.decode(p.farm.cash); A.decode(p.farm.hatcheryStock); uint(p.farm.runningCount)
+		if p.farm.hatchGroupSequence~=nil then uint(p.farm.hatchGroupSequence) end
 		assert(type(p.farm.habitats)=="table" and #p.farm.habitats==4, "INVALID_HABITATS")
 		local reserved=U.fromSafeNumber(0)
 		for _, hab in p.farm.habitats do
 			uint(hab.population);uint(hab.assignedInTransit)
-			local fraction=R.decode(hab.fractionalIHR); assert(fraction>=0 and fraction<1,"INVALID_IHR_FRACTION")
+			local fraction=R.decode(hab.fractionalIHR); assert(fraction>=0,"INVALID_IHR_FRACTION")
 			reserved=U.add(reserved,U.decode(hab.assignedInTransit))
 		end
 		assert(U.encode(reserved)==p.farm.runningCount,"INCONSISTENT_RESERVATIONS")
@@ -43,7 +44,7 @@ function Schema.new(codec)
 		return {
 			meta={schemaVersion=1,numericCodecVersion=codec.VERSION,calculationVersion=1,configRevision="first-farm-neutral:1",revision="0",playerId=playerId,mode="INTERNAL_TEST_ONLY"},
 			ownership={generation="0",ownerToken="",endsAtMs=0},
-			farm={eggIndex=0,maxEggReached=0,cash="0",habitats=habitats,vehicles={{typeIndex=0}},fleetLimit=4,siloOwned=1,common={},hatcheryStock="250",runningCount="0",groups={}},
+			farm={eggIndex=0,maxEggReached=0,cash="0",habitats=habitats,vehicles={{typeIndex=0}},fleetLimit=4,siloOwned=1,common={},hatcheryStock="250",runningCount="0",hatchGroupSequence="0",groups={}},
 			accounting={prestigeSessionArchivedCash="0",prestigeExtraEarnings="0",lastBaseEarnings="0",currentFarmCash="0",lastCashEarned="0"},
 			permanent={GE="10",totalGESpent="0",SE="0",PE="0",epic={},hyperloop=false,prestigeCount="0"},
 			inventory={boosts={},pets={},equipped={},guarantees={}}, effects={boosts={}},
