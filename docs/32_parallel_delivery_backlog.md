@@ -62,7 +62,7 @@ To plan równoległości, nie automatyczna delegacja. Wydanie nadal wymaga wznow
 | VIS-04 | Ostylowany, responsywny HUD ekranowy w PlayerGui | VIS-01, VIS-03 | Wykonano (`HUD.luau`) |
 | VIS-05 | Wizualna animacja kurcząt i dronów w świecie 3D | VIS-02, VIS-04 | Wykonano (`RoutePresentation.luau`) |
 | VIS-06 | Odbiór w Roblox Studio i weryfikacja end-to-end (Poziom S/H) | VIS-01..05 | Wykonano i zweryfikowano w Studio |
-| PROD-01 | Pełny katalog badań, kurników i floty (Tiers 1–13, Epic, 19 Kurników, 12 Pojazdów) | REL-01, VIS-06 | Zaplanowane (#43) |
+| PROD-01 | Pełny katalog badań, kurników i floty (Tiers 1–13, Epic, 19 Kurników, 12 Pojazdów) | REL-01, VIS-06 | Wykonano i zweryfikowano QA (#43, 66 358 asercji PASS) |
 | PROD-02 | Progresja 19 Jaj i Stacja Ulepszania Jaja w świecie 3D | PROD-01 | Zaplanowane (#44) |
 | PROD-03 | Kompletne okna modalne UI (Kurniki, Flota, Badania, Pety, Sklep GE, Kalendarz & Trofea) | PROD-01 | Zaplanowane (#45) |
 | PROD-04 | Produkcyjna integracja chmury Roblox DataStoreService i blokowanie sesji | PROD-01, PROD-02 | Zaplanowane (#46) |
