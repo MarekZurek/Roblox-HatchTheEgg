@@ -36,6 +36,7 @@ def main():
                  "FarmMath/fv_se",
                  "PlayerCoordinator", "TimelineSimulation", "FarmActions",
                  "ProgressActions", "EffectsManager", "pets/equipment", "pets/fusion",
+                 "rewards/drones",
                  "ViewProjector", "NetworkGateway", "Bootstrap"):
         assert private + name in modules, name
     for name in ("ClientTransport", "ClientStateStore", "RoutePresentation",
