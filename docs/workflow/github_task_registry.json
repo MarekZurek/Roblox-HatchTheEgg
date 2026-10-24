@@ -266,10 +266,14 @@
       "number": 21,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/21",
       "title": "[IMP-12] ClientTransport i ClientStateStore",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-03"
-      ]
+      ],
+      "verificationLevel": "L",
+      "studioTested": false,
+      "dataStoreTested": false,
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "IMP-13",

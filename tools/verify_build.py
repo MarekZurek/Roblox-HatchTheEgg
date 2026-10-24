@@ -26,6 +26,7 @@ def main():
         visit(item, [])
     shared = "ReplicatedStorage/HatchTheEgg/Shared/"
     private = "ServerScriptService/HatchTheEgg/"
+    client = "StarterPlayer/StarterPlayerScripts/HatchTheEggClient/"
     assert set(p for p in modules if p.startswith(shared)) == {
         shared + "NumericCodec", shared + "ProtocolSchemas"}
     for name in ("SessionRepository", "ProfileSchema", "PersistenceData",
@@ -35,6 +36,8 @@ def main():
                  "PlayerCoordinator", "TimelineSimulation", "FarmActions",
                  "ViewProjector", "NetworkGateway"):
         assert private + name in modules, name
+    for name in ("ClientTransport", "ClientStateStore"):
+        assert client + name in modules, name
     assert not scripts, scripts
     result = {"status": "PASS_STATIC_BUILD", "modules": modules,
               "runtimeReplicationTested": False, "studioTested": False}

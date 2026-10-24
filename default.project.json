@@ -18,6 +18,15 @@
         "$ignoreUnknownInstances": true,
         "Shared": { "$path": "src/shared", "$ignoreUnknownInstances": true }
       }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "$ignoreUnknownInstances": true,
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "$ignoreUnknownInstances": true,
+        "HatchTheEggClient": { "$path": "src/client", "$ignoreUnknownInstances": true }
+      }
     }
   }
 }
