@@ -574,10 +574,11 @@
                       "number":  44,
                       "url":  "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/44",
                       "title":  "[PROD-02] Progresja 19 Jaj i Stacja Ulepszania Jaja w świecie 3D",
-                      "state":  "open",
+                      "state":  "closed",
                       "dependencies":  [
                                            "PROD-01"
-                                       ]
+                                       ],
+                      "deliveryStatus":  "VERIFIED_PASS"
                   },
                   {
                       "id":  "PROD-03",
