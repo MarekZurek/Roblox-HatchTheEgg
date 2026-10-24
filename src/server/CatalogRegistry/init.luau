@@ -29,7 +29,7 @@ function CatalogRegistry.new(codec, data, options)
 	end
 	validateNumbers(d)
 	local api = { VERSION = 1, STATUS = d.status, productionConfigurationApproved = false,
-		sourceSha256 = d.sourceSha256, commonIds = d.commonIds }
+		sourceSha256 = d.sourceSha256, commonIds = d.commonIds, epicIds = d.epicIds }
 	function api.getCommon(id)
 		if type(id) ~= "string" or d.common[id] == nil then fail("UNSUPPORTED_RESEARCH") end
 		return d.common[id]
@@ -44,16 +44,29 @@ function CatalogRegistry.new(codec, data, options)
 		local row = api.getCommon(id)
 		return row.effectsByLevel[index(level, row.maxLevel) + 1]
 	end
+	function api.getEpic(id)
+		if type(id) ~= "string" or d.epic[id] == nil then fail("UNSUPPORTED_RESEARCH") end
+		return d.epic[id]
+	end
+	function api.epicPrice(id, currentLevel)
+		local row = api.getEpic(id)
+		index(currentLevel, row.maxLevel)
+		if currentLevel == row.maxLevel then fail("MAX_LEVEL") end
+		return row.prices[currentLevel + 1]
+	end
+	function api.epicEffects(id, level)
+		local row = api.getEpic(id)
+		return row.effectsByLevel[index(level, row.maxLevel) + 1]
+	end
 	function api.tierThreshold(tierRaw) return d.tierThresholds[index(tierRaw, #d.tierThresholds - 1) + 1] end
 	function api.getEgg(eggIndex)
-		index(eggIndex, 0)
-		return d.egg
+		return d.eggs[index(eggIndex, #d.eggs - 1) + 1]
 	end
-	function api.getHabitat(typeIndex) return d.habitats[index(typeIndex, 1) + 1] end
+	function api.getHabitat(typeIndex) return d.habitats[index(typeIndex, #d.habitats - 1) + 1] end
 	function api.habitatPrice(typeIndex, slotIndex)
 		return api.getHabitat(typeIndex).prices[index(slotIndex, 3) + 1]
 	end
-	function api.getVehicle(typeIndex) return d.vehicles[index(typeIndex, 1) + 1] end
+	function api.getVehicle(typeIndex) return d.vehicles[index(typeIndex, #d.vehicles - 1) + 1] end
 	function api.vehiclePrice(typeIndex, sameTypeOwned)
 		local row = api.getVehicle(typeIndex)
 		return row.prices[index(sameTypeOwned, #row.prices - 1) + 1]

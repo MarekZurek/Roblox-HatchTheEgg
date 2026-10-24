@@ -141,14 +141,14 @@ do
 	eq(researchById["hab_capacity1"].available, false)
 	eq(researchById["hab_capacity1"].blockedReason, "TIER_LOCKED")
 
-	-- Unsupported ones
+	-- Tier-locked common research (requires >= 30 points, currently we have 5+2=7 points)
 	eq(researchById["padded_packaging"].level, 0)
 	eq(researchById["padded_packaging"].available, false)
-	eq(researchById["padded_packaging"].blockedReason, "UNSUPPORTED")
+	eq(researchById["padded_packaging"].blockedReason, "TIER_LOCKED")
 
 	eq(researchById["relativity_optimization"].level, 0)
 	eq(researchById["relativity_optimization"].available, false)
-	eq(researchById["relativity_optimization"].blockedReason, "UNSUPPORTED")
+	eq(researchById["relativity_optimization"].blockedReason, "TIER_LOCKED")
 
 	-- Security check: NEVER expose internal tokens, ledgers or receipts
 	ok(farm["ownerToken"] == nil, "No ownerToken in view")

@@ -25,14 +25,56 @@ function Module.new(codec, catalog, options)
 	end
 	function api.research(input)
 		local points, e = levels(input)
-		return table.freeze({ commonPoints = points,
-			layingPerChickenPerSecond = amount.divide(e.comfy_nests.eggLayingRateMult or 1, 30),
-			eggValue = amount.multiply(catalog.getEgg(0).value, e.nutritional_sup.eggValueMult or 1),
-			refillPerSecond = amount.multiply(3, e.better_incubators.hatcheryRefillRateMult or 1),
-			hatcheryCapacity = amount.add(250, e.hatchery_expansion.hatcheryCapacity or 0),
-			internalHatcheryPerHabPerMinute = e.internal_hatchery1.internalHatcheryRate or 0,
-			habCapacityMult = e.hab_capacity1.habCapacityMult or 1,
-			vehicleCapacityMult = e.leafsprings.vehicleCapacityMult or 1 })
+		local eggLayingRateMult = 1
+		local eggValueMult = 1
+		local hatcheryRefillRateMult = 1
+		local hatcheryCapacityAdd = 0
+		local internalHatcheryRateAdd = 0
+		local habCapacityMult = 1
+		local vehicleCapacityMult = 1
+		local maxFleetSizeAdd = 0
+
+		for _, id in catalog.commonIds do
+			local eff = e[id]
+			if eff then
+				if eff.eggLayingRateMult ~= nil then
+					eggLayingRateMult = amount.multiply(eggLayingRateMult, eff.eggLayingRateMult)
+				end
+				if eff.eggValueMult ~= nil then
+					eggValueMult = amount.multiply(eggValueMult, eff.eggValueMult)
+				end
+				if eff.hatcheryRefillRateMult ~= nil then
+					hatcheryRefillRateMult = amount.multiply(hatcheryRefillRateMult, eff.hatcheryRefillRateMult)
+				end
+				if eff.hatcheryCapacity ~= nil then
+					hatcheryCapacityAdd = amount.add(hatcheryCapacityAdd, eff.hatcheryCapacity)
+				end
+				if eff.internalHatcheryRate ~= nil then
+					internalHatcheryRateAdd = amount.add(internalHatcheryRateAdd, eff.internalHatcheryRate)
+				end
+				if eff.habCapacityMult ~= nil then
+					habCapacityMult = amount.multiply(habCapacityMult, eff.habCapacityMult)
+				end
+				if eff.vehicleCapacityMult ~= nil then
+					vehicleCapacityMult = amount.multiply(vehicleCapacityMult, eff.vehicleCapacityMult)
+				end
+				if eff.maxFleetSize ~= nil then
+					maxFleetSizeAdd = maxFleetSizeAdd + eff.maxFleetSize
+				end
+			end
+		end
+
+		return table.freeze({
+			commonPoints = points,
+			layingPerChickenPerSecond = amount.divide(eggLayingRateMult, 30),
+			eggValue = amount.multiply(catalog.getEgg(0).value, eggValueMult),
+			refillPerSecond = amount.multiply(3, hatcheryRefillRateMult),
+			hatcheryCapacity = amount.add(250, hatcheryCapacityAdd),
+			internalHatcheryPerHabPerMinute = internalHatcheryRateAdd,
+			habCapacityMult = habCapacityMult,
+			vehicleCapacityMult = vehicleCapacityMult,
+			maxFleetSize = 4 + maxFleetSizeAdd,
+		})
 	end
 	function api.tierUnlocked(input, tier)
 		local points = levels(input)
@@ -65,8 +107,9 @@ function Module.new(codec, catalog, options)
 		return table.freeze(caps), total
 	end
 	function api.shippingPerSecond(input, vehicleTypes)
-		local n = dense(vehicleTypes, 4)
-		local mult, perMinute = api.research(input).vehicleCapacityMult, 0
+		local r = api.research(input)
+		local n = dense(vehicleTypes, r.maxFleetSize)
+		local mult, perMinute = r.vehicleCapacityMult, 0
 		for i = 1, n do perMinute = amount.add(perMinute, amount.multiply(catalog.getVehicle(vehicleTypes[i]).capacity, mult)) end
 		return amount.divide(perMinute, 60)
 	end

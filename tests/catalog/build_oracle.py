@@ -9,8 +9,6 @@ import struct
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-SELECTED = {"comfy_nests", "nutritional_sup", "better_incubators", "hab_capacity1",
-            "internal_hatchery1", "hatchery_expansion", "leafsprings"}
 
 
 def main():
@@ -36,13 +34,17 @@ def main():
         if name == "research":
             walk(data["tierThresholds"], "thresholds")
             for row in data["common"]:
-                if row["id"] in SELECTED:
-                    for field in ("tier_raw", "maxLevel", "prices", "effectsByLevel"):
-                        walk(row[field], row["id"] + "." + field)
+                for field in ("tier_raw", "maxLevel", "prices", "effectsByLevel"):
+                    walk(row[field], row["id"] + "." + field)
+            for row in data["epic"]:
+                for field in ("tier_raw", "maxLevel", "prices", "effectsByLevel"):
+                    walk(row[field], "epic." + row["id"] + "." + field)
         else:
-            walk({k: data["eggs"][0][k] for k in ("index", "value")}, "egg")
+            for i, row in enumerate(data["eggs"]):
+                for field in ("index", "value"):
+                    walk(row[field], f"eggs.{i}.{field}")
             for group in ("habitats", "vehicles"):
-                for i, row in enumerate(data[group][:2]):
+                for i, row in enumerate(data[group]):
                     for field in ("index", "capacity", "prices"):
                         walk(row[field], f"{group}.{i}.{field}")
     content = json.dumps({"sourceSha256": hashes, "bits": bits}, indent=2, sort_keys=True) + "\n"
