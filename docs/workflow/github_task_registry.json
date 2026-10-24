@@ -363,11 +363,12 @@
       "number": 28,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/28",
       "title": "[NEXT-03] Pełne offline, boosty, VD i historia wydarzeń",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-08",
         "IMP-09"
-      ]
+      ],
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "NEXT-04",
