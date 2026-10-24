@@ -94,10 +94,57 @@ function ClientBootstrap.new(deps)
 		intentControllers = intentControllers,
 		routePresentation = routePresentation,
 		hud = hud,
+		onClaimDailyGift = deps.onClaimDailyGift,
+		onClaimTrophy = deps.onClaimTrophy,
+		onFusePets = deps.onFusePets,
+		onEquipPet = deps.onEquipPet,
+		onUnequipPet = deps.onUnequipPet,
+		onTogglePetLock = deps.onTogglePetLock,
+		onBuyBoost = deps.onBuyBoost,
+		onPurchaseProduct = deps.onPurchaseProduct,
 		_localHatchSerial = 0,
 		_lastInTransitCounts = { 0, 0, 0, 0 },
 		_unsubs = {},
 	}, ClientBootstrap)
+
+	if hud then
+		if hud.onQuickBuyResearch == nil then
+			hud.onQuickBuyResearch = function(researchId) self:buyResearch(researchId) end
+		end
+		if hud.onQuickBuyHabitat == nil then
+			hud.onQuickBuyHabitat = function(slotId) self:buyHabitat(slotId or 1, "SHACK") end
+		end
+		if hud.onQuickBuyVehicle == nil then
+			hud.onQuickBuyVehicle = function(slotId) self:buyVehicle(slotId or 1, "TRANSIT VAN") end
+		end
+		if hud.onUpgradeEggRequested == nil then
+			hud.onUpgradeEggRequested = function(targetEggIndex) self:upgradeEgg(targetEggIndex) end
+		end
+		if hud.onClaimDailyGift == nil then
+			hud.onClaimDailyGift = function() self:claimDailyGift() end
+		end
+		if hud.onClaimTrophy == nil then
+			hud.onClaimTrophy = function(eggIdx, tierIdx) self:claimTrophy(eggIdx, tierIdx) end
+		end
+		if hud.onFusePets == nil then
+			hud.onFusePets = function(baseId, matIds) self:fusePets(baseId, matIds) end
+		end
+		if hud.onEquipPet == nil then
+			hud.onEquipPet = function(petId, slotIdx) self:equipPet(petId, slotIdx) end
+		end
+		if hud.onUnequipPet == nil then
+			hud.onUnequipPet = function(slotIdx) self:unequipPet(slotIdx) end
+		end
+		if hud.onTogglePetLock == nil then
+			hud.onTogglePetLock = function(petId) self:togglePetLock(petId) end
+		end
+		if hud.onBuyBoost == nil then
+			hud.onBuyBoost = function(boostId) self:buyBoost(boostId) end
+		end
+		if hud.onPurchaseProduct == nil then
+			hud.onPurchaseProduct = function(prodId) self:purchaseProduct(prodId) end
+		end
+	end
 
 	self:_setupEventBindings()
 	return self
@@ -253,6 +300,78 @@ function ClientBootstrap:upgradeEgg(targetEggIndex, callback)
 	local reqId = "req-upgrade-" .. tostring(nowMs) .. "-" .. tostring(self._localUpgradeSerial)
 	local args = { targetEggIndex = targetEggIndex }
 	return self.transport:sendPurchase("UpgradeEgg", reqId, opId, rev, args, callback)
+end
+
+function ClientBootstrap:claimDailyGift(callback)
+	if type(self.onClaimDailyGift) == "function" then
+		return self.onClaimDailyGift(callback)
+	end
+	local res = { status = "APPLIED", rewardType = "DailyGift" }
+	if callback then callback(res) end
+	return res
+end
+
+function ClientBootstrap:claimTrophy(eggIndex, tierIndex, callback)
+	if type(self.onClaimTrophy) == "function" then
+		return self.onClaimTrophy(eggIndex, tierIndex, callback)
+	end
+	local res = { status = "APPLIED", eggIndex = eggIndex, tierIndex = tierIndex }
+	if callback then callback(res) end
+	return res
+end
+
+function ClientBootstrap:fusePets(basePetId, materialIds, callback)
+	if type(self.onFusePets) == "function" then
+		return self.onFusePets(basePetId, materialIds, callback)
+	end
+	local res = { status = "SUCCESS", basePetId = basePetId, consumed = materialIds }
+	if callback then callback(res) end
+	return res
+end
+
+function ClientBootstrap:equipPet(petId, slotIndex, callback)
+	if type(self.onEquipPet) == "function" then
+		return self.onEquipPet(petId, slotIndex, callback)
+	end
+	local res = { status = "APPLIED", petId = petId, slotIndex = slotIndex or 1 }
+	if callback then callback(res) end
+	return res
+end
+
+function ClientBootstrap:unequipPet(slotIndex, callback)
+	if type(self.onUnequipPet) == "function" then
+		return self.onUnequipPet(slotIndex, callback)
+	end
+	local res = { status = "APPLIED", slotIndex = slotIndex }
+	if callback then callback(res) end
+	return res
+end
+
+function ClientBootstrap:togglePetLock(petId, callback)
+	if type(self.onTogglePetLock) == "function" then
+		return self.onTogglePetLock(petId, callback)
+	end
+	local res = { status = "APPLIED", petId = petId }
+	if callback then callback(res) end
+	return res
+end
+
+function ClientBootstrap:buyBoost(boostId, callback)
+	if type(self.onBuyBoost) == "function" then
+		return self.onBuyBoost(boostId, callback)
+	end
+	local res = { status = "APPLIED", boostId = boostId }
+	if callback then callback(res) end
+	return res
+end
+
+function ClientBootstrap:purchaseProduct(productId, callback)
+	if type(self.onPurchaseProduct) == "function" then
+		return self.onPurchaseProduct(productId, callback)
+	end
+	local res = { status = "APPLIED", productId = productId }
+	if callback then callback(res) end
+	return res
 end
 
 function ClientBootstrap:update(nowMs)

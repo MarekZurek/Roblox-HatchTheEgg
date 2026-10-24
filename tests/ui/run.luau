@@ -721,4 +721,495 @@ do
 	hud:destroy()
 end
 
+-- ============================================================================
+-- Section 8: HabitatsModal (19 Habitats & 4 Parcel Cards)
+-- ============================================================================
+do
+	local transport = ClientTransport.new({ protocol = Protocol, wire = function() end })
+	local store = ClientStateStore.new({ transport = transport, codec = C })
+	local controllers = IntentControllers.new({ transport = transport, stateStore = store, codec = C })
+
+	local clickedSlot = nil
+	local hud = HUD.new({
+		stateStore = store,
+		intentControllers = controllers,
+		codec = C,
+		onQuickBuyHabitat = function(slotId)
+			clickedSlot = slotId
+		end,
+	})
+
+	local habModal = hud:getHabitatsModal()
+	ok(habModal ~= nil, "HabitatsModal created")
+	eq(habModal.Visible, false, "HabitatsModal initially hidden")
+
+	-- Toggle open
+	hud:toggleHabitatsModal(true)
+	eq(habModal.Visible, true, "HabitatsModal opened")
+
+	-- Feed snapshot with different habitats
+	local snap = makeTestSnapshot({
+		streamId = "stream-habs-19",
+		habitats = {
+			{ slotId = 1, habitatIndex = 0, population = "100", capacity = "250" }, -- Coop
+			{ slotId = 2, habitatIndex = 1, population = "300", capacity = "500" }, -- Shack
+			{ slotId = 3, habitatIndex = 7, population = "25000", capacity = "50000" }, -- Warehouse
+			{ slotId = 4, habitatIndex = 18, population = "1000000", capacity = "600000000" }, -- Chicken Universe
+		},
+	})
+	store:applySnapshot(snap)
+
+	-- Verify parcel cards 1..4
+	for slotId = 1, 4 do
+		local card = habModal:FindFirstChild("HabitatCard_" .. tostring(slotId))
+		ok(card ~= nil, "Habitat card " .. tostring(slotId) .. " exists")
+		local title = card:FindFirstChild("TitleLabel")
+		ok(title ~= nil, "Card " .. tostring(slotId) .. " has TitleLabel")
+		local pop = card:FindFirstChild("PopulationLabel")
+		ok(pop ~= nil, "Card " .. tostring(slotId) .. " has PopulationLabel")
+		local upg = card:FindFirstChild("UpgradeHabitatBtn")
+		ok(upg ~= nil, "Card " .. tostring(slotId) .. " has UpgradeHabitatBtn")
+	end
+
+	-- Card 1: Coop
+	local card1 = habModal:FindFirstChild("HabitatCard_1")
+	ok(string.find(card1:FindFirstChild("TitleLabel").Text, "Coop") ~= nil, "Card 1 displays Coop")
+	ok(string.find(card1:FindFirstChild("NextUpgradeLabel").Text, "Shack") ~= nil, "Card 1 next is Shack")
+
+	-- Card 4: Chicken Universe (max)
+	local card4 = habModal:FindFirstChild("HabitatCard_4")
+	ok(string.find(card4:FindFirstChild("TitleLabel").Text, "Chicken Universe") ~= nil, "Card 4 displays Chicken Universe")
+	ok(string.find(card4:FindFirstChild("NextUpgradeLabel").Text, "Maksymalny") ~= nil, "Card 4 displays MAX")
+
+	-- Trigger upgrade button on slot 2
+	local upgBtn2 = habModal:FindFirstChild("HabitatCard_2"):FindFirstChild("UpgradeHabitatBtn")
+	upgBtn2.Activated:Fire()
+	eq(clickedSlot, 2, "UpgradeHabitatBtn slot 2 invoked onQuickBuyHabitat")
+
+	-- Close
+	hud:toggleHabitatsModal(false)
+	eq(habModal.Visible, false, "HabitatsModal closed")
+
+	hud:destroy()
+end
+
+-- ============================================================================
+-- Section 9: VehiclesModal (12 Vehicles, 17 Fleet Slots, Shipping Comparison)
+-- ============================================================================
+do
+	local transport = ClientTransport.new({ protocol = Protocol, wire = function() end })
+	local store = ClientStateStore.new({ transport = transport, codec = C })
+	local controllers = IntentControllers.new({ transport = transport, stateStore = store, codec = C })
+
+	local clickedVehSlot = nil
+	local hud = HUD.new({
+		stateStore = store,
+		intentControllers = controllers,
+		codec = C,
+		onQuickBuyVehicle = function(slotId)
+			clickedVehSlot = slotId
+		end,
+	})
+
+	local vModal = hud:getVehiclesModal()
+	ok(vModal ~= nil, "VehiclesModal created")
+	eq(vModal.Visible, false, "VehiclesModal initially hidden")
+
+	hud:toggleVehiclesModal(true)
+	eq(vModal.Visible, true, "VehiclesModal opened")
+
+	-- Test 9.1: Shipping > Production (Sufficient)
+	local snapSufficient = makeTestSnapshot({
+		streamId = "stream-fleet-1",
+		producedEggsPerSecond = "100", -- 6,000 eggs/min
+		fleet = {
+			shippingPerMinute = "60000", -- 60,000 eggs/min
+			vehicles = {
+				{ slotId = 1, vehicleIndex = 0 }, -- Trike
+				{ slotId = 2, vehicleIndex = 1 }, -- Transit Van
+			},
+		},
+	})
+	store:applySnapshot(snapSufficient)
+	eq(hud:getShippingComparisonStatus(), "Spedycja wystarczająca", "Status is Spedycja wystarczająca when rate >= production")
+
+	-- Test 9.2: Shipping < Production (Bottleneck)
+	local snapBottleneck = makeTestSnapshot({
+		streamId = "stream-fleet-2",
+		producedEggsPerSecond = "2000", -- 120,000 eggs/min
+		fleet = {
+			shippingPerMinute = "15000", -- 15,000 eggs/min
+			vehicles = {
+				{ slotId = 1, vehicleIndex = 0 },
+			},
+		},
+	})
+	store:applySnapshot(snapBottleneck)
+	eq(hud:getShippingComparisonStatus(), "Wąskie gardło spedycji!", "Status is Wąskie gardło spedycji when rate < production")
+
+	-- Test 9.3: Slot 1 active vs Slot 10 locked
+	local container = vModal:FindFirstChild("FleetSlotsContainer")
+	ok(container ~= nil, "FleetSlotsContainer exists")
+
+	local slot1Card = container:FindFirstChild("VehicleSlotCard_1")
+	ok(slot1Card ~= nil, "VehicleSlotCard_1 exists")
+	ok(string.find(slot1Card:FindFirstChild("Title").Text, "Trójkołowiec") ~= nil, "Slot 1 shows Trike")
+	eq(slot1Card:FindFirstChild("BuyVehicleButton").Active, true, "Slot 1 buy button active")
+
+	-- Test 9.4: Trigger upgrade button on slot 1
+	slot1Card:FindFirstChild("BuyVehicleButton").Activated:Fire()
+	eq(clickedVehSlot, 1, "BuyVehicleButton slot 1 invoked onQuickBuyVehicle")
+
+	local slot10Card = container:FindFirstChild("VehicleSlotCard_10")
+	ok(slot10Card ~= nil, "VehicleSlotCard_10 exists")
+	ok(string.find(slot10Card:FindFirstChild("Title").Text, "Zablokowany") ~= nil, "Slot 10 is marked Zablokowany")
+	eq(slot10Card:FindFirstChild("BuyVehicleButton").Active, false, "Slot 10 buy button disabled")
+
+	hud:destroy()
+end
+
+-- ============================================================================
+-- Section 10: ResearchModal (Multi-Tier Tabs 1..13 + EPICKIE, Tier Unlock Check)
+-- ============================================================================
+do
+	local transport = ClientTransport.new({ protocol = Protocol, wire = function() end })
+	local store = ClientStateStore.new({ transport = transport, codec = C })
+	local controllers = IntentControllers.new({ transport = transport, stateStore = store, codec = C })
+
+	local hud = HUD.new({
+		stateStore = store,
+		intentControllers = controllers,
+		codec = C,
+	})
+
+	local resModal = hud:getResearchModal()
+	ok(resModal ~= nil, "ResearchModal created")
+	eq(resModal.Visible, false, "ResearchModal initially hidden")
+
+	hud:toggleResearchModal(true)
+	eq(resModal.Visible, true, "ResearchModal opened")
+
+	-- Check tier tabs count: 14 (T1..T13 + EPICKIE)
+	local tabsRow = resModal:FindFirstChild("TierTabsRow")
+	ok(tabsRow ~= nil, "TierTabsRow exists")
+	eq(#tabsRow:GetChildren(), 14, "14 tabs present (T1..T13 + EPICKIE)")
+
+	-- Check initial selected tier is 1
+	eq(hud:getCurrentResearchTier(), 1, "Initial selected tier is 1")
+
+	-- Feed snapshot with total research points = 10 (Tier 1 unlocked, Tier 2 requires 30 -> locked)
+	local snap = makeTestSnapshot({
+		streamId = "stream-tier-locks",
+		common = {
+			{ researchId = "comfy_nests", level = 10, available = true },
+			{ researchId = "hab_capacity1", level = 0, available = false, blockedReason = "TIER_LOCKED" },
+			{ researchId = "padded_packaging", level = 0, available = false, blockedReason = "TIER_LOCKED" },
+		},
+	})
+	store:applySnapshot(snap)
+
+	-- Select Tier 2
+	hud:selectResearchTier(2)
+	eq(hud:getCurrentResearchTier(), 2, "Selected tier is 2")
+
+	-- Tier lock banner should be visible for Tier 2 since 10 < 30
+	local lockBanner = resModal:FindFirstChild("TierLockBanner")
+	ok(lockBanner ~= nil, "TierLockBanner exists")
+	eq(lockBanner.Visible, true, "TierLockBanner is visible for locked Tier 2")
+	ok(string.find(lockBanner.Text, "wymaga 30", 1, true) ~= nil or string.find(lockBanner.Text, "Wymaga 30", 1, true) ~= nil, "Banner mentions 30 required")
+
+	-- Switch to Tier 1: banner should be hidden
+	hud:selectResearchTier(1)
+	eq(lockBanner.Visible, false, "TierLockBanner is hidden for Tier 1")
+
+	-- Select EPICKIE tab (tab 14)
+	hud:selectResearchTier(14)
+	eq(hud:getCurrentResearchTier(), 14, "Selected tier is 14 (EPICKIE)")
+	eq(lockBanner.Visible, false, "Lock banner hidden on EPICKIE tab")
+
+	hud:destroy()
+end
+
+-- ============================================================================
+-- Section 11: PetsModal (Equipped Slots 3/5, Inventory, Fusion with Pro Permit)
+-- ============================================================================
+do
+	local transport = ClientTransport.new({ protocol = Protocol, wire = function() end })
+	local store = ClientStateStore.new({ transport = transport, codec = C })
+	local controllers = IntentControllers.new({ transport = transport, stateStore = store, codec = C })
+
+	local fusedBase = nil
+	local equippedPet = nil
+	local unequippedSlot = nil
+	local lockedPet = nil
+
+	local hud = HUD.new({
+		stateStore = store,
+		intentControllers = controllers,
+		codec = C,
+		onFusePets = function(baseId, matIds)
+			fusedBase = baseId
+		end,
+		onEquipPet = function(petId, slotIdx)
+			equippedPet = petId
+		end,
+		onUnequipPet = function(slotIdx)
+			unequippedSlot = slotIdx
+		end,
+		onTogglePetLock = function(petId)
+			lockedPet = petId
+		end,
+	})
+
+	local pModal = hud:getPetsModal()
+	ok(pModal ~= nil, "PetsModal exists")
+	eq(pModal.Visible, false, "PetsModal initially hidden")
+
+	hud:togglePetsModal(true)
+	eq(pModal.Visible, true, "PetsModal opened")
+
+	-- Equipped slots: 5 slot buttons present
+	local eqFrame = pModal:FindFirstChild("EquippedSlotsFrame")
+	ok(eqFrame ~= nil, "EquippedSlotsFrame exists")
+	for s = 1, 5 do
+		local slotBtn = eqFrame:FindFirstChild("EquippedSlot_" .. tostring(s))
+		ok(slotBtn ~= nil, "EquippedSlot_" .. tostring(s) .. " exists")
+	end
+
+	-- Test unequip slot 1
+	eqFrame:FindFirstChild("EquippedSlot_1").Activated:Fire()
+	eq(unequippedSlot, 1, "EquippedSlot_1 fired onUnequipPet")
+
+	-- Inventory Section: Equip and Lock buttons
+	local invFrame = pModal:FindFirstChild("InventoryFrame")
+	ok(invFrame ~= nil, "InventoryFrame exists")
+	local petCard1 = invFrame:FindFirstChild("PetCard_1")
+	ok(petCard1 ~= nil, "PetCard_1 exists")
+
+	petCard1:FindFirstChild("EquipBtn").Activated:Fire()
+	eq(equippedPet, "pet_1", "EquipBtn fired onEquipPet")
+
+	petCard1:FindFirstChild("LockBtn").Activated:Fire()
+	eq(lockedPet, "pet_1", "LockBtn fired onTogglePetLock")
+
+	-- Fusion Section: Chance, Guarantee, Pro Permit badge, Fuse button
+	local fusFrame = pModal:FindFirstChild("FusionFrame")
+	ok(fusFrame ~= nil, "FusionFrame exists")
+	ok(fusFrame:FindFirstChild("FusionChanceLabel") ~= nil, "FusionChanceLabel exists")
+	ok(fusFrame:FindFirstChild("FusionGuaranteeLabel") ~= nil, "FusionGuaranteeLabel exists")
+	ok(fusFrame:FindFirstChild("ProPermitBonusBadge") ~= nil, "ProPermitBonusBadge exists")
+
+	local fuseBtn = fusFrame:FindFirstChild("FusePetsButton")
+	ok(fuseBtn ~= nil, "FusePetsButton exists")
+	fuseBtn.Activated:Fire()
+	eq(fusedBase, "base_1", "FusePetsButton fired onFusePets")
+
+	hud:destroy()
+end
+
+-- ============================================================================
+-- Section 12: ShopModal (GE Packs, Boosts, GamePasses with Pro Permit Notice)
+-- ============================================================================
+do
+	local transport = ClientTransport.new({ protocol = Protocol, wire = function() end })
+	local store = ClientStateStore.new({ transport = transport, codec = C })
+	local controllers = IntentControllers.new({ transport = transport, stateStore = store, codec = C })
+
+	local purchasedProduct = nil
+	local purchasedBoost = nil
+
+	local hud = HUD.new({
+		stateStore = store,
+		intentControllers = controllers,
+		codec = C,
+		onPurchaseProduct = function(prodId)
+			purchasedProduct = prodId
+		end,
+		onBuyBoost = function(boostId)
+			purchasedBoost = boostId
+		end,
+	})
+
+	local sModal = hud:getShopModal()
+	ok(sModal ~= nil, "ShopModal exists")
+	eq(sModal.Visible, false, "ShopModal initially hidden")
+
+	hud:toggleShopModal(true)
+	eq(sModal.Visible, true, "ShopModal opened")
+
+	-- Tab 1: GE Packs
+	hud:selectShopTab(1)
+	eq(hud:getCurrentShopTab(), 1, "Selected shop tab 1")
+	local cont = sModal:FindFirstChild("ShopContentContainer")
+	ok(cont:FindFirstChild("Tab1_GEPacks").Visible, "Tab 1 visible")
+	ok(not cont:FindFirstChild("Tab2_Boosts").Visible, "Tab 2 hidden")
+	ok(not cont:FindFirstChild("Tab3_GamePasses").Visible, "Tab 3 hidden")
+
+	local geCard = cont:FindFirstChild("Tab1_GEPacks"):FindFirstChild("ShopCard_ge_pack_small")
+	ok(geCard ~= nil, "ShopCard_ge_pack_small exists")
+	geCard:FindFirstChild("BuyProductButton").Activated:Fire()
+	eq(purchasedProduct, "ge_pack_small", "ge_pack_small buy button fired onPurchaseProduct")
+
+	-- Tab 2: Boosts
+	hud:selectShopTab(2)
+	eq(hud:getCurrentShopTab(), 2, "Selected shop tab 2")
+	ok(cont:FindFirstChild("Tab2_Boosts").Visible, "Tab 2 visible")
+	local boostCard = cont:FindFirstChild("Tab2_Boosts"):FindFirstChild("BoostCard_jimbos_blue_v2")
+	ok(boostCard ~= nil, "BoostCard_jimbos_blue_v2 exists")
+	boostCard:FindFirstChild("BuyBoostButton").Activated:Fire()
+	eq(purchasedBoost, "jimbos_blue_v2", "jimbos_blue_v2 buy button fired onBuyBoost")
+
+	-- Tab 3: GamePasses
+	hud:selectShopTab(3)
+	eq(hud:getCurrentShopTab(), 3, "Selected shop tab 3")
+	ok(cont:FindFirstChild("Tab3_GamePasses").Visible, "Tab 3 visible")
+	local proCard = cont:FindFirstChild("Tab3_GamePasses"):FindFirstChild("PassCard_pro_permit")
+	ok(proCard ~= nil, "PassCard_pro_permit exists")
+	-- Check regulatory notice
+	local notice = proCard:FindFirstChild("Notice")
+	ok(notice ~= nil, "Notice exists on Pro Permit card")
+	ok(string.find(notice.Text, "regulacjami", 1, true) ~= nil, "Notice mentions regulatory compliance")
+
+	proCard:FindFirstChild("BuyPassButton").Activated:Fire()
+	eq(purchasedProduct, "pro_permit", "pro_permit buy button fired onPurchaseProduct")
+
+	hud:destroy()
+end
+
+-- ============================================================================
+-- Section 13: CalendarModal (28-day Grid & 19-Egg Trophies)
+-- ============================================================================
+do
+	local transport = ClientTransport.new({ protocol = Protocol, wire = function() end })
+	local store = ClientStateStore.new({ transport = transport, codec = C })
+	local controllers = IntentControllers.new({ transport = transport, stateStore = store, codec = C })
+
+	local giftClaimed = false
+	local trophyClaimEgg = nil
+	local trophyClaimTier = nil
+
+	local hud = HUD.new({
+		stateStore = store,
+		intentControllers = controllers,
+		codec = C,
+		onClaimDailyGift = function()
+			giftClaimed = true
+		end,
+		onClaimTrophy = function(eggIdx, tierIdx)
+			trophyClaimEgg = eggIdx
+			trophyClaimTier = tierIdx
+		end,
+	})
+
+	local cModal = hud:getCalendarModal()
+	ok(cModal ~= nil, "CalendarModal exists")
+	eq(cModal.Visible, false, "CalendarModal initially hidden")
+
+	hud:toggleCalendarModal(true)
+	eq(cModal.Visible, true, "CalendarModal opened")
+
+	-- Tab 1: Calendar 28 days
+	eq(hud:getCurrentCalendarTab(), 1, "Default calendar tab is 1")
+	local calTab1 = cModal:FindFirstChild("CalendarContent_Tab1")
+	ok(calTab1 ~= nil, "CalendarContent_Tab1 exists")
+	for d = 1, 28 do
+		local cell = calTab1:FindFirstChild("DayCell_" .. tostring(d))
+		ok(cell ~= nil, "DayCell_" .. tostring(d) .. " exists")
+	end
+
+	-- Claim daily gift button
+	local claimBtn = cModal:FindFirstChild("ClaimDailyGiftButton")
+	ok(claimBtn ~= nil, "ClaimDailyGiftButton exists")
+	claimBtn.Activated:Fire()
+	eq(giftClaimed, true, "ClaimDailyGiftButton fired onClaimDailyGift")
+
+	-- Tab 2: Trophies
+	hud:selectCalendarTab(2)
+	eq(hud:getCurrentCalendarTab(), 2, "Selected calendar tab 2 (Trophies)")
+	local trophTab2 = cModal:FindFirstChild("TrophiesContent_Tab2")
+	ok(trophTab2 ~= nil, "TrophiesContent_Tab2 exists")
+	ok(trophTab2.Visible, "Trophies tab visible")
+
+	local egg0Card = trophTab2:FindFirstChild("TrophyCard_Egg_0")
+	ok(egg0Card ~= nil, "TrophyCard_Egg_0 exists")
+	-- 5 Cup buttons
+	for t = 1, 5 do
+		ok(egg0Card:FindFirstChild("CupBtn_" .. tostring(t)) ~= nil, "CupBtn_" .. tostring(t) .. " exists")
+	end
+
+	-- Click Gold Cup (tier 3) on Egg 0
+	egg0Card:FindFirstChild("CupBtn_3").Activated:Fire()
+	eq(trophyClaimEgg, 0, "Egg 0 trophy claimed")
+	eq(trophyClaimTier, 3, "Tier 3 trophy claimed")
+
+	hud:destroy()
+end
+
+-- ============================================================================
+-- Section 14: Right Dock 6 Menu Buttons & Mutual Exclusivity
+-- ============================================================================
+do
+	local transport = ClientTransport.new({ protocol = Protocol, wire = function() end })
+	local store = ClientStateStore.new({ transport = transport, codec = C })
+	local controllers = IntentControllers.new({ transport = transport, stateStore = store, codec = C })
+
+	local hud = HUD.new({
+		stateStore = store,
+		intentControllers = controllers,
+		codec = C,
+	})
+
+	local resModal = hud:getResearchModal()
+	local habModal = hud:getHabitatsModal()
+	local vehModal = hud:getVehiclesModal()
+	local petModal = hud:getPetsModal()
+	local shopModal = hud:getShopModal()
+	local calModal = hud:getCalendarModal()
+
+	-- All initially hidden
+	eq(resModal.Visible, false)
+	eq(habModal.Visible, false)
+	eq(vehModal.Visible, false)
+	eq(petModal.Visible, false)
+	eq(shopModal.Visible, false)
+	eq(calModal.Visible, false)
+
+	-- 14.1 Open Research Modal via dock button
+	hud.researchToggleBtn.Activated:Fire()
+	eq(resModal.Visible, true, "ResearchModal opened via dock button")
+	eq(habModal.Visible, false)
+	eq(vehModal.Visible, false)
+
+	-- 14.2 Open Habitats Modal: Research closes automatically!
+	hud.habitatsToggleBtn.Activated:Fire()
+	eq(habModal.Visible, true, "HabitatsModal opened")
+	eq(resModal.Visible, false, "ResearchModal closed on Habitats open")
+
+	-- 14.3 Open Vehicles Modal
+	hud.vehiclesToggleBtn.Activated:Fire()
+	eq(vehModal.Visible, true, "VehiclesModal opened")
+	eq(habModal.Visible, false, "HabitatsModal closed")
+
+	-- 14.4 Open Pets Modal
+	hud.petsToggleBtn.Activated:Fire()
+	eq(petModal.Visible, true, "PetsModal opened")
+	eq(vehModal.Visible, false, "VehiclesModal closed")
+
+	-- 14.5 Open Shop Modal
+	hud.shopToggleBtn.Activated:Fire()
+	eq(shopModal.Visible, true, "ShopModal opened")
+	eq(petModal.Visible, false, "PetsModal closed")
+
+	-- 14.6 Open Calendar Modal
+	hud.calendarToggleBtn.Activated:Fire()
+	eq(calModal.Visible, true, "CalendarModal opened")
+	eq(shopModal.Visible, false, "ShopModal closed")
+
+	-- 14.7 closeAllModals closes everything
+	hud:closeAllModals()
+	eq(calModal.Visible, false, "CalendarModal closed via closeAllModals")
+
+	hud:destroy()
+end
+
 print(string.format("HUD and IntentControllers: %d assertions PASS", assertions))

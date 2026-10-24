@@ -155,6 +155,30 @@ if hud then
 	hud.onUpgradeEggRequested = function(targetEggIndex)
 		client:upgradeEgg(targetEggIndex)
 	end
+	hud.onClaimDailyGift = function()
+		client:claimDailyGift()
+	end
+	hud.onClaimTrophy = function(eggIndex, tierIndex)
+		client:claimTrophy(eggIndex, tierIndex)
+	end
+	hud.onFusePets = function(baseId, matIds)
+		client:fusePets(baseId, matIds)
+	end
+	hud.onEquipPet = function(petId, slotIndex)
+		client:equipPet(petId, slotIndex)
+	end
+	hud.onUnequipPet = function(slotIndex)
+		client:unequipPet(slotIndex)
+	end
+	hud.onTogglePetLock = function(petId)
+		client:togglePetLock(petId)
+	end
+	hud.onBuyBoost = function(boostId)
+		client:buyBoost(boostId)
+	end
+	hud.onPurchaseProduct = function(productId)
+		client:purchaseProduct(productId)
+	end
 end
 
 local tutorialController = TutorialController.new(client:getStore(), screenGui)
