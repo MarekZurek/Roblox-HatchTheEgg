@@ -375,11 +375,12 @@
       "number": 29,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/29",
       "title": "[NEXT-04] Pety: ekwipunek, wyposażenie i składanie efektów",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-08",
         "NEXT-03"
-      ]
+      ],
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "NEXT-05",
