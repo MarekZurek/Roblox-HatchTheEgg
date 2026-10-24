@@ -422,10 +422,11 @@
       "number": 33,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/33",
       "title": "[NEXT-08] Kalendarz, trofea i konwersje nagród",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-08"
-      ]
+      ],
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "NEXT-09",
