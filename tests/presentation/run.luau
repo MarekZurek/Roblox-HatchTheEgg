@@ -655,4 +655,44 @@ do
 	pres:destroy()
 end
 
+-- ============================================================================
+-- Section 9: 3D Pet Incubator Station & Hovering Egg Presentation (PROD-07)
+-- ============================================================================
+do
+	local world = FarmPlotBuilder.new()
+	world:build()
+
+	-- 9.1 Incubator Station Model & Position
+	local station = world:getIncubatorStation()
+	ok(station ~= nil, "Incubator station model exists")
+	eq(station.Name, "PetIncubatorStation", "Station model name matches")
+	eq(FarmPlotBuilder.INCUBATOR_STATION_POS.x, -30, "Incubator station X coordinate is -30")
+	eq(FarmPlotBuilder.INCUBATOR_STATION_POS.y, 0, "Incubator station Y coordinate is 0")
+	eq(FarmPlotBuilder.INCUBATOR_STATION_POS.z, -5, "Incubator station Z coordinate is -5")
+
+	-- 9.2 ProximityPrompt Verification
+	local prompt = world:getIncubatorPrompt()
+	ok(prompt ~= nil, "Incubator ProximityPrompt exists")
+	eq(prompt.ActionText, "Inkubuj Jajo", "Prompt ActionText is 'Inkubuj Jajo'")
+	eq(prompt.ObjectText, "Stacja Inkubacji Petów", "Prompt ObjectText is 'Stacja Inkubacji Petów'")
+
+	-- 9.3 Hovering Neon Incubator Egg
+	local egg = world:getIncubatorEgg()
+	ok(egg ~= nil, "Hovering egg part exists")
+	eq(egg.Name, "IncubatorEgg", "Egg part name is IncubatorEgg")
+
+	-- 9.4 ClientBootstrap Hatch Wire
+	local sentWire = nil
+	local client = ClientBootstrap.new({
+		playerId = "123",
+		wire = function(msg)
+			sentWire = msg
+		end,
+	})
+	client:hatchPetEgg("standard_egg")
+	ok(sentWire ~= nil, "HatchPetEgg message sent via wire")
+	eq(sentWire.kind, "HatchPetEgg", "Message kind is HatchPetEgg")
+	eq(sentWire.eggType, "standard_egg", "eggType matches")
+end
+
 print(string.format("RoutePresentation: %d assertions PASS", assertions))

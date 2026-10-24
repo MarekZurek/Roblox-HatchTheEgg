@@ -528,7 +528,81 @@ do
 end
 
 -- ============================================================================
--- Section 13: Save Results and Report
+-- Section 13: Authoritative Server Egg Hatching & Pet Management (PROD-07)
+-- ============================================================================
+do
+	local ServerBootstrap = require("../../src/server/Bootstrap")
+	local server = ServerBootstrap.new({ initialNowMs = 5000000 })
+	local joinRes, err = server:playerJoined("7001")
+	ok(joinRes ~= nil, "Player joined server for hatching test")
+
+	local coordinator = server:getCoordinator("7001")
+	ok(coordinator ~= nil, "Coordinator exists")
+	local snaps = coordinator.snapshots()
+	local prof = snaps.working or snaps.durable
+	ok(prof ~= nil, "Player profile exists")
+
+	-- 1. Initial attempt with default 10 GE fails (10 < 100)
+	local okHatch0, errHatch0 = server:hatchPet("7001")
+	eq(okHatch0, false, "Hatching with default GE fails")
+	eq(errHatch0, "INSUFFICIENT_GE", "Error is INSUFFICIENT_GE")
+
+	-- 2. Grant 240 GE via authoritative ClaimOffer (10 + 240 = 250 GE)
+	local okClaim, resClaim = server:claimOffer("7001", "ge_grant_1", {
+		reward = { rewardType = "GE", amount = "240", amountNumber = 240 },
+	})
+	eq(okClaim, true, "claimOffer granted 240 GE")
+	prof = coordinator.snapshots().working or coordinator.snapshots().durable
+	eq(prof.permanent.GE, "250", "Player GE balance is now 250")
+
+	-- 3. Attempt with 250 GE succeeds and deducts 100 GE
+	local okHatch1, resHatch1 = server:hatchPet("7001")
+	eq(okHatch1, true, "Hatching with 250 GE succeeds")
+	ok(resHatch1 ~= nil, "Hatch result returned")
+	eq(resHatch1.costGE, 100, "Cost is 100 GE")
+
+	prof = coordinator.snapshots().working or coordinator.snapshots().durable
+	eq(prof.permanent.GE, "150", "GE balance reduced from 250 to 150")
+	eq(prof.permanent.totalGESpent, "100", "totalGESpent incremented by 100")
+
+	local hatchedPet1 = resHatch1.pet
+	ok(hatchedPet1 ~= nil, "Hatched pet item exists")
+	ok(prof.inventory.pets[hatchedPet1.uid] ~= nil, "Pet item added to profile inventory")
+	eq(hatchedPet1.tier, 1, "Hatched pet tier is 1")
+	eq(hatchedPet1.locked, false, "Hatched pet is initially unlocked")
+	ok(Equipment.TEST_ONLY_CATALOG[hatchedPet1.speciesId] ~= nil, "Hatched pet species is in catalog")
+	ok(hatchedPet1.variant == "normal" or hatchedPet1.variant == "golden" or hatchedPet1.variant == "rainbow", "Variant is valid")
+
+	-- 4. Equip the hatched pet
+	local okEquip, resEquip = server:equipPet("7001", hatchedPet1.uid)
+	eq(okEquip, true, "Equip hatched pet succeeds")
+	prof = coordinator.snapshots().working or coordinator.snapshots().durable
+	ok(table.find(prof.inventory.equipped, hatchedPet1.uid) ~= nil, "Hatched pet is equipped in inventory")
+
+	-- 5. Lock the hatched pet
+	local okLock = server:togglePetLock("7001", hatchedPet1.uid, true)
+	eq(okLock, true, "Toggle lock succeeds")
+	prof = coordinator.snapshots().working or coordinator.snapshots().durable
+	eq(prof.inventory.pets[hatchedPet1.uid].locked, true, "Pet is locked in inventory")
+
+	-- 6. Second hatch succeeds: 150 GE -> 50 GE, totalGESpent -> 200
+	local okHatch2, resHatch2 = server:hatchPet("7001")
+	eq(okHatch2, true, "Second hatch succeeds")
+	prof = coordinator.snapshots().working or coordinator.snapshots().durable
+	eq(prof.permanent.GE, "50", "GE balance reduced from 150 to 50")
+	eq(prof.permanent.totalGESpent, "200", "totalGESpent incremented to 200")
+
+	-- 7. Third hatch fails with 50 GE
+	local okHatch3, errHatch3 = server:hatchPet("7001")
+	eq(okHatch3, false, "Third hatch with 50 GE fails")
+	eq(errHatch3, "INSUFFICIENT_GE", "Error is INSUFFICIENT_GE")
+	prof = coordinator.snapshots().working or coordinator.snapshots().durable
+	eq(prof.permanent.GE, "50", "GE balance unchanged")
+	eq(prof.permanent.totalGESpent, "200", "totalGESpent unchanged")
+end
+
+-- ============================================================================
+-- Section 14: Save Results and Report
 -- ============================================================================
 fs.writeFile("build/pet_effects-results.json", serde.encode("json", {
 	status = "PASS",

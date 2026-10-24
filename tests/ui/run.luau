@@ -1212,4 +1212,89 @@ do
 	hud:destroy()
 end
 
+-- ============================================================================
+-- Section 15: Pet Incubator Modal & Egg Hatch Animation Overlay (PROD-07)
+-- ============================================================================
+do
+	local transport = ClientTransport.new({ protocol = Protocol, wire = function() end })
+	local store = ClientStateStore.new({ transport = transport, codec = C })
+	local controllers = IntentControllers.new({ transport = transport, stateStore = store, codec = C })
+
+	local hud = HUD.new({
+		stateStore = store,
+		intentControllers = controllers,
+		codec = C,
+	})
+
+	-- 15.1 PetHatchModal verification
+	local hatchModal = hud:getPetHatchModal()
+	ok(hatchModal ~= nil, "PetHatchModal created")
+	eq(hatchModal.Visible, false, "PetHatchModal initially hidden")
+
+	hud:togglePetHatchModal(true)
+	eq(hatchModal.Visible, true, "PetHatchModal opened")
+
+	-- 15.2 Hatch Button activation
+	local hatchTriggered = false
+	hud.onHatchPetEgg = function(eggType)
+		hatchTriggered = true
+		eq(eggType, "standard_egg", "eggType is standard_egg")
+	end
+	if hud.hatchEggButton and hud.hatchEggButton.Activated then
+		hud.hatchEggButton.Activated:Fire()
+		eq(hatchTriggered, true, "HatchEggButton triggers onHatchPetEgg")
+	end
+
+	-- 15.3 HatchAnimationOverlay & playEggHatchAnimation
+	local animOverlay = hud:getHatchAnimationOverlay()
+	ok(animOverlay ~= nil, "HatchAnimationOverlay exists")
+	eq(animOverlay.Visible, false, "HatchAnimationOverlay initially hidden")
+
+	local equippedPetId = nil
+	local lockedPetId = nil
+	hud.onEquipPet = function(pUid, slot)
+		equippedPetId = pUid
+	end
+	hud.onTogglePetLock = function(pUid)
+		lockedPetId = pUid
+	end
+
+	local animationFinished = false
+	hud:playEggHatchAnimation({
+		uid = "pet_gold_dog_99",
+		speciesId = "farmer_dog",
+		rarity = "Legendary",
+		variant = "golden",
+		tier = 1,
+	}, function()
+		animationFinished = true
+	end)
+
+	eq(animOverlay.Visible, true, "HatchAnimationOverlay visible during reveal")
+	eq(hud.petRevealCard.Visible, true, "PetRevealCard visible in test mock")
+	eq(hud.revealPetName.Text, "Pies Farmer (Farmer Dog)", "Pet name displayed")
+	eq(hud.revealPetIcon.Text, "🐶", "Pet icon displayed")
+	eq(hud.revealPetRarity.Text, "LEGENDARY PET", "Pet rarity displayed")
+	eq(hud.revealPetStat.Text, "+50% Wartość Jaj", "Pet stat displayed")
+
+	-- Quick Actions: Equip
+	if hud.revealEquipBtn and hud.revealEquipBtn.Activated then
+		hud.revealEquipBtn.Activated:Fire()
+		eq(equippedPetId, "pet_gold_dog_99", "revealEquipBtn equipped correct pet")
+	end
+
+	-- Quick Actions: Lock
+	if hud.revealLockBtn and hud.revealLockBtn.Activated then
+		hud.revealLockBtn.Activated:Fire()
+		eq(lockedPetId, "pet_gold_dog_99", "revealLockBtn locked correct pet")
+	end
+
+	-- Close All Modals
+	hud:closeAllModals()
+	eq(hatchModal.Visible, false, "PetHatchModal closed via closeAllModals")
+	eq(animOverlay.Visible, false, "HatchAnimationOverlay closed via closeAllModals")
+
+	hud:destroy()
+end
+
 print(string.format("HUD and IntentControllers: %d assertions PASS", assertions))

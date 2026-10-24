@@ -36,6 +36,7 @@ FarmPlotBuilder.HATCHERY_CENTER = { x = 0, y = 0, z = 55 }
 FarmPlotBuilder.HATCHERY_SPAWN = { x = 0, y = 0, z = 45 }
 FarmPlotBuilder.PRESSURE_PLATE_POS = { x = 0, y = 0.35, z = 37 }
 FarmPlotBuilder.SPAWN_LOCATION_POS = { x = 0, y = 0.5, z = 24 }
+FarmPlotBuilder.INCUBATOR_STATION_POS = { x = -30, y = 0, z = -5 }
 
 FarmPlotBuilder.HABITAT_PLOTS = table.freeze({
 	[1] = { slotId = 1, center = { x = -35, y = 0, z = -35 }, entrance = { x = -30, y = 0, z = -30 }, padPos = { x = -22, y = 0.35, z = -28 } },
@@ -840,6 +841,9 @@ function FarmPlotBuilder.new(deps)
 		deliveryTruckModel = nil,
 		deliveryParcelModel = nil,
 		deliveryPrompt = nil,
+		incubatorStationModel = nil,
+		incubatorPrompt = nil,
+		incubatorEgg = nil,
 		habitats = {},
 		buyPads = {},
 		vehiclesModels = {},
@@ -903,6 +907,9 @@ function FarmPlotBuilder:build()
 
 	-- 10. Low-Poly Farm Trees & Decorations (CanCollide=false, CanTouch=false, CanQuery=false)
 	self:_buildFarmDecorations(worldFolder)
+
+	-- 11. Pet Incubator Station & 3D Egg (PROD-07)
+	self:_buildPetIncubatorStation(worldFolder)
 
 	return self
 end
@@ -1994,6 +2001,169 @@ end
 
 function FarmPlotBuilder:getDeliveryPrompt()
 	return self.deliveryPrompt
+end
+
+function FarmPlotBuilder:_buildPetIncubatorStation(worldFolder)
+	local stationModel
+	if isRoblox then
+		stationModel = Instance.new("Model")
+		stationModel.Name = "PetIncubatorStation"
+		stationModel.Parent = worldFolder
+	else
+		stationModel = { Name = "PetIncubatorStation", Children = {} }
+		if worldFolder and worldFolder.Children then
+			table.insert(worldFolder.Children, stationModel)
+		end
+	end
+
+	local ix, iy, iz = FarmPlotBuilder.INCUBATOR_STATION_POS.x, FarmPlotBuilder.INCUBATOR_STATION_POS.y, FarmPlotBuilder.INCUBATOR_STATION_POS.z
+
+	-- 1. Candy marble stepped pedestal
+	local pedestal = makePart({
+		Name = "IncubatorPedestal",
+		Size = v3(8, 2.8, 8),
+		Position = v3(ix, iy + 1.4, iz),
+		Color = rgb(235, 140, 190),
+		StudsTop = true,
+		CanCollide = true,
+	}, stationModel, false)
+
+	local pedestalRim = makePart({
+		Name = "IncubatorRim",
+		Size = v3(7.2, 0.6, 7.2),
+		Position = v3(ix, iy + 3.0, iz),
+		Color = rgb(255, 215, 65),
+		StudsTop = true,
+		CanCollide = true,
+	}, stationModel, false)
+
+	-- 2. Four Candy-Cane/Gold Corner Support Pillars
+	local pillarOffsets = {
+		{ x = -3.2, z = -3.2 },
+		{ x = 3.2, z = -3.2 },
+		{ x = 3.2, z = 3.2 },
+		{ x = -3.2, z = 3.2 },
+	}
+	for i, off in ipairs(pillarOffsets) do
+		makePart({
+			Name = "Pillar_" .. tostring(i),
+			Size = v3(0.8, 6.5, 0.8),
+			Position = v3(ix + off.x, iy + 3.2 + 3.25, iz + off.z),
+			Color = if i % 2 == 1 then rgb(255, 65, 85) else rgb(255, 255, 255),
+			CanCollide = false,
+		}, stationModel, false)
+	end
+
+	-- 3. Transparent Glass Chamber
+	local glassChamber = makePart({
+		Name = "GlassChamber",
+		Size = v3(5.6, 6.2, 5.6),
+		Position = v3(ix, iy + 3.2 + 3.1, iz),
+		Color = rgb(220, 245, 255),
+		Transparency = 0.65,
+		CanCollide = false,
+	}, stationModel, false)
+
+	-- 4. Golden Roof Topper
+	local roofTopper = makePart({
+		Name = "RoofTopper",
+		Size = v3(7.4, 1.2, 7.4),
+		Position = v3(ix, iy + 3.2 + 6.6, iz),
+		Color = rgb(255, 215, 65),
+		StudsTop = true,
+		CanCollide = true,
+	}, stationModel, false)
+
+	-- 5. Floating / Neon Incubator Egg inside
+	local eggPart = makePart({
+		Name = "IncubatorEgg",
+		Size = v3(2.6, 3.6, 2.6),
+		Position = v3(ix, iy + 3.2 + 3.2, iz),
+		Color = rgb(255, 225, 75),
+		CanCollide = false,
+	}, stationModel, false)
+
+	-- 6. Floating BillboardGui & ProximityPrompt
+	local prompt
+	if isRoblox then
+		local bb = Instance.new("BillboardGui")
+		bb.Name = "IncubatorBillboard"
+		bb.Size = UDim2.new(0, 240, 0, 75)
+		bb.StudsOffset = Vector3.new(0, 8.5, 0)
+		bb.AlwaysOnTop = true
+		bb.Adornee = pedestal
+		bb.Parent = pedestal
+
+		local title = Instance.new("TextLabel")
+		title.Size = UDim2.new(1, 0, 0.55, 0)
+		title.Position = UDim2.new(0, 0, 0, 0)
+		title.BackgroundTransparency = 1
+		title.Font = Enum.Font.FredokaOne
+		title.TextScaled = true
+		title.Text = "🐣 STACJA INKUBACJI PETÓW"
+		title.TextColor3 = Color3.fromRGB(255, 235, 110)
+		title.Parent = bb
+
+		local titleStroke = Instance.new("UIStroke")
+		titleStroke.Thickness = 2.5
+		titleStroke.Color = Color3.fromRGB(40, 20, 10)
+		titleStroke.Parent = title
+
+		local sub = Instance.new("TextLabel")
+		sub.Size = UDim2.new(1, 0, 0.45, 0)
+		sub.Position = UDim2.new(0, 0, 0.55, 0)
+		sub.BackgroundTransparency = 1
+		sub.Font = Enum.Font.FredokaOne
+		sub.TextScaled = true
+		sub.Text = "[E] Wykluj Nowego Peta (100 GE)"
+		sub.TextColor3 = Color3.fromRGB(255, 255, 255)
+		sub.Parent = bb
+
+		local subStroke = Instance.new("UIStroke")
+		subStroke.Thickness = 2
+		subStroke.Color = Color3.fromRGB(40, 20, 10)
+		subStroke.Parent = sub
+
+		prompt = Instance.new("ProximityPrompt")
+		prompt.Name = "IncubatorProximityPrompt"
+		prompt.ObjectText = "Stacja Inkubacji Petów"
+		prompt.ActionText = "Inkubuj Jajo"
+		prompt.KeyboardKeyCode = Enum.KeyCode.E
+		prompt.MaxActivationDistance = 15
+		prompt.HoldDuration = 0
+		prompt.Parent = pedestal
+	else
+		prompt = {
+			Name = "IncubatorProximityPrompt",
+			ObjectText = "Stacja Inkubacji Petów",
+			ActionText = "Inkubuj Jajo",
+			KeyboardKeyCode = "E",
+			MaxActivationDistance = 15,
+			HoldDuration = 0,
+			Parent = pedestal,
+		}
+		if pedestal.Children then
+			table.insert(pedestal.Children, prompt)
+		end
+	end
+
+	self.incubatorStationModel = stationModel
+	self.incubatorPrompt = prompt
+	self.incubatorEgg = eggPart
+
+	return stationModel
+end
+
+function FarmPlotBuilder:getIncubatorStation()
+	return self.incubatorStationModel
+end
+
+function FarmPlotBuilder:getIncubatorPrompt()
+	return self.incubatorPrompt
+end
+
+function FarmPlotBuilder:getIncubatorEgg()
+	return self.incubatorEgg
 end
 
 return table.freeze(FarmPlotBuilder)

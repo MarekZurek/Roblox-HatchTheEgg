@@ -219,6 +219,37 @@ clientToServer.OnServerEvent:Connect(function(player, message)
 			syncWorldAndDelta(pId, player)
 		end
 		return
+	elseif message.kind == "HatchPetEgg" or message.kind == "HatchPet" then
+		local okHatch, resHatch = server:hatchPet(pId, message)
+		if okHatch and resHatch then
+			serverToClient:FireClient(player, {
+				kind = "PetHatched",
+				pet = resHatch.pet or resHatch,
+				costGE = resHatch.costGE or 100,
+			})
+			syncWorldAndDelta(pId, player)
+		else
+			serverToClient:FireClient(player, {
+				kind = "PetHatchFailed",
+				error = tostring(resHatch),
+			})
+		end
+		return
+	elseif message.kind == "EquipPet" then
+		local petUid = message.petUid or message.petId
+		server:equipPet(pId, petUid)
+		syncWorldAndDelta(pId, player)
+		return
+	elseif message.kind == "UnequipPet" then
+		local petUid = message.petUid or message.petId
+		server:unequipPet(pId, petUid)
+		syncWorldAndDelta(pId, player)
+		return
+	elseif message.kind == "TogglePetLock" then
+		local petUid = message.petUid or message.petId
+		server:togglePetLock(pId, petUid, message.locked)
+		syncWorldAndDelta(pId, player)
+		return
 	end
 
 	local response = server:dispatch(pId, message)

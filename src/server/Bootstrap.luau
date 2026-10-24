@@ -100,6 +100,10 @@ local FvSe = resolve(function()
 	return script.Parent.FarmMath.fv_se
 end, "./FarmMath/fv_se")
 
+local Equipment = resolve(function()
+	return script.Parent.pets.equipment
+end, "./pets/equipment")
+
 -- Numeric accounting fields that decode/encode to BigAmount
 local NUMERIC_ACCOUNTING = table.freeze({
 	"prestigeSessionArchivedCash",
@@ -571,6 +575,129 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 					return okOffer, if not okOffer then resOffer.error else nil
 				end,
 			}
+		elseif op.kind == "HatchPetEgg" or op.kind == "HatchPet" then
+			local costGE = (op.args and op.args.costGE) or 100
+			candidateProfile.permanent = candidateProfile.permanent or {}
+			local currentGE = self.codec.ExactUInt.decode(candidateProfile.permanent.GE or "0")
+			local costExact = self.codec.ExactUInt.fromSafeNumber(costGE)
+			if self.codec.ExactUInt.compare(currentGE, costExact) < 0 then
+				return {
+					profile = candidateProfile,
+					result = { error = "INSUFFICIENT_GE", costGE = costGE },
+					terminalStatus = "REJECTED",
+					validate = function() return false, "INSUFFICIENT_GE" end,
+				}
+			end
+
+			-- Deduct GE
+			candidateProfile.permanent.GE = self.codec.ExactUInt.encode(self.codec.ExactUInt.subtract(currentGE, costExact))
+			local curSpent = self.codec.ExactUInt.decode(candidateProfile.permanent.totalGESpent or "0")
+			candidateProfile.permanent.totalGESpent = self.codec.ExactUInt.encode(self.codec.ExactUInt.add(curSpent, costExact))
+
+			-- Determine species from TEST_ONLY_CATALOG
+			local roll = if op.args and op.args.roll ~= nil then op.args.roll else math.random()
+			local chosenSpeciesId = "farmer_dog"
+			local rarity = "Common"
+			if roll < 0.05 then
+				chosenSpeciesId = "drone_hawk"
+				rarity = "Legendary"
+			elseif roll < 0.17 then
+				chosenSpeciesId = "mega_rooster"
+				rarity = "Epic"
+			elseif roll < 0.42 then
+				chosenSpeciesId = "golden_pecker"
+				rarity = "Rare"
+			elseif roll < 0.70 then
+				chosenSpeciesId = "robo_cock"
+				rarity = "Rare"
+			else
+				chosenSpeciesId = "farmer_dog"
+				rarity = "Common"
+			end
+
+			-- Determine variant
+			local variantRoll = if op.args and op.args.variantRoll ~= nil then op.args.variantRoll else math.random()
+			local variant = "normal"
+			if variantRoll < 0.02 then
+				variant = "rainbow"
+			elseif variantRoll < 0.10 then
+				variant = "golden"
+			end
+
+			local petSerial = (op.args and op.args.petSerial) or tostring(self.clock.utcNowMs()) .. "_" .. tostring(math.random(1000, 9999))
+			local petUid = (op.args and op.args.petUid) or ("pet_" .. chosenSpeciesId .. "_" .. tostring(petSerial))
+
+			local newPet = {
+				uid = petUid,
+				speciesId = chosenSpeciesId,
+				tier = 1,
+				variant = variant,
+				locked = false,
+				rarity = rarity,
+			}
+
+			candidateProfile.inventory = candidateProfile.inventory or {}
+			candidateProfile.inventory.pets = candidateProfile.inventory.pets or {}
+			candidateProfile.inventory.equipped = candidateProfile.inventory.equipped or {}
+			candidateProfile.inventory.guarantees = candidateProfile.inventory.guarantees or {}
+
+			local okAdd, addErr = Equipment.addPet(candidateProfile.inventory, newPet)
+			if not okAdd then
+				return {
+					profile = candidateProfile,
+					result = { error = addErr or "ADD_PET_FAILED" },
+					terminalStatus = "REJECTED",
+					validate = function() return false, addErr or "ADD_PET_FAILED" end,
+				}
+			end
+
+			return {
+				profile = candidateProfile,
+				result = {
+					success = true,
+					pet = newPet,
+					costGE = costGE,
+				},
+				terminalStatus = "APPLIED",
+				validate = function() return true end,
+			}
+		elseif op.kind == "EquipPet" then
+			local petUid = op.args and (op.args.petUid or op.args.petId)
+			local isPro = candidateProfile.entitlements and candidateProfile.entitlements.pro_permit == true
+			candidateProfile.inventory = candidateProfile.inventory or {}
+			candidateProfile.inventory.pets = candidateProfile.inventory.pets or {}
+			candidateProfile.inventory.equipped = candidateProfile.inventory.equipped or {}
+			local okEq, errEq = Equipment.equipPet(candidateProfile.inventory, petUid, isPro)
+			return {
+				profile = candidateProfile,
+				result = { success = okEq, petUid = petUid, error = errEq },
+				terminalStatus = if okEq then "APPLIED" else "REJECTED",
+				validate = function() return okEq, errEq end,
+			}
+		elseif op.kind == "UnequipPet" then
+			local petUid = op.args and (op.args.petUid or op.args.petId)
+			candidateProfile.inventory = candidateProfile.inventory or {}
+			candidateProfile.inventory.equipped = candidateProfile.inventory.equipped or {}
+			local okUneq, errUneq = Equipment.unequipPet(candidateProfile.inventory, petUid)
+			return {
+				profile = candidateProfile,
+				result = { success = okUneq, petUid = petUid, error = errUneq },
+				terminalStatus = if okUneq then "APPLIED" else "REJECTED",
+				validate = function() return okUneq, errUneq end,
+			}
+		elseif op.kind == "TogglePetLock" or op.kind == "SetPetLock" then
+			local petUid = op.args and (op.args.petUid or op.args.petId)
+			candidateProfile.inventory = candidateProfile.inventory or {}
+			candidateProfile.inventory.pets = candidateProfile.inventory.pets or {}
+			local curPet = candidateProfile.inventory.pets[petUid]
+			local newLock = if op.args and op.args.locked ~= nil then op.args.locked else if curPet then not curPet.locked else true
+			local okLock, errLock = Equipment.setPetLock(candidateProfile.inventory, petUid, newLock)
+			return {
+				profile = candidateProfile,
+				result = { success = okLock, petUid = petUid, locked = newLock, error = errLock },
+				terminalStatus = if okLock then "APPLIED" else "REJECTED",
+				validate = function() return okLock, errLock end,
+			}
 		end
 		return self.farmActions.apply(candidateProfile, op)
 	end
@@ -861,6 +988,143 @@ function ServerBootstrap:getOffersState(playerId)
 	local pId = tostring(playerId)
 	local playerSession = self.players[pId]
 	return if playerSession then playerSession.offersState else nil
+end
+
+function ServerBootstrap:hatchPet(playerId, opts)
+	local pId = tostring(playerId)
+	local playerSession = self.players[pId]
+	if not playerSession then
+		return false, "PLAYER_NOT_CONNECTED"
+	end
+
+	self._petHatchSerial = (self._petHatchSerial or 0) + 1
+	local coordinator = playerSession.coordinator
+	local snapshots = coordinator.snapshots()
+	local currentRev = (snapshots.durable and snapshots.durable.meta and snapshots.durable.meta.revision) or "0"
+
+	local op = {
+		operationId = "hatch-pet-" .. pId .. "-" .. tostring(self.clock.utcNowMs()) .. "-" .. tostring(self._petHatchSerial),
+		kind = "HatchPetEgg",
+		expectedRevision = currentRev,
+		args = {
+			costGE = if opts and opts.costGE ~= nil then opts.costGE else 100,
+			roll = opts and opts.roll,
+			variantRoll = opts and opts.variantRoll,
+			petUid = opts and opts.petUid,
+			petSerial = opts and opts.petSerial,
+		},
+	}
+
+	coordinator.submit(op)
+	coordinator.drain()
+
+	local res = coordinator.resultOf(op.operationId)
+	if res and (res.status == "APPLIED" or (res.status == "REPLAYED" and res.terminalStatus == "APPLIED")) then
+		self:checkpointPlayer(pId)
+		return true, res.result
+	end
+
+	return false, (res and (res.errorCode or (res.result and (res.result.error or res.result.errorCode)))) or "HATCH_FAILED"
+end
+
+function ServerBootstrap:equipPet(playerId, petUid)
+	local pId = tostring(playerId)
+	local playerSession = self.players[pId]
+	if not playerSession then
+		return false, "PLAYER_NOT_CONNECTED"
+	end
+
+	self._petEquipSerial = (self._petEquipSerial or 0) + 1
+	local coordinator = playerSession.coordinator
+	local snapshots = coordinator.snapshots()
+	local currentRev = (snapshots.durable and snapshots.durable.meta and snapshots.durable.meta.revision) or "0"
+
+	local op = {
+		operationId = "equip-pet-" .. pId .. "-" .. tostring(petUid) .. "-" .. tostring(self.clock.utcNowMs()) .. "-" .. tostring(self._petEquipSerial),
+		kind = "EquipPet",
+		expectedRevision = currentRev,
+		args = {
+			petUid = petUid,
+		},
+	}
+
+	coordinator.submit(op)
+	coordinator.drain()
+
+	local res = coordinator.resultOf(op.operationId)
+	if res and (res.status == "APPLIED" or (res.status == "REPLAYED" and res.terminalStatus == "APPLIED")) then
+		self:checkpointPlayer(pId)
+		return true, res.result
+	end
+
+	return false, (res and (res.errorCode or (res.result and (res.result.error or res.result.errorCode)))) or "EQUIP_FAILED"
+end
+
+function ServerBootstrap:unequipPet(playerId, petUid)
+	local pId = tostring(playerId)
+	local playerSession = self.players[pId]
+	if not playerSession then
+		return false, "PLAYER_NOT_CONNECTED"
+	end
+
+	self._petUnequipSerial = (self._petUnequipSerial or 0) + 1
+	local coordinator = playerSession.coordinator
+	local snapshots = coordinator.snapshots()
+	local currentRev = (snapshots.durable and snapshots.durable.meta and snapshots.durable.meta.revision) or "0"
+
+	local op = {
+		operationId = "unequip-pet-" .. pId .. "-" .. tostring(petUid) .. "-" .. tostring(self.clock.utcNowMs()) .. "-" .. tostring(self._petUnequipSerial),
+		kind = "UnequipPet",
+		expectedRevision = currentRev,
+		args = {
+			petUid = petUid,
+		},
+	}
+
+	coordinator.submit(op)
+	coordinator.drain()
+
+	local res = coordinator.resultOf(op.operationId)
+	if res and (res.status == "APPLIED" or (res.status == "REPLAYED" and res.terminalStatus == "APPLIED")) then
+		self:checkpointPlayer(pId)
+		return true, res.result
+	end
+
+	return false, (res and (res.errorCode or (res.result and (res.result.error or res.result.errorCode)))) or "UNEQUIP_FAILED"
+end
+
+function ServerBootstrap:togglePetLock(playerId, petUid, locked)
+	local pId = tostring(playerId)
+	local playerSession = self.players[pId]
+	if not playerSession then
+		return false, "PLAYER_NOT_CONNECTED"
+	end
+
+	self._petLockSerial = (self._petLockSerial or 0) + 1
+	local coordinator = playerSession.coordinator
+	local snapshots = coordinator.snapshots()
+	local currentRev = (snapshots.durable and snapshots.durable.meta and snapshots.durable.meta.revision) or "0"
+
+	local op = {
+		operationId = "lock-pet-" .. pId .. "-" .. tostring(petUid) .. "-" .. tostring(self.clock.utcNowMs()) .. "-" .. tostring(self._petLockSerial),
+		kind = "TogglePetLock",
+		expectedRevision = currentRev,
+		args = {
+			petUid = petUid,
+			locked = locked,
+		},
+	}
+
+	coordinator.submit(op)
+	coordinator.drain()
+
+	local res = coordinator.resultOf(op.operationId)
+	if res and (res.status == "APPLIED" or (res.status == "REPLAYED" and res.terminalStatus == "APPLIED")) then
+		self:checkpointPlayer(pId)
+		return true, res.result
+	end
+
+	return false, (res and (res.errorCode or (res.result and (res.result.error or res.result.errorCode)))) or "LOCK_FAILED"
 end
 
 function ServerBootstrap:tick(dtSeconds, nowMs)

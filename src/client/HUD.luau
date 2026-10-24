@@ -689,6 +689,22 @@ function HUD.new(deps)
 		eggUpgradeWarningLabel = nil,
 		eggUpgradeBtn = nil,
 
+		-- Pet Hatch & Incubator Modal (PROD-07)
+		petHatchModal = nil,
+		hatchEggButton = nil,
+		hatchAnimationOverlay = nil,
+		animatedEggVisual = nil,
+		hatchBurstGlow = nil,
+		petRevealCard = nil,
+		revealPetIcon = nil,
+		revealPetName = nil,
+		revealPetRarity = nil,
+		revealPetStat = nil,
+		revealEquipBtn = nil,
+		revealLockBtn = nil,
+		revealConfirmBtn = nil,
+		onHatchPetEgg = nil,
+
 		_unsubs = {},
 	}, HUD)
 
@@ -1049,6 +1065,10 @@ function HUD:_buildInterface()
 
 	-- 13. Egg Upgrade Modal (PROD-02)
 	self:_buildEggUpgradeModal(root)
+
+	-- 14. Pet Incubator & Hatch Modal (PROD-07)
+	self:_buildPetHatchModal(root)
+	self:_buildHatchAnimationOverlay(root)
 end
 
 function HUD:_buildCloseButton(parent, onClose)
@@ -2180,6 +2200,420 @@ function HUD:_buildEggUpgradeModal(root)
 	end
 end
 
+function HUD:_buildPetHatchModal(root)
+	local hFrame = createGuiElement("Frame", {
+		Name = "PetHatchModal",
+		Visible = false,
+		Size = isRoblox and UDim2.new(0, 480, 0, 420) or nil,
+		Position = isRoblox and UDim2.new(0.5, -240, 0.5, -210) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(55, 25, 55) or nil,
+	}, root)
+	addCornerAndStroke(hFrame, 14, isRoblox and Color3.fromRGB(255, 215, 65) or nil, 3.2)
+	self.petHatchModal = hFrame
+
+	createGuiElement("TextLabel", {
+		Name = "PetHatchHeader",
+		Size = isRoblox and UDim2.new(1, -50, 0, 36) or nil,
+		Position = isRoblox and UDim2.new(0, 14, 0, 10) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 235, 110) or nil,
+		Text = "🐣 INKUBACJA & WYKLUWANIE JAJ",
+	}, hFrame)
+
+	self:_buildCloseButton(hFrame, function()
+		self.petHatchModal.Visible = false
+	end)
+
+	-- Subtitle info
+	createGuiElement("TextLabel", {
+		Name = "PetHatchSubtitle",
+		Size = isRoblox and UDim2.new(1, -28, 0, 24) or nil,
+		Position = isRoblox and UDim2.new(0, 14, 0, 46) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(240, 240, 240) or nil,
+		Text = "Inkubuj jajo i odkryj nowego zwierzaka ze specjalnym bonusem!",
+	}, hFrame)
+
+	-- Central Egg Preview Card
+	local card = createGuiElement("Frame", {
+		Name = "EggPreviewCard",
+		Size = isRoblox and UDim2.new(1, -28, 0, 240) or nil,
+		Position = isRoblox and UDim2.new(0, 14, 0, 78) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(38, 16, 38) or nil,
+	}, hFrame)
+	addCornerAndStroke(card, 10, isRoblox and Color3.fromRGB(255, 215, 65) or nil, 2)
+
+	-- Egg Icon / Graphic
+	createGuiElement("TextLabel", {
+		Name = "EggGraphicLabel",
+		Size = isRoblox and UDim2.new(0, 90, 0, 90) or nil,
+		Position = isRoblox and UDim2.new(0.5, -45, 0, 12) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		Text = "🥚",
+	}, card)
+
+	createGuiElement("TextLabel", {
+		Name = "EggNameLabel",
+		Size = isRoblox and UDim2.new(1, -20, 0, 26) or nil,
+		Position = isRoblox and UDim2.new(0, 10, 0, 106) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 235, 110) or nil,
+		Text = "Standardowe Jajo Peta",
+	}, card)
+
+	-- Chances breakdown label
+	createGuiElement("TextLabel", {
+		Name = "EggChancesLabel",
+		Size = isRoblox and UDim2.new(1, -20, 0, 40) or nil,
+		Position = isRoblox and UDim2.new(0, 10, 0, 134) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(220, 220, 240) or nil,
+		Text = "✨ Szanse:\nCommon (60%) • Rare (25%) • Epic (12%) • Legendary (3%)",
+	}, card)
+
+	-- Cost label
+	createGuiElement("TextLabel", {
+		Name = "EggCostLabel",
+		Size = isRoblox and UDim2.new(1, -20, 0, 24) or nil,
+		Position = isRoblox and UDim2.new(0, 10, 0, 180) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 215, 65) or nil,
+		Text = "Koszt: 100 Złotych Jaj (GE)",
+	}, card)
+
+	-- Hatch Button
+	local hatchBtn = createGuiElement("TextButton", {
+		Name = "HatchButton",
+		Size = isRoblox and UDim2.new(1, -28, 0, 52) or nil,
+		Position = isRoblox and UDim2.new(0, 14, 0, 336) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(60, 200, 75) or nil,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "🐣 WYSIADUJ / INKUBUJ (100 GE)",
+	}, hFrame)
+	addCornerAndStroke(hatchBtn, 10, isRoblox and Color3.fromRGB(30, 120, 45) or nil, 2.5)
+
+	if hatchBtn.Activated then
+		hatchBtn.Activated:Connect(function()
+			if type(self.onHatchPetEgg) == "function" then
+				self.onHatchPetEgg("standard_egg")
+			end
+		end)
+	end
+	self.hatchEggButton = hatchBtn
+end
+
+function HUD:_buildHatchAnimationOverlay(root)
+	local overlay = createGuiElement("Frame", {
+		Name = "HatchAnimationOverlay",
+		Visible = false,
+		Size = isRoblox and UDim2.new(1, 0, 1, 0) or nil,
+		Position = isRoblox and UDim2.new(0, 0, 0, 0) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(15, 8, 20) or nil,
+		BackgroundTransparency = isRoblox and 0.2 or 0,
+		ZIndex = 50,
+	}, root)
+	self.hatchAnimationOverlay = overlay
+
+	-- Wobbling Egg in center
+	local eggVisual = createGuiElement("TextLabel", {
+		Name = "AnimatedEgg",
+		Size = isRoblox and UDim2.new(0, 180, 0, 220) or nil,
+		Position = isRoblox and UDim2.new(0.5, -90, 0.5, -130) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		Text = "🥚",
+		ZIndex = 51,
+	}, overlay)
+	self.animatedEggVisual = eggVisual
+
+	-- Flash / Burst glow frame
+	local burstGlow = createGuiElement("Frame", {
+		Name = "BurstGlow",
+		Visible = false,
+		Size = isRoblox and UDim2.new(0, 300, 0, 300) or nil,
+		Position = isRoblox and UDim2.new(0.5, -150, 0.5, -150) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(255, 245, 160) or nil,
+		BackgroundTransparency = 0.5,
+		ZIndex = 52,
+	}, overlay)
+	addCornerAndStroke(burstGlow, 150, isRoblox and Color3.fromRGB(255, 255, 255) or nil, 4)
+	self.hatchBurstGlow = burstGlow
+
+	-- Pet Reveal Card
+	local revealCard = createGuiElement("Frame", {
+		Name = "PetRevealCard",
+		Visible = false,
+		Size = isRoblox and UDim2.new(0, 380, 0, 440) or nil,
+		Position = isRoblox and UDim2.new(0.5, -190, 0.5, -220) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(48, 22, 52) or nil,
+		ZIndex = 53,
+	}, overlay)
+	addCornerAndStroke(revealCard, 14, isRoblox and Color3.fromRGB(255, 215, 65) or nil, 3.5)
+	self.petRevealCard = revealCard
+
+	createGuiElement("TextLabel", {
+		Name = "RevealTitle",
+		Size = isRoblox and UDim2.new(1, -20, 0, 36) or nil,
+		Position = isRoblox and UDim2.new(0, 10, 0, 12) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 235, 110) or nil,
+		Text = "🎉 WYKLUŁEŚ NOWEGO PETA!",
+		ZIndex = 54,
+	}, revealCard)
+
+	local iconLabel = createGuiElement("TextLabel", {
+		Name = "PetIcon",
+		Size = isRoblox and UDim2.new(0, 120, 0, 120) or nil,
+		Position = isRoblox and UDim2.new(0.5, -60, 0, 52) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		Text = "🐶",
+		ZIndex = 54,
+	}, revealCard)
+	self.revealPetIcon = iconLabel
+
+	local nameLabel = createGuiElement("TextLabel", {
+		Name = "PetName",
+		Size = isRoblox and UDim2.new(1, -20, 0, 32) or nil,
+		Position = isRoblox and UDim2.new(0, 10, 0, 176) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "Farmer Dog",
+		ZIndex = 54,
+	}, revealCard)
+	self.revealPetName = nameLabel
+
+	local rarityLabel = createGuiElement("TextLabel", {
+		Name = "PetRarity",
+		Size = isRoblox and UDim2.new(1, -20, 0, 26) or nil,
+		Position = isRoblox and UDim2.new(0, 10, 0, 210) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 215, 65) or nil,
+		Text = "Legendary",
+		ZIndex = 54,
+	}, revealCard)
+	self.revealPetRarity = rarityLabel
+
+	local statLabel = createGuiElement("TextLabel", {
+		Name = "PetStat",
+		Size = isRoblox and UDim2.new(1, -20, 0, 28) or nil,
+		Position = isRoblox and UDim2.new(0, 10, 0, 240) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(120, 255, 140) or nil,
+		Text = "+50% Wartość Jaj",
+		ZIndex = 54,
+	}, revealCard)
+	self.revealPetStat = statLabel
+
+	-- Action buttons: Equip, Lock, Confirm
+	local equipBtn = createGuiElement("TextButton", {
+		Name = "EquipNowBtn",
+		Size = isRoblox and UDim2.new(0.46, 0, 0, 46) or nil,
+		Position = isRoblox and UDim2.new(0.03, 0, 0, 284) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(45, 175, 75) or nil,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "🐾 Załóż Peta",
+		ZIndex = 54,
+	}, revealCard)
+	addCornerAndStroke(equipBtn, 8, isRoblox and Color3.fromRGB(20, 90, 35) or nil, 2)
+	self.revealEquipBtn = equipBtn
+
+	local lockBtn = createGuiElement("TextButton", {
+		Name = "LockBtn",
+		Size = isRoblox and UDim2.new(0.46, 0, 0, 46) or nil,
+		Position = isRoblox and UDim2.new(0.51, 0, 0, 284) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(175, 115, 45) or nil,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "🔒 Zablokuj",
+		ZIndex = 54,
+	}, revealCard)
+	addCornerAndStroke(lockBtn, 8, isRoblox and Color3.fromRGB(90, 55, 20) or nil, 2)
+	self.revealLockBtn = lockBtn
+
+	local confirmBtn = createGuiElement("TextButton", {
+		Name = "ConfirmBtn",
+		Size = isRoblox and UDim2.new(0.94, 0, 0, 48) or nil,
+		Position = isRoblox and UDim2.new(0.03, 0, 0, 342) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(150, 60, 160) or nil,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "✅ Zatwierdź / Zamknij",
+		ZIndex = 54,
+	}, revealCard)
+	addCornerAndStroke(confirmBtn, 8, isRoblox and Color3.fromRGB(75, 25, 80) or nil, 2)
+	self.revealConfirmBtn = confirmBtn
+end
+
+function HUD:playEggHatchAnimation(petData, onFinished)
+	if not self.hatchAnimationOverlay then
+		if onFinished then onFinished() end
+		return
+	end
+
+	self:closeAllModals()
+	self.hatchAnimationOverlay.Visible = true
+	self.animatedEggVisual.Visible = true
+	self.petRevealCard.Visible = false
+	if self.hatchBurstGlow then self.hatchBurstGlow.Visible = false end
+
+	local pSpecies = if type(petData) == "table" then (petData.speciesId or "farmer_dog") else "farmer_dog"
+	local pRarity = if type(petData) == "table" and petData.rarity then petData.rarity else "Common"
+	local pUid = if type(petData) == "table" then (petData.uid or "pet_unknown") else "pet_unknown"
+
+	local speciesIcons = {
+		farmer_dog = "🐶",
+		farm_pup = "🐕",
+		robo_cock = "🤖",
+		golden_pecker = "✨",
+		speedy_chick = "🐥",
+		mega_rooster = "🐓",
+		drone_hawk = "🦅",
+		cosmic_phoenix = "🔥",
+		alien_clucker = "👽",
+	}
+
+	local speciesNames = {
+		farmer_dog = "Pies Farmer (Farmer Dog)",
+		farm_pup = "Szczeniak (Farm Pup)",
+		robo_cock = "Robo-Kogut (Robo Cock)",
+		golden_pecker = "Złoty Dzięcioł (Golden Pecker)",
+		speedy_chick = "Szybki Kurczak (Speedy Chick)",
+		mega_rooster = "Mega Kogut (Mega Rooster)",
+		drone_hawk = "Jastrząb Dronów (Drone Hawk)",
+		cosmic_phoenix = "Kosmiczny Feniks (Cosmic Phoenix)",
+		alien_clucker = "Kosmiczny Gdakacz (Alien Clucker)",
+	}
+
+	local statDescriptions = {
+		farmer_dog = "+50% Wartość Jaj",
+		farm_pup = "+50% Wartość Jaj",
+		robo_cock = "+50% Tempo Znoszenia",
+		golden_pecker = "+50% Wewnętrzny Wylęg (IHR)",
+		speedy_chick = "+50% Wewnętrzny Wylęg (IHR)",
+		mega_rooster = "+50% Pojemność Kurników",
+		drone_hawk = "+400% Szansa na Elitarnego Drona",
+		cosmic_phoenix = "+50% Zysk z Prestiżu",
+		alien_clucker = "+50% Siła Dopalaczy (Boosts)",
+	}
+
+	local icon = speciesIcons[pSpecies] or "🐾"
+	local name = speciesNames[pSpecies] or pSpecies
+	local statDesc = statDescriptions[pSpecies] or "+Bonus Zwierzaka"
+
+	self.revealPetIcon.Text = icon
+	self.revealPetName.Text = name
+	self.revealPetRarity.Text = string.upper(pRarity) .. " PET"
+	self.revealPetStat.Text = statDesc
+
+	local rarityColors = {
+		Common = Color3.fromRGB(220, 220, 220),
+		Rare = Color3.fromRGB(85, 175, 255),
+		Epic = Color3.fromRGB(205, 95, 255),
+		Legendary = Color3.fromRGB(255, 215, 45),
+	}
+	if isRoblox and self.revealPetRarity then
+		self.revealPetRarity.TextColor3 = rarityColors[pRarity] or Color3.fromRGB(255, 215, 65)
+	end
+
+	-- Connect Actions
+	local function cleanup()
+		self.hatchAnimationOverlay.Visible = false
+		if onFinished then onFinished() end
+	end
+
+	if self.revealEquipBtn and self.revealEquipBtn.Activated then
+		local conn
+		conn = self.revealEquipBtn.Activated:Connect(function()
+			if conn then conn:Disconnect() end
+			if type(self.onEquipPet) == "function" then
+				self.onEquipPet(pUid, 1)
+			end
+			cleanup()
+		end)
+	end
+
+	if self.revealLockBtn and self.revealLockBtn.Activated then
+		local connLock
+		connLock = self.revealLockBtn.Activated:Connect(function()
+			if type(self.onTogglePetLock) == "function" then
+				self.onTogglePetLock(pUid)
+			end
+			self.revealLockBtn.Text = "✅ Zablokowano"
+		end)
+	end
+
+	if self.revealConfirmBtn and self.revealConfirmBtn.Activated then
+		local connConfirm
+		connConfirm = self.revealConfirmBtn.Activated:Connect(function()
+			if connConfirm then connConfirm:Disconnect() end
+			cleanup()
+		end)
+	end
+
+	-- Phase 1 & 2: Wobble and Burst
+	if isRoblox then
+		task.spawn(function()
+			-- Wobble phase
+			local start = os.clock()
+			while os.clock() - start < 1.4 do
+				local elapsed = os.clock() - start
+				local rot = math.sin(elapsed * 24) * 12
+				self.animatedEggVisual.Rotation = rot
+				task.wait(0.03)
+			end
+			self.animatedEggVisual.Rotation = 0
+
+			-- Burst phase
+			if self.hatchBurstGlow then
+				self.hatchBurstGlow.Visible = true
+			end
+			self.animatedEggVisual.Text = "💥"
+			task.wait(0.35)
+
+			self.animatedEggVisual.Visible = false
+			if self.hatchBurstGlow then
+				self.hatchBurstGlow.Visible = false
+			end
+
+			-- Reveal card phase
+			self.petRevealCard.Visible = true
+		end)
+	else
+		-- Lune mock direct reveal
+		self.animatedEggVisual.Visible = false
+		self.petRevealCard.Visible = true
+	end
+end
+
 -- ============================================================================
 -- Modals Visibility & Mutual Exclusivity
 -- ============================================================================
@@ -2189,6 +2623,8 @@ function HUD:closeAllModals()
 	if self.vehiclesModal then self.vehiclesModal.Visible = false end
 	if self.shopFrame then self.shopFrame.Visible = false end
 	if self.petsModal then self.petsModal.Visible = false end
+	if self.petHatchModal then self.petHatchModal.Visible = false end
+	if self.hatchAnimationOverlay then self.hatchAnimationOverlay.Visible = false end
 	if self.shopModal then self.shopModal.Visible = false end
 	if self.calendarModal then self.calendarModal.Visible = false end
 	if self.eggUpgradeModal then self.eggUpgradeModal.Visible = false end
@@ -2241,6 +2677,13 @@ function HUD:toggleEggUpgradeModal(forceState)
 	local target = if forceState ~= nil then forceState else not self.eggUpgradeModal.Visible
 	self:closeAllModals()
 	self.eggUpgradeModal.Visible = target
+end
+
+function HUD:togglePetHatchModal(forceState)
+	if not self.petHatchModal then return end
+	local target = if forceState ~= nil then forceState else not self.petHatchModal.Visible
+	self:closeAllModals()
+	self.petHatchModal.Visible = target
 end
 
 -- Tab selection methods
@@ -2832,6 +3275,8 @@ function HUD:getPetsModal() return self.petsModal end
 function HUD:getShopModal() return self.shopModal end
 function HUD:getCalendarModal() return self.calendarModal end
 function HUD:getEggUpgradeModal() return self.eggUpgradeModal end
+function HUD:getPetHatchModal() return self.petHatchModal end
+function HUD:getHatchAnimationOverlay() return self.hatchAnimationOverlay end
 
 function HUD:getShippingComparisonStatus()
 	local badge = self.shippingComparisonBar and self.shippingComparisonBar:FindFirstChild("StatusBadge")

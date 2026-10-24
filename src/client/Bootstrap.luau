@@ -411,6 +411,24 @@ function ClientBootstrap:claimOffer(offerId, callback)
 	return res
 end
 
+function ClientBootstrap:hatchPetEgg(eggType, callback)
+	if type(self.onHatchPetEgg) == "function" then
+		return self.onHatchPetEgg(eggType, callback)
+	end
+	local wireFn = self.wire or (self.transport and self.transport.wire)
+	if wireFn then
+		wireFn({
+			protocolVersion = 1,
+			kind = "HatchPetEgg",
+			eggType = eggType or "standard_egg",
+			requestId = "hatch-" .. tostring(os.clock()),
+		})
+	end
+	local res = { status = "PENDING", eggType = eggType or "standard_egg" }
+	if callback then callback(res) end
+	return res
+end
+
 function ClientBootstrap:update(nowMs)
 	if self.routePresentation then
 		self.routePresentation:update(nowMs)

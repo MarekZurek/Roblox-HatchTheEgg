@@ -180,6 +180,9 @@ if hud then
 	hud.onPurchaseProduct = function(productId)
 		client:purchaseProduct(productId)
 	end
+	hud.onHatchPetEgg = function(eggType)
+		client:hatchPetEgg(eggType)
+	end
 end
 
 local tutorialController = TutorialController.new(client:getStore(), screenGui)
@@ -246,6 +249,16 @@ if serverToClient then
 			local rw = message.reward
 			local desc = if rw and rw.amount then ("+" .. tostring(rw.amount) .. " " .. tostring(rw.rewardType or "")) else "+1 Paczka Otwarta"
 			showLootNotification("📦 PACZKA 2+1 ODEBRANA!", desc)
+			return
+		elseif type(message) == "table" and message.kind == "PetHatched" then
+			if hud and hud.playEggHatchAnimation then
+				hud:playEggHatchAnimation(message.pet)
+			else
+				showLootNotification("🐣 WYKLUŁEŚ PETA!", "+" .. tostring(message.pet and message.pet.speciesId or "Nowy Pet"))
+			end
+			return
+		elseif type(message) == "table" and message.kind == "PetHatchFailed" then
+			showLootNotification("⚠️ BŁĄD INKUBACJI", "Niewystarczająco Złotych Jaj (wymagane 100 GE)")
 			return
 		end
 
@@ -366,6 +379,10 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt, playerWhoTrigger
 	elseif pName == "EggUpgradePrompt" or pName == "EggUpgradeProximityPrompt" or prompt.ObjectText == "Stacja Badawcza Jaj" then
 		if hud then
 			hud:toggleEggUpgradeModal(true)
+		end
+	elseif pName == "IncubatorPrompt" or pName == "IncubatorProximityPrompt" or prompt.ObjectText == "Stacja Inkubacji Petów" then
+		if hud then
+			hud:togglePetHatchModal(true)
 		end
 	end
 end)
