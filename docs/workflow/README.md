@@ -34,3 +34,7 @@ Aktualny wynik dokumentacyjnego F01: [30 — manifest i wybory techniczne](../30
 ## PRE-01–03
 
 Przygotowane projekty P: [33 — warsztat i zegary](../33_pre01_toolchain_and_clocks.md), [34 — sesja i retencja](../34_pre02_sessions_and_retention.md), [35 — trasy i dotarcia](../35_pre03_routes_and_arrivals.md). Wykonanie i dowody L/S/D należą do istniejących IMP-*; dokumentacyjne zamknięcie PRE-* nie jest ich zaliczeniem. [Przegląd przygotowania](preparation_01_03_review.md).
+
+## Pierwszy wykonany zakres — IMP-01
+
+[36 — warsztat i NumericCodec](../36_imp01_numeric_codec_delivery.md) zawiera API i odtwarzalne komendy; [raport L](numeric_codec_verification.json) podaje wersje, hashe oraz ograniczenia. Uruchomienie Lune i build Rojo nie są testem Studio/DataStore. Implementacja użytkownika ograniczona do IMP-01; kolejne taski pozostają planem.

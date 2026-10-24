@@ -2,7 +2,7 @@
   "date": "2026-10-24",
   "repository": "MarekZurek/Roblox-HatchTheEgg",
   "status": "ISSUES_PUBLISHED",
-  "implementationAuthorized": false,
+  "implementationAuthorized": true,
   "parentIssue": {
     "number": 1,
     "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/1"
@@ -90,10 +90,17 @@
       "number": 10,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/10",
       "title": "[IMP-01] NumericCodec: kwoty, dokładne liczniki i serializacja",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "PRE-01"
-      ]
+      ],
+      "completionScope": "numeric_codec_and_local_toolchain",
+      "verificationLevels": [
+        "L"
+      ],
+      "studioTested": false,
+      "dataStoreTested": false,
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "IMP-02",
@@ -385,5 +392,8 @@
         "NEXT-10"
       ]
     }
+  ],
+  "implementationAuthorizationScope": [
+    "IMP-01"
   ]
 }

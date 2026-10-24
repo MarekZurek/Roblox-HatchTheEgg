@@ -69,3 +69,8 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 - [x] Przygotować warsztat U06 i projekt zapisu/retencji U05: [33](33_pre01_toolchain_and_clocks.md), [34](34_pre02_sessions_and_retention.md). Wykonanie i testy pozostają w IMP-01/07; nie nadano gotowości wydania.
 
 - [x] PRE-01/02/03: dokumentacja przygotowana równolegle i powiązana z backlogiem; odbiór statyczny opisuje [raport](workflow/preparation_01_03_review.md). L/S/D pozostają niewykonane.
+
+## Wykonanie IMP-01
+
+- [x] Przygotować przypięty warsztat Lune/Rojo oraz NumericCodec v1 i wykonać testy L — [36](36_imp01_numeric_codec_delivery.md).
+- [ ] Pozostałe adaptery czasu, sesji i ich S/D pozostają przy istniejących IMP-*; lokalny codec ich nie zalicza. Nie wznawiać odłożonego bilansu.

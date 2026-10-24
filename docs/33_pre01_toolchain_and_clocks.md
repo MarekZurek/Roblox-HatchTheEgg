@@ -57,3 +57,7 @@ Plik wyników przyszłego uruchomienia zawiera commit, wersje narzędzi, przypad
 ## 5. Odbiór dokumentacji i następni wykonawcy
 
 Przygotowano: konkretne wersje, mapowanie prywatne/publiczne, dwa zegary i macierz dowodów. **L/S/D nie uruchomiono.** IMP-01 realizuje warsztat i codec; IMP-03 DTO może później pracować niezależnie od IMP-07 zapisu. IMP-13 realizuje scenę według [35](35_pre03_routes_and_arrivals.md). Nie są wymagane kolejne taski dokumentacyjne do rozpoczęcia tych prac po osobnym zleceniu implementacji.
+
+## Realizacja warsztatu w IMP-01
+
+Stan PRE-01 powyżej jest zapisem przygotowania. Następnie na polecenie użytkownika wykonano [36](36_imp01_numeric_codec_delivery.md): lokalne przypięte narzędzia, konfigurację Rojo obejmującą wyłącznie Shared i testy codec L. Adapter zegara, synchronizacja ze Studio i pomiary czasu w silniku nadal niewykonane. Nie uznawać samego wyboru Clock za jego wdrożenie.

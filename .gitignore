@@ -1,3 +1,10 @@
+.tools/
+build/
+*.rbxl
+*.rbxlx
+*.rbxm
+*.rbxmx
+__pycache__/
 *.apk
 *.so
 *.env

@@ -113,3 +113,7 @@ Przyszły fragment jest odebrany w zadeklarowanym środowisku, gdy:
 **Następny konkretny krok P po przygotowaniu 31 i PRE-01–03:** wykonać IMP-01 (warsztat/codec), a potem niezależnie IMP-02/03/07 według 32. Warsztat U06 opisuje 33, zapis U05 — 34, trasę — 35; rzeczywiste adaptery i pomiary nadal niewykonane. Manifest F01 i reguły U01–U04 są opisane w 30–31, a projekty techniczne w 33–35. Fixture nadal nie jest startem nowego konta, zaś dokumentacja nie dowodzi wykonania wylęgu lub trasy. Nie zaczynać od równoczesnej implementacji wszystkich modułów z 28. Osobne zlecenie realizacji ma wskazać dopuszczone środowisko i wymagany poziom odbioru.
 
 Ten dokument nie rozstrzyga tempa zdobywania zasobów, cen inkubatorów, limitów petów, oferty Robux lub innych elementów bilansu. Nie wznawia 17–21 i nie zmienia historii Git. **Stan obecny: plan i dokumentacyjny manifest F01 sporządzone; F01 ma jawne niewykonane zależności sceny/adapterów z 30 i 33–35, F02–F09 oraz A01–A16 niewykonane.**
+
+## Stan po IMP-01
+
+Wykonano [codec i lokalny warsztat](36_imp01_numeric_codec_delivery.md), czyli część F02, z dowodem L. Nie zaliczono całego A01–A16 ani adapterów czasu, sesji lub sieci. Kolejne zakresy opisuje 32; implementacja pozostałych zadań wymaga osobnego polecenia.

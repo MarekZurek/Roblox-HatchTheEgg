@@ -1,6 +1,6 @@
-# Kopia publiczna dokumentacji
+# Zakres kopii publicznej
 
-24.10.2026. Dokumentacja, skills, referencyjne JSON-y i istniejące makiety PNG. Bez kodu gry, prywatnego archiwum i materiałów źródłowych.
+24.10.2026. Dokumentacja, skills, referencyjne JSON-y i istniejące makiety PNG. Po realizacji IMP-01 dodano czysty NumericCodec, jego testy i źródła lokalnego warsztatu. Pozostała logika gry nadal nie jest zaimplementowana. Prywatne archiwum, materiały źródłowe, pobrane narzędzia i wygenerowane pliki build pozostają poza publikacją.
 
 Lokalne ścieżki usunięto wyłącznie w kopii publicznej plików (adresy do plików zastąpiono odnośnikami względnymi):
 

@@ -1,0 +1,98 @@
+{
+  "date": "2026-10-24",
+  "task": "IMP-01",
+  "scope": "NumericCodec v1 and local toolchain only",
+  "status": "PASS_L",
+  "testCommand": "./tools/test.ps1",
+  "bootstrapCommand": "./tools/bootstrap.ps1",
+  "platform": "Windows x86_64",
+  "toolchain": {
+    "platform": "windows-x86_64",
+    "lune": {
+      "version": "0.11.1",
+      "url": "https://github.com/lune-org/lune/releases/download/v0.11.1/lune-0.11.1-windows-x86_64.zip",
+      "archiveSha256": "83f1dc29d9e35c494907521f2ca6561f6c204fdf6f1b06525d2e9fdd1e6b4301",
+      "executableSha256": "95f4a457317237516c347745bf363aa63dd30c97105c9595e6b8914b29267fdb"
+    },
+    "rojo": {
+      "version": "7.7.1",
+      "url": "https://github.com/rojo-rbx/rojo/releases/download/v7.7.1/rojo-7.7.1-windows-x86_64.zip",
+      "archiveSha256": "d4dfa3493a1613a43fc87312d6dac660d7c8bf38e6a99aa5dcd0d26154ba0b82",
+      "executableSha256": "e73e956676b8b27ff43f2c5d80e040121e49c2f9e8cc69fd65123799473cf6d3"
+    }
+  },
+  "result": {
+    "arithmeticPairs": 756,
+    "assertions": 15702,
+    "codecVersion": 1,
+    "dataStoreTested": false,
+    "floatVectors": 3011,
+    "level": "L",
+    "status": "PASS",
+    "studioTested": false,
+    "uint64Vectors": 449
+  },
+  "rojoBuild": "PASS_LOCAL_FILE",
+  "rojoSourceMap": "PASS_LOCAL_FILE",
+  "builtInstances": [
+    "ReplicatedStorage",
+    "HatchTheEgg/Shared",
+    "NumericCodec ModuleScript"
+  ],
+  "luauAnalyzeRun": false,
+  "studioTested": false,
+  "dataStoreTested": false,
+  "balanceChanged": false,
+  "referenceDataChanged": false,
+  "review": {
+    "AGY_Gemini_3_8_Flash": {
+      "verdict": "PASS",
+      "scope": "Text of module and runner with contract summary; generated oracle vectors not supplied; no tools/run by reviewer",
+      "finalDelta": "After review input, author canonicalized uint32 zero and added 8 passing assertions; no separate repeat model QA of this small delta"
+    },
+    "Cline_DeepSeek_v4_1_Flash": {
+      "status": "ABORTED_WITHOUT_RESULT",
+      "usedAsEvidence": false
+    }
+  },
+  "files": [
+    {
+      "path": "src/shared/NumericCodec.luau",
+      "sha256": "f9c97ced4fe8e3a1c59f085b7fa8b153921f0716e34779958e11dc3b06261074"
+    },
+    {
+      "path": "default.project.json",
+      "sha256": "ef886f44e6aa6d4b6dc4f62cfb17a0f8070dacc581dddf30b0ae2429a3bc6019"
+    },
+    {
+      "path": "tools/bootstrap.ps1",
+      "sha256": "76112981ce65283de2716c3b3a68ea69eedab38c47b27696c773e9dd30ad528c"
+    },
+    {
+      "path": "tools/test.ps1",
+      "sha256": "93630ac1a459b65e7c2a921bfdbd041094a7e1d67fd6cdb07a4fae31fc414c8c"
+    },
+    {
+      "path": "tools/toolchain.json",
+      "sha256": "cdff10a70a3cf9a21315971da8dff26f8476088c96b69d2fdd8fe5e03a174337"
+    },
+    {
+      "path": "tools/generate_numeric_vectors.py",
+      "sha256": "6c5c1485b65947a21ef2221a0b82e17f2eff2d283e5fe9fa7983c1448fdb4efa"
+    },
+    {
+      "path": "tests/numeric/run.luau",
+      "sha256": "27cfd60a08881abd263abf77b028d35cb18bcd81bfe7ddf4685eaddbd0d92894"
+    },
+    {
+      "path": "tests/numeric/reference_vectors.luau",
+      "sha256": "430ede37b18cc88db3906760b1712714eb6ce9331fef1bae5eb861a84983f929"
+    }
+  ],
+  "cleanExportBootstrap": "PASS_DOWNLOAD_AND_CHECKSUM",
+  "cleanExportTest": "PASS_L_AND_ROJO_BUILD",
+  "ignoredArtifactsVerified": [
+    ".tools/lune-0.11.1/lune.exe",
+    "build/HatchTheEgg.rbxlx"
+  ]
+}

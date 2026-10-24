@@ -1,6 +1,6 @@
 # Równoległy backlog HatchTheEgg
 
-24.10.2026. **P — mapa dostarczania, bez implementacji.** Dokumenty i przygotowanie nie są kodem gry. Zgłoszenia implementacyjne pozostają planem: ich utworzenie nie zleca realizacji, chmury, zakupów lub publikacji. Bilans 17–21 pozostaje odłożony. Reguły pierwszej farmy: [31](31_research_hatching_rcb_and_new_account.md); typy/protokół: [27](27_numbers_time_and_player_state_contract.md), [28](28_modules_and_client_server_contract.md); plan odbioru: [29](29_first_farm_implementation_plan.md).
+24.10.2026. **P — mapa dostarczania.** Dokumenty i przygotowanie nie są kodem gry. W IMP-01 wykonano warsztat i NumericCodec; pozostałe zgłoszenia implementacyjne pozostają planem: ich utworzenie nie zleca realizacji, chmury, zakupów lub publikacji. Bilans 17–21 pozostaje odłożony. Reguły pierwszej farmy: [31](31_research_hatching_rcb_and_new_account.md); typy/protokół: [27](27_numbers_time_and_player_state_contract.md), [28](28_modules_and_client_server_contract.md); plan odbioru: [29](29_first_farm_implementation_plan.md).
 
 ## Zasady współpracy
 
@@ -29,7 +29,7 @@ To plan równoległości, nie automatyczna delegacja. Wydanie nadal wymaga wznow
 | PRE-01 | Warsztat testów, źródła do Studio i dostawcy czasu | DOC-04, DOC-05 | [Dokumentacja przygotowana — 33](33_pre01_toolchain_and_clocks.md); adapter niewykonany |
 | PRE-02 | Projekt adaptera sesji, retencji i odzyskiwania | DOC-04 | [Dokumentacja przygotowana — 34](34_pre02_sessions_and_retention.md); adapter niewykonany |
 | PRE-03 | Kontrakt trasy i autorytatywnego dotarcia kur | DOC-05 | [Dokumentacja przygotowana — 35](35_pre03_routes_and_arrivals.md); adapter niewykonany |
-| IMP-01 | NumericCodec: kwoty, dokładne liczniki i serializacja | PRE-01 | Plan; bez zlecenia realizacji |
+| IMP-01 | NumericCodec: kwoty, dokładne liczniki i serializacja | PRE-01 | [Wykonano i sprawdzono L](36_imp01_numeric_codec_delivery.md); publikacja zatwierdzona, S/D niewykonane |
 | IMP-02 | CatalogRegistry: wybrany katalog pierwszej farmy | IMP-01 | Plan; bez zlecenia realizacji |
 | IMP-03 | Schematy DTO i walidacja protokołu | IMP-01 | Plan; bez zlecenia realizacji |
 | IMP-04 | FarmMath: Common, pojemność, produkcja i sprzedaż | IMP-02 | Plan; bez zlecenia realizacji |
@@ -61,6 +61,6 @@ To plan równoległości, nie automatyczna delegacja. Wydanie nadal wymaga wznow
 
 DOC-* oznaczają wyłącznie istniejące materiały; zamknięte zgłoszenie nie jest zaliczeniem scenariuszy gry. Pozostałe zgłoszenia mają zawierać zakres zapisu, zależności i konkretne kryteria, z dowodem L/S/D/H stosownie do zadania. PRE-* pozostają dokumentacyjne. Nie przypisywać wykonawców ani uruchamiać kodowania samym opublikowaniem backlogu.
 
-Opublikowano 35 zadań oraz [plan nadrzędny #1](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/1). Numery, adresy i zależności zapisano w [rejestrze GitHub](workflow/github_task_registry.json). Pięć materiałów DOC-* oraz trzy przygotowania PRE-* zamknięto dokumentacyjnie, 27 zadań pozostaje otwartych. To rejestr publikacji zgłoszeń, nie wynik implementacji. Zadania odłożonego bilansu i kontraktów kooperacyjnych nie są aktywowane tym dokumentem.
+Opublikowano 35 zadań oraz [plan nadrzędny #1](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/1). Numery, adresy i zależności zapisano w [rejestrze GitHub](workflow/github_task_registry.json). Pięć materiałów DOC-* oraz trzy przygotowania PRE-* zamknięto dokumentacyjnie. IMP-01 wykonano i sprawdzono L; 26 zadań pozostaje otwartych. To rejestr publikacji zgłoszeń, nie wynik implementacji. Zadania odłożonego bilansu i kontraktów kooperacyjnych nie są aktywowane tym dokumentem.
 
 PRE-01–03 zamykają przygotowanie interfejsów, nie wyniki testów. Sprawdzenie narzędzi należy do IMP-01, trwałości do IMP-07, sceny i czasu ruchu do IMP-13/15. Utrzymanie replay w długim działaniu jest bramką wydania opisaną w 34; nie zastępuje go wewnętrzny limit rozmiaru.
