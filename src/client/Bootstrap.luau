@@ -94,6 +94,7 @@ function ClientBootstrap.new(deps)
 		intentControllers = intentControllers,
 		routePresentation = routePresentation,
 		hud = hud,
+		wire = deps.wire,
 		onClaimDailyGift = deps.onClaimDailyGift,
 		onClaimTrophy = deps.onClaimTrophy,
 		onFusePets = deps.onFusePets,
@@ -370,6 +371,42 @@ function ClientBootstrap:purchaseProduct(productId, callback)
 		return self.onPurchaseProduct(productId, callback)
 	end
 	local res = { status = "APPLIED", productId = productId }
+	if callback then callback(res) end
+	return res
+end
+
+function ClientBootstrap:hitDrone(droneId, callback)
+	if type(self.onHitDrone) == "function" then
+		return self.onHitDrone(droneId, callback)
+	end
+	local wireFn = self.wire or (self.transport and self.transport.wire)
+	if wireFn then
+		wireFn({
+			protocolVersion = 1,
+			kind = "HitDrone",
+			droneId = droneId,
+			requestId = "drone-" .. tostring(droneId),
+		})
+	end
+	local res = { status = "APPLIED", droneId = droneId }
+	if callback then callback(res) end
+	return res
+end
+
+function ClientBootstrap:claimOffer(offerId, callback)
+	if type(self.onClaimOffer) == "function" then
+		return self.onClaimOffer(offerId, callback)
+	end
+	local wireFn = self.wire or (self.transport and self.transport.wire)
+	if wireFn then
+		wireFn({
+			protocolVersion = 1,
+			kind = "ClaimOffer",
+			offerId = offerId,
+			requestId = "offer-" .. tostring(offerId),
+		})
+	end
+	local res = { status = "APPLIED", offerId = offerId }
 	if callback then callback(res) end
 	return res
 end

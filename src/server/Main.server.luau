@@ -194,6 +194,33 @@ clientToServer.OnServerEvent:Connect(function(player, message)
 		onPlayerAdded(player)
 	end
 
+	-- PROD-06: 3D Diegetic Actors Intents (HitDrone and ClaimOffer)
+	if message.kind == "HitDrone" then
+		local droneId = message.droneId or "drone_1"
+		local okHit, reward = server:hitDrone(pId, droneId)
+		if okHit and reward then
+			serverToClient:FireClient(player, {
+				kind = "DroneRewardPopup",
+				droneId = droneId,
+				reward = reward,
+			})
+			syncWorldAndDelta(pId, player)
+		end
+		return
+	elseif message.kind == "ClaimOffer" then
+		local offerId = message.offerId or "offer_2plus1"
+		local okClaim, resClaim = server:claimOffer(pId, offerId)
+		if okClaim and resClaim then
+			serverToClient:FireClient(player, {
+				kind = "OfferClaimedPopup",
+				offerId = offerId,
+				reward = resClaim.reward or resClaim,
+			})
+			syncWorldAndDelta(pId, player)
+		end
+		return
+	end
+
 	local response = server:dispatch(pId, message)
 	if response then
 		serverToClient:FireClient(player, response)

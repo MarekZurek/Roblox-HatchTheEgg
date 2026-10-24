@@ -17,6 +17,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local ProximityPromptService = game:GetService("ProximityPromptService")
+local UserInputService = game:GetService("UserInputService")
 
 local ClientBootstrap = require(script.Parent.Bootstrap)
 local TutorialController = require(script.Parent.onboarding.TutorialController)
@@ -183,9 +184,71 @@ end
 
 local tutorialController = TutorialController.new(client:getStore(), screenGui)
 
+local function showLootNotification(titleText, descText)
+	if not screenGui or not isRoblox then return end
+	local toast = Instance.new("Frame")
+	toast.Name = "LootNotification"
+	toast.Size = UDim2.new(0, 360, 0, 60)
+	toast.Position = UDim2.new(0.5, -180, 0, 40)
+	toast.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
+	toast.BackgroundTransparency = 0.1
+	toast.BorderSizePixel = 0
+	toast.ZIndex = 100
+	toast.Parent = screenGui
+
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 12)
+	corner.Parent = toast
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Thickness = 2.5
+	stroke.Color = Color3.fromRGB(255, 215, 65)
+	stroke.Parent = toast
+
+	local title = Instance.new("TextLabel")
+	title.Size = UDim2.new(1, -20, 0, 24)
+	title.Position = UDim2.new(0, 10, 0, 6)
+	title.BackgroundTransparency = 1
+	title.Font = Enum.Font.FredokaOne
+	title.TextSize = 18
+	title.TextColor3 = Color3.fromRGB(255, 235, 95)
+	title.TextXAlignment = Enum.TextXAlignment.Center
+	title.Text = titleText
+	title.Parent = toast
+
+	local desc = Instance.new("TextLabel")
+	desc.Size = UDim2.new(1, -20, 0, 20)
+	desc.Position = UDim2.new(0, 10, 0, 32)
+	desc.BackgroundTransparency = 1
+	desc.Font = Enum.Font.FredokaOne
+	desc.TextSize = 15
+	desc.TextColor3 = Color3.fromRGB(255, 255, 255)
+	desc.TextXAlignment = Enum.TextXAlignment.Center
+	desc.Text = descText
+	desc.Parent = toast
+
+	task.delay(3.5, function()
+		if toast and toast.Parent then
+			toast:Destroy()
+		end
+	end)
+end
+
 -- Listen to ServerToClient RemoteEvent
 if serverToClient then
 	serverToClient.OnClientEvent:Connect(function(message)
+		if type(message) == "table" and message.kind == "DroneRewardPopup" then
+			local rw = message.reward
+			local desc = if rw and rw.formattedAmount then ("+" .. tostring(rw.formattedAmount)) elseif rw and rw.amount then ("+" .. tostring(rw.amount) .. " " .. tostring(rw.type or "")) else "+1 Nagroda"
+			showLootNotification("🎯 ZESTRZELONO DRONA!", desc)
+			return
+		elseif type(message) == "table" and message.kind == "OfferClaimedPopup" then
+			local rw = message.reward
+			local desc = if rw and rw.amount then ("+" .. tostring(rw.amount) .. " " .. tostring(rw.rewardType or "")) else "+1 Paczka Otwarta"
+			showLootNotification("📦 PACZKA 2+1 ODEBRANA!", desc)
+			return
+		end
+
 		client:receive(message)
 		if type(message) == "table" and (message.kind == "QuoteView" or message.kind == "GetPurchaseQuote") and pendingQuotedPurchase then
 			local fn = pendingQuotedPurchase
@@ -298,9 +361,42 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt, playerWhoTrigger
 		end
 	elseif pName == "DepotProximityPrompt" then
 		upgradeVehicleSlot(1)
+	elseif pName == "DeliveryPrompt" or pName == "ParcelPrompt" or prompt.ActionText == "Otwórz Paczkę" then
+		client:claimOffer("offer_2plus1")
 	elseif pName == "EggUpgradePrompt" or pName == "EggUpgradeProximityPrompt" or prompt.ObjectText == "Stacja Badawcza Jaj" then
 		if hud then
 			hud:toggleEggUpgradeModal(true)
+		end
+	end
+end)
+
+-- PROD-06: Connect RoutePresentation droneShot event to client:hitDrone
+if client:getPresentation() and type(client:getPresentation().on) == "function" then
+	client:getPresentation():on("droneShot", function(droneId)
+		client:hitDrone(droneId)
+	end)
+end
+
+-- PROD-06: Raycasting click/tap to shoot down overhead Candy Drones
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		local cam = Workspace.CurrentCamera
+		if cam then
+			local ray = cam:ViewportPointToRay(input.Position.X, input.Position.Y)
+			local raycastParams = RaycastParams.new()
+			raycastParams.FilterType = Enum.RaycastFilterType.Include
+			if chickensContainer then
+				raycastParams.FilterDescendantsInstances = { chickensContainer }
+			end
+			local hit = Workspace:Raycast(ray.Origin, ray.Direction * 600, raycastParams)
+			if hit and hit.Instance then
+				local droneModel = hit.Instance:FindFirstAncestorWhichIsA("Model")
+				if droneModel and string.sub(droneModel.Name, 1, 11) == "CandyDrone_" then
+					local droneId = string.sub(droneModel.Name, 12)
+					client:getPresentation():shootDrone(droneId)
+				end
+			end
 		end
 	end
 end)

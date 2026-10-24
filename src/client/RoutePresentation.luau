@@ -691,13 +691,48 @@ function RoutePresentation:update(nowMs: number)
 end
 
 -- ============================================================================
--- 3D Flying Candy Drones Presentation (VIS-05)
+-- 3D Flying Candy Drones Presentation (VIS-05, PROD-06)
 -- ============================================================================
 
-function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startInstantMs: number, durationSeconds: number?, onClicked: ((string) -> ())?)
+local function bezierCubic(p0, p1, p2, p3, t)
+	local u = 1 - t
+	local tt = t * t
+	local uu = u * u
+	local uuu = uu * u
+	local ttt = tt * t
+	local x = uuu * p0.x + 3 * uu * t * p1.x + 3 * u * tt * p2.x + ttt * p3.x
+	local y = uuu * p0.y + 3 * uu * t * p1.y + 3 * u * tt * p2.y + ttt * p3.y
+	local z = uuu * p0.z + 3 * uu * t * p1.z + 3 * u * tt * p2.z + ttt * p3.z
+	return createPoint(x, y, z)
+end
+
+function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startInstantMs: number, durationSeconds: number?, onClicked: ((string) -> ())?, trajectory: any?)
 	local durSec = durationSeconds or 9.0
-	local startPos = createPoint(-75, 22, -15)
-	local endPos = createPoint(75, 22, 10)
+
+	-- 3D Bezier trajectory: customizable or calculated across the farm
+	local p0, p1, p2, p3
+	if trajectory and trajectory.p0 and trajectory.p3 then
+		p0 = trajectory.p0
+		p1 = trajectory.p1 or p0
+		p2 = trajectory.p2 or trajectory.p3
+		p3 = trajectory.p3
+	else
+		-- Deterministic pseudo-random Bezier curve across farm based on droneId
+		local seedNum = 0
+		for i = 1, #tostring(droneId) do
+			seedNum = (seedNum * 31 + string.byte(tostring(droneId), i)) % 100000
+		end
+		local angle = (seedNum / 100000) * math.pi * 2
+		local r = 80
+		p0 = createPoint(math.cos(angle) * r, 24, math.sin(angle) * r)
+		local endAngle = angle + math.pi + ((seedNum % 7) - 3) * 0.15
+		p3 = createPoint(math.cos(endAngle) * r, 24, math.sin(endAngle) * r)
+		p1 = createPoint(p0.x * 0.35 + ((seedNum % 13) - 6) * 3, 28, p0.z * 0.35 + ((seedNum % 17) - 8) * 3)
+		p2 = createPoint(p3.x * 0.35 + ((seedNum % 11) - 5) * 3, 26, p3.z * 0.35 + ((seedNum % 19) - 9) * 3)
+	end
+
+	local startPos = p0
+	local endPos = p3
 
 	local model
 	if isRoblox then
@@ -736,13 +771,19 @@ function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startI
 		weld.Part1 = box
 		weld.Parent = box
 
-		-- ClickDetector & ProximityPrompt so player can click or tap the flying drone!
+		-- ClickDetector on core and box so clicking or tapping shoots the drone!
 		local cd = Instance.new("ClickDetector")
 		cd.MaxActivationDistance = 140
 		cd.Parent = core
 		cd.MouseClick:Connect(function()
-			if onClicked then onClicked(droneId) end
-			self:claimDroneVisual(droneId)
+			self:shootDrone(droneId)
+		end)
+
+		local cdBox = Instance.new("ClickDetector")
+		cdBox.MaxActivationDistance = 140
+		cdBox.Parent = box
+		cdBox.MouseClick:Connect(function()
+			self:shootDrone(droneId)
 		end)
 
 		local bb = Instance.new("BillboardGui")
@@ -785,31 +826,81 @@ function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startI
 		durationSeconds = durSec,
 		startPos = startPos,
 		endPos = endPos,
+		p0 = p0,
+		p1 = p1,
+		p2 = p2,
+		p3 = p3,
 		currentPosition = startPos,
 		model = model,
 		claimed = false,
+		falling = false,
+		fallVelocity = 0,
+		onClicked = onClicked,
 	}
 	self._activeDrones[droneId] = entry
 	return entry
 end
 
-function RoutePresentation:updateDrones(nowMs: number)
-	local finished = {}
-	for droneId, d in pairs(self._activeDrones) do
-		local alpha = math.clamp((nowMs - d.startInstantMs) / (d.durationSeconds * 1000), 0, 1)
-		local pos = lerpPoint(d.startPos, d.endPos, alpha)
-		local bobY = math.sin(alpha * math.pi * 6) * 2.5
-		d.currentPosition = createPoint(pos.x, pos.y + bobY, pos.z)
-		applyModelPosition(d.model, d.currentPosition)
-		if alpha >= 1 then
-			table.insert(finished, droneId)
+function RoutePresentation:shootDrone(droneId: string)
+	local d = self._activeDrones[droneId]
+	if not d or d.claimed or d.falling then return false end
+	d.falling = true
+	d.fallVelocity = 8
+	if isRoblox and typeof(d.model) == "Instance" then
+		local bb = d.model:FindFirstChildWhichIsA("BillboardGui", true)
+		if bb then bb:Destroy() end
+		local core = d.model:FindFirstChild("DroneCore")
+		if core then
+			core.Color = Color3.fromRGB(120, 120, 120)
 		end
 	end
-	for _, droneId in ipairs(finished) do
-		local d = self._activeDrones[droneId]
+	self:_emit("droneShot", droneId)
+	return true
+end
+
+function RoutePresentation:updateDrones(nowMs: number, dtSeconds: number?)
+	local dt = dtSeconds or 0.033
+	local finished = {}
+	for droneId, d in pairs(self._activeDrones) do
+		if d.falling then
+			d.fallVelocity = (d.fallVelocity or 0) + 70 * dt
+			local curY = d.currentPosition.y - d.fallVelocity * dt
+			d.currentPosition = createPoint(d.currentPosition.x, curY, d.currentPosition.z)
+			applyModelPosition(d.model, d.currentPosition)
+			if curY <= 0.85 then
+				d.currentPosition = createPoint(d.currentPosition.x, 0.85, d.currentPosition.z)
+				applyModelPosition(d.model, d.currentPosition)
+				table.insert(finished, { droneId = droneId, shot = true })
+			end
+		else
+			local alpha = math.clamp((nowMs - d.startInstantMs) / (d.durationSeconds * 1000), 0, 1)
+			local pos
+			if d.p0 and d.p1 and d.p2 and d.p3 then
+				pos = bezierCubic(d.p0, d.p1, d.p2, d.p3, alpha)
+			else
+				pos = lerpPoint(d.startPos, d.endPos, alpha)
+			end
+			local bobY = math.sin(alpha * math.pi * 8) * 1.8
+			d.currentPosition = createPoint(pos.x, pos.y + bobY, pos.z)
+			applyModelPosition(d.model, d.currentPosition)
+			if alpha >= 1 then
+				table.insert(finished, { droneId = droneId, shot = false })
+			end
+		end
+	end
+
+	for _, item in ipairs(finished) do
+		local d = self._activeDrones[item.droneId]
 		if d then
-			destroyModel(d.model)
-			self._activeDrones[droneId] = nil
+			if item.shot then
+				if d.onClicked then
+					d.onClicked(item.droneId)
+				end
+				self:claimDroneVisual(item.droneId)
+			else
+				destroyModel(d.model)
+				self._activeDrones[item.droneId] = nil
+			end
 		end
 	end
 end
@@ -823,6 +914,10 @@ function RoutePresentation:claimDroneVisual(droneId: string)
 	self._activeDrones[droneId] = nil
 	self:_emit("droneClaimed", droneId)
 	return true
+end
+
+function RoutePresentation:getDrone(droneId: string)
+	return self._activeDrones[droneId]
 end
 
 function RoutePresentation:getGroup(groupId: any)

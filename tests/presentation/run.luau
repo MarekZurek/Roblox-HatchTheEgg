@@ -21,6 +21,8 @@ local Catalog = require("../../src/server/CatalogRegistry").new(C, CatalogData, 
 local ProductionMath = require("../../src/server/FarmMath/production_research").new(C, Catalog, { mode = "INTERNAL_TEST_ONLY" })
 local ProfileSchema = require("../../src/server/ProfileSchema").new(C)
 local ViewProjector = require("../../src/server/ViewProjector")
+local FarmPlotBuilder = require("../../src/server/world/FarmPlotBuilder")
+local ClientBootstrap = require("../../src/client/Bootstrap")
 
 local assertions = 0
 local function eq(a, b, label)
@@ -527,6 +529,130 @@ do
 	eq(defPres:getActiveGroupCount(), 0, "clearAllGroups clears all active groups")
 
 	defPres:destroy()
+end
+
+-- ============================================================================
+-- Section 7: 3D Diegetic Silos & Delivery Truck with Parcels (PROD-06)
+-- ============================================================================
+do
+	local world = FarmPlotBuilder.new()
+	world:build()
+
+	-- 7.1 Verify 10 Physical Silos
+	local silos = world:getSilos()
+	ok(silos ~= nil, "Silos list exists")
+	eq(#silos, 10, "Dedicated plot accommodates exactly 10 silos for Pro Permit")
+
+	local siloLabels = world:getSiloLabels()
+	ok(siloLabels ~= nil, "Silo SurfaceGui labels list exists")
+	eq(#siloLabels, 10, "10 Silo SurfaceGui countdown timer labels exist")
+
+	-- 7.2 Update Silos from FarmView with 2 owned silos (Free Permit baseline)
+	world:updateFromFarmView({ eggIndex = 0, silosOwned = 2, habitats = {}, common = {} }, Catalog)
+	ok(string.find(siloLabels[1].Text, "SILOS #1") ~= nil, "Silo 1 header")
+	ok(string.find(siloLabels[1].Text, "AKTYWNY") ~= nil, "Silo 1 active")
+	ok(string.find(siloLabels[1].Text, "02:00:00") ~= nil, "Silo 1 has 2 hours offline protection")
+	ok(string.find(siloLabels[2].Text, "SILOS #2") ~= nil, "Silo 2 header")
+	ok(string.find(siloLabels[2].Text, "AKTYWNY") ~= nil, "Silo 2 active")
+	ok(string.find(siloLabels[3].Text, "ZABLOKOWANY") ~= nil, "Silo 3 locked")
+	ok(string.find(siloLabels[3].Text, "Wymaga Pro Permit") ~= nil, "Silo 3 locked note")
+	ok(string.find(siloLabels[10].Text, "ZABLOKOWANY") ~= nil, "Silo 10 locked")
+
+	-- 7.3 Update Silos with 10 owned silos (Pro Permit Variant A)
+	world:updateFromFarmView({ eggIndex = 0, silosOwned = 10, habitats = {}, common = {} }, Catalog)
+	for i = 1, 10 do
+		ok(string.find(siloLabels[i].Text, "AKTYWNY") ~= nil, string.format("Silo %d active with Pro Permit", i))
+		ok(string.find(siloLabels[i].Text, "10:00:00") ~= nil, string.format("Silo %d shows 10h timer", i))
+	end
+
+	-- 7.4 Delivery Truck & 2+1 Parcel
+	local truck = world:getDeliveryTruck()
+	ok(truck ~= nil, "Delivery truck exists at Shipping Depot")
+	eq(truck.Name, "DeliveryTruck_2Plus1", "Delivery truck name")
+
+	local parcel = world:getDeliveryParcel()
+	ok(parcel ~= nil, "Delivery parcel 2+1 exists on the ground")
+	eq(parcel.Name, "DeliveryParcel_2Plus1", "Delivery parcel name")
+
+	local prompt = world:getDeliveryPrompt()
+	ok(prompt ~= nil, "Delivery parcel ProximityPrompt exists")
+	eq(prompt.ObjectText, "Specjalna Oferta 2+1", "Prompt object text")
+	eq(prompt.ActionText, "Otwórz Paczkę", "Prompt action text")
+end
+
+-- ============================================================================
+-- Section 8: 3D Bezier Drone Trajectory & Shoot-Down Presentation (PROD-06)
+-- ============================================================================
+do
+	local pres = RoutePresentation.new()
+
+	-- 8.1 Spawn Drone along 3D Bezier curve
+	local droneId = "drone_test_bezier_1"
+	local entry = pres:spawnDrone(droneId, false, 10000, 10.0)
+	ok(entry ~= nil, "Drone spawned")
+	eq(entry.droneId, droneId, "Drone id")
+	eq(entry.falling, false, "Initial drone is flying, not falling")
+	ok(entry.p0 ~= nil and entry.p1 ~= nil and entry.p2 ~= nil and entry.p3 ~= nil, "Cubic Bezier control points exist")
+	ok(entry.p1.y > entry.p0.y, "Cubic Bezier p1 altitude rises above ground")
+
+	-- Update at t = 15000 (midpoint)
+	pres:update(15000)
+	local activeDrone = pres:getDrone(droneId)
+	ok(activeDrone ~= nil, "Drone still active at midpoint")
+	ok(activeDrone.currentPosition.y > 15.0, "Drone flying high overhead along curve")
+
+	-- 8.2 Shoot Drone Down
+	local shotFired = false
+	pres:on("droneShot", function(id)
+		if id == droneId then shotFired = true end
+	end)
+
+	local okShoot = pres:shootDrone(droneId)
+	eq(okShoot, true, "shootDrone returns true")
+	eq(shotFired, true, "droneShot event emitted")
+	eq(activeDrone.falling, true, "Drone falling state active")
+
+	-- Simulate falling physics over multiple frames
+	local clickTriggered = false
+	activeDrone.onClicked = function(id)
+		if id == droneId then clickTriggered = true end
+	end
+
+	local simTime = 15000
+	for _ = 1, 30 do
+		simTime += 50
+		pres:update(simTime, 0.05)
+		if not pres:getDrone(droneId) then
+			break
+		end
+	end
+
+	eq(pres:getDrone(droneId), nil, "Drone removed from active presentation upon ground impact")
+	eq(clickTriggered, true, "onClicked callback triggered on ground impact")
+
+	-- 8.3 ClientBootstrap Intent Wiring
+	local sentWire = nil
+	local client = ClientBootstrap.new({
+		playerId = "123",
+		wire = function(msg)
+			sentWire = msg
+		end,
+	})
+
+	-- hitDrone triggers HitDrone wire packet
+	client:hitDrone("drone_wire_1")
+	ok(sentWire ~= nil, "HitDrone message sent via wire")
+	eq(sentWire.kind, "HitDrone", "Message kind is HitDrone")
+	eq(sentWire.droneId, "drone_wire_1", "Drone ID matches")
+
+	-- claimOffer triggers ClaimOffer wire packet
+	sentWire = nil
+	client:claimOffer("offer_wire_1")
+	ok(sentWire ~= nil, "ClaimOffer message sent via wire")
+	eq(sentWire.kind, "ClaimOffer", "Message kind is ClaimOffer")
+	eq(sentWire.offerId, "offer_wire_1", "Offer ID matches")
+
+	pres:destroy()
 end
 
 print(string.format("RoutePresentation: %d assertions PASS", assertions))

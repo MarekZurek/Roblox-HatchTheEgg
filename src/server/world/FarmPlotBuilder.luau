@@ -835,6 +835,11 @@ function FarmPlotBuilder.new(deps)
 		eggUpgradePrompt = nil,
 		eggUpgradeBillboards = {},
 		siloSurfaceLabel = nil,
+		siloModels = {},
+		siloLabels = {},
+		deliveryTruckModel = nil,
+		deliveryParcelModel = nil,
+		deliveryPrompt = nil,
 		habitats = {},
 		buyPads = {},
 		vehiclesModels = {},
@@ -1397,66 +1402,94 @@ function FarmPlotBuilder:_buildHabitats(worldFolder)
 	end
 end
 
+local SILO_POSITIONS = table.freeze({
+	[1] = { x = -54, z = 54 },
+	[2] = { x = -54, z = 42 },
+	[3] = { x = -54, z = 30 },
+	[4] = { x = -54, z = 18 },
+	[5] = { x = -54, z = 6 },
+	[6] = { x = -66, z = 54 },
+	[7] = { x = -66, z = 42 },
+	[8] = { x = -66, z = 30 },
+	[9] = { x = -66, z = 18 },
+	[10] = { x = -66, z = 6 },
+})
+
 function FarmPlotBuilder:_buildSiloTower(worldFolder)
-	local siloModel
-	if isRoblox then
-		siloModel = Instance.new("Model")
-		siloModel.Name = "SiloTower"
-		siloModel.Parent = worldFolder
-	else
-		siloModel = { Name = "SiloTower", Children = {} }
-	end
+	for i = 1, 10 do
+		local siloPos = SILO_POSITIONS[i]
+		local sx, sy, sz = siloPos.x, 0, siloPos.z
 
-	local sx, sy, sz = -54, 0, 48
+		local siloModel
+		if isRoblox then
+			siloModel = Instance.new("Model")
+			siloModel.Name = "SiloTower_" .. tostring(i)
+			siloModel.Parent = worldFolder
+		else
+			siloModel = { Name = "SiloTower_" .. tostring(i), Children = {} }
+		end
 
-	-- Candy-Striped Red & White Silo Rings (exact style from Screenshot 2!)
-	for ring = 1, 7 do
-		local ringColor = if ring % 2 == 1 then rgb(235, 55, 65) else rgb(255, 250, 245)
+		-- Candy-Striped Red & White Silo Rings (exact style from Screenshot 2!)
+		for ring = 1, 7 do
+			local ringColor = if ring % 2 == 1 then rgb(235, 55, 65) else rgb(255, 250, 245)
+			makePart({
+				Name = "SiloStripe_" .. ring,
+				Shape = isRoblox and Enum.PartType.Cylinder or nil,
+				Size = v3(3.4, 9, 9),
+				CFrame = isRoblox and (CFrame.new(sx, sy + (ring - 0.5) * 3.4, sz) * CFrame.Angles(0, 0, math.rad(90))) or nil,
+				Position = v3(sx, sy + (ring - 0.5) * 3.4, sz),
+				Color = ringColor,
+				CanCollide = true,
+			}, siloModel, false)
+		end
+
+		-- Chocolate Dome Cap
 		makePart({
-			Name = "SiloStripe_" .. ring,
-			Shape = isRoblox and Enum.PartType.Cylinder or nil,
-			Size = v3(3.4, 12, 12),
-			CFrame = isRoblox and (CFrame.new(sx, sy + (ring - 0.5) * 3.4, sz) * CFrame.Angles(0, 0, math.rad(90))) or nil,
-			Position = v3(sx, sy + (ring - 0.5) * 3.4, sz),
-			Color = ringColor,
-			CanCollide = true,
-		}, siloModel, false)
-	end
+			Name = "SiloDome",
+			Shape = isRoblox and Enum.PartType.Ball or nil,
+			Size = v3(9.5, 7.5, 9.5),
+			Position = v3(sx, sy + 24.5, sz),
+			Color = rgb(105, 58, 30),
+		}, siloModel, true)
 
-	-- Chocolate Dome Cap
-	makePart({
-		Name = "SiloDome",
-		Shape = isRoblox and Enum.PartType.Ball or nil,
-		Size = v3(12.5, 10, 12.5),
-		Position = v3(sx, sy + 24.5, sz),
-		Color = rgb(105, 58, 30),
-	}, siloModel, true)
+		-- Digital SurfaceGui Display Board on the front of the Silo facing +X (farm center)
+		local displayBoard = makePart({
+			Name = "SiloDisplayBoard",
+			Size = v3(7.5, 4.0, 0.8),
+			Position = v3(sx + 4.8, sy + 7.5, sz),
+			CFrame = isRoblox and (CFrame.new(sx + 4.8, sy + 7.5, sz) * CFrame.Angles(0, math.rad(90), 0)) or nil,
+			Color = rgb(32, 20, 14),
+			CanCollide = false,
+		}, siloModel, true)
 
-	-- Digital SurfaceGui Display Board on the front of the Silo
-	local displayBoard = makePart({
-		Name = "SiloDisplayBoard",
-		Size = v3(9, 4.5, 0.8),
-		Position = v3(sx + 5.8, sy + 8, sz),
-		CFrame = isRoblox and (CFrame.new(sx + 5.8, sy + 8, sz) * CFrame.Angles(0, math.rad(90), 0)) or nil,
-		Color = rgb(32, 20, 14),
-		CanCollide = false,
-	}, siloModel, true)
+		local timerLabel
+		if isRoblox then
+			local sgui = Instance.new("SurfaceGui")
+			sgui.Name = "SiloSurfaceGui"
+			sgui.Face = Enum.NormalId.Front
+			sgui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+			sgui.PixelsPerStud = 40
+			sgui.Parent = displayBoard
 
-	if isRoblox then
-		local sgui = Instance.new("SurfaceGui")
-		sgui.Name = "SiloSurfaceGui"
-		sgui.Face = Enum.NormalId.Front
-		sgui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-		sgui.PixelsPerStud = 40
-		sgui.Parent = displayBoard
+			timerLabel = makeOutlinedText(sgui, {
+				Name = "TimerLabel",
+				Size = UDim2.new(1, 0, 1, 0),
+				Text = string.format("🌾 SILOS #%d\nOFFLINE: 01:00:00\nSTATUS: %s", i, if i == 1 then "AKTYWNY" else "ZABLOKOWANY"),
+				TextColor3 = if i == 1 then Color3.fromRGB(95, 255, 110) else Color3.fromRGB(220, 160, 80),
+				StrokeThickness = 2.5,
+			})
+		else
+			timerLabel = {
+				Name = "TimerLabel",
+				Text = string.format("🌾 SILOS #%d\nOFFLINE: 01:00:00\nSTATUS: %s", i, if i == 1 then "AKTYWNY" else "ZABLOKOWANY"),
+			}
+		end
 
-		self.siloSurfaceLabel = makeOutlinedText(sgui, {
-			Name = "TimerLabel",
-			Size = UDim2.new(1, 0, 1, 0),
-			Text = "🌾 SILOS #1\nOFFLINE: 01:00:00",
-			TextColor3 = Color3.fromRGB(95, 255, 110),
-			StrokeThickness = 2.5,
-		})
+		self.siloModels[i] = siloModel
+		self.siloLabels[i] = timerLabel
+		if i == 1 then
+			self.siloSurfaceLabel = timerLabel
+		end
 	end
 end
 
@@ -1538,6 +1571,98 @@ function FarmPlotBuilder:_buildShippingDepot(worldFolder)
 			StrokeThickness = 2.8,
 		})
 	end
+
+	-- 2+1 Delivery Truck & Animated Gift Parcel (PROD-06)
+	local truckModel
+	if isRoblox then
+		truckModel = Instance.new("Model")
+		truckModel.Name = "DeliveryTruck_2Plus1"
+		truckModel.Parent = depotModel
+	else
+		truckModel = { Name = "DeliveryTruck_2Plus1", Children = {} }
+	end
+
+	-- Truck Cabin
+	makePart({
+		Name = "TruckCab",
+		Size = v3(6.5, 4.2, 5.5),
+		Position = v3(dx + 4, dy + 2.8, dz - 14),
+		Color = rgb(255, 95, 45),
+		StudsTop = true,
+		CanCollide = true,
+	}, truckModel, false)
+
+	-- Truck Windshield
+	makePart({
+		Name = "TruckWindshield",
+		Size = v3(5.5, 2.0, 0.4),
+		Position = v3(dx + 4, dy + 3.5, dz - 11.2),
+		Color = rgb(185, 235, 255),
+		CanCollide = false,
+	}, truckModel, true)
+
+	-- Truck Cargo Bed
+	makePart({
+		Name = "TruckCargoBed",
+		Size = v3(6.8, 5.0, 8.5),
+		Position = v3(dx + 4, dy + 3.2, dz - 20.5),
+		Color = rgb(245, 230, 215),
+		StudsTop = true,
+		CanCollide = true,
+	}, truckModel, false)
+
+	-- 2+1 Delivery Parcel on the platform with glowing particles & ProximityPrompt
+	local parcelPart = makePart({
+		Name = "DeliveryParcel_2Plus1",
+		Size = v3(3.2, 3.2, 3.2),
+		Position = v3(dx + 4, dy + 2.2, dz - 4),
+		Color = rgb(255, 215, 45),
+		StudsTop = true,
+		CanCollide = true,
+	}, depotModel, false)
+
+	local parcelPrompt = nil
+	if isRoblox then
+		parcelPrompt = Instance.new("ProximityPrompt")
+		parcelPrompt.Name = "ClaimOfferPrompt"
+		parcelPrompt.ObjectText = "Specjalna Oferta 2+1"
+		parcelPrompt.ActionText = "Otwórz Paczkę"
+		parcelPrompt.KeyboardKeyCode = Enum.KeyCode.E
+		parcelPrompt.HoldDuration = 0
+		parcelPrompt.MaxActivationDistance = 18
+		parcelPrompt.RequiresLineOfSight = false
+		parcelPrompt.Parent = parcelPart
+
+		local cd = Instance.new("ClickDetector")
+		cd.MaxActivationDistance = 32
+		cd.Parent = parcelPart
+
+		local pbb = Instance.new("BillboardGui")
+		pbb.Name = "ParcelBillboard"
+		pbb.Adornee = parcelPart
+		pbb.Size = UDim2.new(0, 180, 0, 48)
+		pbb.StudsOffset = Vector3.new(0, 3.2, 0)
+		pbb.AlwaysOnTop = true
+		pbb.Parent = parcelPart
+
+		makeOutlinedText(pbb, {
+			Name = "ParcelLabel",
+			Size = UDim2.new(1, 0, 1, 0),
+			Text = "🎁 PACZKA 2+1!\n[NACIŚNIJ E]",
+			TextColor3 = Color3.fromRGB(255, 245, 95),
+			StrokeThickness = 2.4,
+		})
+	else
+		parcelPrompt = {
+			Name = "ClaimOfferPrompt",
+			ActionText = "Otwórz Paczkę",
+			ObjectText = "Specjalna Oferta 2+1",
+		}
+	end
+
+	self.deliveryTruckModel = truckModel
+	self.deliveryParcelModel = parcelPart
+	self.deliveryPrompt = parcelPrompt
 
 	-- Step-On Studded Buy Pads for Vehicles 1 & 2
 	local vPad1 = createBuyPad(depotModel, {
@@ -1794,6 +1919,41 @@ function FarmPlotBuilder:updateFromFarmView(farmView, catalog)
 			end
 		end
 	end
+
+	-- 4. Update Silos Display (PROD-06)
+	local silosOwned = 1
+	if farmView and (farmView.siloOwned or farmView.silosOwned) then
+		silosOwned = farmView.siloOwned or farmView.silosOwned
+	end
+
+	local awaySecRemaining = 0
+	if timelineView and timelineView.awayRemainingSeconds then
+		awaySecRemaining = timelineView.awayRemainingSeconds
+	elseif farmView and farmView.awayRemainingSeconds then
+		awaySecRemaining = farmView.awayRemainingSeconds
+	else
+		awaySecRemaining = silosOwned * 3600
+	end
+
+	local hours = math.floor(awaySecRemaining / 3600)
+	local mins = math.floor((awaySecRemaining % 3600) / 60)
+	local secs = math.floor(awaySecRemaining % 60)
+	local timeStr = string.format("%02d:%02d:%02d", hours, mins, secs)
+
+	for i, lbl in ipairs(self.siloLabels or {}) do
+		if i <= silosOwned then
+			lbl.Text = string.format("🌾 SILOS #%d\nOFFLINE: %s\nSTATUS: AKTYWNY", i, timeStr)
+			if isRoblox and typeof(lbl) == "Instance" then
+				lbl.TextColor3 = Color3.fromRGB(95, 255, 110)
+			end
+		else
+			local req = if i > 2 then "(Wymaga Pro Permit)" else "(Do kupienia)"
+			lbl.Text = string.format("🔒 SILOS #%d\nZABLOKOWANY\n%s", i, req)
+			if isRoblox and typeof(lbl) == "Instance" then
+				lbl.TextColor3 = Color3.fromRGB(220, 160, 80)
+			end
+		end
+	end
 end
 
 function FarmPlotBuilder:getPressurePlate()
@@ -1814,6 +1974,26 @@ end
 
 function FarmPlotBuilder:getHabitats()
 	return self.habitats
+end
+
+function FarmPlotBuilder:getSilos()
+	return self.siloModels
+end
+
+function FarmPlotBuilder:getSiloLabels()
+	return self.siloLabels
+end
+
+function FarmPlotBuilder:getDeliveryTruck()
+	return self.deliveryTruckModel
+end
+
+function FarmPlotBuilder:getDeliveryParcel()
+	return self.deliveryParcelModel
+end
+
+function FarmPlotBuilder:getDeliveryPrompt()
+	return self.deliveryPrompt
 end
 
 return table.freeze(FarmPlotBuilder)

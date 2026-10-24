@@ -88,6 +88,18 @@ local Products = resolve(function()
 	return script.Parent.platform.products
 end, "./platform/products")
 
+local Drones = resolve(function()
+	return script.Parent.rewards.drones
+end, "./rewards/drones")
+
+local Offers = resolve(function()
+	return script.Parent.rewards.offers
+end, "./rewards/offers")
+
+local FvSe = resolve(function()
+	return script.Parent.FarmMath.fv_se
+end, "./FarmMath/fv_se")
+
 -- Numeric accounting fields that decode/encode to BigAmount
 local NUMERIC_ACCOUNTING = table.freeze({
 	"prestigeSessionArchivedCash",
@@ -431,6 +443,7 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 			held = false,
 			holdElapsed = 0,
 		},
+		offersState = Offers.createOffersState(),
 	}
 
 	local function simulationAdvance(profile, request)
@@ -469,6 +482,94 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 				result = { granted = entId },
 				terminalStatus = "APPLIED",
 				validate = function() return true end,
+			}
+		elseif op.kind == "HitDrone" then
+			local droneId = (op.args and (op.args.droneId or op.args.spawnId)) or "drone_1"
+			candidateProfile.rewards = candidateProfile.rewards or {}
+			candidateProfile.rewards.claimedDrones = candidateProfile.rewards.claimedDrones or {}
+			if candidateProfile.rewards.claimedDrones[droneId] then
+				return {
+					profile = candidateProfile,
+					result = { error = "ALREADY_CLAIMED", droneId = droneId },
+					terminalStatus = "REJECTED",
+					validate = function() return false, "ALREADY_CLAIMED" end,
+				}
+			end
+
+			local spawn = op.args and op.args.spawn
+			local nowMs = self.clock.utcNowMs()
+			if not spawn then
+				local isElite = (op.args and op.args.isElite) or false
+				local createdAtMs = (op.args and op.args.createdAtMs) or (nowMs - 2000)
+				local expiresAtMs = (op.args and op.args.expiresAtMs) or (nowMs + 15000)
+				spawn = {
+					spawnId = droneId,
+					createdAtMs = createdAtMs,
+					expiresAtMs = expiresAtMs,
+					isElite = isElite,
+					claimed = false,
+					reward = nil,
+				}
+			end
+
+			local pop = 0
+			if candidateProfile.farm and candidateProfile.farm.habitats then
+				for _, h in candidateProfile.farm.habitats do
+					if h.population then
+						pop += self.codec.ExactUInt.toSafeNumber(self.codec.ExactUInt.decode(h.population))
+					end
+				end
+			end
+			local eggIdx = (candidateProfile.farm and candidateProfile.farm.eggIndex) or 0
+			local egg = FvSe.EGGS[eggIdx] or FvSe.EGGS[0]
+			local eggVal = egg.eggValueBase
+			local currentCashNum = self.codec.BigAmount.decode(candidateProfile.farm and candidateProfile.farm.cash or "0")
+			local farmVal = (op.args and op.args.farmValue) or math.max(100.0, pop * eggVal * 100.0 + currentCashNum)
+			local curve0Val = (op.args and op.args.curve0FarmValue) or 10000.0
+
+			local config = (op.args and op.args.config)
+			local rolls = (op.args and op.args.rolls)
+			local okClaim, reward = Drones.claimDrone(spawn, nowMs, candidateProfile, config, rolls, farmVal, curve0Val)
+
+			if okClaim then
+				candidateProfile.rewards.claimedDrones[droneId] = true
+			end
+
+			return {
+				profile = candidateProfile,
+				result = {
+					droneId = droneId,
+					reward = reward,
+				},
+				terminalStatus = if okClaim then "APPLIED" else "REJECTED",
+				validate = function()
+					return okClaim, if not okClaim then tostring(reward) else nil
+				end,
+			}
+		elseif op.kind == "ClaimOffer" then
+			local offerId = (op.args and op.args.offerId) or "offer_2plus1"
+			local offersState = playerSession.offersState
+			local offer = Offers.findOffer(offersState, offerId)
+			local nowMs = self.clock.utcNowMs()
+			if not offer then
+				local defaultReward = (op.args and op.args.reward) or {
+					rewardType = "Cash",
+					amount = "50000",
+					amountNumber = 50000,
+				}
+				local channel = (op.args and op.args.channel) or "bonus"
+				Offers.createOffer(offersState, offerId, channel, defaultReward, nowMs)
+			end
+
+			local paidGE = op.args and op.args.paidGE
+			local okOffer, resOffer = Offers.claimOffer(offersState, offerId, nowMs, candidateProfile, paidGE)
+			return {
+				profile = candidateProfile,
+				result = resOffer,
+				terminalStatus = if okOffer then "APPLIED" else "REJECTED",
+				validate = function()
+					return okOffer, if not okOffer then resOffer.error else nil
+				end,
 			}
 		end
 		return self.farmActions.apply(candidateProfile, op)
@@ -680,6 +781,86 @@ function ServerBootstrap:grantEntitlement(playerId, entitlementId, opts)
 	end
 
 	return false, (res and res.errorCode) or "GRANT_FAILED"
+end
+
+function ServerBootstrap:hitDrone(playerId, droneId, opts)
+	local pId = tostring(playerId)
+	local playerSession = self.players[pId]
+	if not playerSession then
+		return false, "PLAYER_NOT_CONNECTED"
+	end
+
+	self._droneHitSerial = (self._droneHitSerial or 0) + 1
+	local coordinator = playerSession.coordinator
+	local snapshots = coordinator.snapshots()
+	local currentRev = (snapshots.durable and snapshots.durable.meta and snapshots.durable.meta.revision) or "0"
+
+	local op = {
+		operationId = "hit-drone-" .. pId .. "-" .. tostring(droneId) .. "-" .. tostring(self.clock.utcNowMs()) .. "-" .. tostring(self._droneHitSerial),
+		kind = "HitDrone",
+		expectedRevision = currentRev,
+		args = {
+			droneId = droneId,
+			isElite = if opts and opts.isElite ~= nil then opts.isElite else false,
+			config = opts and opts.config,
+			rolls = opts and opts.rolls,
+			farmValue = opts and opts.farmValue,
+			curve0FarmValue = opts and opts.curve0FarmValue,
+		},
+	}
+
+	coordinator.submit(op)
+	coordinator.drain()
+
+	local res = coordinator.resultOf(op.operationId)
+	if res and (res.status == "APPLIED" or (res.status == "REPLAYED" and res.terminalStatus == "APPLIED")) then
+		self:checkpointPlayer(pId)
+		return true, (res.result and res.result.reward) or res.result
+	end
+
+	return false, (res and (res.errorCode or (res.result and (res.result.error or res.result.errorCode)))) or "HIT_DRONE_FAILED"
+end
+
+function ServerBootstrap:claimOffer(playerId, offerId, opts)
+	local pId = tostring(playerId)
+	local playerSession = self.players[pId]
+	if not playerSession then
+		return false, "PLAYER_NOT_CONNECTED"
+	end
+
+	self._offerClaimSerial = (self._offerClaimSerial or 0) + 1
+	local coordinator = playerSession.coordinator
+	local snapshots = coordinator.snapshots()
+	local currentRev = (snapshots.durable and snapshots.durable.meta and snapshots.durable.meta.revision) or "0"
+
+	local op = {
+		operationId = "claim-offer-" .. pId .. "-" .. tostring(offerId) .. "-" .. tostring(self.clock.utcNowMs()) .. "-" .. tostring(self._offerClaimSerial),
+		kind = "ClaimOffer",
+		expectedRevision = currentRev,
+		args = {
+			offerId = offerId,
+			paidGE = opts and opts.paidGE,
+			reward = opts and opts.reward,
+			channel = opts and opts.channel,
+		},
+	}
+
+	coordinator.submit(op)
+	coordinator.drain()
+
+	local res = coordinator.resultOf(op.operationId)
+	if res and (res.status == "APPLIED" or (res.status == "REPLAYED" and res.terminalStatus == "APPLIED")) then
+		self:checkpointPlayer(pId)
+		return true, (res.result and res.result.reward) or res.result
+	end
+
+	return false, (res and (res.errorCode or (res.result and (res.result.error or res.result.errorCode)))) or "CLAIM_OFFER_FAILED"
+end
+
+function ServerBootstrap:getOffersState(playerId)
+	local pId = tostring(playerId)
+	local playerSession = self.players[pId]
+	return if playerSession then playerSession.offersState else nil
 end
 
 function ServerBootstrap:tick(dtSeconds, nowMs)
