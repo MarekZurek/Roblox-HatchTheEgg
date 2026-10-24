@@ -48,12 +48,17 @@ if not chickensContainer then
 	chickensContainer.Parent = Workspace
 end
 
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "HatchTheEggHUD"
-screenGui.ResetOnSpawn = false
-screenGui.IgnoreGuiInset = false
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-screenGui.Parent = playerGui
+local screenGui = playerGui:FindFirstChild("HatchTheEggHUD")
+if screenGui then
+	screenGui:ClearAllChildren()
+else
+	screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "HatchTheEggHUD"
+	screenGui.ResetOnSpawn = false
+	screenGui.IgnoreGuiInset = false
+	screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	screenGui.Parent = playerGui
+end
 
 -- Helper to determine next habitat upgrade for a slot (1..4) with automatic quote resolution
 local client
