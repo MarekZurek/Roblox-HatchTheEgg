@@ -37,11 +37,11 @@ def main():
                  "PlayerCoordinator", "TimelineSimulation", "FarmActions",
                  "ProgressActions", "EffectsManager", "pets/equipment", "pets/fusion",
                  "rewards/drones", "rewards/offers", "rewards/calendar", "rewards/trophies",
-                 "platform/products",
+                 "platform/products", "onboarding/manager",
                  "ViewProjector", "NetworkGateway", "Bootstrap"):
         assert private + name in modules, name
     for name in ("ClientTransport", "ClientStateStore", "RoutePresentation",
-                 "IntentControllers", "HUD", "Bootstrap"):
+                 "IntentControllers", "HUD", "onboarding/TutorialController", "Bootstrap"):
         assert client + name in modules, name
     assert not scripts, scripts
     result = {"status": "PASS_STATIC_BUILD", "modules": modules,
