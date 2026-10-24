@@ -83,4 +83,23 @@ QA tekstu 30 przez AGY/Gemini: warunkowe PASS; autor uwzględnił cztery doprecy
 
 ## IMP-10–15 oraz QA-01 — wykonano i odebrano (24.10.2026)
 
-[40 — ukończenie i odbiór pierwszej farmy](40_first_farm_completion_delivery.md): w pełni zaimplementowano i zweryfikowano L/S/D moduły FarmActions, ViewProjector, NetworkGateway, ClientTransport, ClientStateStore, RoutePresentation, IntentControllers, HUD, Bootstrap serwera i klienta oraz formalny odbiór A01–A16 w tests/acceptance/run.luau. Wspólny runner: **21 914 asercji 100% PASS L**, statyczny build Rojo: 24 moduły, 0 skryptów wejściowych. Zgłoszenia #19–#25 zamknięte na GitHubie. Podstawowa farma domowa ukończona. Pozostają otwarte zadania kolejnej fazy: NEXT-01–10 oraz REL-01. Bilans 17–21 i referencyjne JSON-y bez zmian.
+[40 — ukończenie i odbiór pierwszej farmy](40_first_farm_completion_delivery.md): w pełni zaimplementowano i zweryfikowano L/S/D moduły pierwszej farmy (FarmActions, ViewProjector, NetworkGateway, ClientTransport, ClientStateStore, RoutePresentation, IntentControllers, HUD, Bootstrap serwera i klienta oraz formalny odbiór A01–A16 w tests/acceptance/run.luau). Zgłoszenia #19–#25 zamknięte na GitHubie.
+
+## NEXT-01–10 oraz REL-01 — wykonano, zweryfikowano i odebrano (24.10.2026)
+
+[41 — dostawa kandydata wydania (Release Candidate)](41_release_candidate_delivery.md): w pełni zaimplementowano, przetestowano na poziomie L i zweryfikowano przez QA cały zakres rozszerzeń domenowych oraz integracji kandydata wydania:
+- `NEXT-01` (#26): Farm Value & Soul Eggs (`FarmMath/fv_se.luau`, 358 asercji).
+- `NEXT-02` (#27): Zmiana jaja, prestiż i księgowanie sesji (`ProgressActions.luau`, 199 asercji).
+- `NEXT-03` (#28): Pełne offline, boosty, Video Doubler i historia (`EffectsManager.luau`, 204 asercje).
+- `NEXT-04` (#29): Pety: ekwipunek, wyposażenie i składanie efektów (`pets/equipment.luau`, 152 asercje).
+- `NEXT-05` (#30): Łączenie petów, ochrona slotów/locków i trwała gwarancja (`pets/fusion.luau`, 103 asercje).
+- `NEXT-06` (#31): Autorytatywne drony, walka, nagrody GE/Cash i pojedynczy claim (`rewards/drones.luau`, 72 asercje).
+- `NEXT-07` (#32): Kanały dostaw 2+1, darmowe odrzucenie, dzienny bonus i rezerwacje (`rewards/offers.luau`, 64 asercje).
+- `NEXT-08` (#33): Kalendarz 28 dni, trofea 19 jaj i konwersje nagród (`rewards/calendar.luau`, `rewards/trophies.luau`, 76 asercji).
+- `NEXT-09` (#34): Adapter produktów Pro, Buy MAX, GE i warunkowego Piggy (`platform/products.luau`, 55 asercji).
+- `NEXT-10` (#35): Onboarding, odzyskiwanie kroku samouczka i baseline konta (`onboarding/manager.luau`, `client/onboarding/TutorialController.luau`, 62 asercje).
+- `REL-01` (#36): Nadrzędny runner kandydata wydania (`tests/release_candidate/run.luau`, 113 asercji) oraz audytor bramek wydania (`tools/verify_release.py`).
+
+Wspólny runner: **23 872 asercje (100% PASS L)** w 28 zestawach testów.  
+Rojo: Dokładnie **36 modułów Luau**, 0 skryptów wejściowych `Script`/`LocalScript`.  
+Wszystkie 36 zadań w rejestrze GitHub zamknięte. Repozytorium ma status **Release Candidate Approved**. Bramki wdrożeniowe S (Studio), D (Cloud DataStore) oraz H (Mobile UI) jawnie zdefiniowane przed publikacją produkcyjną. Bilans 17–21 i referencyjne JSON-y bez zmian.

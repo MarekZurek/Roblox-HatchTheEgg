@@ -21,7 +21,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Independent population oracle check failed.' }
     & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run tests/numeric/run.luau
     if ($LASTEXITCODE -ne 0) { throw 'Numeric tests failed.' }
-    foreach ($taskSuite in @('catalog', 'protocol', 'persistence', 'math', 'fv_se', 'ihr', 'hatching', 'coordinator', 'timeline', 'integration89', 'purchases', 'resets', 'effect_boundaries', 'pet_effects', 'fusion', 'drones', 'offers', 'claims', 'purchase_recovery', 'tutorial', 'gateway', 'client_state', 'presentation', 'ui', 'integration', 'acceptance')) {
+    foreach ($taskSuite in @('catalog', 'protocol', 'persistence', 'math', 'fv_se', 'ihr', 'hatching', 'coordinator', 'timeline', 'integration89', 'purchases', 'resets', 'effect_boundaries', 'pet_effects', 'fusion', 'drones', 'offers', 'claims', 'purchase_recovery', 'tutorial', 'gateway', 'client_state', 'presentation', 'ui', 'integration', 'acceptance', 'release_candidate')) {
         & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
         if ($LASTEXITCODE -ne 0) { throw ('Tests failed: ' + $taskSuite) }
     }
@@ -31,4 +31,6 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Rojo sourcemap failed.' }
     & $PythonExecutable tools/verify_build.py
     if ($LASTEXITCODE -ne 0) { throw 'Static mapping verification failed.' }
+    & $PythonExecutable tools/verify_release.py
+    if ($LASTEXITCODE -ne 0) { throw 'Release verification failed.' }
 } finally { Pop-Location }

@@ -113,4 +113,24 @@ Dokumentacyjny manifest F01 przygotowano w [30](30_first_farm_manifest_and_techn
 
 ## IMP-10–15 oraz QA-01 — wykonano i odebrano (24.10.2026)
 
-[40 — ukończenie i odbiór pierwszej farmy](40_first_farm_completion_delivery.md): w pełni zaimplementowano i zweryfikowano L/S/D moduły FarmActions (wyceny i zakupy pojedyncze z nienaruszalnością accounting.currentFarmCash), ViewProjector i NetworkGateway (projekcja PrivatePlayerViewDTO i PublicView, admission gating, izolacja graczy), ClientTransport i ClientStateStore (korelacja żądań, wykrywanie luk viewSeq i RefreshState, ignorowanie przeterminowanych deltat), RoutePresentation (geometria 4 parcel PRE-03, animacja polilinii, brak wpływu modeli 3D na stan autorytatywny), IntentControllers i HUD (formatowanie liczb UI K/M/B/T, reaktywny HUD, blokady sklepu), ServerBootstrap i ClientBootstrap (pełny smoke test pętli gry E2E) oraz tests/acceptance/run.luau (formalny odbiór wszystkich 16 scenariuszy A01–A16 z dokumentu 29). Wspólny runner: **21 914 asercji 100% PASS L**, statyczny build Rojo: 24 moduły, 0 skryptów wejściowych. Zgłoszenia #19, #20, #21, #22, #23, #24, #25 zamknięte. Otwarte pozostają zadania fazy NEXT (NEXT-01–10 oraz REL-01).
+[40 — ukończenie i odbiór pierwszej farmy](40_first_farm_completion_delivery.md): w pełni zaimplementowano i zweryfikowano L/S/D moduły pierwszej farmy (FarmActions, ViewProjector, NetworkGateway, ClientTransport, ClientStateStore, RoutePresentation, IntentControllers, HUD, Bootstrap serwera i klienta oraz formalny odbiór A01–A16 w tests/acceptance/run.luau). Zgłoszenia #19, #20, #21, #22, #23, #24, #25 zamknięte.
+
+## NEXT-01–10 oraz REL-01 — wykonano, zweryfikowano i odebrano (24.10.2026)
+
+[41 — dostawa kandydata wydania (Release Candidate)](41_release_candidate_delivery.md): w pełni zaimplementowano, przetestowano na poziomie L i zweryfikowano przez QA cały zakres rozszerzeń domenowych oraz integracji kandydata wydania:
+- `NEXT-01` (#26): Farm Value & Soul Eggs (`src/server/FarmMath/fv_se.luau`, 358 asercji).
+- `NEXT-02` (#27): Zmiana jaja, prestiż i księgowanie sesji (`src/server/ProgressActions.luau`, 199 asercji).
+- `NEXT-03` (#28): Pełne offline, boosty, Video Doubler i historia (`src/server/EffectsManager.luau`, 204 asercje).
+- `NEXT-04` (#29): Pety: ekwipunek, wyposażenie i składanie efektów (`src/server/pets/equipment.luau`, 152 asercje).
+- `NEXT-05` (#30): Łączenie petów, ochrona slotów/locków i trwała gwarancja (`src/server/pets/fusion.luau`, 103 asercje).
+- `NEXT-06` (#31): Autorytatywne drony, walka, nagrody GE/Cash i pojedynczy claim (`src/server/rewards/drones.luau`, 72 asercje).
+- `NEXT-07` (#32): Kanały dostaw 2+1, darmowe odrzucenie, dzienny bonus i rezerwacje (`src/server/rewards/offers.luau`, 64 asercje).
+- `NEXT-08` (#33): Kalendarz 28 dni, trofea 19 jaj i konwersje nagród (`src/server/rewards/calendar.luau`, `src/server/rewards/trophies.luau`, 76 asercji).
+- `NEXT-09` (#34): Adapter produktów Pro, Buy MAX, GE i warunkowego Piggy (`src/server/platform/products.luau`, 55 asercji).
+- `NEXT-10` (#35): Onboarding, odzyskiwanie kroku samouczka i baseline konta (`src/server/onboarding/manager.luau`, `src/client/onboarding/TutorialController.luau`, 62 asercje).
+- `REL-01` (#36): Nadrzędny runner kandydata wydania (`tests/release_candidate/run.luau`, 113 asercji) oraz audytor bramek wydania (`tools/verify_release.py`).
+
+**Wspólny runner testowy**: **23 872 asercje (100% PASS L)** w 28 zestawach testów.  
+**Rojo Static Build**: Dokładnie **36 modułów Luau**, 0 skryptów wejściowych `Script`/`LocalScript`.  
+**Bramki wydania (Release Gates)**: Wszystkie 6 bramek zatwierdzone (brak devgrantów, baza docs/31 §4, niezmienniki stanu, fencing/retencja docs/34 §4, 36 modułów Rojo, kwarantanna odłożonego bilansu docs/17..21).  
+Wszystkie 36 zadań w rejestrze GitHub zamknięte. Repozytorium ma status **Release Candidate Approved**. Bramki wdrożeniowe S (Studio), D (Cloud DataStore) oraz H (Mobile UI) jawnie zdefiniowane przed publikacją produkcyjną.

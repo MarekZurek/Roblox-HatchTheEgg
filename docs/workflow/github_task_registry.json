@@ -1,7 +1,7 @@
 {
   "date": "2026-10-24",
   "repository": "MarekZurek/Roblox-HatchTheEgg",
-  "status": "ISSUES_PUBLISHED",
+  "status": "ALL_TASKS_COMPLETED",
   "implementationAuthorized": true,
   "parentIssue": {
     "number": 1,
@@ -460,7 +460,7 @@
       "number": 36,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/36",
       "title": "[REL-01] Kandydat wydania: integracja i jawne bramki",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "QA-01",
         "NEXT-02",
@@ -472,7 +472,8 @@
         "NEXT-08",
         "NEXT-09",
         "NEXT-10"
-      ]
+      ],
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     }
   ],
   "implementationAuthorizationScope": [
