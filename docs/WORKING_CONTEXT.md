@@ -60,3 +60,7 @@ Task [Opus — kalendarz/trofea/PE](OPUS_NEXT_TASK.md) pominięty na polecenie u
 QA tekstu 30 przez AGY/Gemini: warunkowe PASS; autor uwzględnił cztery doprecyzowania, bez ponownego modelowego QA końcowej redakcji. [Zakres i ograniczenia](workflow/first_farm_f01_review.md). Nie traktować jako pełnego audytu plików lub zaliczenia testów gry.
 
 **Aktualizacja 24.10.2026 — [31](31_research_hatching_rcb_and_new_account.md):** rozstrzygnięto referencyjne U01/U02, matematyczny i stanowy rdzeń U03 oraz podstawowy start U04. Nie wracać do starszych stwierdzeń o braku tych danych. 3/s to refill, nie darmowy automat; 28 zawiera HatchPress obok hold. Trasa/czas dotarcia to osobne zadanie sceny, a U05/U06 pozostają techniczne. Nowa tabela startu nie zastępuje fixture w 30 i nie jest konfiguracją wydania. [32](32_parallel_delivery_backlog.md) porządkuje zadania i równoległe ścieżki; nie autoryzuje kodowania.
+
+## PRE-01–03 — przygotowane 24.10.2026
+
+[33 — warsztat i zegary](33_pre01_toolchain_and_clocks.md), [34 — sesja i retencja](34_pre02_sessions_and_retention.md), [35 — trasy i dotarcia](35_pre03_routes_and_arrivals.md). Dokumentacja P przygotowana; narzędzia, adaptery i scenariusze L/S/D nadal niewykonane. Wybrano Rojo/Lune i port Clock, skończoną retencję jednego agregatu oraz serwerowe trasy z fazą dotarć po produkcji, przed IHR. To wybory techniczne do realizacji, nie nowe R ani konfiguracja wydania. Następny etap po osobnym zleceniu: IMP-01, potem równolegle IMP-02/03/07 według 32. Bilans 17–21 pozostaje odłożony.

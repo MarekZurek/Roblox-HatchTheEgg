@@ -60,10 +60,12 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 
 - [x] Sporządzić [29 — plan pierwszej farmy](29_first_farm_implementation_plan.md): zakres, zadania F01–F09, zależności oraz A01–A16. Zamknięto przygotowanie planu P, nie realizację zadań ani testy.
 - [x] Przygotować dokumentacyjną część F01: [30 — manifest i wybory techniczne](30_first_farm_manifest_and_technical_choices.md). Opisano ID, źródła startu/fixture, wejście i RCB, projekcję oraz kierunki adapterów, bez kodu lub konfiguracji wydania.
-- [ ] Domknąć pozostałe techniczne zależności F01: scenową trasę/dotarcie oraz U05–U06 (zapis/retencja, zegary/runner/synchronizacja/limity). Referencyjne U01/U02 i rdzeń U03/U04 rozstrzygnięto w 31. Nie oznaczać adapterów jako wykonanych, nie zmieniać bilansu; realizacja wymaga osobnego zlecenia.
+- [ ] Wykonać i sprawdzić pozostałe techniczne zależności F01: scenę/dotarcie oraz adaptery U05–U06. Projekty dokumentacyjne PRE-01–03 przygotowano w 33–35. Referencyjne U01/U02 i rdzeń U03/U04 rozstrzygnięto w 31. Nie oznaczać adapterów jako wykonanych, nie zmieniać bilansu; realizacja wymaga osobnego zlecenia.
 
 ## Aktualizacja 24.10.2026 — pierwsza farma i backlog
 
 - [x] Rozstrzygnąć referencyjne progi Common, bazowy press/hold, aktywne RCB i podstawowy start konta — [31](31_research_hatching_rcb_and_new_account.md). Bez zmian bilansu i implementacji.
-- [ ] Przygotować techniczny RouteProvider i autorytatywny czas dotarcia dla sceny; bez stałych 6 s wpisanych jako rzekoma reguła.
-- [ ] Domknąć warsztat U06 i zapis/retencję U05 według niezależnych zadań z [32](32_parallel_delivery_backlog.md). Starszy checkbox U01–U04 obejmuje teraz tylko pozostałe zależności sceny/adapterów i konfigurację wydania.
+- [x] Przygotować kontrakt RouteProvider i autorytatywnego dotarcia — [35](35_pre03_routes_and_arrivals.md). Geometria i test sceny w IMP-13/15 nadal niewykonane.
+- [x] Przygotować warsztat U06 i projekt zapisu/retencji U05: [33](33_pre01_toolchain_and_clocks.md), [34](34_pre02_sessions_and_retention.md). Wykonanie i testy pozostają w IMP-01/07; nie nadano gotowości wydania.
+
+- [x] PRE-01/02/03: dokumentacja przygotowana równolegle i powiązana z backlogiem; odbiór statyczny opisuje [raport](workflow/preparation_01_03_review.md). L/S/D pozostają niewykonane.

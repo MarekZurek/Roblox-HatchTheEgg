@@ -30,3 +30,7 @@ W kontrakcie 27 po review tekstu przez Gemini doprecyzowano różnicę czasu roz
 Aktualny wynik dokumentacyjnego F01: [30 — manifest i wybory techniczne](../30_first_farm_manifest_and_technical_choices.md), status P z U01–U06, bez pełnej gotowości wykonawczej. Nie utworzono kodu, fixture wykonywalnych, konfiguracji wydania ani środowiska Studio.
 
 [31](../31_research_hatching_rcb_and_new_account.md) uzupełnia reguły podstawowej farmy, a [32](../32_parallel_delivery_backlog.md) i [rejestr GitHub](github_task_registry.json) mapują ukończone materiały i przyszłe zadania do równoległych ścieżek. [Zakres QA](research_hatching_backlog_review.md). Bez implementacji lub wznawiania bilansu.
+
+## PRE-01–03
+
+Przygotowane projekty P: [33 — warsztat i zegary](../33_pre01_toolchain_and_clocks.md), [34 — sesja i retencja](../34_pre02_sessions_and_retention.md), [35 — trasy i dotarcia](../35_pre03_routes_and_arrivals.md). Wykonanie i dowody L/S/D należą do istniejących IMP-*; dokumentacyjne zamknięcie PRE-* nie jest ich zaliczeniem. [Przegląd przygotowania](preparation_01_03_review.md).

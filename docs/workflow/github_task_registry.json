@@ -53,31 +53,37 @@
       "number": 7,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/7",
       "title": "[PRE-01] Warsztat testów, źródła do Studio i dostawcy czasu",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "DOC-04",
         "DOC-05"
-      ]
+      ],
+      "completionScope": "documentation_only",
+      "runtimeTested": false
     },
     {
       "id": "PRE-02",
       "number": 8,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/8",
       "title": "[PRE-02] Projekt adaptera sesji, retencji i odzyskiwania",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "DOC-04"
-      ]
+      ],
+      "completionScope": "documentation_only",
+      "runtimeTested": false
     },
     {
       "id": "PRE-03",
       "number": 9,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/9",
       "title": "[PRE-03] Kontrakt trasy i autorytatywnego dotarcia kur",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "DOC-05"
-      ]
+      ],
+      "completionScope": "documentation_only",
+      "runtimeTested": false
     },
     {
       "id": "IMP-01",

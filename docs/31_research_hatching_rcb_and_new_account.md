@@ -86,3 +86,7 @@ Wykorzystano zachowane zestawy granic progów, 144 przykłady RCB z kontrolowany
 Przyszłe kryteria odbioru: suma Common bez Epic/kosztu; próg−1/próg/próg+1; press przy zapasie 0/0.999/1; brak miejsca; brak bezpłatnego hold przy rate=0; ścisła równość okresu; RCB przy q=1 i przy limicie; wybrany przedział wolnego miejsca; podwójne dotarcie; nowy profil vs ponowne wczytanie. To specyfikacja, **NIE URUCHOMIONO** w HatchTheEgg.
 
 Zamknięto referencyjną semantykę U01/U02 oraz matematyczny i stanowy rdzeń U03 i start podstawowej farmy U04. Do realizacji pozostają: mapowanie trasy/dotarcia w scenie, adaptery U05/U06 i właściwe testy. Nie oznacza to gotowości wykonanej implementacji lub przyjęcia konfiguracji wydania.
+
+## Uzupełnienie techniczne PRE-03
+
+[35](35_pre03_routes_and_arrivals.md) wybiera projekt P: geometryczny termin oznacza gotowość, a dotarcie stosuje się w fazie po produkcji na końcu obejmującego go kroku, przed refill/IHR. Nie powstaje dodatkowy krok i nie przeliczamy wcześniej wypłaconej produkcji. To doprecyzowanie proponowanej integracji, nie nowy dowód domenowy; geometria/prędkość i test S nadal należą do IMP-13/15.

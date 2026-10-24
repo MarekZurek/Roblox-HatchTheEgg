@@ -58,3 +58,7 @@ Stan: 23.10.2026. Dokumentacja i planowanie, bez implementacji gry. Bilans progr
 [30 — manifest pierwszej farmy i wybory techniczne](30_first_farm_manifest_and_technical_choices.md) przygotowuje dokumentacyjną część F01: konkretne ID, źródła startu, TEST_ONLY profil, model wejścia/RCB, DTO i kierunki adapterów. U01–U06 jawnie ograniczają gotowość; nie jest konfiguracją wydania ani implementacją.
 
 [31 — badania, ręczny wylęg, RCB i nowe konto](31_research_hatching_rcb_and_new_account.md) uzupełnia dostępne reguły i referencyjny start, odróżniając je od testowego profilu oraz zatwierdzonej konfiguracji. [32 — równoległy backlog](32_parallel_delivery_backlog.md) jest mapą ukończonych materiałów i przyszłych zadań z zależnościami.
+
+## PRE-01–03 — przygotowane 24.10.2026
+
+[33 — warsztat i zegary](33_pre01_toolchain_and_clocks.md), [34 — sesja i retencja](34_pre02_sessions_and_retention.md), [35 — trasy i dotarcia](35_pre03_routes_and_arrivals.md). Dokumentacja P przygotowana; narzędzia, adaptery i scenariusze L/S/D nadal niewykonane. Wybrano Rojo/Lune i port Clock, skończoną retencję jednego agregatu oraz serwerowe trasy z fazą dotarć po produkcji, przed IHR. To wybory techniczne do realizacji, nie nowe R ani konfiguracja wydania. Następny etap po osobnym zleceniu: IMP-01, potem równolegle IMP-02/03/07 według 32. Bilans 17–21 pozostaje odłożony.

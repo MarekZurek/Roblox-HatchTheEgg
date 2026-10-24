@@ -8,7 +8,7 @@ Każdy task ma jednego właściciela logicznego obszaru plików. Konsument zale�
 
 **Możliwe fale równoległe:**
 
-1. PRE-01 / PRE-02 / PRE-03: trzy niezależne projekty techniczne, bez kodowania.
+1. PRE-01 / PRE-02 / PRE-03: trzy niezależne projekty techniczne przygotowane w 33–35. Brak uruchomienia adapterów lub kodowania.
 2. Po IMP-01: katalog IMP-02, DTO IMP-03 i zapis IMP-07 mogą powstawać niezależnie; każdy ma własny zakres.
 3. Po katalogu: produkcja/badania IMP-04, IHR IMP-05, wylęg/RCB IMP-06 i FV/SE NEXT-01 są czystymi funkcjami i nie czekają na serwer/koordynator/UI.
 4. Po DTO: ClientStore IMP-12, scena IMP-13 i UI IMP-14 mogą postępować obok serwera; UI używa testowego portu klienta i nie czeka na gotowe IMP-12. Gateway IMP-11 używa wstrzykniętych portów. Prawdziwe połączenie UI z IMP-12 sprawdza IMP-15.
@@ -26,9 +26,9 @@ To plan równoległości, nie automatyczna delegacja. Wydanie nadal wymaga wznow
 | DOC-03 | Workflow i siedem skills projektu | brak | Materiał dokumentacyjny wykonany |
 | DOC-04 | Kontrakty 27–28: liczby, stan, moduły i komunikacja | brak | Materiał dokumentacyjny wykonany |
 | DOC-05 | Plan 29, manifest 30 i reguły pierwszej farmy 31 | brak | Materiał dokumentacyjny wykonany |
-| PRE-01 | Warsztat testów, źródła do Studio i dostawcy czasu | DOC-04, DOC-05 | Plan; bez zlecenia realizacji |
-| PRE-02 | Projekt adaptera sesji, retencji i odzyskiwania | DOC-04 | Plan; bez zlecenia realizacji |
-| PRE-03 | Kontrakt trasy i autorytatywnego dotarcia kur | DOC-05 | Plan; bez zlecenia realizacji |
+| PRE-01 | Warsztat testów, źródła do Studio i dostawcy czasu | DOC-04, DOC-05 | [Dokumentacja przygotowana — 33](33_pre01_toolchain_and_clocks.md); adapter niewykonany |
+| PRE-02 | Projekt adaptera sesji, retencji i odzyskiwania | DOC-04 | [Dokumentacja przygotowana — 34](34_pre02_sessions_and_retention.md); adapter niewykonany |
+| PRE-03 | Kontrakt trasy i autorytatywnego dotarcia kur | DOC-05 | [Dokumentacja przygotowana — 35](35_pre03_routes_and_arrivals.md); adapter niewykonany |
 | IMP-01 | NumericCodec: kwoty, dokładne liczniki i serializacja | PRE-01 | Plan; bez zlecenia realizacji |
 | IMP-02 | CatalogRegistry: wybrany katalog pierwszej farmy | IMP-01 | Plan; bez zlecenia realizacji |
 | IMP-03 | Schematy DTO i walidacja protokołu | IMP-01 | Plan; bez zlecenia realizacji |
@@ -61,5 +61,6 @@ To plan równoległości, nie automatyczna delegacja. Wydanie nadal wymaga wznow
 
 DOC-* oznaczają wyłącznie istniejące materiały; zamknięte zgłoszenie nie jest zaliczeniem scenariuszy gry. Pozostałe zgłoszenia mają zawierać zakres zapisu, zależności i konkretne kryteria, z dowodem L/S/D/H stosownie do zadania. PRE-* pozostają dokumentacyjne. Nie przypisywać wykonawców ani uruchamiać kodowania samym opublikowaniem backlogu.
 
-Opublikowano 35 zadań oraz [plan nadrzędny #1](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/1). Numery, adresy i zależności zapisano w [rejestrze GitHub](workflow/github_task_registry.json). Pięć materiałów DOC-* zamknięto, 30 zadań pozostaje otwartych. To rejestr publikacji zgłoszeń, nie wynik implementacji. Zadania odłożonego bilansu i kontraktów kooperacyjnych nie są aktywowane tym dokumentem.
+Opublikowano 35 zadań oraz [plan nadrzędny #1](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/1). Numery, adresy i zależności zapisano w [rejestrze GitHub](workflow/github_task_registry.json). Pięć materiałów DOC-* oraz trzy przygotowania PRE-* zamknięto dokumentacyjnie, 27 zadań pozostaje otwartych. To rejestr publikacji zgłoszeń, nie wynik implementacji. Zadania odłożonego bilansu i kontraktów kooperacyjnych nie są aktywowane tym dokumentem.
 
+PRE-01–03 zamykają przygotowanie interfejsów, nie wyniki testów. Sprawdzenie narzędzi należy do IMP-01, trwałości do IMP-07, sceny i czasu ruchu do IMP-13/15. Utrzymanie replay w długim działaniu jest bramką wydania opisaną w 34; nie zastępuje go wewnętrzny limit rozmiaru.

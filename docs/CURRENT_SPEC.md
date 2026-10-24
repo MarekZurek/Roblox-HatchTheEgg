@@ -89,3 +89,7 @@ Dokumentacyjny manifest F01 przygotowano w [30](30_first_farm_manifest_and_techn
 ## Uzupełnienie pierwszej farmy — 24.10.2026
 
 [31](31_research_hatching_rcb_and_new_account.md) rozstrzyga N/S: punkty Common=sum(poziomów), inkluzywne progi; press=jedna próba, refill 3/s odrębny od holdRate=0 bez Epic; aktywne RCB q=min(c^n,K), mnożnik M tylko gdy q>1; rezerwację kury w drodze i zaliczenie populacji przy dotarciu. Potwierdzony referencyjny start ma jeden silos, pełne 250 wylęgarni i limit floty 4 przy jednym TRIKE. Są to N/S, nie nowe R lub zatwierdzony balans. HatchPress dopisano do 28 jako P. Rdzeń U01–U04 nie jest już niewiadomą; do realizacji pozostają trasa sceny oraz U05/U06. Bieżący podział zadań: [32](32_parallel_delivery_backlog.md).
+
+## PRE-01–03 — przygotowane 24.10.2026
+
+[33 — warsztat i zegary](33_pre01_toolchain_and_clocks.md), [34 — sesja i retencja](34_pre02_sessions_and_retention.md), [35 — trasy i dotarcia](35_pre03_routes_and_arrivals.md). Dokumentacja P przygotowana; narzędzia, adaptery i scenariusze L/S/D nadal niewykonane. Wybrano Rojo/Lune i port Clock, skończoną retencję jednego agregatu oraz serwerowe trasy z fazą dotarć po produkcji, przed IHR. To wybory techniczne do realizacji, nie nowe R ani konfiguracja wydania. Następny etap po osobnym zleceniu: IMP-01, potem równolegle IMP-02/03/07 według 32. Bilans 17–21 pozostaje odłożony.
