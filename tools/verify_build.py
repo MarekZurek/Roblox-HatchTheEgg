@@ -32,7 +32,8 @@ def main():
                  "RobloxDataStorePort", "CatalogRegistry", "CatalogRegistry/Data",
                  "FarmMath/production_research", "FarmMath/ihr",
                  "FarmMath/hatching_rcb", "FarmMath/PopulationMath",
-                 "PlayerCoordinator", "TimelineSimulation", "FarmActions"):
+                 "PlayerCoordinator", "TimelineSimulation", "FarmActions",
+                 "ViewProjector", "NetworkGateway"):
         assert private + name in modules, name
     assert not scripts, scripts
     result = {"status": "PASS_STATIC_BUILD", "modules": modules,

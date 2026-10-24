@@ -251,11 +251,15 @@
       "number": 20,
       "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/20",
       "title": "[IMP-11] NetworkGateway i projekcja autorytatywnego stanu",
-      "state": "open",
+      "state": "closed",
       "dependencies": [
         "IMP-03",
         "IMP-08"
-      ]
+      ],
+      "verificationLevel": "L",
+      "studioTested": false,
+      "dataStoreTested": false,
+      "deliveryStatus": "VERIFIED_L_PUBLICATION_APPROVED"
     },
     {
       "id": "IMP-12",
