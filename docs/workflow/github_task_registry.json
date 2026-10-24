@@ -1,7 +1,7 @@
 {
   "date": "2026-10-24",
   "repository": "MarekZurek/Roblox-HatchTheEgg",
-  "status": "ALL_VISUAL_AND_STUDIO_TASKS_COMPLETED",
+  "status": "PROD_PHASE_TASKS_CREATED",
   "implementationAuthorized": true,
   "parentIssue": {
     "number": 1,
@@ -546,6 +546,91 @@
         "VIS-05"
       ],
       "deliveryStatus": "VERIFIED_STUDIO_READY"
+    },
+    {
+      "id": "PROD-01",
+      "number": 43,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/43",
+      "title": "[PROD-01] Pełny katalog badań, kurników i floty (Tiers 1–13, Epic, 19 Kurników, 12 Pojazdów)",
+      "state": "open",
+      "dependencies": [
+        "REL-01",
+        "VIS-06"
+      ]
+    },
+    {
+      "id": "PROD-02",
+      "number": 44,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/44",
+      "title": "[PROD-02] Progresja 19 Jaj i Stacja Ulepszania Jaja w świecie 3D",
+      "state": "open",
+      "dependencies": [
+        "PROD-01"
+      ]
+    },
+    {
+      "id": "PROD-03",
+      "number": 45,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/45",
+      "title": "[PROD-03] Kompletne okna modalne UI (Kurniki, Flota, Badania, Pety, Sklep GE, Kalendarz & Trofea)",
+      "state": "open",
+      "dependencies": [
+        "PROD-01"
+      ]
+    },
+    {
+      "id": "PROD-04",
+      "number": 46,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/46",
+      "title": "[PROD-04] Produkcyjna integracja chmury Roblox DataStoreService i blokowanie sesji",
+      "state": "open",
+      "dependencies": [
+        "PROD-01",
+        "PROD-02"
+      ]
+    },
+    {
+      "id": "PROD-05",
+      "number": 47,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/47",
+      "title": "[PROD-05] Produkcyjna obsługa płatności Roblox MarketplaceService (GamePasses & DevProducts)",
+      "state": "open",
+      "dependencies": [
+        "PROD-03",
+        "PROD-04"
+      ]
+    },
+    {
+      "id": "PROD-06",
+      "number": 48,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/48",
+      "title": "[PROD-06] Diegetyczne aktory 3D: Drony z celowaniem, Ciężarówka dostawcza 2+1 i Silosy z SurfaceGui",
+      "state": "open",
+      "dependencies": [
+        "PROD-01"
+      ]
+    },
+    {
+      "id": "PROD-07",
+      "number": 49,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/49",
+      "title": "[PROD-07] Stacja Inkubacji Petów w świecie 3D i animacja wykluwania jaj",
+      "state": "open",
+      "dependencies": [
+        "PROD-03",
+        "PROD-06"
+      ]
+    },
+    {
+      "id": "PROD-08",
+      "number": 50,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/50",
+      "title": "[PROD-08] Oprawa dźwiękowa (SFX & Muzyka BGM) oraz optymalizacja mobilna interfejsu",
+      "state": "open",
+      "dependencies": [
+        "PROD-03",
+        "PROD-06"
+      ]
     }
   ],
   "implementationAuthorizationScope": [

@@ -61,12 +61,18 @@ To plan równoległości, nie automatyczna delegacja. Wydanie nadal wymaga wznow
 | VIS-03 | Diegetyczne wskaźniki 3D (BillboardGui, ProximityPrompts, BuyPads) | VIS-02 | Wykonano (`FarmPlotBuilder.luau`, `Main.client.luau`) |
 | VIS-04 | Ostylowany, responsywny HUD ekranowy w PlayerGui | VIS-01, VIS-03 | Wykonano (`HUD.luau`) |
 | VIS-05 | Wizualna animacja kurcząt i dronów w świecie 3D | VIS-02, VIS-04 | Wykonano (`RoutePresentation.luau`) |
-| VIS-06 | Odbiór w Roblox Studio i weryfikacja end-to-end (Poziom S/H) | VIS-01..05 | W weryfikacji Studio (Poziom S/H) |
+| VIS-06 | Odbiór w Roblox Studio i weryfikacja end-to-end (Poziom S/H) | VIS-01..05 | Wykonano i zweryfikowano w Studio |
+| PROD-01 | Pełny katalog badań, kurników i floty (Tiers 1–13, Epic, 19 Kurników, 12 Pojazdów) | REL-01, VIS-06 | Zaplanowane (#43) |
+| PROD-02 | Progresja 19 Jaj i Stacja Ulepszania Jaja w świecie 3D | PROD-01 | Zaplanowane (#44) |
+| PROD-03 | Kompletne okna modalne UI (Kurniki, Flota, Badania, Pety, Sklep GE, Kalendarz & Trofea) | PROD-01 | Zaplanowane (#45) |
+| PROD-04 | Produkcyjna integracja chmury Roblox DataStoreService i blokowanie sesji | PROD-01, PROD-02 | Zaplanowane (#46) |
+| PROD-05 | Produkcyjna obsługa płatności Roblox MarketplaceService (GamePasses & DevProducts) | PROD-03, PROD-04 | Zaplanowane (#47) |
+| PROD-06 | Diegetyczne aktory 3D: Drony z celowaniem, Ciężarówka dostawcza 2+1 i Silosy z SurfaceGui | PROD-01 | Zaplanowane (#48) |
+| PROD-07 | Stacja Inkubacji Petów w świecie 3D i animacja wykluwania jaj | PROD-03, PROD-06 | Zaplanowane (#49) |
+| PROD-08 | Oprawa dźwiękowa (SFX & Muzyka BGM) oraz optymalizacja mobilna interfejsu | PROD-03, PROD-06 | Zaplanowane (#50) |
 
 ## Odbiór i stan publikacji
 
-DOC-* oznaczają wyłącznie istniejące materiały; zamknięte zgłoszenie nie jest zaliczeniem scenariuszy gry. Pozostałe zgłoszenia mają zawierać zakres zapisu, zależności i konkretne kryteria, z dowodem L/S/D/H stosownie do zadania. PRE-* pozostają dokumentacyjne. Nie przypisywać wykonawców ani uruchamiać kodowania samym opublikowaniem backlogu.
-
-Opublikowano 35 zadań oraz [plan nadrzędny #1](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/1). Numery, adresy i zależności zapisano w [rejestrze GitHub](workflow/github_task_registry.json). Pięć materiałów DOC-* oraz trzy przygotowania PRE-* zamknięto dokumentacyjnie. Zadania IMP-01–15 oraz QA-01 wykonano i odebrano (40_first_farm_completion_delivery.md); po ich zamknięciu pozostaje 11 otwartych zadań (NEXT-01–10, REL-01). To rejestr publikacji zgłoszeń, nie wynik pełnej integracji gry. Zadania odłożonego bilansu i kontraktów kooperacyjnych nie są aktywowane tym dokumentem.
+Opublikowano 49 zadań składowych oraz [plan nadrzędny #1](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/1). Numery, adresy i zależności zapisano w [rejestrze GitHub](workflow/github_task_registry.json). Zadania DOC-01..05, PRE-01..03, IMP-01..15, QA-01, NEXT-01..10, REL-01 oraz VIS-01..06 (#2–#42) zostały wykonane i zamknięte. Do realizacji utworzono 8 zadań pełnego wdrożenia produkcyjnego (PROD-01–08, #43–#50). Zadania odłożonego bilansu docs/17..21 pozostają w kwarantannie.
 
 PRE-01–03 zamykają przygotowanie interfejsów, nie wyniki testów. Sprawdzenie narzędzi należy do IMP-01, trwałości do IMP-07, sceny i czasu ruchu do IMP-13/15. Utrzymanie replay w długim działaniu jest bramką wydania opisaną w 34; nie zastępuje go wewnętrzny limit rozmiaru.

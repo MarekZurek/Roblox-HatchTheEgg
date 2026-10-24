@@ -102,4 +102,5 @@ QA tekstu 30 przez AGY/Gemini: warunkowe PASS; autor uwzględnił cztery doprecy
 
 Wspólny runner: **23 875 asercji (100% PASS L)** w 28 zestawach testów.  
 Rojo: Dokładnie **37 modułów Luau** oraz **2 skrypty wejściowe** (`Main.server.luau`, `Main.client.luau`).  
-Zadania #2–#36 zamknięte w rejestrze GitHub; wdrożono również warstwę wizualną i entrypointy Studio `VIS-01..05` (#37–#41: `FarmPlotBuilder.luau`, `HUD.luau`, `RoutePresentation.luau`, `Main.server.luau`, `Main.client.luau`). Repozytorium ma status **Release Candidate Approved**. Bramki wdrożeniowe S (Studio), D (Cloud DataStore) oraz H (Mobile UI) jawnie zdefiniowane przed publikacją produkcyjną. Bilans 17–21 i referencyjne JSON-y bez zmian.
+Zadania #2–#42 (`DOC`, `PRE`, `IMP`, `QA`, `NEXT`, `REL`, `VIS`) zamknięte w rejestrze GitHub; warstwa wizualna i HUD w `StarterGui` zsynchronizowane z Roblox Studio.
+Utworzono na GitHubie 8 zadań pełnego wdrożenia produkcyjnego `PROD-01–08` (#43–#50) na podstawie dogłębnej analizy dokumentacji referencyjnej. Repozytorium ma status **Release Candidate Approved / Ready for PROD Phase**. Bilans 17–21 i referencyjne JSON-y bez zmian.

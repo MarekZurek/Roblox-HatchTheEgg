@@ -101,3 +101,29 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 - [x] IMP-15: Integracja pierwszej farmy i bootstrap (ServerBootstrap, ClientBootstrap, pełny smoke test pętli gry E2E).
 - [x] QA-01: Formalny odbiór pierwszej farmy A01–A16 w tests/acceptance/run.luau (264 asercje PASS, 100% pokrycia macierzy docs/29).
 Łączny runner: **21 914 asercji PASS L**, statyczny build 24 modułów bez skryptów wejściowych. Zamknięto issues #19–#25 na GitHubie.
+
+## NEXT-01–10 oraz REL-01 — wykonano i odebrano (24.10.2026)
+
+- [x] NEXT-01 (#26): Farm Value & Soul Eggs (`FarmMath/fv_se.luau`, 358 asercji).
+- [x] NEXT-02 (#27): Zmiana jaja, prestiż i księgowanie sesji (`ProgressActions.luau`, 199 asercji).
+- [x] NEXT-03 (#28): Pełne offline, boosty, Video Doubler i historia (`EffectsManager.luau`, 204 asercje).
+- [x] NEXT-04 (#29): Pety: ekwipunek, wyposażenie i składanie efektów (`pets/equipment.luau`, 152 asercje).
+- [x] NEXT-05 (#30): Łączenie petów, ochrona slotów/locków i trwała gwarancja (`pets/fusion.luau`, 103 asercje).
+- [x] NEXT-06 (#31): Autorytatywne drony, walka, nagrody GE/Cash i pojedynczy claim (`rewards/drones.luau`, 72 asercje).
+- [x] NEXT-07 (#32): Kanały dostaw 2+1, darmowe odrzucenie, dzienny bonus i rezerwacje (`rewards/offers.luau`, 64 asercje).
+- [x] NEXT-08 (#33): Kalendarz 28 dni, trofea 19 jaj i konwersje nagród (`rewards/calendar.luau`, `rewards/trophies.luau`, 76 asercji).
+- [x] NEXT-09 (#34): Adapter produktów Pro, Buy MAX, GE i warunkowego Piggy (`platform/products.luau`, 55 asercji).
+- [x] NEXT-10 (#35): Onboarding, odzyskiwanie kroku samouczka i baseline konta (`onboarding/manager.luau`, `client/onboarding/TutorialController.luau`, 62 asercje).
+- [x] REL-01 (#36): Nadrzędny runner kandydata wydania (`tests/release_candidate/run.luau`, 113 asercji) oraz audytor bramek wydania (`tools/verify_release.py`).
+- [x] VIS-01..06 (#37–#42): Entrypointy Studio, generator świata 3D, wskaźniki diegetyczne, HUD w StarterGui, animacje kurcząt i dronów oraz weryfikacja na żywo.
+
+## Zadania Wdrożenia Pełnego / Produkcyjnego (PROD-01–08)
+
+- [ ] **PROD-01 (#43)**: Pełny katalog badań, kurników i floty (Tiers 1–13, Epic, 19 Kurników, 12 Pojazdów).
+- [ ] **PROD-02 (#44)**: Progresja 19 Jaj i Stacja Ulepszania Jaja w świecie 3D.
+- [ ] **PROD-03 (#45)**: Kompletne okna modalne UI (Kurniki, Flota, Badania, Pety, Sklep GE, Kalendarz & Trofea).
+- [ ] **PROD-04 (#46)**: Produkcyjna integracja chmury Roblox DataStoreService i blokowanie sesji.
+- [ ] **PROD-05 (#47)**: Produkcyjna obsługa płatności Roblox MarketplaceService (GamePasses & DevProducts).
+- [ ] **PROD-06 (#48)**: Diegetyczne aktory 3D: Drony z celowaniem, Ciężarówka dostawcza 2+1 i Silosy z SurfaceGui.
+- [ ] **PROD-07 (#49)**: Stacja Inkubacji Petów w świecie 3D i animacja wykluwania jaj.
+- [ ] **PROD-08 (#50)**: Oprawa dźwiękowa (SFX & Muzyka BGM) oraz optymalizacja mobilna interfejsu.
