@@ -1,5 +1,7 @@
 --!nocheck
--- Pure first-farm arithmetic. No purchases, mutation, services or persistence.
+-- Pure production math with explicit server context. No purchases or persistence.
+local isStudio=(typeof(script)=="Instance")
+local FvSe=if isStudio then require(script.Parent.fv_se) else require("./fv_se")
 local Module = {}
 local function fail(code) error("FarmMath/" .. code, 3) end
 function Module.new(codec, catalog, options)
@@ -68,6 +70,7 @@ function Module.new(codec, catalog, options)
 			commonPoints = points,
 			layingPerChickenPerSecond = amount.divide(eggLayingRateMult, 30),
 			eggValue = amount.multiply(catalog.getEgg(0).value, eggValueMult),
+            eggValueMult = eggValueMult,
 			refillPerSecond = amount.multiply(3, hatcheryRefillRateMult),
 			hatcheryCapacity = amount.add(250, hatcheryCapacityAdd),
 			internalHatcheryPerHabPerMinute = internalHatcheryRateAdd,
@@ -76,6 +79,44 @@ function Module.new(codec, catalog, options)
 			maxFleetSize = 4 + maxFleetSizeAdd,
 		})
 	end
+ -- Read only confirmed catalog effects. Empty/special Epic entries are not guessed.
+ function api.progression(permanent)
+  permanent=permanent or {}
+  local epic=permanent.epic or {}
+  local function effects(id,alias)
+   local level=epic[id] or (alias and epic[alias]) or 0
+   return catalog.epicEffects(id,level),level
+  end
+  local _,sf=effects("soul_eggs","soul_food")
+  local _,pb=effects("prophecy_bonus")
+  local lay=effects("epic_egg_laying")
+  local refill=effects("epic_hatchery")
+  local shipping=effects("transportation_lobbyist")
+  local calm=effects("int_hatch_calm")
+  local _,silo=effects("silo_capacity")
+  local se=codec.Real64.decode(permanent.SE or "0")
+  amount.validate(se)
+  -- The exact PE counter is retained in the profile; conversion for the exponent
+  -- is explicit and never replaces that counter.
+  local pe=codec.ExactUInt.toReal64Rounded(codec.ExactUInt.decode(permanent.PE or "0"))
+  local mystical=1
+  if se~=0 then local _,m=FvSe.calculateEarningBonus(se,pe,sf,pb);mystical=amount.validate(m) end
+  return {mysticalMultiplier=mystical,layingRateMult=lay.eggLayingRateMult or 1,
+   refillMult=refill.hatcheryRefillRateMult or 1,shippingMult=shipping.vehicleCapacityMult or 1,
+   calmMult=calm.internalHatcheryMultAway or 1,siloCapacityLevel=silo}
+ end
+ function api.productionContext(common,eggIndex,permanent,pet)
+  local r=table.clone(api.research(common));local progression=api.progression(permanent)
+  pet=pet or {}
+  r.eggValue=amount.multiply(amount.multiply(catalog.getEgg(eggIndex or 0).value,r.eggValueMult),pet.eggValueMult or 1)
+  r.layingPerChickenPerSecond=amount.multiply(amount.multiply(r.layingPerChickenPerSecond,progression.layingRateMult),pet.layingRateMult or 1)
+  r.refillPerSecond=amount.multiply(r.refillPerSecond,progression.refillMult)
+  r.vehicleCapacityMult=amount.multiply(r.vehicleCapacityMult,progression.shippingMult)
+  r.mysticalMultiplier=progression.mysticalMultiplier
+  r.calmMult=progression.calmMult
+  r.siloCapacityLevel=progression.siloCapacityLevel
+  return r
+ end
 	function api.tierUnlocked(input, tier)
 		local points = levels(input)
 		return points >= catalog.tierThreshold(tier)
@@ -96,20 +137,20 @@ function Module.new(codec, catalog, options)
 		for i = 1, n do if list[i] == nil then fail("INVALID_ARRAY") end end
 		return n
 	end
-	function api.capacities(input, habitatTypes)
+	function api.capacities(input, habitatTypes, petCapacityMult)
 		dense(habitatTypes, 4, 4)
 		local mult, caps, total = api.research(input).habCapacityMult, {}, 0
 		for i = 1, 4 do
 			local kind = habitatTypes[i]
-			local cap = if kind == false then 0 else math.ceil(amount.multiply(catalog.getHabitat(kind).capacity, mult))
+			local cap = if kind == false then 0 else math.ceil(amount.multiply(amount.multiply(catalog.getHabitat(kind).capacity, mult),petCapacityMult or 1))
 			caps[i], total = cap, total + cap
 		end
 		return table.freeze(caps), total
 	end
-	function api.shippingPerSecond(input, vehicleTypes)
+	function api.shippingPerSecond(input, vehicleTypes, permanent)
 		local r = api.research(input)
 		local n = dense(vehicleTypes, r.maxFleetSize)
-		local mult, perMinute = r.vehicleCapacityMult, 0
+		local mult, perMinute = amount.multiply(r.vehicleCapacityMult,api.progression(permanent).shippingMult), 0
 		for i = 1, n do perMinute = amount.add(perMinute, amount.multiply(catalog.getVehicle(vehicleTypes[i]).capacity, mult)) end
 		return amount.divide(perMinute, 60)
 	end
@@ -117,25 +158,26 @@ function Module.new(codec, catalog, options)
 		if type(state) ~= "table" then fail("INVALID_STATE") end
 		dt = amount.validate(dt)
 		if dt > 0.3 then fail("STEP_TOO_LONG") end
-		local r = api.research(state.commonLevels)
-		local caps = api.capacities(state.commonLevels, state.habitatTypes)
+		local r = api.productionContext(state.commonLevels,state.eggIndex,state.permanent,state.petMultipliers)
+		local caps = api.capacities(state.commonLevels, state.habitatTypes,state.petMultipliers and state.petMultipliers.habCapacityMult)
 		dense(state.settledPopulation, 4, 4)
 		local population = 0
 		for i = 1, 4 do
 			-- This first fragment accepts only safe exact populations fitting its selected habitats.
 			local p = codec.ExactUInt.toSafeNumber(codec.ExactUInt.decode(state.settledPopulation[i]))
-			if p > caps[i] then fail("UNSUPPORTED_POPULATION") end
+			if p > caps[i] and not state.permitExistingPopulation then fail("UNSUPPORTED_POPULATION") end
 			population += p
+			if population > 9007199254740991 then fail("UNSAFE_TOTAL_POPULATION") end
 		end
 		local rcb = if state.rcbMultiplier == nil then 1 else amount.validate(state.rcbMultiplier)
 		if rcb < 1 then fail("INVALID_RCB") end
 		local producedRate = amount.multiply(population, r.layingPerChickenPerSecond)
-		local shippingRate = api.shippingPerSecond(state.commonLevels, state.vehicleTypes)
+		local shippingRate = api.shippingPerSecond(state.commonLevels, state.vehicleTypes,state.permanent)
 		local soldRate = math.min(producedRate, shippingRate)
-		local cashRate = amount.multiply(amount.multiply(soldRate, r.eggValue), rcb)
+		local cashRate = amount.multiply(amount.multiply(amount.multiply(soldRate, r.eggValue), rcb),r.mysticalMultiplier)
 		local produced = amount.multiply(producedRate, dt)
 		local sold = math.min(produced, amount.multiply(shippingRate, dt))
-		local cash = amount.multiply(amount.multiply(sold, r.eggValue), rcb)
+		local cash = amount.multiply(amount.multiply(amount.multiply(sold, r.eggValue), rcb),r.mysticalMultiplier)
 		return table.freeze({ producedEggsPerSecond = producedRate, soldEggsPerSecond = soldRate,
 			cashIncomePerSecond = cashRate, producedEggs = produced,
 			soldEggs = sold, cashIncome = cash,

@@ -87,3 +87,8 @@ Stan: 24.10.2026. Dokumentacja, planowanie oraz lokalnie wykonane i zweryfikowan
 ## Poprawki bezpieczeństwa 25.10.2026
 
 [Odbiór poprawek #51–53](workflow/security_fixes_51_53.md): ścisłe wejścia nagród, trwałe rejestry i testy regresyjne. Inkubacja produkcyjna bez zatwierdzonej konfiguracji jest niedostępna; bilans nadal odłożony. Pozostałe uwagi audytu nie są zamknięte.
+
+
+## Produkcja — poprawki 25.10.2026
+
+[#54–55: aktualne jajo, SE/PE, pety i boosty](workflow/production_fixes_54_55.md). 147 nowych regresji L, pełny runner 67 941 asercji PASS. Bez zatwierdzenia bilansu lub gotowości wydania; #56–61 pozostają do realizacji.

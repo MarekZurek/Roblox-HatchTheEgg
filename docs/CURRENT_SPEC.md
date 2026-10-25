@@ -134,3 +134,8 @@ Dokumentacyjny manifest F01 przygotowano w [30](30_first_farm_manifest_and_techn
 **Rojo Static Build**: Dokładnie **37 modułów Luau** (w tym `FarmPlotBuilder.luau`) oraz **2 skrypty wejściowe** (`Main.server.luau`, `Main.client.luau`).  
 **Bramki wydania (Release Gates)**: Wszystkie 6 bramek zatwierdzone (brak devgrantów, baza docs/31 §4, niezmienniki stanu, fencing/retencja docs/34 §4, 37 modułów + 2 entrypointy Rojo, kwarantanna odłożonego bilansu docs/17..21).  
 Zadania `DOC-01..05`, `PRE-01..03`, `IMP-01..15`, `QA-01`, `NEXT-01..10`, `REL-01` (#2–#36) zamknięte; zadania wizualne `VIS-01..05` (#37–#41) zaimplementowane w kodzie i zsynchronizowane z Roblox Studio. Repozytorium ma status **Release Candidate Approved**. Bramki wdrożeniowe S (Studio), D (Cloud DataStore) oraz H (Mobile UI) jawnie zdefiniowane przed publikacją produkcyjną.
+
+
+## Produkcja — poprawki #54–55 (25.10.2026)
+
+[Wykonano podłączenie kontekstu](workflow/production_fixes_54_55.md): aktualne jajo, SE/PE i właściwe warstwy petów/boostów działają w Bootstrap/Timeline, a timery przechodzą zapis i wznowienie. Dowód L: 147 nowych regresji, cały runner 67 941 asercji PASS. Tabele i odłożony bilans bez zmian; nie zatwierdza konfiguracji produkcyjnej. Pozostałe uwagi #56–61 nadal otwarte, w tym historyczne ważenie granicznego eventu.

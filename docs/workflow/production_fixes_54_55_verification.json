@@ -1,0 +1,86 @@
+{
+  "date": "2026-10-25",
+  "issues": [
+    54,
+    55
+  ],
+  "status": "PASS_L",
+  "command": "./tools/test.ps1 -PythonExecutable <Python3 executable>",
+  "totalAssertions": 67941,
+  "testSuites": 30,
+  "newRegressionAssertions": 147,
+  "staticBuild": {
+    "status": "PASS_STATIC_BUILD",
+    "moduleScripts": 38,
+    "entrypointScripts": 2
+  },
+  "studioTested": false,
+  "realDataStoreTested": false,
+  "realPaymentsTested": false,
+  "typecheckerRun": false,
+  "sourceRules": [
+    "docs/05 section4: 1+EB, not EB alone",
+    "docs/16: dimension-specific pet stacking, transport cap, Alien active-category gate, Enlightenment",
+    "docs/27: clock, checkpoint, float round-trip, whole away period",
+    "Existing unchanged CatalogRegistry and Equipment tables; no new calibrated parameters"
+  ],
+  "evidence": [
+    "Actual Bootstrap production for current egg and SE/PE/SoulFood/Prophecy Bonus",
+    "Actual UpgradeEgg/Prestige followed by hatch, arrival and production",
+    "Independent numeric expectations for pet stacking, earnings, transport, IHR and Calm",
+    "Checkpoint after production, persisted reload with active effects: bit-identical cash and timers",
+    "Real server-clock settlement before equipment change",
+    "Profile timers encoded via NumericCodec; legacy numeric durations accepted",
+    "Over-capacity population preserved after removing capacity pet; final ceil order checked",
+    "HUD and actual income use same production context",
+    "FarmValue retains research-only inputs"
+  ],
+  "limitations": [
+    "No automatic correction/compensation of old historical underpayments",
+    "Old checkpoints use only their saved inputs; no current inventory grafted into a past phase",
+    "Partial-step event weighting remains issue61",
+    "Missing activation/UI commands remain issue56",
+    "Test-only pet strength catalog status unchanged, not approved production balance",
+    "No live Roblox engine or cloud test"
+  ],
+  "deferredBalanceAndReferenceDataChanged": false,
+  "review": "Scoped author review and actual-module regressions; no claim of external QA",
+  "files": [
+    {
+      "path": "src/server/FarmMath/production_research.luau",
+      "sha256": "df9878da5846673829a6ac018b1203f8d34a93888ee713c7a91b256864dd1590"
+    },
+    {
+      "path": "src/server/EffectsManager.luau",
+      "sha256": "2bef7713ca17e7f054c77b9069466b84af823ce3b4f6a42df06bd784da8aa8c1"
+    },
+    {
+      "path": "src/server/TimelineSimulation.luau",
+      "sha256": "025d3dff62ad401e2fe0440d48c729e19ccc141668c37d97b2665a902ea2e360"
+    },
+    {
+      "path": "src/server/Bootstrap.luau",
+      "sha256": "b23635a390ab21f2f166da868395eed492b28d19a4a981195d2259f09aa35591"
+    },
+    {
+      "path": "src/server/NetworkGateway.luau",
+      "sha256": "3c8a10b9553e0384cad473df16e3acda82a287c0a061f66c65a1237d6b37507b"
+    },
+    {
+      "path": "src/server/ProfileSchema.luau",
+      "sha256": "9041f2d56379272c8ff1ea5f180576cd0da6ef794d71fee998dda654faa53d27"
+    },
+    {
+      "path": "src/server/ViewProjector.luau",
+      "sha256": "378a6e6a1dcc71c90a27f9bb3d5ee16208b32ea5717315298e945bfe86416a8e"
+    },
+    {
+      "path": "tools/test.ps1",
+      "sha256": "fd86587d1dbf65b853f92b0f6c47c8c7f7c009e03bc6a55df76161aa2fa60e9b"
+    },
+    {
+      "path": "tests/production_context/run.luau",
+      "sha256": "ea06e2d7e93e4fd7a77282720e8b42c047ff14c8cc579187599116d3319a1cc9"
+    }
+  ]
+}

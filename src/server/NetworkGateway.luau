@@ -252,7 +252,7 @@ function NetworkGateway:_initHandlers()
 			quoteId = message.args.quoteId,
 		}
 
-		local submitResult = pData.coordinator.submit(op)
+		local submitResult = pData.coordinator.submit(op,{kind="TimeAdvance",targetMs=nowMs,budget=100})
 		if submitResult.status == "NOT_ACCEPTED" then
 			return {
 				protocolVersion = 1,

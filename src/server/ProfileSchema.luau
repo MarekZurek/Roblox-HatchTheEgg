@@ -30,6 +30,16 @@ function Schema.new(codec)
 		uint(p.permanent.GE); uint(p.permanent.totalGESpent); A.decode(p.permanent.SE);uint(p.permanent.PE)
 		for _,name in {"prestigeSessionArchivedCash","prestigeExtraEarnings","lastBaseEarnings","currentFarmCash","lastCashEarned"} do A.decode(p.accounting[name]) end
 		instant(p.timeline.settledWallThrough)
+		if p.effects.boosts~=nil then
+			assert(type(p.effects.boosts)=="table","INVALID_BOOSTS")
+			for _,boost in p.effects.boosts do
+				assert(type(boost)=="table" and type(boost.id)=="string","INVALID_BOOST")
+				local remaining=if type(boost.remainingSeconds)=="string" then R.decode(boost.remainingSeconds) else R.validate(boost.remainingSeconds)
+				assert(remaining>=0,"INVALID_BOOST_DURATION")
+			end
+		end
+		if p.effects.videoDoublerEndsAtMs~=nil then instant(p.effects.videoDoublerEndsAtMs) end
+		if p.effects.videoDoubler~=nil then instant(p.effects.videoDoubler.endsAtMs) end
 		if p.inventory.petSequence~=nil then uint(p.inventory.petSequence) end
 		if p.rewards.droneSpawns~=nil then
 			assert(type(p.rewards.droneSpawns)=="table","INVALID_DRONE_REGISTRY")

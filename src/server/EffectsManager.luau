@@ -100,6 +100,7 @@ local function calculateMultipliers(
 	local effectiveIHRBoost = 1.0
 	local effectivePrestigeBoost = 1.0
 	local beaconFactor = 1.0
+ local petBoost=(options and options.boostBoostMult) or 1.0
 
 	if boostsEnabled and effects and effects.boosts then
 		local jimboSum = 0
@@ -126,9 +127,9 @@ local function calculateMultipliers(
 		end
 
 		beaconFactor = if beaconSum > 0 then beaconSum else 1.0
-		effectiveEarningsBoost = if jimboSum > 1.0 then jimboSum * beaconFactor else 1.0
-		effectiveIHRBoost = if tachyonSum > 1.0 then tachyonSum * beaconFactor else 1.0
-		effectivePrestigeBoost = if soulBeaconSum > 1.0 then soulBeaconSum * beaconFactor else 1.0
+		effectiveEarningsBoost = if jimboSum > 1.0 then jimboSum * beaconFactor * petBoost else 1.0
+		effectiveIHRBoost = if tachyonSum > 1.0 then tachyonSum * beaconFactor * petBoost else 1.0
+		effectivePrestigeBoost = if soulBeaconSum > 1.0 then soulBeaconSum * beaconFactor * petBoost else 1.0
 	end
 
 	-- 3. Live Events (docs/11 §2)

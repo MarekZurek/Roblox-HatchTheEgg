@@ -83,6 +83,9 @@ local function deepEqual(a, b)
 	return true
 end
 
+local isStudio=(typeof(script)=="Instance")
+local Equipment=if isStudio then require(script.Parent.pets.equipment) else require("./pets/equipment")
+local Effects=if isStudio then require(script.Parent.EffectsManager) else require("./EffectsManager")
 local ViewProjector = {}
 ViewProjector.__index = ViewProjector
 ViewProjector.ALL_COMMON_RESEARCH_IDS = ALL_COMMON_RESEARCH_IDS
@@ -111,6 +114,7 @@ function ViewProjector.new(deps)
 		catalog = deps.catalog,
 		productionMath = productionMath,
 		configRevision = deps.configRevision or "CANONICAL_V1",
+  liveEvents = deps.liveEvents or {},
 		supportedIds = table.freeze(supportedIds),
 	}, ViewProjector)
 
@@ -131,7 +135,8 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
 	local commonLevels = farm.common or {}
 
 	-- Compute derived research metrics
-	local r = productionMath.research(commonLevels)
+	local pets=Equipment.calculatePetMultipliers(profile.inventory,farm)
+ local r = productionMath.productionContext(commonLevels,farm.eggIndex,profile.permanent,pets)
 
 	-- Habitats: 4 slots
 	local habTypes = {}
@@ -139,7 +144,7 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
 		local h = farm.habitats and farm.habitats[i]
 		habTypes[i] = if h and h.typeIndex ~= nil and h.typeIndex >= 0 then h.typeIndex else false
 	end
-	local caps = productionMath.capacities(commonLevels, habTypes)
+	local caps = productionMath.capacities(commonLevels, habTypes,pets.habCapacityMult)
 
 	local habitatsList = {}
 	local totalPopExact = codec.ExactUInt.fromSafeNumber(0)
@@ -182,7 +187,15 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
 	local producedEggsPerSecondNum = codec.BigAmount.multiply(totalPopNum, r.layingPerChickenPerSecond)
 	local shippingPerSecondNum = codec.BigAmount.divide(shippingPerMinute, 60)
 	local soldEggsPerSecondNum = math.min(producedEggsPerSecondNum, shippingPerSecondNum)
-	local cashIncomePerSecondNum = codec.BigAmount.multiply(soldEggsPerSecondNum, r.eggValue)
+	local effects=table.clone(profile.effects or {})
+ effects.boosts={}
+ for i,b in (profile.effects and profile.effects.boosts) or {} do
+  local copy=table.clone(b)
+  if type(copy.remainingSeconds)=="string" then copy.remainingSeconds=codec.Real64.decode(copy.remainingSeconds) end
+  effects.boosts[i]=copy
+ end
+ local boosts=Effects.calculateMultipliers(effects,farm,serverObservedAt,self.liveEvents,{boostBoostMult=pets.boostBoostMult})
+ local cashIncomePerSecondNum=codec.BigAmount.multiply(codec.BigAmount.multiply(codec.BigAmount.multiply(soldEggsPerSecondNum,r.eggValue),r.mysticalMultiplier),boosts.earningsMultiplier)
 
 	-- Hatchery
 	local hatcheryStock = farm.hatcheryStock or "250"

@@ -1,5 +1,5 @@
 --!nocheck
--- Pure neutral first-farm timeline; checkpoints preserve production and growth phases on the same model grid.
+-- Server timeline with frozen progression/effects context and resumable model phases.
 local isStudio = (typeof(script) == "Instance")
 local function resolve(studioGetter, lunePath)
 	if isStudio then
@@ -14,6 +14,7 @@ end
 local EffectsManager = resolve(function()
 	return script.Parent.EffectsManager
 end, "./EffectsManager")
+local Equipment=resolve(function()return script.Parent.pets.equipment end,"./pets/equipment")
 local Timeline = {}
 function Timeline.new(codec, production, hatching, ihr, data, options)
  assert(options and options.mode == "INTERNAL_TEST_ONLY", "Timeline/TEST_MODE_REQUIRED")
@@ -49,9 +50,10 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
   for _,name in {"prestigeSessionArchivedCash","prestigeExtraEarnings","lastBaseEarnings","currentFarmCash","lastCashEarned"} do A.validate(s.accounting[name]) end
   local types,pops={},{}
   for i,h in f.habitats do types[i]=if h.typeIndex==-1 then false else h.typeIndex;pops[i]=h.population end
-  local caps=production.capacities(f.commonLevels,types)
+  local pets=Equipment.calculatePetMultipliers(s.inventory,f)
+  local caps=production.capacities(f.commonLevels,types,pets.habCapacityMult)
   for i,h in f.habitats do assert(h.capacity==U.encode(U.fromSafeNumber(caps[i])),"Timeline/CAPACITY_MISMATCH") end
-  production.productionStep({commonLevels=f.commonLevels,habitatTypes=types,settledPopulation=pops,vehicleTypes=f.vehicleTypes},0)
+  production.productionStep({commonLevels=f.commonLevels,habitatTypes=types,settledPopulation=pops,vehicleTypes=f.vehicleTypes,eggIndex=f.eggIndex,permanent=s.permanent,petMultipliers=pets,permitExistingPopulation=true},0)
   hatching.closeInFlightForAway(f) -- Validate group/reservation consistency without modifying input.
  end
  local function validateConfig(c)
@@ -95,7 +97,9 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
  end
  function api.advance(checkpoint,maxPhases)
   local cp=data.copy(checkpoint);validateCheckpoint(cp);integer(maxPhases)
-  local f=cp.state.farm;local research=production.research(f.commonLevels)
+  local f=cp.state.farm
+  local pets=Equipment.calculatePetMultipliers(cp.state.inventory,f)
+  local research=production.productionContext(f.commonLevels,f.eggIndex,cp.state.permanent,pets)
   for _=1,maxPhases do
    if cp.done then break end
    local dt=if cp.phase=="AFTER_PRODUCTION" then cp.stepDt else math.min(cp.remainingSeconds,0.3)
@@ -104,18 +108,19 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
    local stepEndMs=R.add(cp.startInstantMs,elapsed*1000)
    if cp.phase=="BETWEEN_STEPS" then
    cp.state.accounting.lastBaseEarnings=A.add(cp.state.accounting.prestigeSessionArchivedCash,cp.state.accounting.currentFarmCash)
-   local mults=EffectsManager.calculateMultipliers(cp.state.effects,f,stepEndMs,cp.config.liveEvents)
+   local mults=EffectsManager.calculateMultipliers(cp.state.effects,f,stepEndMs,cp.config.liveEvents,{boostBoostMult=pets.boostBoostMult})
    local types,pops={},{}
    for i,h in f.habitats do types[i]=if h.typeIndex==-1 then false else h.typeIndex;pops[i]=h.population end
-   local result=production.productionStep({commonLevels=f.commonLevels,habitatTypes=types,settledPopulation=pops,vehicleTypes=f.vehicleTypes,rcbMultiplier=1},dt)
+   local result=production.productionStep({commonLevels=f.commonLevels,habitatTypes=types,settledPopulation=pops,vehicleTypes=f.vehicleTypes,rcbMultiplier=1,eggIndex=f.eggIndex,permanent=cp.state.permanent,petMultipliers=pets,permitExistingPopulation=true},dt)
    local baseIncome=if cp.mode=="AWAY" then A.multiply(result.cashIncome,if cp.config.pro then 1 else 0.5) else result.cashIncome
    local income=A.multiply(baseIncome,mults.earningsMultiplier)
    f.cash=A.add(f.cash,income)
    local accounting=cp.state.accounting
    accounting.currentFarmCash=A.add(accounting.currentFarmCash,income)
    accounting.lastCashEarned=A.add(accounting.lastCashEarned,income)
-   if mults.prestigeMultiplier>1.0 then
-    local extraRate=mults.prestigeMultiplier-1.0
+   local prestigeMultiplier=A.multiply(mults.effectivePrestigeBoost,pets.prestigeEarningsMult)
+   if prestigeMultiplier>1.0 then
+    local extraRate=prestigeMultiplier-1.0
     local extraIncome=A.multiply(income,extraRate)
     accounting.prestigeExtraEarnings=A.add(accounting.prestigeExtraEarnings,extraIncome)
    end
@@ -123,9 +128,10 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
    else
    f=arrived(f,R.add(cp.startInstantMs/1000,elapsed))
    f.hatcheryStock=hatching.refill(f.hatcheryStock,research.hatcheryCapacity,research.refillPerSecond,dt)
-   local mults=EffectsManager.calculateMultipliers(cp.state.effects,f,stepEndMs,cp.config.liveEvents)
+   local mults=EffectsManager.calculateMultipliers(cp.state.effects,f,stepEndMs,cp.config.liveEvents,{boostBoostMult=pets.boostBoostMult})
    local baseIHRRate=R.divide(research.internalHatcheryPerHabPerMinute,60)
-   local effectiveIHRRate=R.multiply(baseIHRRate,mults.ihrMultiplier)
+   local effectiveIHRRate=R.multiply(R.multiply(baseIHRRate,pets.ihrMult),mults.ihrMultiplier)
+   if cp.mode=="AWAY" then effectiveIHRRate=R.multiply(effectiveIHRRate,research.calmMult) end
    f.habitats=ihr.step(f.habitats,effectiveIHRRate,dt,0,nil)
    if cp.state.effects~=nil then
     EffectsManager.stepDecay(cp.state.effects,f,dt)

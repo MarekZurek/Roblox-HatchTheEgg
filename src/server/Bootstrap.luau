@@ -109,15 +109,36 @@ local NUMERIC_ACCOUNTING = table.freeze({
 	"lastCashEarned",
 })
 
-local function neutralProfile(p)
+local function ensureSimulationSections(p)
 	p.effects = p.effects or {}
 	p.effects.boosts = p.effects.boosts or {}
 	p.inventory = p.inventory or {}
 	p.inventory.equipped = p.inventory.equipped or {}
 end
 
+local function decodeEffects(effects,codec,data)
+ local result=data.copy(effects or {})
+ for _,boost in result.boosts or {} do
+  if type(boost.remainingSeconds)=="string" then boost.remainingSeconds=codec.Real64.decode(boost.remainingSeconds) end
+  codec.Real64.validate(boost.remainingSeconds)
+ end
+ return result
+end
+local function encodeEffects(effects,codec,data)
+ local result=data.copy(effects)
+ for _,boost in result.boosts or {} do boost.remainingSeconds=codec.Real64.encode(boost.remainingSeconds) end
+ return result
+end
+local function frozenInventory(profile,data)
+ local equipped=data.copy(profile.inventory.equipped or {})
+ local pets={}
+ for _,uid in equipped do
+  if profile.inventory.pets[uid] then pets[uid]=data.copy(profile.inventory.pets[uid]) end
+ end
+ return {equipped=equipped,pets=pets}
+end
 local function profileToMemory(p, codec, productionMath, data)
-	neutralProfile(p)
+	ensureSimulationSections(p)
 	local f = data.copy(p.farm)
 	f.cash = codec.BigAmount.decode(f.cash)
 	f.hatcheryStock = codec.Real64.decode(f.hatcheryStock)
@@ -135,7 +156,8 @@ local function profileToMemory(p, codec, productionMath, data)
 		types[i] = if not hab or hab.typeIndex == -1 then false else hab.typeIndex
 	end
 
-	local capacities = productionMath.capacities(f.commonLevels, types)
+	local pets=Equipment.calculatePetMultipliers(p.inventory,f)
+ local capacities = productionMath.capacities(f.commonLevels, types,pets.habCapacityMult)
 	for i = 1, 4 do
 		local hab = f.habitats[i]
 		hab.capacity = tostring(capacities[i])
@@ -151,6 +173,10 @@ local function profileToMemory(p, codec, productionMath, data)
 		farm = f,
 		accounting = a,
 		settledWallThrough = p.timeline.settledWallThrough,
+  contextVersion = 1,
+  effects = decodeEffects(p.effects,codec,data),
+  permanent = {SE=p.permanent.SE,PE=p.permanent.PE,epic=data.copy(p.permanent.epic or {})},
+  inventory = frozenInventory(p,data),
 	}
 end
 
@@ -167,8 +193,10 @@ local function memoryToWire(p, state, checkpoint, codec, data)
 	for _, key in NUMERIC_ACCOUNTING do
 		out.accounting[key] = codec.BigAmount.encode(state.accounting[key])
 	end
-	out.timeline.settledWallThrough = state.settledWallThrough
-	out.timeline.integrationCheckpoint = checkpoint
+	if state.effects~=nil then out.effects=encodeEffects(state.effects,codec,data) end
+ out.timeline.settledWallThrough = state.settledWallThrough
+	-- Explicit completion marker: Coordinator patches never silently delete fields.
+	out.timeline.integrationCheckpoint = checkpoint or false
 	return out
 end
 
@@ -249,6 +277,7 @@ function ServerBootstrap.new(deps)
 	local configRevision = deps.configRevision or "first-farm-neutral:1"
 
 	local viewProjector = deps.viewProjector or ViewProjector.new({
+  liveEvents = deps.liveEvents or {},
 		codec = codec,
 		catalog = catalog,
 		productionMath = productionMath,
@@ -326,6 +355,7 @@ function ServerBootstrap.new(deps)
 		gateway = gateway,
 		players = {},
 		depsRouteProvider = deps.routeProvider,
+  liveEvents = data.copy(deps.liveEvents or {}),
   -- Test fixture only: no production hatch prices/chances have been approved.
   petHatchTestPolicy = deps.petHatchTestPolicy,
 	}, ServerBootstrap)
@@ -377,7 +407,8 @@ function ServerBootstrap:_simulationAdvance(playerSession, profile, request)
 			local hab = farm.habitats[i]
 			types[i] = if not hab or hab.typeIndex == -1 then false else hab.typeIndex
 		end
-		local capacities = self.productionMath.capacities(common, types)
+		local pets=Equipment.calculatePetMultipliers(profile.inventory,farm)
+  local capacities = self.productionMath.capacities(common, types,pets.habCapacityMult)
 		for i = 1, 4 do
 			local hab = farm.habitats[i]
 			hab.capacity = if hab.typeIndex == -1 then "0" else tostring(capacities[i])
@@ -411,7 +442,8 @@ function ServerBootstrap:_simulationAdvance(playerSession, profile, request)
 	else
 		local simConfig = {
 			revision = self.configRevision,
-			siloCapacityLevel = (self.config and self.config.siloCapacityLevel) or 0,
+			siloCapacityLevel = self.productionMath.progression(profile.permanent).siloCapacityLevel,
+   liveEvents = self.data.copy(self.liveEvents),
 			pro = if (profile.entitlements and profile.entitlements.pro_permit == true) then true else ((self.config and self.config.pro) or false),
 		}
 		cp = self.timeline.begin(mem, targetMs, simConfig)
@@ -894,7 +926,7 @@ function ServerBootstrap:grantEntitlement(playerId, entitlementId, opts)
 		},
 	}
 
-	coordinator.submit(op)
+	coordinator.submit(op,{kind="TimeAdvance",targetMs=self.clock.utcNowMs(),budget=100})
 	coordinator.drain()
 
 	local res = coordinator.resultOf(op.operationId)
@@ -1023,7 +1055,7 @@ function ServerBootstrap:equipPet(playerId, petUid)
 		},
 	}
 
-	coordinator.submit(op)
+	coordinator.submit(op,{kind="TimeAdvance",targetMs=self.clock.utcNowMs(),budget=100})
 	coordinator.drain()
 
 	local res = coordinator.resultOf(op.operationId)
@@ -1056,7 +1088,7 @@ function ServerBootstrap:unequipPet(playerId, petUid)
 		},
 	}
 
-	coordinator.submit(op)
+	coordinator.submit(op,{kind="TimeAdvance",targetMs=self.clock.utcNowMs(),budget=100})
 	coordinator.drain()
 
 	local res = coordinator.resultOf(op.operationId)
