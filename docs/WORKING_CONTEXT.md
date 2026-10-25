@@ -83,7 +83,7 @@ QA tekstu 30 przez AGY/Gemini: warunkowe PASS; autor uwzględnił cztery doprecy
 
 ## IMP-10–15 oraz QA-01 — wykonano i odebrano (24.10.2026)
 
-[40 — ukończenie i odbiór pierwszej farmy](40_first_farm_completion_delivery.md): w pełni zaimplementowano i zweryfikowano L/S/D moduły pierwszej farmy (FarmActions, ViewProjector, NetworkGateway, ClientTransport, ClientStateStore, RoutePresentation, IntentControllers, HUD, Bootstrap serwera i klienta oraz formalny odbiór A01–A16 w tests/acceptance/run.luau). Zgłoszenia #19–#25 zamknięte na GitHubie.
+[40 — ukończenie i odbiór pierwszej farmy](40_first_farm_completion_delivery.md): zaimplementowano moduły i sprawdzono ich lokalne warianty L; bez zaliczenia S/D/H dla pierwszej farmy (FarmActions, ViewProjector, NetworkGateway, ClientTransport, ClientStateStore, RoutePresentation, IntentControllers, HUD, Bootstrap serwera i klienta oraz formalny odbiór A01–A16 w tests/acceptance/run.luau). Zgłoszenia #19–#25 zamknięte na GitHubie.
 
 ## NEXT-01–10 oraz REL-01 — wykonano, zweryfikowano i odebrano (24.10.2026)
 
@@ -103,7 +103,7 @@ QA tekstu 30 przez AGY/Gemini: warunkowe PASS; autor uwzględnił cztery doprecy
 Wspólny runner: **23 875 asercji (100% PASS L)** w 28 zestawach testów.  
 Rojo: Dokładnie **37 modułów Luau** oraz **2 skrypty wejściowe** (`Main.server.luau`, `Main.client.luau`).  
 Zadania #2–#42 (`DOC`, `PRE`, `IMP`, `QA`, `NEXT`, `REL`, `VIS`) zamknięte w rejestrze GitHub; warstwa wizualna i HUD w `StarterGui` zsynchronizowane z Roblox Studio.
-Utworzono na GitHubie 8 zadań pełnego wdrożenia produkcyjnego `PROD-01–08` (#43–#50) na podstawie dogłębnej analizy dokumentacji referencyjnej. Repozytorium ma status **Release Candidate Approved / Ready for PROD Phase**. Bilans 17–21 i referencyjne JSON-y bez zmian.
+Utworzono na GitHubie 8 zadań pełnego wdrożenia produkcyjnego `PROD-01–08` (#43–#50) na podstawie dogłębnej analizy dokumentacji referencyjnej. Repozytorium ma status **lokalne testy L; wydanie niezatwierdzone**. Bilans 17–21 i referencyjne JSON-y bez zmian.
 
 
 ## Pełne nagrody kalendarza — #62 (25.10.2026)
@@ -124,3 +124,8 @@ Utworzono na GitHubie 8 zadań pełnego wdrożenia produkcyjnego `PROD-01–08` 
 ## Identyfikatory grup po resecie — #59 (25.10.2026)
 
 [Dostawa #59](workflow/reset_group_ids_59.md): zmiana jaja i prestiż zachowują hatchGroupSequence, usuwając poprzednie grupy i rezerwacje. Regresje sprawdzają następne dokładne ID oraz brak wpływu starych dotarć na nową grupę, także powyżej 2^53 i po serializacji profilu. Bez zmian bilansu i danych referencyjnych. Starsze listy otwartych ustaleń opisują stan poprzednich dostaw; pozostałe #60–61.
+
+
+## Zakres dowodów — #60 (25.10.2026)
+
+[Raport #60](workflow/release_evidence_60.md) koryguje wcześniejsze deklaracje L/S/D i zatwierdzenia wydania. Lokalne harnessy dają wyłącznie L, także przy kontrolowanym DataStore i rzeczywistym Main. Dla A01–A16 brak zarejestrowanego dowodu per scenariusz S/D/H; pozostają NOT_VERIFIED. Zamknięcie Issues, synchronizacja sceny i liczby asercji nie dowodzą odbioru. Bieżące raporty mają releaseCandidateReady=false. Bez zmian bilansu i historycznych JSON-ów.

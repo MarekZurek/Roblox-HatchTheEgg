@@ -90,7 +90,7 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 
 [39 — koordynator i neutralna symulacja](39_imp08_imp09_delivery.md): jeden autor komend/ticków/checkpointów, rozstrzyganie PENDING/UNKNOWN i odzyskiwanie sesji; neutralny Timeline z siatką do 0.3 s, fazowym checkpointem i pełnym zamknięciem away. Wspólny runner **20 885 asercji PASS L**, w tym 221 koordynatora, 58 Timeline i 70 integracji; statyczny build 14 modułów. Integracja używa rzeczywistych modułów z kontrolowanym storage i testowym adapterem pamięć–wire. Studio, prawdziwy DataStore, Gateway, produkcyjny bootstrap i typechecker niewykonane. Bieżące zlecenie obejmuje IMP-08/09 i publikację kodu/testów/docs; wcześniejsze ograniczenia zakresu są historyczne. Nie rozpoczęto kolejnych zadań. Bilans 17–21 i referencyjne JSON-y bez zmian.
 
-## IMP-10–15 oraz QA-01 — wykonano i odebrano L/S/D (24.10.2026)
+## IMP-10–15 oraz QA-01 — wykonano lokalne warianty L; S/D/H niezweryfikowane (24.10.2026)
 
 [40 — ukończenie i odbiór pierwszej farmy](40_first_farm_completion_delivery.md): w pełni zrealizowano pozostałe zadania pierwszej farmy:
 - [x] IMP-10: FarmActions (wyceny createQuote, pojedyncze zakupy BuyResearch/BuyHabitat/BuyVehicle, sameTypeOwned, nienaruszalność accounting.currentFarmCash, idempotencja).
@@ -99,7 +99,7 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 - [x] IMP-13: Scena podstawowej farmy i prezentacja tras (RoutePresentation: 4 parcele PRE-03, animacja kur, zerowy wpływ 3D na autorytatywny stan).
 - [x] IMP-14: Minimalny HUD i kontrolery intencji (IntentControllers: HatchPress/HatchInput z inputSeq, ShopController; HUD: formatowanie K/M/B/T, reaktywność, blokady, baner sesji).
 - [x] IMP-15: Integracja pierwszej farmy i bootstrap (ServerBootstrap, ClientBootstrap, pełny smoke test pętli gry E2E).
-- [x] QA-01: Formalny odbiór pierwszej farmy A01–A16 w tests/acceptance/run.luau (264 asercje PASS, 100% pokrycia macierzy docs/29).
+- [x] QA-01: Formalny odbiór pierwszej farmy A01–A16 w tests/acceptance/run.luau (264 asercje PASS, lokalne warianty macierzy docs/29; nie jest to procent pokrycia wymagań).
 Łączny runner: **21 914 asercji PASS L**, statyczny build 24 modułów bez skryptów wejściowych. Zamknięto issues #19–#25 na GitHubie.
 
 ## NEXT-01–10 oraz REL-01 — wykonano i odebrano (24.10.2026)
@@ -132,7 +132,7 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 ## Bezpieczeństwo — 25.10.2026
 
 - [x] #51–53: zablokować wymuszanie ceny/wyniku inkubacji i wypłaty z nieistniejących dronów/ofert; dodać trwałe rejestry i regresję odbioru. [Zakres i ograniczenia](workflow/security_fixes_51_53.md). Nie zatwierdza bilansu ani całej gotowości wydania.
-- [ ] Pozostałe ustalenia audytu #60–61 pozostają do wykonania na osobne zlecenie.
+- [ ] Pozostałe ustalenia audytu #61 pozostają do wykonania na osobne zlecenie.
 
 - [x] #54–55: podłączyć aktualne jajo, SE/PE, pety i boosty do produkcji, HUD oraz zapisu/wznowienia. [Zakres i dowody](workflow/production_fixes_54_55.md). Bilans bez zmian.
 
@@ -145,3 +145,11 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 - [x] #58: bieżąca polityka konta dla +10 p.p., bezpieczny brak danych, niezależna własność Pro i informacja przed zakupem. [Dostawa](workflow/pro_policy_58.md).
 
 - [x] #59: zachować monotoniczny licznik grup przy obu resetach; regresje nowych ID i spóźnionych dotarć. [Dostawa](workflow/reset_group_ids_59.md).
+
+
+## Zakres dowodów — #60 (25.10.2026)
+
+[Raport #60](workflow/release_evidence_60.md) koryguje wcześniejsze deklaracje L/S/D i zatwierdzenia wydania. Lokalne harnessy dają wyłącznie L, także przy kontrolowanym DataStore i rzeczywistym Main. Dla A01–A16 brak zarejestrowanego dowodu per scenariusz S/D/H; pozostają NOT_VERIFIED. Zamknięcie Issues, synchronizacja sceny i liczby asercji nie dowodzą odbioru. Bieżące raporty mają releaseCandidateReady=false. Bez zmian bilansu i historycznych JSON-ów.
+
+- [x] #60: rozdzielić lokalne wyniki od gotowości wydania, skorygować deklaracje i dodać regresje raportów/wybranego wiringu Main.
+- [ ] Odbiór S/D/H według scenariuszy 29: zebrać rzeczywiste dowody w osobno zleconych środowiskach; #60 nie zalicza tych poziomów.

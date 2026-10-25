@@ -40,6 +40,8 @@ try {
         & $PythonExecutable tests/game_behavior/mutation_check.py
         if ($LASTEXITCODE -ne 0) { throw 'Behavior mutation checks failed.' }
     }
+    & $PythonExecutable tests/release_reporting/test_reporting.py
+    if ($LASTEXITCODE -ne 0) { throw 'Release evidence regression tests failed.' }
     & $PythonExecutable tools/verify_release.py
     if ($LASTEXITCODE -ne 0) { throw 'Release verification failed.' }
 } finally { Pop-Location }

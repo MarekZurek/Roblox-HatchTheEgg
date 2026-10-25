@@ -1,7 +1,7 @@
 # Dostawa kandydata wydania HatchTheEgg (REL-01 / #36): integracja i jawne bramki
 
 Data: **24.10.2026**  
-Status: **Kandydat wydania (Release Candidate) zrealizowany, zweryfikowany na poziomie L i zatwierdzony.**  
+Status po korekcie #60 (25.10.2026): **lokalna kompozycja domen L; wydanie niezatwierdzone, S/D/H niezweryfikowane.**
 Repozytorium: `MarekZurek/Roblox-HatchTheEgg`  
 Zgłoszenie nadrzędne: [#1](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/1) (`[PLAN] HatchTheEgg — mapa zadań i równoległych ścieżek`)  
 Zamknięte zgłoszenie: [#36](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/36) (`[REL-01] Kandydat wydania: integracja i jawne bramki`)
@@ -36,21 +36,21 @@ Zgodnie z wymaganiami zadania #36 oraz zasadą transparentności weryfikacji L/S
 
 | Bramka | Zakres weryfikacji | Poziom | Status w repozytorium |
 |---|---|---|---|
-| **Bramka 1: Brak backdoorów / devgrantów** | Przeszukanie całego kodu `src/` oraz schematów `ProtocolSchemas` i `NetworkGateway` pod kątem obecności nieautoryzowanych komend przyznawania walut (`devgrant`, `godmode`, `add_money`, `free_ge`, `admin_grant`). | **L** (harness) | **PASS**: 0 niedozwolonych handlerów i schematów. |
-| **Bramka 2: Baza onboardingowa i integralność stanu** | Inicjalizacja nowego konta ściśle według `docs/31 §4`: 1 Coop (slot 1), 3 puste sloty, 1 Trike, fleetLimit 4, 1 silos (3600s), $0 gotówki, 10 GE (earned=10, spent=0), 0 SE, 0 PE, brak badań wspólnych i epickich, krok 1 samouczka. | **L** (harness) | **PASS**: 100% zgodności z bazą kontraktową; zero nieuprawnionych darmowych grantów. |
-| **Bramka 3: Niezmienniki stanu i konserwacja walut** | `accounting.currentFarmCash` jest monotonicznie nierosnące przy wydatkach; zakupy badań/kurników/pojazdów wymagają wystarczających środków i nie generują ujemnych sald. | **L** (harness) | **PASS**: Monotoniczność gross farm cash zweryfikowana bitowo. |
-| **Bramka 4: Ochrona sesji, fencing i retencja** | Potwierdzona dzierżawa (120s), unieważnienie przeterminowanych dzierżaw, idempotencja `operationId`, limity retencji `docs/34 §4`: profil $\le$ 3 MiB, ledger $\le$ 2 MiB. | **L / D** (kontrakt) | **PASS**: Profile aggregate i ledger mieszczą się w twardych limitach wielkościowych. |
+| **Bramka 1: Brak backdoorów / devgrantów** | Przeszukanie całego kodu `src/` oraz schematów `ProtocolSchemas` i `NetworkGateway` pod kątem obecności nieautoryzowanych komend przyznawania walut (`devgrant`, `godmode`, `add_money`, `free_ge`, `admin_grant`). | **L** (harness) | **L, zakres ograniczony**: odrzucenie wybranych nazw przez rzeczywisty schemat i skan tokenów; nie dowodzi braku wszystkich uprzywilejowanych handlerów. |
+| **Bramka 2: Baza onboardingowa i integralność stanu** | Inicjalizacja nowego konta ściśle według `docs/31 §4`: 1 Coop (slot 1), 3 puste sloty, 1 Trike, fleetLimit 4, 1 silos (3600s), $0 gotówki, 10 GE (earned=10, spent=0), 0 SE, 0 PE, brak badań wspólnych i epickich, krok 1 samouczka. | **L** (harness) | **L**: wybrane asercje stanu bazowego; brak dowodu całej powierzchni grantów. |
+| **Bramka 3: Niezmienniki stanu i konserwacja walut** | `accounting.currentFarmCash` jest niepomniejszane przez wydatki; zakupy badań/kurników/pojazdów wymagają wystarczających środków i nie generują ujemnych sald. | **L** (harness) | **PASS**: Monotoniczność gross farm cash zweryfikowana bitowo. |
+| **Bramka 4: Ochrona sesji, fencing i retencja** | Potwierdzona dzierżawa (120s), unieważnienie przeterminowanych dzierżaw, idempotencja `operationId`, limity retencji `docs/34 §4`: profil $\le$ 3 MiB, ledger $\le$ 2 MiB. | **L** (harness; D niezweryfikowane) | **L, zakres ograniczony**: kontrolowane przykłady i testy repository; nie dowodzi trwałości chmury ani retencji przy długim działaniu. |
 | **Bramka 5: Czysta architektura Rojo** | Statyczny build Rojo (`build/mapping-results.json`): dokładnie 37 modułów Luau oraz 2 skrypty wejściowe (`Main.server.luau`, `Main.client.luau`). | **L** (statyczny build) | **PASS**: `PASS_STATIC_BUILD` z 37 modułami i 2 entrypointami. |
 | **Bramka 6: Kwarantanna odłożonego bilansu** | Pliki `docs/17..21` (bilans petów, inkubatorów, symulacja progresji, płatności) pozostają w stanie odłożonym (quarantine). Kod w `src/` nie importuje ani nie polega na niezatwierdzonych cenach. | **L** (statyczny audyt) | **PASS**: Pliki odłożone pozostają nienaruszone jako jawna bramka do przyszłych etapów. |
 | **Bramka S: Roblox Studio Runtime** | Testy w środowisku Roblox Studio: fizyka silnika, rendering 3D, replikacja RemoteEvent i symulacja w czasie rzeczywistym. | **S** (Studio) | **Bramka wdrożeniowa Studio**: Wymaga ręcznego/automatycznego uruchomienia w Roblox Studio po wdrożeniu assetów 3D. |
-| **Bramka D: Natywny DataStore i Chmura** | Realny zapis chmurowy, obsługa sieciowych błędów Roblox DataStoreService, migracje schematów produkcyjnych. | **D** (DataStore) | **Bramka wdrożeniowa Chmura**: Adapter w pełni przetestowany na mocku L/D; aktywacja w chmurze po konfiguracji DataStore. |
+| **Bramka D: Natywny DataStore i Chmura** | Realny zapis chmurowy, obsługa sieciowych błędów Roblox DataStoreService, migracje schematów produkcyjnych. | **D** (DataStore) | **Bramka wdrożeniowa Chmura**: Adapter sprawdzany lokalnie na mocku L, bez zaliczenia D; aktywacja w chmurze po konfiguracji DataStore. |
 | **Bramka H: Ocena człowieka i Mobile UI** | Skalowanie interfejsu dotykowego na telefonach i tabletach, ergonomia przycisków wylęgu i sklepu, czytelność fontów. | **H** (Human / Mobile) | **Bramka certyfikacyjna UX**: Przed premierą publiczną na platformie Roblox. |
 
 ---
 
 ## 3. Całościowa symulacja cyklu życia gracza (E2E Player Lifecycle)
 
-W ramach `tests/release_candidate/run.luau` zweryfikowano pełny, 12-etapowy scenariusz integracyjny łączący wszystkie systemy:
+W ramach `tests/release_candidate/run.luau` sprawdzano lokalną kompozycję domen w 12 etapach, bez dowodu pełnego runtime:
 1. **Etap 1: Inicjalizacja konta (Onboarding)** — Utworzenie profilu od zera, walidacja schematu, start od kroku 1 samouczka (`HATCH_FIRST_CHICKEN`).
 2. **Etap 2: Wylęg kur i produkcja** — Kury zasiedlają kurnik Coop, znoszą jaja, transport Trike eksportuje produkcję, przychód zasila gotówkę oraz `accounting.currentFarmCash`. Krok samouczka awansuje do 2 (`BUY_FIRST_RESEARCH`).
 3. **Etap 3: Zakupy badań i rozbudowa** — Zakup badania `comfy_nests` poziomu 1; gotówka pomniejszona o koszt, `currentFarmCash` nienaruszone. Krok samouczka awansuje do 3 (`UPGRADE_HABITAT`).
@@ -111,7 +111,7 @@ Projekt HatchTheEgg osiągnął pełną, 100-procentową zgodność we wszystkic
 
 ## 5. Podsumowanie statusu repozytorium
 
-Wszystkie **36 zadań** zdefiniowanych w master planie #1 i opublikowanych w rejestrze GitHub zostało w 100% zrealizowanych, zweryfikowanych i zamkniętych:
+Wszystkie **36 zadań** zdefiniowanych w master planie #1 i opublikowanych w rejestrze GitHub zostało odnotowano jako zamknięte; status zgłoszeń nie stanowi dowodu pokrycia lub odbioru wydania:
 1. `DOC-01` do `DOC-05` (#2–#6): Specyfikacje i baza wiedzy — **ZAMKNIĘTE**
 2. `PRE-01` do `PRE-03` (#7–#9): Kontrakty przygotowawcze — **ZAMKNIĘTE**
 3. `IMP-01` do `IMP-15` (#10–#24): Implementacja pierwszej farmy — **ZAMKNIĘTE**
@@ -119,4 +119,9 @@ Wszystkie **36 zadań** zdefiniowanych w master planie #1 i opublikowanych w rej
 5. `NEXT-01` do `NEXT-10` (#26–#35): Rozszerzenia domeny i platformy — **ZAMKNIĘTE**
 6. `REL-01` (#36): Integracja kandydata wydania i jawne bramki — **ZAMKNIĘTE**
 
-Repozytorium posiada status **Release Candidate Approved (Level L Verified)**. Dalsze etapy wdrożeniowe (testy w Roblox Studio na żywych instancjach, chmurowa konfiguracja DataStore oraz ocena ergonomics na urządzeniach mobilnych) stanowią jawnie zdefiniowane bramki S/D/H i mogą być realizowane w kolejnych etapach publikacji gry.
+Repozytorium posiada status **lokalne sprawdzenie L; wydanie niezatwierdzone**. Dalsze etapy wdrożeniowe (testy w Roblox Studio na żywych instancjach, chmurowa konfiguracja DataStore oraz ocena ergonomics na urządzeniach mobilnych) stanowią jawnie zdefiniowane bramki S/D/H i mogą być realizowane w kolejnych etapach publikacji gry.
+
+
+## Korekta #60
+
+Tabela i liczby z 24.10 dokumentują ówczesny zakres lokalny; nie certyfikują wydania. Bieżący runner nie wystawia gatesVerified ani releaseCandidateReady=true. Dodatkowe testy rzeczywistego Main sprawdzają wybrane operacje przez ingress z kontrolowanymi usługami; pozostają L. [Aktualna macierz i ograniczenia](workflow/release_evidence_60.md). Historyczne raporty JSON nie zostały przepisane.

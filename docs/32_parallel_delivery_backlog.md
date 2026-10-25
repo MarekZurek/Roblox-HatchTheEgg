@@ -29,7 +29,7 @@ To plan równoległości, nie automatyczna delegacja. Wydanie nadal wymaga wznow
 | PRE-01 | Warsztat testów, źródła do Studio i dostawcy czasu | DOC-04, DOC-05 | [Dokumentacja przygotowana — 33](33_pre01_toolchain_and_clocks.md); adapter niewykonany |
 | PRE-02 | Projekt adaptera sesji, retencji i odzyskiwania | DOC-04 | [Dokumentacja przygotowana — 34](34_pre02_sessions_and_retention.md); adapter niewykonany |
 | PRE-03 | Kontrakt trasy i autorytatywnego dotarcia kur | DOC-05 | [Dokumentacja przygotowana — 35](35_pre03_routes_and_arrivals.md); adapter niewykonany |
-| IMP-01 | NumericCodec: kwoty, dokładne liczniki i serializacja | PRE-01 | [Wykonano i sprawdzono L](36_imp01_numeric_codec_delivery.md); publikacja zatwierdzona, S/D niewykonane |
+| IMP-01 | NumericCodec: kwoty, dokładne liczniki i serializacja | PRE-01 | [Wykonano i sprawdzono L](36_imp01_numeric_codec_delivery.md); publikacja kodu zatwierdzona; testy L nie zatwierdzają wydania, S/D niewykonane |
 | IMP-02 | CatalogRegistry: wybrany katalog pierwszej farmy | IMP-01 | [Wykonano i sprawdzono L](37_imp02_imp03_imp07_delivery.md); S/D niewykonane |
 | IMP-03 | Schematy DTO i walidacja protokołu | IMP-01 | [Wykonano i sprawdzono L](37_imp02_imp03_imp07_delivery.md); S/D niewykonane |
 | IMP-04 | FarmMath: Common, pojemność, produkcja i sprzedaż | IMP-02 | [Wykonano i sprawdzono L — 38](38_imp04_imp05_imp06_delivery.md); S/D niewykonane |
@@ -38,24 +38,24 @@ To plan równoległości, nie automatyczna delegacja. Wydanie nadal wymaga wznow
 | IMP-07 | SessionRepository i bezpieczne odtworzenie profilu | IMP-01, PRE-02 | [Wykonano i sprawdzono L](37_imp02_imp03_imp07_delivery.md); S/D niewykonane |
 | IMP-08 | PlayerCoordinator: serializacja komend i właściciel stanu | IMP-07 | [Wykonano i sprawdzono L — 39](39_imp08_imp09_delivery.md); S/D niewykonane |
 | IMP-09 | TimelineSimulation: online i neutralny powrót | IMP-04, IMP-05, IMP-06 | [Wykonano i sprawdzono L — 39](39_imp08_imp09_delivery.md); S/D niewykonane |
-| IMP-10 | FarmActions: wyceny i pojedyncze zakupy | IMP-08, IMP-09 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja zatwierdzona |
-| IMP-11 | NetworkGateway i projekcja autorytatywnego stanu | IMP-03, IMP-08 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja zatwierdzona |
-| IMP-12 | ClientTransport i ClientStateStore | IMP-03 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja zatwierdzona |
-| IMP-13 | Scena podstawowej farmy i prezentacja tras | PRE-03, IMP-03 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja zatwierdzona |
-| IMP-14 | Minimalny HUD i kontrolery intencji | IMP-03 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja zatwierdzona |
-| IMP-15 | Integracja pierwszej farmy i inicjalizacji | IMP-10, IMP-11, IMP-12, IMP-13, IMP-14 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja zatwierdzona |
-| QA-01 | Odbiór pierwszej farmy A01–A16 | IMP-15 | [Wykonano i sprawdzono L/S/D — 40](40_first_farm_completion_delivery.md); A01–A16 100% PASS |
-| NEXT-01 | Czyste funkcje Farm Value i Soul Eggs | IMP-02 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
-| NEXT-02 | Zmiana jaja, prestiż i księgowanie sesji | NEXT-01, IMP-08, IMP-09 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
-| NEXT-03 | Pełne offline, boosty, VD i historia wydarzeń | IMP-08, IMP-09 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
-| NEXT-04 | Pety: ekwipunek, wyposażenie i składanie efektów | IMP-08, NEXT-03 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
-| NEXT-05 | Łączenie petów i trwała gwarancja | NEXT-04 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
-| NEXT-06 | Drony: uprawniony spawn, trafienie i jedna nagroda | IMP-08, NEXT-03 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
-| NEXT-07 | Paczki i oferty bonusowe 2+1 | IMP-08, NEXT-03 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
-| NEXT-08 | Kalendarz, trofea i konwersje nagród | IMP-08 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
-| NEXT-09 | Adapter produktów Pro, Buy MAX, GE i warunkowego Piggy | IMP-08, NEXT-02, NEXT-03, NEXT-05, NEXT-07 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
-| NEXT-10 | Onboarding i odzyskiwanie kroku samouczka | IMP-15, NEXT-08 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
-| REL-01 | Kandydat wydania: integracja i jawne bramki | QA-01, NEXT-02, NEXT-03, NEXT-04, NEXT-05, NEXT-06, NEXT-07, NEXT-08, NEXT-09, NEXT-10 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja zatwierdzona |
+| IMP-10 | FarmActions: wyceny i pojedyncze zakupy | IMP-08, IMP-09 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja kodu zatwierdzona; testy L nie zatwierdzają wydania |
+| IMP-11 | NetworkGateway i projekcja autorytatywnego stanu | IMP-03, IMP-08 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja kodu zatwierdzona; testy L nie zatwierdzają wydania |
+| IMP-12 | ClientTransport i ClientStateStore | IMP-03 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja kodu zatwierdzona; testy L nie zatwierdzają wydania |
+| IMP-13 | Scena podstawowej farmy i prezentacja tras | PRE-03, IMP-03 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja kodu zatwierdzona; testy L nie zatwierdzają wydania |
+| IMP-14 | Minimalny HUD i kontrolery intencji | IMP-03 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja kodu zatwierdzona; testy L nie zatwierdzają wydania |
+| IMP-15 | Integracja pierwszej farmy i inicjalizacji | IMP-10, IMP-11, IMP-12, IMP-13, IMP-14 | [Wykonano i sprawdzono L — 40](40_first_farm_completion_delivery.md); publikacja kodu zatwierdzona; testy L nie zatwierdzają wydania |
+| QA-01 | Odbiór pierwszej farmy A01–A16 | IMP-15 | [Lokalne warianty L — 40](40_first_farm_completion_delivery.md); A01–A16: L PASS; wymagane S/D/H niezweryfikowane |
+| NEXT-01 | Czyste funkcje Farm Value i Soul Eggs | IMP-02 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja kodu zatwierdzona; testy L nie zatwierdzają wydania |
+| NEXT-02 | Zmiana jaja, prestiż i księgowanie sesji | NEXT-01, IMP-08, IMP-09 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja kodu zatwierdzona; testy L nie zatwierdzają wydania |
+| NEXT-03 | Pełne offline, boosty, VD i historia wydarzeń | IMP-08, IMP-09 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja kodu zatwierdzona; testy L nie zatwierdzają wydania |
+| NEXT-04 | Pety: ekwipunek, wyposażenie i składanie efektów | IMP-08, NEXT-03 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja kodu zatwierdzona; testy L nie zatwierdzają wydania |
+| NEXT-05 | Łączenie petów i trwała gwarancja | NEXT-04 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja kodu zatwierdzona; testy L nie zatwierdzają wydania |
+| NEXT-06 | Drony: uprawniony spawn, trafienie i jedna nagroda | IMP-08, NEXT-03 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja kodu zatwierdzona; testy L nie zatwierdzają wydania |
+| NEXT-07 | Paczki i oferty bonusowe 2+1 | IMP-08, NEXT-03 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja kodu zatwierdzona; testy L nie zatwierdzają wydania |
+| NEXT-08 | Kalendarz, trofea i konwersje nagród | IMP-08 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja kodu zatwierdzona; testy L nie zatwierdzają wydania |
+| NEXT-09 | Adapter produktów Pro, Buy MAX, GE i warunkowego Piggy | IMP-08, NEXT-02, NEXT-03, NEXT-05, NEXT-07 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja kodu zatwierdzona; testy L nie zatwierdzają wydania |
+| NEXT-10 | Onboarding i odzyskiwanie kroku samouczka | IMP-15, NEXT-08 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja kodu zatwierdzona; testy L nie zatwierdzają wydania |
+| REL-01 | Kandydat wydania: integracja i jawne bramki | QA-01, NEXT-02, NEXT-03, NEXT-04, NEXT-05, NEXT-06, NEXT-07, NEXT-08, NEXT-09, NEXT-10 | [Wykonano i sprawdzono L — 41](41_release_candidate_delivery.md); publikacja kodu zatwierdzona; testy L nie zatwierdzają wydania |
 | VIS-01 | Entrypointy wykonawcze i sieć RemoteEvents dla Roblox Studio | REL-01 | Wykonano (`Main.server.luau`, `Main.client.luau`) |
 | VIS-02 | Generator świata 3D: działka farmy, wylęgarnia, parcele i drogi | VIS-01 | Wykonano (`FarmPlotBuilder.luau`) |
 | VIS-03 | Diegetyczne wskaźniki 3D (BillboardGui, ProximityPrompts, BuyPads) | VIS-02 | Wykonano (`FarmPlotBuilder.luau`, `Main.client.luau`) |

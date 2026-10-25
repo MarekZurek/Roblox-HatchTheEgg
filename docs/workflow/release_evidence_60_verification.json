@@ -1,0 +1,464 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "52e3957a9e02bb1eb44e0faad5c53c50e16a55ca",
+  "status": "PASS_L_AND_STATIC_BUILD",
+  "releaseCandidateReady": false,
+  "completeProductionCoverage": false,
+  "luauSuiteCount": 34,
+  "luauAssertions": 80251,
+  "pythonReportingTests": 11,
+  "acceptanceAssertions": 264,
+  "localCompositionAndWiringAssertions": 124,
+  "selectedMutationsKilled": 22,
+  "selectedMutationCount": 22,
+  "studioTested": false,
+  "realDataStoreTested": false,
+  "humanAcceptanceTested": false,
+  "realPurchasesTested": false,
+  "rojoModules": 39,
+  "entrypoints": 2,
+  "protectedBalanceAndReferenceFilesByteIdentical": 14,
+  "historicalJsonReportsUnchangedNormalizedLF": 20,
+  "remainingAuditIssues": [
+    61
+  ],
+  "scenarioEvidence": {
+    "A01": {
+      "assertions": 38,
+      "levels": {
+        "D": {
+          "reason": "No real cloud persistence evidence recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "H": {
+          "reason": "No scenario-specific human acceptance recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "L": {
+          "evidence": "tests/acceptance/run.luau",
+          "scope": "local controlled harness only",
+          "status": "PASS"
+        },
+        "S": {
+          "reason": "No scenario-specific Studio evidence recorded",
+          "status": "NOT_VERIFIED"
+        }
+      },
+      "requiredLevels": [
+        "L",
+        "S"
+      ]
+    },
+    "A02": {
+      "assertions": 25,
+      "levels": {
+        "D": {
+          "reason": "No real cloud persistence evidence recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "H": {
+          "reason": "No scenario-specific human acceptance recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "L": {
+          "evidence": "tests/acceptance/run.luau",
+          "scope": "local controlled harness only",
+          "status": "PASS"
+        },
+        "S": {
+          "reason": "No scenario-specific Studio evidence recorded",
+          "status": "NOT_VERIFIED"
+        }
+      },
+      "requiredLevels": [
+        "L",
+        "S"
+      ]
+    },
+    "A03": {
+      "assertions": 15,
+      "levels": {
+        "D": {
+          "reason": "No real cloud persistence evidence recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "H": {
+          "reason": "No scenario-specific human acceptance recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "L": {
+          "evidence": "tests/acceptance/run.luau",
+          "scope": "local controlled harness only",
+          "status": "PASS"
+        },
+        "S": {
+          "reason": "No scenario-specific Studio evidence recorded",
+          "status": "NOT_VERIFIED"
+        }
+      },
+      "requiredLevels": [
+        "L",
+        "S"
+      ]
+    },
+    "A04": {
+      "assertions": 12,
+      "levels": {
+        "D": {
+          "reason": "No real cloud persistence evidence recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "H": {
+          "reason": "No scenario-specific human acceptance recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "L": {
+          "evidence": "tests/acceptance/run.luau",
+          "scope": "local controlled harness only",
+          "status": "PASS"
+        },
+        "S": {
+          "reason": "No scenario-specific Studio evidence recorded",
+          "status": "NOT_VERIFIED"
+        }
+      },
+      "requiredLevels": [
+        "L"
+      ]
+    },
+    "A05": {
+      "assertions": 18,
+      "levels": {
+        "D": {
+          "reason": "No real cloud persistence evidence recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "H": {
+          "reason": "No scenario-specific human acceptance recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "L": {
+          "evidence": "tests/acceptance/run.luau",
+          "scope": "local controlled harness only",
+          "status": "PASS"
+        },
+        "S": {
+          "reason": "No scenario-specific Studio evidence recorded",
+          "status": "NOT_VERIFIED"
+        }
+      },
+      "requiredLevels": [
+        "L"
+      ]
+    },
+    "A06": {
+      "assertions": 19,
+      "levels": {
+        "D": {
+          "reason": "No real cloud persistence evidence recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "H": {
+          "reason": "No scenario-specific human acceptance recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "L": {
+          "evidence": "tests/acceptance/run.luau",
+          "scope": "local controlled harness only",
+          "status": "PASS"
+        },
+        "S": {
+          "reason": "No scenario-specific Studio evidence recorded",
+          "status": "NOT_VERIFIED"
+        }
+      },
+      "requiredLevels": [
+        "L",
+        "S"
+      ]
+    },
+    "A07": {
+      "assertions": 15,
+      "levels": {
+        "D": {
+          "reason": "No real cloud persistence evidence recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "H": {
+          "reason": "No scenario-specific human acceptance recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "L": {
+          "evidence": "tests/acceptance/run.luau",
+          "scope": "local controlled harness only",
+          "status": "PASS"
+        },
+        "S": {
+          "reason": "No scenario-specific Studio evidence recorded",
+          "status": "NOT_VERIFIED"
+        }
+      },
+      "requiredLevels": [
+        "L",
+        "S"
+      ]
+    },
+    "A08": {
+      "assertions": 11,
+      "levels": {
+        "D": {
+          "reason": "No real cloud persistence evidence recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "H": {
+          "reason": "No scenario-specific human acceptance recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "L": {
+          "evidence": "tests/acceptance/run.luau",
+          "scope": "local controlled harness only",
+          "status": "PASS"
+        },
+        "S": {
+          "reason": "No scenario-specific Studio evidence recorded",
+          "status": "NOT_VERIFIED"
+        }
+      },
+      "requiredLevels": [
+        "L",
+        "S"
+      ]
+    },
+    "A09": {
+      "assertions": 11,
+      "levels": {
+        "D": {
+          "reason": "No real cloud persistence evidence recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "H": {
+          "reason": "No scenario-specific human acceptance recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "L": {
+          "evidence": "tests/acceptance/run.luau",
+          "scope": "local controlled harness only",
+          "status": "PASS"
+        },
+        "S": {
+          "reason": "No scenario-specific Studio evidence recorded",
+          "status": "NOT_VERIFIED"
+        }
+      },
+      "requiredLevels": [
+        "L",
+        "S",
+        "D"
+      ]
+    },
+    "A10": {
+      "assertions": 7,
+      "levels": {
+        "D": {
+          "reason": "No real cloud persistence evidence recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "H": {
+          "reason": "No scenario-specific human acceptance recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "L": {
+          "evidence": "tests/acceptance/run.luau",
+          "scope": "local controlled harness only",
+          "status": "PASS"
+        },
+        "S": {
+          "reason": "No scenario-specific Studio evidence recorded",
+          "status": "NOT_VERIFIED"
+        }
+      },
+      "requiredLevels": [
+        "L",
+        "S"
+      ]
+    },
+    "A11": {
+      "assertions": 17,
+      "levels": {
+        "D": {
+          "reason": "No real cloud persistence evidence recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "H": {
+          "reason": "No scenario-specific human acceptance recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "L": {
+          "evidence": "tests/acceptance/run.luau",
+          "scope": "local controlled harness only",
+          "status": "PASS"
+        },
+        "S": {
+          "reason": "No scenario-specific Studio evidence recorded",
+          "status": "NOT_VERIFIED"
+        }
+      },
+      "requiredLevels": [
+        "L",
+        "D"
+      ]
+    },
+    "A12": {
+      "assertions": 12,
+      "levels": {
+        "D": {
+          "reason": "No real cloud persistence evidence recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "H": {
+          "reason": "No scenario-specific human acceptance recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "L": {
+          "evidence": "tests/acceptance/run.luau",
+          "scope": "local controlled harness only",
+          "status": "PASS"
+        },
+        "S": {
+          "reason": "No scenario-specific Studio evidence recorded",
+          "status": "NOT_VERIFIED"
+        }
+      },
+      "requiredLevels": [
+        "L",
+        "S",
+        "D"
+      ]
+    },
+    "A13": {
+      "assertions": 9,
+      "levels": {
+        "D": {
+          "reason": "No real cloud persistence evidence recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "H": {
+          "reason": "No scenario-specific human acceptance recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "L": {
+          "evidence": "tests/acceptance/run.luau",
+          "scope": "local controlled harness only",
+          "status": "PASS"
+        },
+        "S": {
+          "reason": "No scenario-specific Studio evidence recorded",
+          "status": "NOT_VERIFIED"
+        }
+      },
+      "requiredLevels": [
+        "L",
+        "D"
+      ]
+    },
+    "A14": {
+      "assertions": 14,
+      "levels": {
+        "D": {
+          "reason": "No real cloud persistence evidence recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "H": {
+          "reason": "No scenario-specific human acceptance recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "L": {
+          "evidence": "tests/acceptance/run.luau",
+          "scope": "local controlled harness only",
+          "status": "PASS"
+        },
+        "S": {
+          "reason": "No scenario-specific Studio evidence recorded",
+          "status": "NOT_VERIFIED"
+        }
+      },
+      "requiredLevels": [
+        "L",
+        "S"
+      ]
+    },
+    "A15": {
+      "assertions": 12,
+      "levels": {
+        "D": {
+          "reason": "No real cloud persistence evidence recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "H": {
+          "reason": "No scenario-specific human acceptance recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "L": {
+          "evidence": "tests/acceptance/run.luau",
+          "scope": "local controlled harness only",
+          "status": "PASS"
+        },
+        "S": {
+          "reason": "No scenario-specific Studio evidence recorded",
+          "status": "NOT_VERIFIED"
+        }
+      },
+      "requiredLevels": [
+        "S"
+      ]
+    },
+    "A16": {
+      "assertions": 29,
+      "levels": {
+        "D": {
+          "reason": "No real cloud persistence evidence recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "H": {
+          "reason": "No scenario-specific human acceptance recorded",
+          "status": "NOT_VERIFIED"
+        },
+        "L": {
+          "evidence": "tests/acceptance/run.luau",
+          "scope": "local controlled harness only",
+          "status": "PASS"
+        },
+        "S": {
+          "reason": "No scenario-specific Studio evidence recorded",
+          "status": "NOT_VERIFIED"
+        }
+      },
+      "requiredLevels": [
+        "S",
+        "H"
+      ]
+    }
+  },
+  "files": [
+    {
+      "path": "tests/acceptance/run.luau",
+      "sha256NormalizedLF": "982362862f9db4512f37cdd0d828ff34744e671140fe53bfc0b59c4bf4e45987"
+    },
+    {
+      "path": "tests/release_candidate/run.luau",
+      "sha256NormalizedLF": "faf5d107fb22db915d30d2817c74a25a0495b8f5e4cf1e8586642ce92d41f487"
+    },
+    {
+      "path": "tests/release_reporting/test_reporting.py",
+      "sha256NormalizedLF": "c27391454c0f2d6aff53891ad65e2bc9f897ecfba1c15c304cc63e12ec269980"
+    },
+    {
+      "path": "tools/test.ps1",
+      "sha256NormalizedLF": "0364eefba3f408fb2bc322a8778257c669c80c7aa53fd2bf3c64bfa3c9adc51d"
+    },
+    {
+      "path": "tools/verify_release.py",
+      "sha256NormalizedLF": "3f2de4b3d8032d8fd9295fc5b0957178012712183e466ecbd39069dfb8c87112"
+    }
+  ]
+}

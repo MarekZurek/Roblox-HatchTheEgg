@@ -22,7 +22,7 @@
 | Produkty: podgląd/potwierdzenie/anulowanie/receipt | game_behavior, purchase_recovery, pet_effects | Żadnych realnych zakupów; polityka Pro sprawdzana w pro_policy (#58) |
 | Sesje, UNKNOWN, reconnect, atomowość | persistence, coordinator, integration89, reward_security, game_behavior | Fail-closed start w persistence_startup (#57) |
 | Rzeczywiste sygnały przycisków i transport | game_behavior + ui; brak injected success-stub | Bez S/D i weryfikacji dotyku na urządzeniu |
-| Sceny, trasy, dźwięk i HUD | presentation, ui, release_candidate — lokalne testy modułów | Nazwa testu nie dowodzi renderowania ani odbioru Studio; #60 |
+| Sceny, trasy, dźwięk i HUD | presentation, ui, release_candidate — lokalne testy modułów | Nazwa testu nie dowodzi renderowania ani odbioru Studio; zakres skorygowany w #60 |
 
 Ta mapa nie oznacza 100% gotowości gry. Obecność fixture'ów i przechodzących testów funkcji liściowych nie dowodzi kompletnej integracji produkcyjnej. Znane otwarte problemy i jawne FEATURE_UNAVAILABLE pozostają blokadami, a nie pominiętymi testami uznanymi za sukces.
 
@@ -37,3 +37,5 @@ Raporty lokalne: `build/game-behavior-results.json`, `build/game-behavior-mutati
 Pięć mutacji #58 uruchamia pro_policy: nieznana polityka dopuszczona, zaufanie zapisanemu znacznikowi, kwalifikacja z przygotowania zamiast potwierdzenia, stara odpowiedź i pominięte odświeżenie przed decyzją.
 
 Dwie mutacje #59 uruchamiają resets: przywrócenie zerowania hatchGroupSequence osobno w UpgradeEgg i Prestige. Testy śledzą rzeczywiste ID grup i skutki spóźnionego dotarcia, również powyżej 2^53.
+
+Raportowanie #60: tests/release_reporting/test_reporting.py odrzuca fałszywe poziomy i gotowość wydania. release_candidate dodatkowo wykonuje wybrane operacje przez rzeczywisty Main z kontrolowanymi usługami. Wyniki nadal wyłącznie L.

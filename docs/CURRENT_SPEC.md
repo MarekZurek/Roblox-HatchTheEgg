@@ -113,7 +113,7 @@ Dokumentacyjny manifest F01 przygotowano w [30](30_first_farm_manifest_and_techn
 
 ## IMP-10–15 oraz QA-01 — wykonano i odebrano (24.10.2026)
 
-[40 — ukończenie i odbiór pierwszej farmy](40_first_farm_completion_delivery.md): w pełni zaimplementowano i zweryfikowano L/S/D moduły pierwszej farmy (FarmActions, ViewProjector, NetworkGateway, ClientTransport, ClientStateStore, RoutePresentation, IntentControllers, HUD, Bootstrap serwera i klienta oraz formalny odbiór A01–A16 w tests/acceptance/run.luau). Zgłoszenia #19, #20, #21, #22, #23, #24, #25 zamknięte.
+[40 — ukończenie i odbiór pierwszej farmy](40_first_farm_completion_delivery.md): zaimplementowano moduły i sprawdzono ich lokalne warianty L; bez zaliczenia S/D/H dla pierwszej farmy (FarmActions, ViewProjector, NetworkGateway, ClientTransport, ClientStateStore, RoutePresentation, IntentControllers, HUD, Bootstrap serwera i klienta oraz formalny odbiór A01–A16 w tests/acceptance/run.luau). Zgłoszenia #19, #20, #21, #22, #23, #24, #25 zamknięte.
 
 ## NEXT-01–10 oraz REL-01 — wykonano, zweryfikowano i odebrano (24.10.2026)
 
@@ -133,7 +133,7 @@ Dokumentacyjny manifest F01 przygotowano w [30](30_first_farm_manifest_and_techn
 **Wspólny runner testowy**: **23 875 asercji (100% PASS L)** w 28 zestawach testów.  
 **Rojo Static Build**: Dokładnie **37 modułów Luau** (w tym `FarmPlotBuilder.luau`) oraz **2 skrypty wejściowe** (`Main.server.luau`, `Main.client.luau`).  
 **Bramki wydania (Release Gates)**: Wszystkie 6 bramek zatwierdzone (brak devgrantów, baza docs/31 §4, niezmienniki stanu, fencing/retencja docs/34 §4, 37 modułów + 2 entrypointy Rojo, kwarantanna odłożonego bilansu docs/17..21).  
-Zadania `DOC-01..05`, `PRE-01..03`, `IMP-01..15`, `QA-01`, `NEXT-01..10`, `REL-01` (#2–#36) zamknięte; zadania wizualne `VIS-01..05` (#37–#41) zaimplementowane w kodzie i zsynchronizowane z Roblox Studio. Repozytorium ma status **Release Candidate Approved**. Bramki wdrożeniowe S (Studio), D (Cloud DataStore) oraz H (Mobile UI) jawnie zdefiniowane przed publikacją produkcyjną.
+Zadania `DOC-01..05`, `PRE-01..03`, `IMP-01..15`, `QA-01`, `NEXT-01..10`, `REL-01` (#2–#36) zamknięte; zadania wizualne `VIS-01..05` (#37–#41) zaimplementowane w kodzie i zsynchronizowane z Roblox Studio. Repozytorium ma status **lokalne testy L; wydanie niezatwierdzone**. Bramki wdrożeniowe S (Studio), D (Cloud DataStore) oraz H (Mobile UI) jawnie zdefiniowane przed publikacją produkcyjną.
 
 
 ## Produkcja — poprawki #54–55 (25.10.2026)
@@ -164,3 +164,8 @@ Zadania `DOC-01..05`, `PRE-01..03`, `IMP-01..15`, `QA-01`, `NEXT-01..10`, `REL-0
 ## Identyfikatory grup po resecie — #59 (25.10.2026)
 
 [Dostawa #59](workflow/reset_group_ids_59.md): zmiana jaja i prestiż zachowują hatchGroupSequence, usuwając poprzednie grupy i rezerwacje. Regresje sprawdzają następne dokładne ID oraz brak wpływu starych dotarć na nową grupę, także powyżej 2^53 i po serializacji profilu. Bez zmian bilansu i danych referencyjnych. Starsze listy otwartych ustaleń opisują stan poprzednich dostaw; pozostałe #60–61.
+
+
+## Zakres dowodów — #60 (25.10.2026)
+
+[Raport #60](workflow/release_evidence_60.md) koryguje wcześniejsze deklaracje L/S/D i zatwierdzenia wydania. Lokalne harnessy dają wyłącznie L, także przy kontrolowanym DataStore i rzeczywistym Main. Dla A01–A16 brak zarejestrowanego dowodu per scenariusz S/D/H; pozostają NOT_VERIFIED. Zamknięcie Issues, synchronizacja sceny i liczby asercji nie dowodzą odbioru. Bieżące raporty mają releaseCandidateReady=false. Bez zmian bilansu i historycznych JSON-ów.

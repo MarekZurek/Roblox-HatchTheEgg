@@ -1,6 +1,6 @@
 --!nocheck
 -- Acceptance Test Suite for HatchTheEgg (QA-01).
--- Verifies all 16 acceptance scenarios from docs/29 (§5: A01–A16) in test harness (level L/S/D).
+-- Verifies all 16 acceptance scenarios from docs/29 (§5: A01–A16) in local harness (level L only; planned S/D/H remain unverified).
 --
 -- Scenarios:
 -- A01 (L/S): Nowy profil vs profil nieczytelny/błędny; blokada do stanu ready, błąd dekodowania nie tworzy pustego konta (ProfileSchema.validate / SessionRepository).
@@ -11,10 +11,10 @@
 -- A06 (L/S): Zakup Common: wystarczająca gotówka, brak środków (INSUFFICIENT_CASH), zamknięty tier (TIER_LOCKED), maxLevel (MAX_LEVEL); brak zmniejszania accounting.currentFarmCash.
 -- A07 (L/S): Skalowanie ceny kurników i pojazdów od liczby posiadanych egzemplarzy (sameTypeOwned); zachowanie kur przy zamianie kurnika.
 -- A08 (L/S): Zmiana wyceny / warunków i ochrona expectedRevision / quoteId (odrzucenie nieaktualnej wyceny).
--- A09 (L/S/D): Dwa identyczne operationId równocześnie; replay z zapisanym wynikiem, konflikt argumentów pod tym samym ID (OPERATION_ID_CONFLICT).
+-- A09 (planned L/S/D; this runner L only): Dwa identyczne operationId równocześnie; replay z zapisanym wynikiem, konflikt argumentów pod tym samym ID (OPERATION_ID_CONFLICT).
 -- A10 (L/S): Odmowa komendy przy braku gotowości sesji (NOT_ACCEPTED z SESSION_NOT_READY), brak pozornej kolejki.
 -- A11 (L/D): Fencing sesji, próba zapisu przez starego właściciela po przejęciu sesji przez nowe połączenie (stary token nie mutuje nowej sesji).
--- A12 (L/S/D): Powrót online (<=60s) bez limitu silosów vs away (>60s) z limitem silosów; zamknięcie całego okresu; brak produkcji away przy zerze silosów.
+-- A12 (planned L/S/D; this runner L only): Powrót online (<=60s) bez limitu silosów vs away (>60s) z limitem silosów; zamknięcie całego okresu; brak produkcji away przy zerze silosów.
 -- A13 (L/D): Przerwanie obliczenia/checkpointu między produkcją a wzrostem; wznowienie daje ten sam wynik bitowo bez podwójnej wypłaty.
 -- A14 (L/S): Wykrycie luki viewSeq na kliencie i wywołanie RefreshState (resync); brak cofania widoku.
 -- A15 (S):   Izolacja dwóch graczy (Player 1 vs Player 2): brak dostępu do cudzego salda, brak wycieku tokenów/ledgerów w projekcji, odrzucenie sfingowanego playerId w payloadzie.
@@ -816,7 +816,7 @@ do
 end
 
 -- ============================================================================
--- SCENARIO A09 (L/S/D):
+-- SCENARIO A09 (L only):
 -- Dwa identyczne operationId równocześnie; replay z zapisanym wynikiem, konflikt argumentów pod tym samym ID (OPERATION_ID_CONFLICT).
 -- ============================================================================
 setScenario("A09")
@@ -1020,7 +1020,7 @@ do
 end
 
 -- ============================================================================
--- SCENARIO A12 (L/S/D):
+-- SCENARIO A12 (L only):
 -- Powrót online (<=60s) bez limitu silosów vs away (>60s) z limitem silosów; zamknięcie całego okresu; brak produkcji away przy zerze silosów.
 -- ============================================================================
 setScenario("A12")
@@ -1463,17 +1463,34 @@ end
 -- ============================================================================
 -- Report Output & JSON Persistence
 -- ============================================================================
+local requiredLevels={
+ A01={"L","S"},A02={"L","S"},A03={"L","S"},A04={"L"},A05={"L"},
+ A06={"L","S"},A07={"L","S"},A08={"L","S"},A09={"L","S","D"},
+ A10={"L","S"},A11={"L","D"},A12={"L","S","D"},A13={"L","D"},
+ A14={"L","S"},A15={"S"},A16={"S","H"},
+}
+local scenarioEvidence={}
+for id,count in scenarioAssertions do
+ scenarioEvidence[id]={requiredLevels=requiredLevels[id],assertions=count,levels={
+  L={status="PASS",evidence="tests/acceptance/run.luau",scope="local controlled harness only"},
+  S={status="NOT_VERIFIED",reason="No scenario-specific Studio evidence recorded"},
+  D={status="NOT_VERIFIED",reason="No real cloud persistence evidence recorded"},
+  H={status="NOT_VERIFIED",reason="No scenario-specific human acceptance recorded"},
+ }}
+end
 local resultsData = {
 	suite = "acceptance",
 	status = "PASS",
-	level = "L/S/D",
+	level = "L",
+	studioTested = false,
+	dataStoreTested = false,
+	humanAcceptanceTested = false,
+	scenarioEvidence = scenarioEvidence,
 	scenarios = scenarioAssertions,
 	totalAssertions = totalAssertions,
 }
 
-pcall(function()
-	fs.writeFile("build/acceptance-results.json", serde.encode("json", resultsData, true))
-end)
+fs.writeFile("build/acceptance-results.json", serde.encode("json", resultsData, true))
 
 print("======================================================================")
 print("HatchTheEgg - Acceptance Test Suite (docs/29 §5: A01 - A16)")
@@ -1495,5 +1512,5 @@ print(string.format("[A14] viewSeq gap detection, RefreshState resync, no rollba
 print(string.format("[A15] Multi-player isolation, no token leaks, anti-spoofing  : %3d assertions (PASS)", scenarioAssertions.A15))
 print(string.format("[A16] Complete end-to-end farm loop & reconnect persistence   : %3d assertions (PASS)", scenarioAssertions.A16))
 print("======================================================================")
-print(string.format("TOTAL: %d assertions across 16 scenarios - 100%% PASS", totalAssertions))
+print(string.format("TOTAL: %d assertions across 16 scenarios - PASS L only (no S/D/H claim)", totalAssertions))
 print("======================================================================")

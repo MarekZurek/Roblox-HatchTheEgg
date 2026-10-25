@@ -1,6 +1,4 @@
-"""Release Candidate Gate Verification Tool (REL-01 / #36).
-Validates explicit release gates across code, configuration, tests, and documentation.
-"""
+"""Scoped local evidence validation; never certifies release readiness (#60)."""
 from pathlib import Path
 import json
 import re
@@ -22,7 +20,7 @@ def check_forbidden_terms_in_src():
         for pattern in forbidden:
             match = pattern.search(text)
             assert not match, f"Forbidden term '{pattern.pattern}' found in {p}"
-    print("  PASS: Zero devgrant/backdoor terms in production code.")
+    print("  PASS: Selected forbidden tokens absent; this scan does not prove absence of all privileged handlers.")
 
 
 def check_deferred_balance_quarantine():
@@ -42,7 +40,7 @@ def check_deferred_balance_quarantine():
         text = p.read_text(encoding="utf-8")
         for num in ("17_", "18_", "19_", "20_", "21_"):
             assert num not in text, f"Source {p} references deferred doc {num}"
-    print("  PASS: Deferred balance strictly quarantined.")
+    print("  PASS: Deferred files exist; selected import references absent (not a balance audit).")
 
 
 def check_test_suites_in_test_script():
@@ -73,24 +71,74 @@ def check_build_artifacts():
     assert rc_results_path.is_file(), "build/release_candidate-results.json missing"
     rc = json.loads(rc_results_path.read_text(encoding="utf-8"))
     assert rc.get("status") == "PASS", f"RC tests failed: {rc}"
-    assert rc.get("releaseCandidateReady") is True, "releaseCandidateReady must be true"
-    gates = rc.get("gatesVerified", {})
-    for g in ("gate1_noDevgrants", "gate2_onboardingBaseline", "gate3_stateInvariants",
-              "gate4_sessionFencingRetention", "gate5_rojo36Modules", "gate6_deferredBalanceQuarantined"):
-        assert gates.get(g) is True, f"Gate {g} not verified"
-    print("  PASS: All 6 Release Gates and 12 E2E lifecycle stages verified.")
+    acceptance = json.loads((ROOT / "build/acceptance-results.json").read_text(encoding="utf-8"))
+    validate_local_evidence(acceptance, rc)
+    report = {
+        "status": "PASS_LOCAL_CHECKS", "level": "L", "releaseCandidateReady": False,
+        "completeProductionCoverage": False,
+        "scope": "local report consistency, selected source token scan, import quarantine and static Rojo mapping",
+        "unverifiedLevels": ["S", "D", "H"],
+        "limitations": ["No Studio, real cloud persistence or human acceptance evidence recorded per scenario",
+                        "Counts and scenario names do not measure requirement coverage",
+                        "Local Main harness uses controlled external services and world presentation",
+                        "Known runtime issue #61 and unavailable production features are not cleared by this tool"],
+        "scenarioEvidence": acceptance["scenarioEvidence"],
+    }
+    (ROOT / "build/release-verification-results.json").write_text(json.dumps(report, indent=2)+"\n", encoding="utf-8")
+    print("  PASS: local evidence metadata consistent; S/D/H NOT_VERIFIED; release readiness NOT_APPROVED.")
+
+
+REQUIRED_LEVELS = {
+    "A01": ["L", "S"], "A02": ["L", "S"], "A03": ["L", "S"], "A04": ["L"], "A05": ["L"],
+    "A06": ["L", "S"], "A07": ["L", "S"], "A08": ["L", "S"], "A09": ["L", "S", "D"],
+    "A10": ["L", "S"], "A11": ["L", "D"], "A12": ["L", "S", "D"], "A13": ["L", "D"],
+    "A14": ["L", "S"], "A15": ["S"], "A16": ["S", "H"],
+}
+
+
+def validate_local_evidence(acceptance, rc):
+    """This runner has only L evidence. Higher levels need a separate evidenced runner."""
+    for result in (acceptance, rc):
+        assert result.get("status") == "PASS", "local suite did not pass"
+        assert result.get("level") == "L", "local runner may claim only L"
+        for flag in ("studioTested", "dataStoreTested", "humanAcceptanceTested"):
+            assert result.get(flag) is False, f"unsupported evidence flag {flag}"
+        assert "coveragePercent" not in result, "assertion counts do not prove coverage"
+    assert rc.get("releaseCandidateReady") is False, "local tests cannot approve a release"
+    assert "gatesVerified" not in rc, "blanket release gate booleans are not evidence"
+    wiring = rc.get("productionWiring", {})
+    assert wiring.get("status") == "PASS_L", "missing actual Main ingress regressions"
+    assert wiring.get("evidence") == "tests/release_candidate/run.luau", "missing wiring evidence path"
+    assert set(wiring.get("cases", [])) == {"bootstrap", "calendar_once", "calendar_replay_after_restart", "unissued_drone_rejected"}, "missing wiring cases"
+    scenarios = acceptance.get("scenarios", {})
+    evidence = acceptance.get("scenarioEvidence", {})
+    assert set(scenarios) == set(REQUIRED_LEVELS) == set(evidence), "missing scenario evidence"
+    for key, required in REQUIRED_LEVELS.items():
+        row = evidence[key]
+        assert row.get("requiredLevels") == required, f"wrong planned levels for {key}"
+        assert type(scenarios[key]) is int and scenarios[key] > 0, "missing assertions"
+        assert row.get("assertions") == scenarios[key], "inconsistent assertion count"
+        levels = row.get("levels", {})
+        assert set(levels) == {"L", "S", "D", "H"}, "incomplete evidence matrix"
+        assert levels["L"].get("status") == "PASS", "missing local result"
+        assert levels["L"].get("evidence") == "tests/acceptance/run.luau", "missing local evidence path"
+        for level in ("S", "D", "H"):
+            assert levels[level].get("status") == "NOT_VERIFIED", f"unsupported {level} PASS for {key}"
+            assert levels[level].get("reason"), "unverified evidence needs a reason"
+    assert acceptance.get("totalAssertions") == sum(scenarios.values()), "incorrect assertion sum"
+
 
 
 def main():
     print("======================================================================")
-    print("HatchTheEgg - Release Candidate Gate Verification (REL-01)")
+    print("HatchTheEgg - Scoped Local Evidence Checks (REL-01 / #60)")
     print("======================================================================")
     check_forbidden_terms_in_src()
     check_deferred_balance_quarantine()
     check_test_suites_in_test_script()
     check_build_artifacts()
     print("======================================================================")
-    print("RELEASE GATES AUDIT: ALL GATES PASSED (100%)")
+    print("LOCAL CHECKS PASSED; RELEASE NOT APPROVED; S/D/H NOT VERIFIED")
     print("======================================================================")
 
 

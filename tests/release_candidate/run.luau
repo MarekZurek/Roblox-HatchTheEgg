@@ -73,37 +73,21 @@ print("HatchTheEgg - Release Candidate Integration Suite (REL-01 / #36)")
 print("======================================================================")
 
 --------------------------------------------------------------------------------
--- PART 1: EXPLICIT RELEASE GATES AUDIT
+-- PART 1: SELECTED LOCAL CONTRACT CHECKS (not release certification)
 --------------------------------------------------------------------------------
-print("\n--- Gate 1: Absence of Backdoors / Devgrants & Unauthorized Actions ---")
+print("\n--- Local check 1: Absence of Backdoors / Devgrants & Unauthorized Actions ---")
 do
 	-- Check ProtocolSchemas supported action types
-	local validActions = {
-		HatchIntent = true,
-		QuoteRequest = true,
-		PurchaseIntent = true,
-		RefreshState = true,
-		ClaimDrone = true,
-		DismissOffer = true,
-		AcceptOffer = true,
-		ClaimCalendar = true,
-		EquipPet = true,
-		UnequipPet = true,
-		FusePets = true,
-		ProcessReceipt = true,
-		Prestige = true,
-		ProgressEgg = true,
-	}
 
 	-- Verify no backdoor schemas exist
 	local forbiddenTerms = { "devgrant", "godmode", "cheat", "add_money", "free_ge", "admin", "unlock_all" }
 	for _, term in ipairs(forbiddenTerms) do
-		assertFalse(validActions[term], "Forbidden schema term must not be registered: " .. term)
+		assertFalse(ProtocolSchemas.validateClient({protocolVersion=1,kind=term,requestId="invalid-action"}), "Forbidden schema term must not be registered: " .. term)
 	end
-	assertTrue(true, "No devgrant/backdoor schemas present in protocol")
+	assertTrue(ProtocolSchemas.validateClient({protocolVersion=1,kind="RefreshState",requestId="known-action"}), "Known protocol action accepted")
 end
 
-print("--- Gate 2: Onboarding & New Account Baseline Verification (docs/31 §4) ---")
+print("--- Local check 2: Onboarding & New Account Baseline Verification (docs/31 §4) ---")
 local profile
 do
 	profile = OnboardingManager.createInitialProfile("player_rc_1", 1700000000000)
@@ -144,7 +128,7 @@ do
 	assertEq(epicCount, 0, "Epic research is initially empty")
 end
 
-print("--- Gate 3: State Invariants & Currency Monotonicity ---")
+print("--- Local check 3: State Invariants & Currency Monotonicity ---")
 do
 	-- accounting.currentFarmCash must never decrease
 	local initialGross = BigAmount.decode(profile.accounting.currentFarmCash)
@@ -164,7 +148,7 @@ do
 	assertEq(profile.accounting.currentFarmCash, "1000", "currentFarmCash preserved at 1000 across spending")
 end
 
-print("--- Gate 4: Session Fencing, Retention Limits & Idempotency (docs/34 §4) ---")
+print("--- Local check 4: Session Fencing, Retention Limits & Idempotency (docs/34 §4) ---")
 do
 	-- Check retention size limits
 	local serializedProfile = serde.encode("json", profile)
@@ -190,7 +174,7 @@ do
 	assertEq(profile.operations["op_gate_test"].status, "SUCCESS", "Idempotent replay status")
 end
 
-print("--- Gate 5: Rojo Static Build & Module Boundaries ---")
+print("--- Local check 5: Rojo Static Build & Module Boundaries ---")
 do
 	local mappingPath = "build/mapping-results.json"
 	assertTrue(fs.isFile(mappingPath), "Rojo mapping results file exists")
@@ -201,7 +185,7 @@ do
 	assertFalse(mapping.studioTested, "Static build does not falsely claim studio run")
 end
 
-print("--- Gate 6: Deferred Balance Boundary Quarantined (docs/17..21) ---")
+print("--- Local check 6: Deferred Balance Boundary Quarantined (docs/17..21) ---")
 do
 	-- Verify that docs/17 through docs/21 exist as reference/drafts and are not loaded by runtime
 	local deferredDocs = {
@@ -437,29 +421,50 @@ tutCtrl:setStep(recStep)
 assertTrue(tutCtrl:isCompleted(), "Tutorial completed on client")
 assertFalse(tutCtrl.visible, "Tutorial widget hidden when completed")
 
-print("\nFull End-to-End Player Lifecycle Simulation PASSED (12 Stages)!")
+print("\nLocal domain composition PASSED (12 stages; not full runtime acceptance)!")
 
 --------------------------------------------------------------------------------
 -- SUMMARY & RESULTS EXPORT
 --------------------------------------------------------------------------------
+-- Production entrypoint regression: actual remote -> Main -> Bootstrap -> durable operation.
+-- Services and world rendering are controlled; this remains L, never S/D.
+do
+ local Main=require("../support/MainHarness")
+ local h=Main.new({assertEqual=assertEq});h.join()
+ h.remote({protocolVersion=1,kind="Bootstrap",requestId="rc-main-view"})
+ assertEq(h.messages[#h.messages].message.view.farm.eggIndex,0,"actual Main projects new farm")
+ local function claim(target,id)
+  target.remote({protocolVersion=1,kind="ClaimDailyGift",requestId=id,operationId="rc-main-calendar",expectedRevision=target.profile().meta.revision,args={}})
+ end
+ claim(h,"rc-first")
+ assertEq(h.profile().permanent.GE,"202","actual ingress grants calendar reward")
+ assertEq(h.records["player:1"].permanent.GE,"202","calendar outcome persisted in controlled port")
+ claim(h,"rc-repeat")
+ assertEq(h.profile().permanent.GE,"202","duplicate command cannot pay twice")
+ local restarted=Main.new({nowMs=1120001,records=h.records,assertEqual=assertEq});restarted.join()
+ claim(restarted,"rc-restart")
+ assertEq(restarted.profile().permanent.GE,"202","durable replay through real Main after restart")
+ restarted.remote({protocolVersion=1,kind="HitDrone",requestId="rc-ghost",operationId="rc-ghost",expectedRevision=restarted.profile().meta.revision,droneId="never-issued"})
+ assertEq(restarted.profile().permanent.GE,"202","unissued drone cannot grant GE through Main")
+ assertEq(restarted.profile().farm.cash,"0","unissued drone cannot grant farm cash")
+end
+
 local resultData = {
 	status = "PASS",
 	level = "L",
-	releaseCandidateReady = true,
+	releaseCandidateReady = false,
 	assertions = assertions,
-	gatesVerified = {
-		gate1_noDevgrants = true,
-		gate2_onboardingBaseline = true,
-		gate3_stateInvariants = true,
-		gate4_sessionFencingRetention = true,
-		gate5_rojo36Modules = true,
-		gate6_deferredBalanceQuarantined = true,
-	},
+	studioTested = false,
+	dataStoreTested = false,
+	humanAcceptanceTested = false,
+	localScope = "leaf domain composition plus real Main ingress with controlled external services",
+	productionWiring = {status="PASS_L", evidence="tests/release_candidate/run.luau", cases={"bootstrap", "calendar_once", "calendar_replay_after_restart", "unissued_drone_rejected"}},
+	unverifiedLevels = {"S","D","H"},
 	e2eLifecycleStages = 12,
 }
 
 fs.writeFile("build/release_candidate-results.json", serde.encode("json", resultData))
 
 print("======================================================================")
-print(string.format("REL-01 Release Candidate Test Suite: %d assertions PASS (100%%)", assertions))
+print(string.format("REL-01 Release Candidate Test Suite: %d assertions PASS L only (release readiness not evaluated)", assertions))
 print("======================================================================")
