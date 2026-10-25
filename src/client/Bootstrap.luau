@@ -173,6 +173,7 @@ function ClientBootstrap:_setupEventBindings()
 
 		-- Sync in-transit chickens to RoutePresentation
 		local farm = self.stateStore:getFarm()
+        self:_syncIssuedDrones(self.stateStore:getServerObservedAt())
 		if farm and farm.habitats and self.routePresentation then
 			local nowMs = self.stateStore:getServerObservedAt() or 1000000
 			for slotId = 1, 4 do
@@ -426,7 +427,34 @@ function ClientBootstrap:hatchPetEgg(eggType, callback)
 	return res
 end
 
+function ClientBootstrap:_syncIssuedDrones(nowMs)
+ local farm=self.stateStore:getFarm();local progress=if self.stateStore:isReady() then farm and farm.progress else nil
+ local current={};self._issuedDroneIds=self._issuedDroneIds or {}
+ for _,spawn in (progress and progress.issuedDrones) or {} do
+  if nowMs and nowMs<spawn.expiresAtMs then
+   current[spawn.id]=true
+   if not self._issuedDroneIds[spawn.id] and self.routePresentation then
+    self.routePresentation:spawnDrone(spawn.id,spawn.elite,spawn.createdAtMs,(spawn.expiresAtMs-spawn.createdAtMs)/1000)
+   end
+  end
+ end
+ for id in self._issuedDroneIds do
+  if not current[id] and self.routePresentation then self.routePresentation:removeDroneVisual(id) end
+ end
+ self._issuedDroneIds=current
+end
+function ClientBootstrap:syncDeliveryWidgets(widgets)
+ local enabled=#self:getOrdinaryOffers()>0
+ for _,widget in widgets do widget.Enabled=enabled end
+end
+function ClientBootstrap:getOrdinaryOffers()
+ if not self.stateStore:isReady() then return {} end
+ local farm=self.stateStore:getFarm();return (farm and farm.progress and farm.progress.ordinaryOffers) or {}
+end
+
 function ClientBootstrap:update(nowMs)
+ self:_syncIssuedDrones(nowMs)
+ if self.intentControllers and self.intentControllers.hatch then self.intentControllers.hatch:update(nowMs) end
 	if self.routePresentation then
 		self.routePresentation:update(nowMs)
 	end

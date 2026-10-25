@@ -101,6 +101,8 @@ function Module.new(codec, catalog, options)
   local _,silo=effects("silo_capacity")
   local clucking=effects("epic_clucking")
   local runningCap=effects("epic_multiplier")
+  local sharing=effects("int_hatch_sharing")
+  local hold=effects("hold_to_hatch")
   local se=codec.Real64.decode(permanent.SE or "0")
   amount.validate(se)
   -- The exact PE counter is retained in the profile; conversion for the exponent
@@ -108,7 +110,7 @@ function Module.new(codec, catalog, options)
   local pe=codec.ExactUInt.toReal64Rounded(codec.ExactUInt.decode(permanent.PE or "0"))
   local mystical=1
   if se~=0 then local _,m=FvSe.calculateEarningBonus(se,pe,sf,pb);mystical=amount.validate(m) end
-  return {rcbGrowthMult=clucking.onscreenChickenMult or 1,rcbCapAdd=runningCap.onscreenChickenMultMax or 0,mysticalMultiplier=mystical,layingRateMult=lay.eggLayingRateMult or 1,
+  return {sharing=sharing.internalHatcherySharing or 0,holdRate=hold.holdToHatchRate or 0,rcbGrowthMult=clucking.onscreenChickenMult or 1,rcbCapAdd=runningCap.onscreenChickenMultMax or 0,mysticalMultiplier=mystical,layingRateMult=lay.eggLayingRateMult or 1,
    refillMult=refill.hatcheryRefillRateMult or 1,shippingMult=shipping.vehicleCapacityMult or 1,
    calmMult=calm.internalHatcheryMultAway or 1,siloCapacityLevel=silo}
  end
@@ -122,6 +124,7 @@ function Module.new(codec, catalog, options)
   r.mysticalMultiplier=progression.mysticalMultiplier
   r.calmMult=progression.calmMult
   r.siloCapacityLevel=progression.siloCapacityLevel
+  r.sharing=progression.sharing;r.holdRate=progression.holdRate
   r.rcbGrowthBase=amount.multiply(r.rcbGrowthBase,progression.rcbGrowthMult)
   r.rcbCap=amount.add(r.rcbCap,progression.rcbCapAdd)
   return r

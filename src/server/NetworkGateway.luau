@@ -364,6 +364,7 @@ function NetworkGateway:_initHandlers()
 			pData.coordinator.drain()
 		end
 
+		if not pData.coordinator.snapshots().ready then return {protocolVersion=1,kind="Admission",requestId=message.requestId,admission="NOT_ACCEPTED",errorCode="SESSION_NOT_READY"} end
 		return {
 			status = "ACCEPTED",
 			kind = "HatchPress",
@@ -410,6 +411,7 @@ function NetworkGateway:_initHandlers()
 			pData.coordinator.drain()
 		end
 
+		if not pData.coordinator.snapshots().ready then return {protocolVersion=1,kind="Admission",requestId=message.requestId,admission="NOT_ACCEPTED",errorCode="SESSION_NOT_READY"} end
 		return {
 			status = "ACCEPTED",
 			kind = "HatchInput",

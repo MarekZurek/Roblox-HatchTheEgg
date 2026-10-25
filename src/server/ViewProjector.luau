@@ -255,6 +255,16 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
 
 	if ownFarm then
         local pets,claimed={},{}
+        local drones,offers={},{}
+        for id,spawn in profile.rewards.droneSpawns or {} do
+            if spawn.ownerId==profile.meta.playerId and not spawn.claimed and serverObservedAt<spawn.expiresAtMs then
+                table.insert(drones,{id=id,elite=spawn.isElite,createdAtMs=spawn.createdAtMs,expiresAtMs=spawn.expiresAtMs})
+            end
+        end
+        for id,offer in (profile.rewards.offers and profile.rewards.offers.ordinary) or {} do
+            if offer.ownerId==profile.meta.playerId and offer.status=="PENDING" then table.insert(offers,{id=id,rewardType=offer.reward.rewardType,amount=offer.reward.amount}) end
+        end
+        table.sort(drones,function(a,b)return a.id<b.id end);table.sort(offers,function(a,b)return a.id<b.id end)
         local calendar={};local cycle=math.floor((profile.rewards.numDailyGiftsCollected or 0)/28)
         local fvOk,homeFV=pcall(ProgressActions.calculateProfileFarmValue,profile,catalog,productionMath)
         if not fvOk or profile.farm.isContract then homeFV=nil end
@@ -271,7 +281,7 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
         end
         for key,value in profile.rewards.trophies or {} do if value==true then table.insert(claimed,key) end end;table.sort(claimed)
         local paidAllowed=Products.readPaidRandomPolicy(self.paidRandomAllowed,profile.meta.playerId)
-        ownFarm.progress={GE=profile.permanent.GE,SE=profile.permanent.SE,PE=profile.permanent.PE,
+        ownFarm.progress={issuedDrones=drones,ordinaryOffers=offers,GE=profile.permanent.GE,SE=profile.permanent.SE,PE=profile.permanent.PE,
             proPermit=profile.entitlements.pro_permit==true,proBonusAvailable=Products.isProBonusAvailable(profile,paidAllowed),
             paidRandomPolicy=if paidAllowed==nil then "unknown" elseif paidAllowed then "allowed" else "restricted",
             numDailyGiftsCollected=profile.rewards.numDailyGiftsCollected or 0,lastCalendarDayUtc=profile.rewards.lastCalendarDayUtc or -1,

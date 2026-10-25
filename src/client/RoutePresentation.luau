@@ -905,6 +905,12 @@ function RoutePresentation:updateDrones(nowMs: number, dtSeconds: number?)
 	end
 end
 
+function RoutePresentation:removeDroneVisual(droneId)
+ local d=self._activeDrones[droneId]
+ if not d then return false end
+ destroyModel(d.model);self._activeDrones[droneId]=nil;return true
+end
+
 function RoutePresentation:claimDroneVisual(droneId: string)
 	local d = self._activeDrones[droneId]
 	if not d then return false end

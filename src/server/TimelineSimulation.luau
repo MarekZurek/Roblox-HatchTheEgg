@@ -31,6 +31,7 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
  end
  local function validateState(s)
   instant(s.settledWallThrough)
+  if s.selectionState~=nil then integer(s.selectionState);assert(s.selectionState>0 and s.selectionState<4294967296,"Timeline/INVALID_SEED") end
   for _,key in {"pets","boosts","events"} do assert(s[key]==nil,"Timeline/UNSUPPORTED_EFFECT") end
   if s.effects~=nil then
    assert(type(s.effects)=="table","Timeline/INVALID_EFFECTS")
@@ -58,9 +59,14 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
  end
  local function validateConfig(c)
   assert(type(c)=="table" and type(c.revision)=="string" and #c.revision>0 and type(c.pro)=="boolean","Timeline/INVALID_CONFIG")
-  for k in c do assert(k=="revision" or k=="pro" or k=="siloCapacityLevel" or k=="liveEvents","Timeline/UNSUPPORTED_EFFECT") end
+  for k in c do assert(k=="revision" or k=="pro" or k=="siloCapacityLevel" or k=="liveEvents" or k=="holdContext" or k=="selectionSeed","Timeline/UNSUPPORTED_EFFECT") end
   integer(c.siloCapacityLevel)
   if c.liveEvents~=nil then assert(type(c.liveEvents)=="table","Timeline/INVALID_EVENTS") end
+  if c.selectionSeed~=nil then integer(c.selectionSeed);assert(c.selectionSeed>0 and c.selectionSeed<4294967296,"Timeline/INVALID_SEED") end
+  if c.holdContext~=nil then
+   local h=c.holdContext;assert(type(h)=="table" and type(h.sessionKey)=="string" and type(h.routes)=="table","Timeline/INVALID_HOLD_CONTEXT")
+   instant(h.expiresAtMs);assert(type(h.runtime)=="table" and type(h.runtime.held)=="boolean","Timeline/INVALID_HOLD_RUNTIME")
+  end
  end
  function api.begin(state,targetMs,config)
   state=data.copy(state);config=data.copy(config);validateState(state);validateConfig(config);instant(targetMs)
@@ -71,6 +77,7 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
   if mode=="AWAY" then limit=math.min(duration,A.multiply(state.farm.siloOwned,A.add(3600,A.multiply(360,config.siloCapacityLevel)))) end
   local cp={version=1,config=config,state=state,startInstantMs=start,targetInstantMs=math.max(start,targetMs),mode=mode,
    productionSeconds=limit,remainingSeconds=limit,elapsedSeconds=0,stepIndex=0,phase="BETWEEN_STEPS",done=false,clockDiscrepancy=targetMs<start}
+  if config.holdContext and mode=="ONLINE" then cp.hold=data.copy(config.holdContext) end
   if duration>0 then
    if mode=="AWAY" then state.farm=hatching.closeInFlightForAway(state.farm) else state.farm=arrived(state.farm,start/1000) end
   end
@@ -81,6 +88,7 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
   assert(cp.version==1 and (cp.phase=="BETWEEN_STEPS" or cp.phase=="AFTER_PRODUCTION") and type(cp.done)=="boolean","Timeline/INVALID_CHECKPOINT")
   validateConfig(cp.config);validateState(cp.state);instant(cp.startInstantMs);instant(cp.targetInstantMs)
   if cp.phase=="AFTER_PRODUCTION" then assert(not cp.done and cp.stepDt==math.min(cp.remainingSeconds,0.3),"Timeline/INVALID_PHASE_DT") else assert(cp.stepDt==nil,"Timeline/UNEXPECTED_PHASE_DT") end
+  if cp.selectionState~=nil then integer(cp.selectionState);assert(cp.selectionState>0 and cp.selectionState<4294967296,"Timeline/INVALID_SEED") end
   integer(cp.stepIndex);A.validate(cp.productionSeconds);A.validate(cp.remainingSeconds);A.validate(cp.elapsedSeconds)
   assert((cp.stepIndex==0)==(cp.elapsedSeconds==0),"Timeline/INVALID_CURSOR")
   assert(cp.elapsedSeconds<=cp.productionSeconds+math.max(1,cp.productionSeconds)*cp.stepIndex*2^-51,"Timeline/INVALID_CURSOR")
@@ -95,6 +103,15 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
   assert(cp.done==(cp.remainingSeconds==0),"Timeline/DONE_MISMATCH")
   assert(cp.state.settledWallThrough==(if cp.done then cp.targetInstantMs else cp.startInstantMs),"Timeline/WALL_CURSOR_MISMATCH")
  end
+ local function draw(cp)
+  -- Frozen local PRNG cursor: two uint32 words cover the full ExactUInt selection domain.
+  local x=cp.selectionState or cp.state.selectionState or cp.config.selectionSeed or (cp.startInstantMs%4294967295+1)
+  local function nextWord()
+   x=bit32.bxor(x,bit32.lshift(x,13));x=bit32.bxor(x,bit32.rshift(x,17));x=bit32.bxor(x,bit32.lshift(x,5));return x
+  end
+  local high,low=nextWord(),nextWord();cp.selectionState=x;cp.state.selectionState=x
+  return U.encode(U.fromParts(high,low))
+ end
  function api.advance(checkpoint,maxPhases)
   local cp=data.copy(checkpoint);validateCheckpoint(cp);integer(maxPhases)
   local f=cp.state.farm
@@ -107,6 +124,18 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
    assert(elapsed>cp.elapsedSeconds,"Timeline/TIME_STALL")
    local stepEndMs=R.add(cp.startInstantMs,elapsed*1000)
    if cp.phase=="BETWEEN_STEPS" then
+   if cp.mode=="ONLINE" and cp.hold then
+    local hold=cp.hold
+    local holdDt=math.max(0,math.min(dt,(hold.expiresAtMs-cp.startInstantMs)/1000-cp.elapsedSeconds))
+    if holdDt>0 then
+     local nextRuntime
+     f,nextRuntime=hatching.holdStep(f,hold.runtime,holdDt,research.holdRate,function()return draw(cp)end,function(slot)
+      local route=data.copy(hold.routes[slot]);route.startInstantMs=math.floor(cp.startInstantMs+cp.elapsedSeconds*1000+0.5);return route
+     end)
+     hold.runtime=nextRuntime
+    end
+    if holdDt<dt or stepEndMs>=hold.expiresAtMs then hold.runtime.held=false;hold.runtime.holdElapsed=0 end
+   end
    cp.state.accounting.lastBaseEarnings=A.add(cp.state.accounting.prestigeSessionArchivedCash,cp.state.accounting.currentFarmCash)
    local mults=EffectsManager.calculateMultipliers(cp.state.effects,f,stepEndMs,cp.config.liveEvents,{boostBoostMult=pets.boostBoostMult})
    local types,pops={},{}
@@ -134,7 +163,7 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
    local baseIHRRate=R.divide(research.internalHatcheryPerHabPerMinute,60)
    local effectiveIHRRate=R.multiply(R.multiply(baseIHRRate,pets.ihrMult),mults.ihrMultiplier)
    if cp.mode=="AWAY" then effectiveIHRRate=R.multiply(effectiveIHRRate,research.calmMult) end
-   f.habitats=ihr.step(f.habitats,effectiveIHRRate,dt,0,nil)
+   f.habitats=ihr.step(f.habitats,effectiveIHRRate,dt,research.sharing,function()return draw(cp)end)
    if cp.state.effects~=nil then
     EffectsManager.stepDecay(cp.state.effects,f,dt)
    end

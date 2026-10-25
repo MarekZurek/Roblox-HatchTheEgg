@@ -209,3 +209,8 @@ Referencyjny typ 14 jest przechowywany jako permanent.shellScripts (ExactUInt, k
 ## Realizacja historycznego czasu dochodu — #61
 
 [Dostawa #61](workflow/earnings_event_time_61.md) realizuje §3.2: średnia istniejącej warstwy wydarzeń dochodu po przecięciu okien z aktualnym krokiem, bez dzielenia faz IHR/boostów i bez zmiany ścisłego predykatu VD. Stan checkpointu i jego wersja pozostają bez zmian; zakończona faza produkcji nie jest naliczana ponownie. Weryfikacja L, nie S/D/H. Bez zmian typów, bilansu i danych referencyjnych.
+
+
+## Addytywny stan wyboru kurnika — #68–69
+
+[Dostawa #66–70](workflow/farm_gaps_66_70.md) dodaje opcjonalny timeline.selectionState: kanoniczny ExactUInt w zakresie 1..4294967295, zachowany przez most pamięć–wire i resety. Kursor wyboru celu oraz nietrwała intencja hold są zamrożone w checkpointach. Kontekst hold jest związany z generacją i strumieniem; nowy właściciel nie kontynuuje starego przytrzymania. Brak pola w starszym profilu nie oznacza resetu konta. Bez zmiany wersji DTO/profilu i parametrów bilansu.

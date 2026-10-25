@@ -214,6 +214,7 @@ function FarmActions.createQuote(profile, catalog, target, requestId, expectedRe
 		local vehicleId = args.vehicleId
 		local typeIndex = FarmActions.VEHICLE_NAME_TO_INDEX[vehicleId]
 		assert(typeIndex ~= nil, "UNSUPPORTED_VEHICLE")
+		if typeIndex==11 and profile.permanent.hyperloop~=true then available=false;blockedReason="HYPERLOOP_LOCKED" end
 		cleanTarget = { kind = "BuyVehicle", args = { slotId = slotId, vehicleId = vehicleId } }
 		resultIndex = typeIndex
 
@@ -442,6 +443,9 @@ function FarmActions.apply(candidateProfile, op, options)
 		local vehicleId = args.vehicleId
 		local typeIndex = FarmActions.VEHICLE_NAME_TO_INDEX[vehicleId]
 		assert(typeIndex ~= nil, "UNSUPPORTED_VEHICLE")
+		if typeIndex==11 and candidateProfile.permanent.hyperloop~=true then
+			return {profile=candidateProfile,terminalStatus="REJECTED",result={terminalStatus="REJECTED",errorCode="HYPERLOOP_LOCKED"},validate=function()return true end}
+		end
 
 		local sameTypeOwned = 0
 		for _, v in candidateProfile.farm.vehicles do
@@ -490,6 +494,7 @@ function FarmActions.apply(candidateProfile, op, options)
 		}
 
 		local function validateFn(freshProfile, now)
+			if typeIndex==11 and freshProfile.permanent.hyperloop~=true then return false,"HYPERLOOP_LOCKED" end
 			local freshCash = BigAmount.decode(freshProfile.farm.cash)
 			if freshCash < price then return false, "INSUFFICIENT_CASH" end
 			local freshVehicle = freshProfile.farm.vehicles[slotId]

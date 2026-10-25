@@ -150,7 +150,7 @@ function ProtocolSchemas.new(codec)
 	local publicFields = { eggIndex = index, population = exact, habitats = array(visibleHabitat, 4, "slotId"), vehicles = array(vehicle, 4, "slotId") }
 	local progress = record({GE=exact,SE=amount,PE=exact,numDailyGiftsCollected=instant,lastCalendarDayUtc=integer(-1,9007199254740991),
         pets=array(record({uid=id,speciesId=id,tier=integer(1,65535),variant=id,locked=boolean,equipped=boolean}),32),
-        equipped=array(id,5), trophies=array(id,95)}, {proPermit=boolean,proBonusAvailable=boolean,paidRandomPolicy=enum({unknown=true,allowed=true,restricted=true}),shellScripts=exact,calendar=array(record({day=integer(1,28),available=boolean,rewardType=id,amount=amount}),28)})
+        equipped=array(id,5), trophies=array(id,95)}, {issuedDrones=array(record({id=id,elite=boolean,createdAtMs=instant,expiresAtMs=instant}),4096),ordinaryOffers=array(record({id=id,rewardType=id,amount=amount}),2),proPermit=boolean,proBonusAvailable=boolean,paidRandomPolicy=enum({unknown=true,allowed=true,restricted=true}),shellScripts=exact,calendar=array(record({day=integer(1,28),available=boolean,rewardType=id,amount=amount}),28)})
     local ownView, publicView = record(ownFields,{progress=progress}), record(publicFields)
     local ownDeltaFields=table.clone(ownFields);ownDeltaFields.progress=progress
 	local function view(value)

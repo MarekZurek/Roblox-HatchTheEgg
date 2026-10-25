@@ -127,7 +127,7 @@ local function calculateProfileFarmValue(
 		researchIHRMult = 1.0,
 		researchMaxRCBBase = 0,
 		researchMaxRCBMult = 1.0,
-		valuationMult = 1.0,
+		valuationMult = catalog.epicEffects("accounting_tricks",epic.accounting_tricks or 0).valuationMult or 1.0,
 		localMysticalEarningsMultiplier = mysticalMultiplier,
 		isContract = isContract,
 	})

@@ -37,3 +37,6 @@ Poprawka [#56 — rzeczywiste operacje przycisków](docs/workflow/action_wiring_
 
 
 [Poprawki #63–65](docs/workflow/session_prestige_rcb_63_65.md): bez kolizji nowych zakupów po reconnect, event kolekcji SE przy prestiżu i aktywne RCB w produkcji/HUD. Pozostałe #66–70; bilans bez zmian i brak odbioru S/D/H.
+
+
+[Poprawki #66–70](docs/workflow/farm_gaps_66_70.md): serwerowe ID nagród i nieaktywny pusty kanał, Accounting Tricks w FV, hold, Sharing oraz bramka Hyperloop. Harmonogram i niedostarczone operacje nadal wymagają osobnej integracji; bilans pozostaje odłożony.

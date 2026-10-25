@@ -139,3 +139,8 @@ Utworzono na GitHubie 8 zadań pełnego wdrożenia produkcyjnego `PROD-01–08` 
 ## Poprawki #63–65 — 25.10.2026
 
 [Dostawa #63–65](workflow/session_prestige_rcb_63_65.md): nowe intencje zakupów mają ID w przestrzeni generacji/strumienia sesji, stare retry zachowują wynik. Prestige stosuje zaufany event kolekcji na końcowe SE, ze sprawdzeniem granicy zapisu. Produkcja i HUD używają aktywnego RCB z runningCount oraz istniejących badań Common/Epic. Nie zmieniono FV (#67) ani bilansu. Testy lokalne nie zaliczają S/D/H; pozostałe #66–70 pozostają otwarte.
+
+
+## Poprawki #66–70 — 25.10.2026
+
+[Dostawa #66–70](workflow/farm_gaps_66_70.md): widoczne nagrody mają ID wystawione przez serwer; pusty/nieskonfigurowany kanał nie udaje dostępnej nagrody. Accounting Tricks wpływa na FV, hold działa według Epic z dzierżawą intencji, Sharing przekazuje rzeczywisty efekt i zachowuje kursor wyboru celu, a pociąg wymaga trwałej stacji. Nie dodano harmonogramu nagród, kupna stacji/wagonów ani konfiguracji odłożonego bilansu. To naprawa błędów integracji, nie zakończenie wszystkich funkcji premiery. Tylko L/statyczny build, bez zaliczenia S/D/H.

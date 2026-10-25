@@ -1,0 +1,143 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "75f57e0e132c59a428285f802f0c76a0fca524fa",
+  "issues": [
+    66,
+    67,
+    68,
+    69,
+    70
+  ],
+  "status": "PASS_L_AND_STATIC_BUILD",
+  "releaseCandidateReady": false,
+  "completeProductionCoverage": false,
+  "luauSuiteCount": 37,
+  "luauAssertions": 80646,
+  "newRegressionAssertions": 144,
+  "pythonReportingTests": 11,
+  "selectedMutationsKilled": 35,
+  "selectedMutationCount": 35,
+  "newMutations": [
+    {
+      "name": "issued_drone_not_projected_to_visual",
+      "state": "KILLED"
+    },
+    {
+      "name": "valuation_epic_ignored",
+      "state": "KILLED"
+    },
+    {
+      "name": "hold_rate_ignored",
+      "state": "KILLED"
+    },
+    {
+      "name": "hold_timeout_unbounded",
+      "state": "KILLED"
+    },
+    {
+      "name": "sharing_ignored",
+      "state": "KILLED"
+    },
+    {
+      "name": "hyperloop_unlock_checks_omitted",
+      "state": "KILLED"
+    }
+  ],
+  "rojoModules": 39,
+  "entrypoints": 2,
+  "studioTested": false,
+  "nativeMainClientRuntimeTested": false,
+  "realDataStoreTested": false,
+  "realPurchasesTested": false,
+  "humanAcceptanceTested": false,
+  "protectedBalanceAndReferenceFilesByteIdentical": 14,
+  "historicalJsonFilesUnchangedNormalizedLF": 23,
+  "rewardChannelScope": "Only server-issued records are presented; no default production reward scheduler added. Empty/unconfigured channel is inactive.",
+  "holdTransport": {
+    "leaseMs": 2000,
+    "clientRefreshMs": 500,
+    "balanceParameter": false
+  },
+  "selectionCursor": {
+    "profileField": "timeline.selectionState",
+    "encoding": "ExactUInt text, optional uint32 nonzero",
+    "checkpointPreserved": true,
+    "purpose": "habitat selection only"
+  },
+  "limitations": [
+    "No automatic reward issuance scheduler or new reward terms",
+    "No station/wagon purchase operation added",
+    "Deferred product/price configuration unchanged",
+    "S/D/H not verified; local PASS does not approve a release"
+  ],
+  "files": [
+    {
+      "path": "src/client/Bootstrap.luau",
+      "sha256NormalizedLF": "84fe203737731783a227719bacb0670ec92a6744de83981ed9242c459bc19a01"
+    },
+    {
+      "path": "src/client/IntentControllers.luau",
+      "sha256NormalizedLF": "8685d88198192465f1088a57e3936ddc0233d410fbfb0cca5298a4e8788e96d7"
+    },
+    {
+      "path": "src/client/Main.client.luau",
+      "sha256NormalizedLF": "4af3c84abfa2a4b20b32884fcda99ecd7938c1c597dad1808989b48fc8b00931"
+    },
+    {
+      "path": "src/client/RoutePresentation.luau",
+      "sha256NormalizedLF": "d61369faeb0e3c948921c06c941eddd08e87a5a478f59d9d222028cd6186adb3"
+    },
+    {
+      "path": "src/server/Bootstrap.luau",
+      "sha256NormalizedLF": "b6689247964fe910dfa42e3a25878fa5eec2fe5f63a182cdc67619d49032f301"
+    },
+    {
+      "path": "src/server/FarmActions.luau",
+      "sha256NormalizedLF": "81c75d2df31568964b928e49283a1584d7ac1deb6143db71c1c71ee66e048f03"
+    },
+    {
+      "path": "src/server/FarmMath/production_research.luau",
+      "sha256NormalizedLF": "4641f2d9f833355b68222d1da1e27e0a761aea2a044b2fc728510a327012c848"
+    },
+    {
+      "path": "src/server/NetworkGateway.luau",
+      "sha256NormalizedLF": "812731c6d743c2cf5b41534e14585fc6b9419df60d6e5dc1fe68907a772ede9d"
+    },
+    {
+      "path": "src/server/ProfileSchema.luau",
+      "sha256NormalizedLF": "59bcc3aa7d43fea9d32068741f04131a3cca9821dd7dcd0bd78214e7342f1e93"
+    },
+    {
+      "path": "src/server/ProgressActions.luau",
+      "sha256NormalizedLF": "6315e6314351472dbd68be587009bc49c067d02d007c83a98ce0723404959f81"
+    },
+    {
+      "path": "src/server/TimelineSimulation.luau",
+      "sha256NormalizedLF": "056656842c9a51a7bc7294ed1875103a81e005854eba366226ba544a060965db"
+    },
+    {
+      "path": "src/server/ViewProjector.luau",
+      "sha256NormalizedLF": "c8618ab16838c352a8b92ba4f45c9b734022a8c4a8be736975493698ea74797c"
+    },
+    {
+      "path": "src/shared/ProtocolSchemas.luau",
+      "sha256NormalizedLF": "240e43602d4fd59ecc41d3f286ef0c5d114ee495c367d89eb111f6316a081eac"
+    },
+    {
+      "path": "tests/farm_gaps/run.luau",
+      "sha256NormalizedLF": "5d3b5f720c02ad2043a76fb267108aff431e81111ddc5a760677ba7cfe9ebd7f"
+    },
+    {
+      "path": "tests/game_behavior/README.md",
+      "sha256NormalizedLF": "5ce2751079f0a43f5338d23eea42c964e24c187ca7630dc81d2f4a360c13f61a"
+    },
+    {
+      "path": "tests/game_behavior/mutation_check.py",
+      "sha256NormalizedLF": "8f9f65e4a3042f18e476880ef7498aecb53fe73893fe3bda8c0a243d6ce2b617"
+    },
+    {
+      "path": "tools/test.ps1",
+      "sha256NormalizedLF": "82478cad69ced4d0fc4d104627fe134325bc5dafc8b2e2b9b532ee287400d873"
+    }
+  ]
+}

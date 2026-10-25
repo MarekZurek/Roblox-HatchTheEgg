@@ -249,3 +249,8 @@ Nie uznaje się tego za pełne wdrożenie tabel docelowych tego kontraktu. Produ
 ## Realizacja ID intencji — #63
 
 [Dostawa #63–65](workflow/session_prestige_rcb_63_65.md): ID nowych komend klienta korzystają z przestrzeni strumienia opartej na trwałej generacji sesji oraz lokalnym liczniku intencji. Nowy proces klienta/serwera nie może odtworzyć ID starej nowej intencji. Retry nie otrzymuje nowego ID; ledger i reguły replay pozostają zachowane. Bez zmiany pól DTO i wersji profilu. Weryfikacja L.
+
+
+## Projekcja nagród i dzierżawa hold — #66–69
+
+[Dostawa #66–70](workflow/farm_gaps_66_70.md): opcjonalne prywatne progress.issuedDrones (ID, elitarność, terminy) i ordinaryOffers (ID, rodzaj, ilość) nie ujawniają terms/rolls lub cudzych rekordów. Brak serwerowego wpisu oznacza brak aktywnego aktora/przycisku odbioru. Hold ma techniczną dzierżawę 2000 ms i heartbeat co 500 ms; rate wynika nadal z Epic, nie z transportu. Nowy strumień, reset, away lub utrata sesji kończą intencję. Nie jest to wdrożenie bonusowych ofert Robux lub nowego harmonogramu.

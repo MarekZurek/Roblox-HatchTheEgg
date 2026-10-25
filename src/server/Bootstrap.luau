@@ -179,6 +179,7 @@ local function profileToMemory(p, codec, productionMath, data)
 		accounting = a,
 		settledWallThrough = p.timeline.settledWallThrough,
   contextVersion = 1,
+  selectionState=if p.timeline.selectionState then codec.ExactUInt.toSafeNumber(codec.ExactUInt.decode(p.timeline.selectionState)) else nil,
   effects = decodeEffects(p.effects,codec,data),
   permanent = {SE=p.permanent.SE,PE=p.permanent.PE,epic=data.copy(p.permanent.epic or {})},
   inventory = frozenInventory(p,data),
@@ -199,6 +200,7 @@ local function memoryToWire(p, state, checkpoint, codec, data)
 		out.accounting[key] = codec.BigAmount.encode(state.accounting[key])
 	end
 	if state.effects~=nil then out.effects=encodeEffects(state.effects,codec,data) end
+ if state.selectionState then out.timeline.selectionState=codec.ExactUInt.encode(codec.ExactUInt.fromSafeNumber(state.selectionState)) end
  out.timeline.settledWallThrough = state.settledWallThrough
 	-- Explicit completion marker: Coordinator patches never silently delete fields.
 	out.timeline.integrationCheckpoint = checkpoint or false
@@ -408,8 +410,19 @@ function ServerBootstrap:_simulationAdvance(playerSession, profile, request)
 	if request == nil then
 		return { profile = profile, complete = true }
 	end
+    local active=self.gateway:getPlayerState(playerSession.playerId)
+    if active and active.streamId~=playerSession.hatchingRuntime.streamId then
+        playerSession.hatchingRuntime.streamId=active.streamId;playerSession.hatchingRuntime.lastInputSeq="0"
+        playerSession.hatchingRuntime.held=false;playerSession.hatchingRuntime.holdElapsed=0;playerSession.hatchingRuntime.expiresAtMs=0
+    end
 
 	if request.kind == "HatchPress" or request.kind == "HatchInput" then
+        -- Settle the preceding interval under the previous intention, never backfill a new hold.
+        if profile.timeline.settledWallThrough<self.clock.utcNowMs() or profile.timeline.integrationCheckpoint then
+            local settled=self:_simulationAdvance(playerSession,profile,{kind="TimeAdvance",targetMs=self.clock.utcNowMs(),budget=100})
+            profile=settled.profile
+            if not settled.complete then return settled end
+        end
 		local pData = self.gateway:getPlayerState(playerSession.playerId)
 		local streamId = (pData and pData.streamId) or request.streamId or playerSession.hatchingRuntime.streamId
 		if playerSession.hatchingRuntime.streamId ~= streamId then
@@ -430,6 +443,7 @@ function ServerBootstrap:_simulationAdvance(playerSession, profile, request)
 			local hab = farm.habitats[i]
 			types[i] = if not hab or hab.typeIndex == -1 then false else hab.typeIndex
 		end
+		if (playerSession.hatchingRuntime.expiresAtMs or 0)<=self.clock.utcNowMs() then playerSession.hatchingRuntime.held=false;playerSession.hatchingRuntime.holdElapsed=0 end
 		local pets=Equipment.calculatePetMultipliers(profile.inventory,farm)
   local capacities = self.productionMath.capacities(common, types,pets.habCapacityMult)
 		for i = 1, 4 do
@@ -448,6 +462,7 @@ function ServerBootstrap:_simulationAdvance(playerSession, profile, request)
 			routeProvider
 		)
 		playerSession.hatchingRuntime = nextRuntime
+        if nextRuntime.held and request.kind=="HatchInput" then nextRuntime.expiresAtMs=self.clock.utcNowMs()+2000 end
 		nextFarm.hatcheryStock = self.codec.BigAmount.encode(nextFarm.hatcheryStock)
 		profile.farm = nextFarm
 		return { profile = profile, complete = true }
@@ -462,6 +477,9 @@ function ServerBootstrap:_simulationAdvance(playerSession, profile, request)
 	local cp
 	if profile.timeline.integrationCheckpoint then
 		cp = self.timeline.decodeCheckpoint(profile.timeline.integrationCheckpoint)
+        if cp.hold and cp.hold.sessionKey~=profile.ownership.generation..":"..playerSession.hatchingRuntime.streamId then
+            cp.hold.runtime.held=false;cp.hold.runtime.holdElapsed=0
+        end
 	else
 		local simConfig = {
 			revision = self.configRevision,
@@ -469,10 +487,17 @@ function ServerBootstrap:_simulationAdvance(playerSession, profile, request)
    liveEvents = self.data.copy(self.liveEvents),
 			pro = if (profile.entitlements and profile.entitlements.pro_permit == true) then true else ((self.config and self.config.pro) or false),
 		}
-		cp = self.timeline.begin(mem, targetMs, simConfig)
+		local runtime=playerSession.hatchingRuntime
+        if runtime.held then
+            local routes={};for slot=1,4 do routes[slot]=self:_getRoute(slot) end
+            simConfig.holdContext={runtime=self.data.copy(runtime),expiresAtMs=runtime.expiresAtMs or 0,sessionKey=profile.ownership.generation..":"..runtime.streamId,routes=routes}
+        end
+        cp = self.timeline.begin(mem, targetMs, simConfig)
 	end
 
+	if cp.mode=="AWAY" then playerSession.hatchingRuntime.held=false;playerSession.hatchingRuntime.holdElapsed=0 end
 	cp = self.timeline.advance(cp, budget)
+    if cp.hold and cp.hold.sessionKey==profile.ownership.generation..":"..playerSession.hatchingRuntime.streamId then playerSession.hatchingRuntime=self.data.copy(cp.hold.runtime) end
 
 	local checkpointWire = if cp.done then nil else self.timeline.encodeCheckpoint(cp)
 	local nextProfile = memoryToWire(profile, cp.state, checkpointWire, self.codec, self.data)
@@ -616,6 +641,7 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
                 deps.prestigeEventMult=Effects.calculateMultipliers(nil,candidateProfile.farm,self.clock.utcNowMs(),self.liveEvents).eventPrestigeMult
             end
             local outcome=ProgressActions.apply(candidateProfile,op,deps)
+            if outcome.terminalStatus=="APPLIED" then playerSession.hatchingRuntime.held=false;playerSession.hatchingRuntime.holdElapsed=0 end
             if op.kind=="Prestige" then
                 local validate=outcome.validate
                 outcome.validate=function(fresh,now)

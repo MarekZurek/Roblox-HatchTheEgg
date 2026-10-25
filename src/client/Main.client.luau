@@ -415,7 +415,8 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt, playerWhoTrigger
 	elseif pName == "DepotProximityPrompt" then
 		upgradeVehicleSlot(1)
 	elseif pName == "DeliveryPrompt" or pName == "ParcelPrompt" or prompt.ActionText == "Otwórz Paczkę" then
-		client:claimOffer("offer_2plus1")
+		local offer=client:getOrdinaryOffers()[1]
+        if offer then client:claimOffer(offer.id) end
 	elseif pName == "EggUpgradePrompt" or pName == "EggUpgradeProximityPrompt" or prompt.ObjectText == "Stacja Badawcza Jaj" then
 		if hud then
 			hud:toggleEggUpgradeModal(true)
@@ -462,10 +463,10 @@ end)
 -- Wire 3D Step-On Pressure Plate & Studded Buy Pads + 60 FPS Presentation Loop
 -- ============================================================================
 
+local rewardPromptWorld, rewardPrompts, lastOfferAvailability=nil,{},nil
 local lastHatchStepAt = 0
 local padCooldowns = {} -- [Instance] = os.clock()
-local nextDroneSpawnAt = os.clock() + 6.0
-local droneSerial = 0
+-- Reward actors are driven exclusively by server-issued private view records.
 
 local function isCharacterTouchingPart(character, part)
 	if not character or not part or not part:IsA("BasePart") then
@@ -500,14 +501,21 @@ RunService.RenderStepped:Connect(function(dt)
 
 	local nowClock = os.clock()
 
-	-- Spawn periodic visual Drones overhead
-	if nowClock >= nextDroneSpawnAt and client:getStore():isReady() then
-		nextDroneSpawnAt = nowClock + 14.0
-		droneSerial += 1
-		local dId = "drone-" .. tostring(droneSerial)
-		local isElite = (droneSerial % 3 == 0)
-		client:getPresentation():spawnDrone(dId, isElite, localClockMs, 10.0)
-	end
+    -- No local reward IDs or fallback schedules. Empty/unconfigured channels stay inactive.
+    local offerAvailable=#client:getOrdinaryOffers()>0
+    local rewardWorld=Workspace:FindFirstChild("HatchTheEggWorld")
+    if rewardWorld~=rewardPromptWorld then
+        rewardPromptWorld=rewardWorld;rewardPrompts={};lastOfferAvailability=nil
+        if rewardWorld then
+            for _,item in rewardWorld:GetDescendants() do
+                if (item:IsA("ProximityPrompt") and (item.Name=="DeliveryPrompt" or item.Name=="ParcelPrompt" or item.Name=="ClaimOfferPrompt" or item.ActionText=="Otwórz Paczkę")) or (item:IsA("BillboardGui") and item.Name=="ParcelBillboard") then table.insert(rewardPrompts,item) end
+            end
+        end
+    end
+    if lastOfferAvailability~=offerAvailable then
+        client:syncDeliveryWidgets(rewardPrompts)
+        lastOfferAvailability=offerAvailable
+    end
 
 	-- Physical Step-On Pads check
 	local character = localPlayer.Character

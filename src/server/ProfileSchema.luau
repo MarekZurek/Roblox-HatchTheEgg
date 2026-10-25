@@ -31,6 +31,7 @@ function Schema.new(codec)
 		if p.permanent.shellScripts~=nil then uint(p.permanent.shellScripts) end
 		for _,name in {"prestigeSessionArchivedCash","prestigeExtraEarnings","lastBaseEarnings","currentFarmCash","lastCashEarned"} do A.decode(p.accounting[name]) end
 		instant(p.timeline.settledWallThrough)
+        if p.timeline.selectionState~=nil then local seed=U.toSafeNumber(U.decode(p.timeline.selectionState));assert(seed>0 and seed<4294967296,"INVALID_SELECTION_STATE") end
 		if p.effects.boosts~=nil then
 			assert(type(p.effects.boosts)=="table","INVALID_BOOSTS")
 			for _,boost in p.effects.boosts do

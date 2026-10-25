@@ -85,6 +85,24 @@ MUTANTS=[
  ('running_chickens_ignored','src/server/TimelineSimulation.luau',
   'runningCount=f.runningCount,eggIndex=f.eggIndex',
   'rcbMultiplier=1,eggIndex=f.eggIndex'),
+ ('issued_drone_not_projected_to_visual','src/client/Bootstrap.luau',
+  'for _,spawn in (progress and progress.issuedDrones) or {} do',
+  'for _,spawn in {} do'),
+ ('valuation_epic_ignored','src/server/ProgressActions.luau',
+  'valuationMult = catalog.epicEffects("accounting_tricks",epic.accounting_tricks or 0).valuationMult or 1.0,',
+  'valuationMult = 1.0,'),
+ ('hold_rate_ignored','src/server/TimelineSimulation.luau',
+  'hatching.holdStep(f,hold.runtime,holdDt,research.holdRate,',
+  'hatching.holdStep(f,hold.runtime,holdDt,0,'),
+ ('hold_timeout_unbounded','src/server/TimelineSimulation.luau',
+  'local holdDt=math.max(0,math.min(dt,(hold.expiresAtMs-cp.startInstantMs)/1000-cp.elapsedSeconds))',
+  'local holdDt=dt'),
+ ('sharing_ignored','src/server/TimelineSimulation.luau',
+  'f.habitats=ihr.step(f.habitats,effectiveIHRRate,dt,research.sharing,function()return draw(cp)end)',
+  'f.habitats=ihr.step(f.habitats,effectiveIHRRate,dt,0,nil)'),
+ ('hyperloop_unlock_checks_omitted','src/server/FarmActions.luau',
+  'if typeIndex==11 and profile.permanent.hyperloop~=true then available=false;blockedReason="HYPERLOOP_LOCKED" end',
+  '-- Missing quote unlock guard'),
 ]
 def main():
  base=ROOT/'build'/('behavior-mutations-'+uuid.uuid4().hex[:8]);base.mkdir(parents=True)
@@ -100,11 +118,18 @@ def main():
   shutil.copytree(ROOT/'tests/resets',target/'tests/resets')
   shutil.copytree(ROOT/'tests/event_time',target/'tests/event_time')
   shutil.copytree(ROOT/'tests/session_prestige_rcb',target/'tests/session_prestige_rcb')
+  shutil.copytree(ROOT/'tests/farm_gaps',target/'tests/farm_gaps')
   (target/'docs/reference_data').mkdir(parents=True);(target/'build').mkdir()
   for ref in ['infrastructure','research','rewards']:
    shutil.copy2(ROOT/f'docs/reference_data/{ref}.json',target/f'docs/reference_data/{ref}.json')
   file=target/relative;text=file.read_text(encoding='utf-8');assert text.count(old)==1,(name,text.count(old))
   file.write_text(text.replace(old,new),encoding='utf-8')
+  if name=='hyperloop_unlock_checks_omitted':
+   # Disable all three defenses to reproduce an actual unauthorized train purchase.
+   text=file.read_text(encoding='utf-8')
+   text=text.replace('if typeIndex==11 and candidateProfile.permanent.hyperloop~=true then','if false then')
+   text=text.replace('if typeIndex==11 and freshProfile.permanent.hyperloop~=true then','if false then')
+   file.write_text(text,encoding='utf-8')
   if name=='calendar_claim_twice':
    # There are two independent UTC fences. Disabling only the leaf check
    # preserves correct behavior through the ingress and is not a semantic defect.
@@ -112,7 +137,7 @@ def main():
    old='if not Calendar.canClaimCalendarDay(draft,self.clock.utcNowMs()) then'
    assert text.count(old)==1
    server.write_text(text.replace(old,'if false then'),encoding='utf-8')
-  suite='session_prestige_rcb' if name in {'shop_operation_reuses_local_counter','stream_omits_session_generation','prestige_ignores_collection_event','running_chickens_ignored'} else 'event_time' if name in {'event_end_point_sampling','event_ignores_deadline','event_overlap_applies_whole_step'} else 'resets' if name in {'egg_reset_reuses_group_ids','prestige_reuses_group_ids'} else 'pro_policy' if name in {'unknown_policy_allowed','fusion_trusts_saved_pro_flag','fulfillment_trusts_prepared_policy','late_policy_response_overwrites_current','sensitive_action_skips_policy_refresh'} else 'persistence_startup' if name in {'startup_receipt_handler_missing','local_payments_enabled','rejected_receipt_acknowledged','durable_receipt_replay_ignored','confirmed_retry_snapshot_stale'} else 'calendar_cycle' if name in {'calendar_cash_percent_omitted','calendar_shell_precision_lost','calendar_prestige_base_lost'} else 'game_behavior'
+  suite='farm_gaps' if name in {'issued_drone_not_projected_to_visual','valuation_epic_ignored','hold_rate_ignored','hold_timeout_unbounded','sharing_ignored','hyperloop_unlock_checks_omitted'} else 'session_prestige_rcb' if name in {'shop_operation_reuses_local_counter','stream_omits_session_generation','prestige_ignores_collection_event','running_chickens_ignored'} else 'event_time' if name in {'event_end_point_sampling','event_ignores_deadline','event_overlap_applies_whole_step'} else 'resets' if name in {'egg_reset_reuses_group_ids','prestige_reuses_group_ids'} else 'pro_policy' if name in {'unknown_policy_allowed','fusion_trusts_saved_pro_flag','fulfillment_trusts_prepared_policy','late_policy_response_overwrites_current','sensitive_action_skips_policy_refresh'} else 'persistence_startup' if name in {'startup_receipt_handler_missing','local_payments_enabled','rejected_receipt_acknowledged','durable_receipt_replay_ignored','confirmed_retry_snapshot_stale'} else 'calendar_cycle' if name in {'calendar_cash_percent_omitted','calendar_shell_precision_lost','calendar_prestige_base_lost'} else 'game_behavior'
   run=subprocess.run([str(ROOT/'.tools/lune-0.11.1/lune.exe'),'run',f'tests/{suite}/run.luau'],cwd=target,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=120)
   output=run.stdout+run.stderr
   invalid=any(word in output for word in ['SyntaxError','Failed to resolve require','could not resolve','error parsing'])
@@ -120,7 +145,7 @@ def main():
   (target/'build/output.txt').write_text(output,encoding='utf-8')
   print(f'{name}: {state}',flush=True)
   results.append({'mutant':name,'state':state,'exitCode':run.returncode,'output':str((target/'build/output.txt').relative_to(ROOT))})
- report={'status':'PASS' if all(r['state']=='KILLED' for r in results) else 'FAIL','mutants':results,'scope':'Twenty-nine selected semantic mutations; not exhaustive mutation coverage'}
+ report={'status':'PASS' if all(r['state']=='KILLED' for r in results) else 'FAIL','mutants':results,'scope':'Thirty-five selected semantic mutations; not exhaustive mutation coverage'}
  (ROOT/'build/game-behavior-mutations.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
  assert report['status']=='PASS',report
 if __name__=='__main__':main()

@@ -158,4 +158,6 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 ## Ponowny audyt — #63–70
 
 - [x] #63–65: ID nowych intencji po reconnect/restarcie, zaufany event kolekcji SE i aktywne RCB. [Dostawa](workflow/session_prestige_rcb_63_65.md).
-- [ ] #66–70: wystawianie widocznych nagród, Accounting Tricks w FV, Hold to Hatch, IHR Sharing i bramka stacji Hyperloop. Osobne zgłoszenia GitHub; nie wdrażać ich samowolnie w zakresie #63–65.
+- [x] #66–70: autorytatywna prezentacja rekordów nagród / nieaktywny pusty kanał, Accounting Tricks w FV, Hold to Hatch, IHR Sharing i bramka stacji Hyperloop. [Dostawa](workflow/farm_gaps_66_70.md).
+
+- [ ] Pozostała integracja premiery: rzeczywisty harmonogram wystawiania nagród, niedostarczone ścieżki aktywacji/zakupów i odbiór S/D/H. #66–70 nie zatwierdzają tych funkcji, parametrów ani wznowienia bilansu.

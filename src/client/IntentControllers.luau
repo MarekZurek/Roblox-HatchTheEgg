@@ -53,6 +53,7 @@ function HatchController:press(callback)
 end
 
 function HatchController:holdStart(callback)
+ self._holdingStream=self.stateStore:getStreamId();self._lastHoldRefresh=nil
 	local streamId = self.stateStore:getStreamId()
 	assert(streamId ~= nil, "NO_STREAM_ID")
 
@@ -71,12 +72,19 @@ function HatchController:holdRefresh(callback)
 end
 
 function HatchController:holdStop(callback)
+ self._holdingStream=nil;self._lastHoldRefresh=nil
 	local streamId = self.stateStore:getStreamId()
 	assert(streamId ~= nil, "NO_STREAM_ID")
 
 	local inputSeq = self:_nextInputSeq()
 	local msg = self.transport:sendHatchInput(nil, streamId, inputSeq, "stop", callback)
 	return msg, inputSeq
+end
+
+function HatchController:update(nowMs)
+ if not self._holdingStream then return end
+ if not self.stateStore:isReady() or self.stateStore:getStreamId()~=self._holdingStream then self._holdingStream=nil;return end
+ if self._lastHoldRefresh==nil or nowMs-self._lastHoldRefresh>=500 then self._lastHoldRefresh=nowMs;self:holdRefresh() end
 end
 
 -- ============================================================================
