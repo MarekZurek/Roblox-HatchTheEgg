@@ -82,3 +82,8 @@ Stan: 24.10.2026. Dokumentacja, planowanie oraz lokalnie wykonane i zweryfikowan
 ## IMP-10–15 oraz QA-01 — wykonano i odebrano (24.10.2026)
 
 [40 — ukończenie i odbiór pierwszej farmy](40_first_farm_completion_delivery.md): w pełni zaimplementowano i odebrano FarmActions, ViewProjector, NetworkGateway, ClientTransport, ClientStateStore, RoutePresentation, IntentControllers, HUD, Bootstrap serwera i klienta oraz testy akceptacyjne A01–A16. Łącznie **21 914 asercji PASS**, 24 moduły w statycznym buildzie Rojo. Zgłoszenia #19–#25 zamknięte.
+
+
+## Poprawki bezpieczeństwa 25.10.2026
+
+[Odbiór poprawek #51–53](workflow/security_fixes_51_53.md): ścisłe wejścia nagród, trwałe rejestry i testy regresyjne. Inkubacja produkcyjna bez zatwierdzonej konfiguracji jest niedostępna; bilans nadal odłożony. Pozostałe uwagi audytu nie są zamknięte.

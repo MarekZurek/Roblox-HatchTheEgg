@@ -96,10 +96,6 @@ local Offers = resolve(function()
 	return script.Parent.rewards.offers
 end, "./rewards/offers")
 
-local FvSe = resolve(function()
-	return script.Parent.FarmMath.fv_se
-end, "./FarmMath/fv_se")
-
 local Equipment = resolve(function()
 	return script.Parent.pets.equipment
 end, "./pets/equipment")
@@ -217,6 +213,21 @@ local function createMemoryStore(data)
 	}
 end
 
+local function validId(value)
+ return type(value)=="string" and #value>0 and #value<=64 and utf8.len(value)~=nil
+end
+local function validIntent(value, allowed)
+ if value==nil then return true end
+ if type(value)~="table" or getmetatable(value)~=nil then return false end
+ for k,v in value do
+  if not allowed[k] then return false end
+  if k=="protocolVersion" then if v~=1 then return false end
+  elseif not validId(v) then return false end
+ end
+ return true
+end
+local CLAIM_FIELDS={operationId=true,requestId=true}
+local HATCH_FIELDS={operationId=true,requestId=true,eggType=true,kind=true,protocolVersion=true}
 local ServerBootstrap = {}
 ServerBootstrap.__index = ServerBootstrap
 
@@ -315,6 +326,8 @@ function ServerBootstrap.new(deps)
 		gateway = gateway,
 		players = {},
 		depsRouteProvider = deps.routeProvider,
+  -- Test fixture only: no production hatch prices/chances have been approved.
+  petHatchTestPolicy = deps.petHatchTestPolicy,
 	}, ServerBootstrap)
 
 	return self
@@ -447,7 +460,6 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 			held = false,
 			holdElapsed = 0,
 		},
-		offersState = Offers.createOffersState(),
 	}
 
 	local function simulationAdvance(profile, request)
@@ -487,96 +499,73 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 				terminalStatus = "APPLIED",
 				validate = function() return true end,
 			}
-		elseif op.kind == "HitDrone" then
-			local droneId = (op.args and (op.args.droneId or op.args.spawnId)) or "drone_1"
-			candidateProfile.rewards = candidateProfile.rewards or {}
-			candidateProfile.rewards.claimedDrones = candidateProfile.rewards.claimedDrones or {}
-			if candidateProfile.rewards.claimedDrones[droneId] then
-				return {
-					profile = candidateProfile,
-					result = { error = "ALREADY_CLAIMED", droneId = droneId },
-					terminalStatus = "REJECTED",
-					validate = function() return false, "ALREADY_CLAIMED" end,
-				}
-			end
-
-			local spawn = op.args and op.args.spawn
-			local nowMs = self.clock.utcNowMs()
-			if not spawn then
-				local isElite = (op.args and op.args.isElite) or false
-				local createdAtMs = (op.args and op.args.createdAtMs) or (nowMs - 2000)
-				local expiresAtMs = (op.args and op.args.expiresAtMs) or (nowMs + 15000)
-				spawn = {
-					spawnId = droneId,
-					createdAtMs = createdAtMs,
-					expiresAtMs = expiresAtMs,
-					isElite = isElite,
-					claimed = false,
-					reward = nil,
-				}
-			end
-
-			local pop = 0
-			if candidateProfile.farm and candidateProfile.farm.habitats then
-				for _, h in candidateProfile.farm.habitats do
-					if h.population then
-						pop += self.codec.ExactUInt.toSafeNumber(self.codec.ExactUInt.decode(h.population))
-					end
-				end
-			end
-			local eggIdx = (candidateProfile.farm and candidateProfile.farm.eggIndex) or 0
-			local egg = FvSe.EGGS[eggIdx] or FvSe.EGGS[0]
-			local eggVal = egg.eggValueBase
-			local currentCashNum = self.codec.BigAmount.decode(candidateProfile.farm and candidateProfile.farm.cash or "0")
-			local farmVal = (op.args and op.args.farmValue) or math.max(100.0, pop * eggVal * 100.0 + currentCashNum)
-			local curve0Val = (op.args and op.args.curve0FarmValue) or 10000.0
-
-			local config = (op.args and op.args.config)
-			local rolls = (op.args and op.args.rolls)
-			local okClaim, reward = Drones.claimDrone(spawn, nowMs, candidateProfile, config, rolls, farmVal, curve0Val)
-
-			if okClaim then
-				candidateProfile.rewards.claimedDrones[droneId] = true
-			end
-
-			return {
-				profile = candidateProfile,
-				result = {
-					droneId = droneId,
-					reward = reward,
-				},
-				terminalStatus = if okClaim then "APPLIED" else "REJECTED",
-				validate = function()
-					return okClaim, if not okClaim then tostring(reward) else nil
-				end,
-			}
-		elseif op.kind == "ClaimOffer" then
-			local offerId = (op.args and op.args.offerId) or "offer_2plus1"
-			local offersState = playerSession.offersState
-			local offer = Offers.findOffer(offersState, offerId)
-			local nowMs = self.clock.utcNowMs()
-			if not offer then
-				local defaultReward = (op.args and op.args.reward) or {
-					rewardType = "Cash",
-					amount = "50000",
-					amountNumber = 50000,
-				}
-				local channel = (op.args and op.args.channel) or "bonus"
-				Offers.createOffer(offersState, offerId, channel, defaultReward, nowMs)
-			end
-
-			local paidGE = op.args and op.args.paidGE
-			local okOffer, resOffer = Offers.claimOffer(offersState, offerId, nowMs, candidateProfile, paidGE)
-			return {
-				profile = candidateProfile,
-				result = resOffer,
-				terminalStatus = if okOffer then "APPLIED" else "REJECTED",
-				validate = function()
-					return okOffer, if not okOffer then resOffer.error else nil
-				end,
-			}
+  elseif op.kind == "IssueDrone" or op.kind == "IssueOffer" then
+   local draft=self.data.copy(candidateProfile)
+   local id=op.args.id
+   local now=self.clock.utcNowMs()
+   local function reject(code)
+    return {profile=candidateProfile,result={error=code},terminalStatus="REJECTED",validate=function()return false,code end}
+   end
+   if not validId(id) then return reject("INVALID_REQUEST") end
+   if op.kind=="IssueDrone" then
+    local records=draft.rewards.droneSpawns or {}
+    if records[id] or (draft.rewards.claimedDrones and draft.rewards.claimedDrones[id]) then return reject("DUPLICATE_SPAWN_ID") end
+    local terms=op.args.terms
+    local spawn=Drones.createDroneSpawn(id,now,terms.config,draft,terms.petEliteMult,terms.rollElite)
+    spawn.ownerId=pId;spawn.terms=self.data.copy(terms)
+    records[id]=spawn;draft.rewards.droneSpawns=records
+   else
+    local state=draft.rewards.offers or Offers.createOffersState()
+    local ok,offer,code=Offers.createOffer(state,id,op.args.channel,op.args.reward,now)
+    if not ok then return reject(code) end
+    offer.ownerId=pId;offer.costGE=op.args.costGE
+    draft.rewards.offers=state
+   end
+   return {profile=draft,result={id=id},validate=function()return true end}
+  elseif op.kind == "HitDrone" then
+   local id=op.args.droneId
+   local original=candidateProfile.rewards.droneSpawns and candidateProfile.rewards.droneSpawns[id]
+   local function reject(code)
+    return {profile=candidateProfile,result={error=code},terminalStatus="REJECTED",validate=function()return false,code end}
+   end
+   if not original then return reject("UNKNOWN_SPAWN") end
+   if original.ownerId~=pId then return reject("SPAWN_NOT_OWNED") end
+   local now=self.clock.utcNowMs()
+   if now<original.createdAtMs then return reject("SPAWN_NOT_ACTIVE") end
+   local draft=self.data.copy(candidateProfile)
+   local spawn=draft.rewards.droneSpawns[id]
+   local terms=spawn.terms
+   local ok,reward=Drones.claimDrone(spawn,now,draft,terms.config,terms.rolls,terms.farmValue,terms.curve0FarmValue)
+   if not ok then return reject(reward) end
+   return {profile=draft,result={droneId=id,reward=reward},validate=function(fresh,at)
+    local saved=fresh.rewards.droneSpawns and fresh.rewards.droneSpawns[id]
+    return saved~=nil and saved.ownerId==pId and not saved.claimed and at>=saved.createdAtMs and at<=saved.expiresAtMs,"SPAWN_NOT_ACTIVE"
+   end}
+  elseif op.kind == "ClaimOffer" then
+   local id=op.args.offerId
+   local state=candidateProfile.rewards.offers
+   local offer=state and Offers.findOffer(state,id)
+   local function reject(code)
+    return {profile=candidateProfile,result={error=code},terminalStatus="REJECTED",validate=function()return false,code end}
+   end
+   if not offer then return reject("OFFER_NOT_FOUND") end
+   if offer.ownerId~=pId then return reject("OFFER_NOT_OWNED") end
+   local now=self.clock.utcNowMs()
+   if offer.channel=="bonus" and not Offers.isBonusClaimFree(candidateProfile,now) and offer.costGE==nil then return reject("FEATURE_UNAVAILABLE") end
+   local draft=self.data.copy(candidateProfile)
+   local ok,result=Offers.claimOffer(draft.rewards.offers,id,now,draft,offer.costGE)
+   if not ok then return reject(result.error) end
+   return {profile=draft,result=result,validate=function(fresh)
+    local saved=fresh.rewards.offers and Offers.findOffer(fresh.rewards.offers,id)
+    return saved~=nil and saved.ownerId==pId and saved.status=="PENDING","OFFER_NOT_AVAILABLE"
+   end}
 		elseif op.kind == "HatchPetEgg" or op.kind == "HatchPet" then
-			local costGE = (op.args and op.args.costGE) or 100
+   local policy=self.petHatchTestPolicy
+   if not policy or policy.mode~="INTERNAL_TEST_ONLY" then
+    return {profile=candidateProfile,result={error="FEATURE_UNAVAILABLE"},terminalStatus="REJECTED",validate=function()return false,"FEATURE_UNAVAILABLE" end}
+   end
+   local costGE=policy.costGE
+   assert(type(costGE)=="number" and costGE>0 and costGE%1==0 and costGE<=9007199254740991,"INVALID_TEST_HATCH_COST")
 			candidateProfile.permanent = candidateProfile.permanent or {}
 			local currentGE = self.codec.ExactUInt.decode(candidateProfile.permanent.GE or "0")
 			local costExact = self.codec.ExactUInt.fromSafeNumber(costGE)
@@ -595,7 +584,8 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 			candidateProfile.permanent.totalGESpent = self.codec.ExactUInt.encode(self.codec.ExactUInt.add(curSpent, costExact))
 
 			-- Determine species from TEST_ONLY_CATALOG
-			local roll = if op.args and op.args.roll ~= nil then op.args.roll else math.random()
+			local roll = if policy.draw then policy.draw() else math.random()
+   assert(type(roll)=="number" and roll>=0 and roll<1,"INVALID_SERVER_ROLL")
 			local chosenSpeciesId = "farmer_dog"
 			local rarity = "Common"
 			if roll < 0.05 then
@@ -616,7 +606,8 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 			end
 
 			-- Determine variant
-			local variantRoll = if op.args and op.args.variantRoll ~= nil then op.args.variantRoll else math.random()
+			local variantRoll = if policy.draw then policy.draw() else math.random()
+   assert(type(variantRoll)=="number" and variantRoll>=0 and variantRoll<1,"INVALID_SERVER_ROLL")
 			local variant = "normal"
 			if variantRoll < 0.02 then
 				variant = "rainbow"
@@ -624,8 +615,13 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 				variant = "golden"
 			end
 
-			local petSerial = (op.args and op.args.petSerial) or tostring(self.clock.utcNowMs()) .. "_" .. tostring(math.random(1000, 9999))
-			local petUid = (op.args and op.args.petUid) or ("pet_" .. chosenSpeciesId .. "_" .. tostring(petSerial))
+   local seq=self.codec.ExactUInt.decode(candidateProfile.inventory.petSequence or "0")
+   local petUid
+   repeat
+    seq=self.codec.ExactUInt.add(seq,self.codec.ExactUInt.fromSafeNumber(1))
+    petUid="pet-"..self.codec.ExactUInt.encode(seq)
+   until not candidateProfile.inventory.pets[petUid]
+   candidateProfile.inventory.petSequence=self.codec.ExactUInt.encode(seq)
 
 			local newPet = {
 				uid = petUid,
@@ -910,121 +906,100 @@ function ServerBootstrap:grantEntitlement(playerId, entitlementId, opts)
 	return false, (res and res.errorCode) or "GRANT_FAILED"
 end
 
-function ServerBootstrap:hitDrone(playerId, droneId, opts)
-	local pId = tostring(playerId)
-	local playerSession = self.players[pId]
-	if not playerSession then
-		return false, "PLAYER_NOT_CONNECTED"
-	end
-
-	self._droneHitSerial = (self._droneHitSerial or 0) + 1
-	local coordinator = playerSession.coordinator
-	local snapshots = coordinator.snapshots()
-	local currentRev = (snapshots.durable and snapshots.durable.meta and snapshots.durable.meta.revision) or "0"
-
-	local op = {
-		operationId = "hit-drone-" .. pId .. "-" .. tostring(droneId) .. "-" .. tostring(self.clock.utcNowMs()) .. "-" .. tostring(self._droneHitSerial),
-		kind = "HitDrone",
-		expectedRevision = currentRev,
-		args = {
-			droneId = droneId,
-			isElite = if opts and opts.isElite ~= nil then opts.isElite else false,
-			config = opts and opts.config,
-			rolls = opts and opts.rolls,
-			farmValue = opts and opts.farmValue,
-			curve0FarmValue = opts and opts.curve0FarmValue,
-		},
-	}
-
-	coordinator.submit(op)
-	coordinator.drain()
-
-	local res = coordinator.resultOf(op.operationId)
-	if res and (res.status == "APPLIED" or (res.status == "REPLAYED" and res.terminalStatus == "APPLIED")) then
-		self:checkpointPlayer(pId)
-		return true, (res.result and res.result.reward) or res.result
-	end
-
-	return false, (res and (res.errorCode or (res.result and (res.result.error or res.result.errorCode)))) or "HIT_DRONE_FAILED"
+-- All callers below enter the same durable single-writer path. No extra checkpoint
+-- after APPLIED: the claim, reward and terminal result already share one commit.
+function ServerBootstrap:_rewardOperation(playerId,kind,args,operationId)
+ local session=self.players[tostring(playerId)]
+ if not session then return false,"PLAYER_NOT_CONNECTED" end
+ local c=session.coordinator
+ local snapshots=c.snapshots()
+ local op={operationId=operationId,kind=kind,expectedRevision=snapshots.durable.meta.revision,args=args}
+ local admission=c.submit(op)
+ if admission.status=="PENDING" then c.drain() end
+ local res=if admission.status=="PENDING" then c.resultOf(operationId) else admission
+ if res.status=="APPLIED" or (res.status=="REPLAYED" and res.terminalStatus=="APPLIED") then return true,res.result end
+ return false,res.errorCode or (res.result and (res.result.error or res.result.errorCode)) or res.status
 end
 
-function ServerBootstrap:claimOffer(playerId, offerId, opts)
-	local pId = tostring(playerId)
-	local playerSession = self.players[pId]
-	if not playerSession then
-		return false, "PLAYER_NOT_CONNECTED"
-	end
+function ServerBootstrap:_issueOperation(playerId,kind,args)
+ local session=self.players[tostring(playerId)]
+ if not session then return false,"PLAYER_NOT_CONNECTED" end
+ self._issueSerial=(self._issueSerial or 0)+1
+ local generation=session.coordinator.snapshots().durable.ownership.generation
+ return self:_rewardOperation(playerId,kind,args,"issue-"..generation.."-"..tostring(self._issueSerial).."-"..kind)
+end
 
-	self._offerClaimSerial = (self._offerClaimSerial or 0) + 1
-	local coordinator = playerSession.coordinator
-	local snapshots = coordinator.snapshots()
-	local currentRev = (snapshots.durable and snapshots.durable.meta and snapshots.durable.meta.revision) or "0"
+-- Trusted host APIs, deliberately absent from Remote/Gateway handlers. They do
+-- not schedule spawns/offers or invent reward amounts on missing configuration.
+function ServerBootstrap:issueDrone(playerId,id,terms)
+ if not validId(id) or type(terms)~="table" then return false,"INVALID_REQUEST" end
+ local ok,fixed=pcall(self.data.copy,terms)
+ if not ok or type(fixed.farmValue)~="number" or fixed.farmValue<0 or type(fixed.curve0FarmValue)~="number" or fixed.curve0FarmValue<=0 then return false,"INVALID_REWARD_TERMS" end
+ return self:_issueOperation(playerId,"IssueDrone",{id=id,terms=fixed})
+end
 
-	local op = {
-		operationId = "claim-offer-" .. pId .. "-" .. tostring(offerId) .. "-" .. tostring(self.clock.utcNowMs()) .. "-" .. tostring(self._offerClaimSerial),
-		kind = "ClaimOffer",
-		expectedRevision = currentRev,
-		args = {
-			offerId = offerId,
-			paidGE = opts and opts.paidGE,
-			reward = opts and opts.reward,
-			channel = opts and opts.channel,
-		},
-	}
+function ServerBootstrap:issueOffer(playerId,id,channel,reward,costGE)
+ if not validId(id) or (channel~="ordinary" and channel~="bonus") then return false,"INVALID_REQUEST" end
+ local ok,fixed=pcall(self.data.copy,reward)
+ if not ok or type(fixed)~="table" then return false,"INVALID_REWARD" end
+ if costGE~=nil and (type(costGE)~="number" or costGE<=0 or costGE%1~=0 or costGE>9007199254740991) then return false,"INVALID_COST" end
+ return self:_issueOperation(playerId,"IssueOffer",{id=id,channel=channel,reward=fixed,costGE=costGE})
+end
 
-	coordinator.submit(op)
-	coordinator.drain()
+function ServerBootstrap:hitDrone(playerId,id,options)
+ if not validId(id) or not validIntent(options,CLAIM_FIELDS) then return false,"INVALID_REQUEST" end
+ local session=self.players[tostring(playerId)]
+ if not session then return false,"PLAYER_NOT_CONNECTED" end
+ local p=session.coordinator.snapshots().durable
+ if not (p.rewards.droneSpawns and p.rewards.droneSpawns[id]) then return false,"UNKNOWN_SPAWN" end
+ local ok,result=self:_rewardOperation(playerId,"HitDrone",{droneId=id},(options and options.operationId) or ("drone-"..id))
+ return ok,if ok then result.reward else result
+end
 
-	local res = coordinator.resultOf(op.operationId)
-	if res and (res.status == "APPLIED" or (res.status == "REPLAYED" and res.terminalStatus == "APPLIED")) then
-		self:checkpointPlayer(pId)
-		return true, (res.result and res.result.reward) or res.result
-	end
-
-	return false, (res and (res.errorCode or (res.result and (res.result.error or res.result.errorCode)))) or "CLAIM_OFFER_FAILED"
+function ServerBootstrap:claimOffer(playerId,id,options)
+ if not validId(id) or not validIntent(options,CLAIM_FIELDS) then return false,"INVALID_REQUEST" end
+ local session=self.players[tostring(playerId)]
+ if not session then return false,"PLAYER_NOT_CONNECTED" end
+ local p=session.coordinator.snapshots().durable
+ if not (p.rewards.offers and Offers.findOffer(p.rewards.offers,id)) then return false,"OFFER_NOT_FOUND" end
+ local ok,result=self:_rewardOperation(playerId,"ClaimOffer",{offerId=id},(options and options.operationId) or ("offer-"..id))
+ return ok,if ok then result.reward else result
 end
 
 function ServerBootstrap:getOffersState(playerId)
-	local pId = tostring(playerId)
-	local playerSession = self.players[pId]
-	return if playerSession then playerSession.offersState else nil
+ local session=self.players[tostring(playerId)]
+ if not session then return nil end
+ local p=session.coordinator.snapshots().durable
+ return self.data.copy(p.rewards.offers or Offers.createOffersState())
 end
 
-function ServerBootstrap:hatchPet(playerId, opts)
-	local pId = tostring(playerId)
-	local playerSession = self.players[pId]
-	if not playerSession then
-		return false, "PLAYER_NOT_CONNECTED"
-	end
+function ServerBootstrap:hatchPet(playerId,intent)
+ if not validIntent(intent,HATCH_FIELDS) then return false,"INVALID_REQUEST" end
+ if intent and intent.kind and intent.kind~="HatchPetEgg" and intent.kind~="HatchPet" then return false,"INVALID_REQUEST" end
+ if intent and intent.eggType and intent.eggType~="standard_egg" then return false,"FEATURE_UNAVAILABLE" end
+ self._petHatchSerial=(self._petHatchSerial or 0)+1
+ local session=self.players[tostring(playerId)]
+ if not session then return false,"PLAYER_NOT_CONNECTED" end
+ local durable=session.coordinator.snapshots().durable
+ local generation=durable.ownership.generation
+ local operationId=(intent and intent.operationId) or (intent and intent.requestId and ("pet-"..intent.requestId)) or ("hatch-"..generation.."-"..tostring(self._petHatchSerial))
+ if (not self.petHatchTestPolicy or self.petHatchTestPolicy.mode~="INTERNAL_TEST_ONLY") and not durable.operations[operationId] then return false,"FEATURE_UNAVAILABLE" end
+ return self:_rewardOperation(playerId,"HatchPetEgg",{eggType="standard_egg"},operationId)
+end
 
-	self._petHatchSerial = (self._petHatchSerial or 0) + 1
-	local coordinator = playerSession.coordinator
-	local snapshots = coordinator.snapshots()
-	local currentRev = (snapshots.durable and snapshots.durable.meta and snapshots.durable.meta.revision) or "0"
-
-	local op = {
-		operationId = "hatch-pet-" .. pId .. "-" .. tostring(self.clock.utcNowMs()) .. "-" .. tostring(self._petHatchSerial),
-		kind = "HatchPetEgg",
-		expectedRevision = currentRev,
-		args = {
-			costGE = if opts and opts.costGE ~= nil then opts.costGE else 100,
-			roll = opts and opts.roll,
-			variantRoll = opts and opts.variantRoll,
-			petUid = opts and opts.petUid,
-			petSerial = opts and opts.petSerial,
-		},
-	}
-
-	coordinator.submit(op)
-	coordinator.drain()
-
-	local res = coordinator.resultOf(op.operationId)
-	if res and (res.status == "APPLIED" or (res.status == "REPLAYED" and res.terminalStatus == "APPLIED")) then
-		self:checkpointPlayer(pId)
-		return true, res.result
-	end
-
-	return false, (res and (res.errorCode or (res.result and (res.result.error or res.result.errorCode)))) or "HATCH_FAILED"
+function ServerBootstrap:handleRewardRequest(playerId,message)
+ local fields={kind=true,protocolVersion=true,requestId=true,operationId=true}
+ if type(message)~="table" or getmetatable(message)~=nil then return false,"INVALID_REQUEST" end
+ local kind=message.kind
+ if kind=="HitDrone" then fields.droneId=true
+ elseif kind=="ClaimOffer" then fields.offerId=true
+ elseif kind=="HatchPetEgg" or kind=="HatchPet" then fields.eggType=true
+ else return false,"INVALID_REQUEST" end
+ if not validIntent(message,fields) or message.protocolVersion~=1 then return false,"INVALID_REQUEST" end
+ if kind=="HatchPetEgg" or kind=="HatchPet" then return self:hatchPet(playerId,message) end
+ local options={operationId=message.operationId,requestId=message.requestId}
+ if kind=="HitDrone" then return self:hitDrone(playerId,message.droneId,options) end
+ return self:claimOffer(playerId,message.offerId,options)
 end
 
 function ServerBootstrap:equipPet(playerId, petUid)

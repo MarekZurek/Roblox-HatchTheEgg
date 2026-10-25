@@ -55,7 +55,7 @@ def check_test_suites_in_test_script():
                 assert "tests/numeric/run.luau" in ps1_text, "numeric test registered"
             else:
                 assert f"'{name}'" in ps1_text, f"Suite '{name}' not found in tools/test.ps1"
-    print("  PASS: All 28 test suites registered in test runner.")
+    print("  PASS: All test suites registered in test runner.")
 
 
 def check_build_artifacts():

@@ -1,0 +1,79 @@
+{
+  "date": "2026-10-25",
+  "issues": [
+    51,
+    52,
+    53
+  ],
+  "status": "PASS_L",
+  "command": "./tools/test.ps1 -PythonExecutable <Python3 executable>",
+  "testSuites": 29,
+  "totalAssertions": 67794,
+  "rewardSecurityAssertions": 174,
+  "legacyPositiveRegressions": {
+    "drones": 92,
+    "petEffects": 182
+  },
+  "staticBuild": {
+    "status": "PASS_STATIC_BUILD",
+    "moduleScripts": 38,
+    "entrypointScripts": 2
+  },
+  "studioTested": false,
+  "realDataStoreTested": false,
+  "realPaymentsTested": false,
+  "typecheckerRun": false,
+  "scope": [
+    "Strict Main reward ingress, no client prices/rolls/UIDs or fabricated missing rewards",
+    "Fail-closed production incubation until deferred configuration is approved",
+    "Durable owned drone registry and offers state, atomic claims with economy/result",
+    "Replay after restart, storage retry, unknown commit with fencing and recovery",
+    "Additive optional schema fields; existing absent fields remain supported"
+  ],
+  "notIncluded": [
+    "New production reward scheduling or client actor ID distribution",
+    "Approval of incubation prices, odds, reward values or paid bonus prices",
+    "Remaining audit findings 54-61",
+    "Studio, native cloud or real-money tests"
+  ],
+  "deferredBalanceAndReferenceDataChanged": false,
+  "review": "Author scoped source review and local actual-module regressions; no external QA claim",
+  "files": [
+    {
+      "path": "src/server/Bootstrap.luau",
+      "sha256": "df6da858bafc7f1540cd108a0ed53ca142cd8e725fb0ee6e9f07d9931ef6941e"
+    },
+    {
+      "path": "src/server/Main.server.luau",
+      "sha256": "22c9c923f45a7e48df71b2c058cddd6f152496a50e794ed9f3f018119f06e6f5"
+    },
+    {
+      "path": "src/server/ProfileSchema.luau",
+      "sha256": "aff19d6bcda1fd20fbbc1a7fd420e91d828669b5cba3d85888be2f4e2de5972f"
+    },
+    {
+      "path": "src/client/Main.client.luau",
+      "sha256": "7242842d5baf30ec2aa2d268d04c6db7d5c5d3b0f448db0e3c66d8d682777b09"
+    },
+    {
+      "path": "tests/reward_security/run.luau",
+      "sha256": "3dac45b54859eb4a7890dce87a1bf042852dbc78be2c8499fe0e6efd7bf3726a"
+    },
+    {
+      "path": "tests/drones/run.luau",
+      "sha256": "c8987c907e248c20e4d91cd7a39c720aea709ee97464a4eb1d2e676cde512e65"
+    },
+    {
+      "path": "tests/pet_effects/run.luau",
+      "sha256": "1d7c0e9349604fd4ab2afadbd7217c05e00bf0e33fb09a061155f233720a8e4b"
+    },
+    {
+      "path": "tools/test.ps1",
+      "sha256": "b638147b87db192de5853f03ab968692d4e7566636e197092afe1a976af93461"
+    },
+    {
+      "path": "tools/verify_release.py",
+      "sha256": "51b9b8c51e0e8257c2b2d33c8c59f296fe80b4d30b59e45b08371fa134c13d88"
+    }
+  ]
+}

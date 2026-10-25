@@ -196,8 +196,8 @@ clientToServer.OnServerEvent:Connect(function(player, message)
 
 	-- PROD-06: 3D Diegetic Actors Intents (HitDrone and ClaimOffer)
 	if message.kind == "HitDrone" then
-		local droneId = message.droneId or "drone_1"
-		local okHit, reward = server:hitDrone(pId, droneId)
+		local droneId = message.droneId
+		local okHit, reward = server:handleRewardRequest(pId, message)
 		if okHit and reward then
 			serverToClient:FireClient(player, {
 				kind = "DroneRewardPopup",
@@ -208,8 +208,8 @@ clientToServer.OnServerEvent:Connect(function(player, message)
 		end
 		return
 	elseif message.kind == "ClaimOffer" then
-		local offerId = message.offerId or "offer_2plus1"
-		local okClaim, resClaim = server:claimOffer(pId, offerId)
+		local offerId = message.offerId
+		local okClaim, resClaim = server:handleRewardRequest(pId, message)
 		if okClaim and resClaim then
 			serverToClient:FireClient(player, {
 				kind = "OfferClaimedPopup",
@@ -220,12 +220,12 @@ clientToServer.OnServerEvent:Connect(function(player, message)
 		end
 		return
 	elseif message.kind == "HatchPetEgg" or message.kind == "HatchPet" then
-		local okHatch, resHatch = server:hatchPet(pId, message)
+		local okHatch, resHatch = server:handleRewardRequest(pId, message)
 		if okHatch and resHatch then
 			serverToClient:FireClient(player, {
 				kind = "PetHatched",
 				pet = resHatch.pet or resHatch,
-				costGE = resHatch.costGE or 100,
+				costGE = resHatch.costGE,
 			})
 			syncWorldAndDelta(pId, player)
 		else

@@ -127,3 +127,9 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 - [x] **PROD-06 (#48)**: Diegetyczne aktory 3D: Drony z celowaniem, Ciężarówka dostawcza 2+1 i Silosy z SurfaceGui. 444 asercje Presentation PASS, 89 Drones PASS.
 - [x] **PROD-07 (#49)**: Stacja Inkubacji Petów w świecie 3D i animacja wykluwania jaj. 181 asercji Pet Effects PASS, 457 Presentation PASS.
 - [x] **PROD-08 (#50)**: Oprawa dźwiękowa (SFX & Muzyka BGM) oraz optymalizacja mobilna interfejsu. 377 asercji UI/Audio PASS.
+
+
+## Bezpieczeństwo — 25.10.2026
+
+- [x] #51–53: zablokować wymuszanie ceny/wyniku inkubacji i wypłaty z nieistniejących dronów/ofert; dodać trwałe rejestry i regresję odbioru. [Zakres i ograniczenia](workflow/security_fixes_51_53.md). Nie zatwierdza bilansu ani całej gotowości wydania.
+- [ ] Pozostałe ustalenia audytu #54–61 pozostają do wykonania na osobne zlecenie.

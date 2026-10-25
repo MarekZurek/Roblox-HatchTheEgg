@@ -30,6 +30,28 @@ function Schema.new(codec)
 		uint(p.permanent.GE); uint(p.permanent.totalGESpent); A.decode(p.permanent.SE);uint(p.permanent.PE)
 		for _,name in {"prestigeSessionArchivedCash","prestigeExtraEarnings","lastBaseEarnings","currentFarmCash","lastCashEarned"} do A.decode(p.accounting[name]) end
 		instant(p.timeline.settledWallThrough)
+		if p.inventory.petSequence~=nil then uint(p.inventory.petSequence) end
+		if p.rewards.droneSpawns~=nil then
+			assert(type(p.rewards.droneSpawns)=="table","INVALID_DRONE_REGISTRY")
+			for id,spawn in p.rewards.droneSpawns do
+				assert(type(id)=="string" and type(spawn)=="table" and spawn.spawnId==id and spawn.ownerId==playerId,"INVALID_DRONE_OWNER")
+				instant(spawn.createdAtMs);instant(spawn.expiresAtMs)
+				assert(spawn.expiresAtMs>=spawn.createdAtMs and type(spawn.claimed)=="boolean" and type(spawn.isElite)=="boolean" and type(spawn.terms)=="table","INVALID_DRONE_RECORD")
+			end
+		end
+		if p.rewards.offers~=nil then
+			assert(type(p.rewards.offers)=="table","INVALID_OFFER_REGISTRY")
+			for _,channel in {"ordinary","bonus"} do
+				assert(type(p.rewards.offers[channel])=="table","INVALID_OFFER_CHANNEL")
+				for id,offer in p.rewards.offers[channel] do
+					assert(type(id)=="string" and type(offer)=="table" and offer.offerId==id and offer.ownerId==playerId and offer.channel==channel,"INVALID_OFFER_OWNER")
+					instant(offer.createdAtMs)
+					assert(offer.status=="PENDING" or offer.status=="RESERVED" or offer.status=="CLAIMED" or offer.status=="DISMISSED","INVALID_OFFER_STATUS")
+					assert(type(offer.reward)=="table" and type(offer.reward.amount)=="string","INVALID_OFFER_REWARD")
+					if offer.costGE~=nil then assert(type(offer.costGE)=="number" and offer.costGE>0 and offer.costGE<=9007199254740991 and offer.costGE%1==0,"INVALID_OFFER_COST") end
+				end
+			end
+		end
 		for id, op in p.operations do
 			assert(type(id)=="string" and type(op)=="table" and type(op.argsKey)=="string" and type(op.result)=="table", "INVALID_LEDGER")
 			assert(op.terminalStatus=="APPLIED" or op.terminalStatus=="REJECTED", "INVALID_LEDGER_STATUS")

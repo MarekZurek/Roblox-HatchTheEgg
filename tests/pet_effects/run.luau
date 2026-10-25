@@ -532,7 +532,7 @@ end
 -- ============================================================================
 do
 	local ServerBootstrap = require("../../src/server/Bootstrap")
-	local server = ServerBootstrap.new({ initialNowMs = 5000000 })
+	local server = ServerBootstrap.new({ initialNowMs = 5000000, petHatchTestPolicy={mode="INTERNAL_TEST_ONLY",costGE=100,draw=function()return 0.9 end} })
 	local joinRes, err = server:playerJoined("7001")
 	ok(joinRes ~= nil, "Player joined server for hatching test")
 
@@ -548,9 +548,8 @@ do
 	eq(errHatch0, "INSUFFICIENT_GE", "Error is INSUFFICIENT_GE")
 
 	-- 2. Grant 240 GE via authoritative ClaimOffer (10 + 240 = 250 GE)
-	local okClaim, resClaim = server:claimOffer("7001", "ge_grant_1", {
-		reward = { rewardType = "GE", amount = "240", amountNumber = 240 },
-	})
+	eq(server:issueOffer("7001", "ge_grant_1", "ordinary", {rewardType="GE",amount="240",amountNumber=240}), true, "explicit test reward issued before claim")
+	local okClaim, resClaim = server:claimOffer("7001", "ge_grant_1")
 	eq(okClaim, true, "claimOffer granted 240 GE")
 	prof = coordinator.snapshots().working or coordinator.snapshots().durable
 	eq(prof.permanent.GE, "250", "Player GE balance is now 250")

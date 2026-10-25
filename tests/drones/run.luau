@@ -342,42 +342,46 @@ do
 	ok(joinRes ~= nil, "Player 999 joined server")
 
 	-- 1. Server Authoritative HitDrone with Cash reward
-	local okHit1, reward1 = server:hitDrone("999", "drone_srv_1", {
+	local issued1 = server:issueDrone("999", "drone_srv_1", {
 		config = { droneCashGuaranteed = true },
 		rolls = { u2 = 0.5 },
 		farmValue = 10000.0,
 		curve0FarmValue = 2000.0,
 	})
+	eq(issued1, true, "server issued drone before hit")
+	local okHit1, reward1 = server:hitDrone("999", "drone_srv_1")
 	eq(okHit1, true, "hitDrone succeeded")
 	ok(reward1 ~= nil, "reward returned")
 	eq(reward1.type, "Cash", "reward type is Cash")
 	near(reward1.amount, 0.4000000059604645, 1e-12, "cash amount matches formula with small population exception")
 
 	-- 2. Idempotency / Duplicate hit rejection on server
-	local okHitDup, errDup = server:hitDrone("999", "drone_srv_1")
+	local okHitDup, errDup = server:hitDrone("999", "drone_srv_1", {operationId="duplicate-hit"})
 	eq(okHitDup, false, "Duplicate hit on same droneId rejected")
 	eq(errDup, "ALREADY_CLAIMED", "Error code is ALREADY_CLAIMED")
 
 	-- 3. HitDrone with Golden Egg reward
-	local okHit2, reward2 = server:hitDrone("999", "drone_srv_2", {
+	local issued2 = server:issueDrone("999", "drone_srv_2", {
+        farmValue = 10000, curve0FarmValue = 2000,
 		config = { droneGoldGuaranteed = true },
 		rolls = { u2 = 0.8 },
 	})
+	eq(issued2, true, "server issued second drone")
+	local okHit2, reward2 = server:hitDrone("999", "drone_srv_2")
 	eq(okHit2, true, "hitDrone with GE succeeded")
 	eq(reward2.type, "GE", "reward type is GE")
 	eq(reward2.amount, 3, "reward amount is 3 GE")
 
 	-- 4. Server Authoritative ClaimOffer (2+1 delivery parcel)
-	local okClaim1, resClaim1 = server:claimOffer("999", "offer_parcel_1", {
-		reward = { rewardType = "Cash", amount = "50000", amountNumber = 50000 },
-	})
+	eq(server:issueOffer("999", "offer_parcel_1", "ordinary", {rewardType="Cash", amount="50000", amountNumber=50000}), true, "server issued stored offer")
+	local okClaim1, resClaim1 = server:claimOffer("999", "offer_parcel_1")
 	eq(okClaim1, true, "claimOffer succeeded")
 	ok(resClaim1 ~= nil, "claimOffer result returned")
 	eq(resClaim1.rewardType, "Cash", "reward type is Cash")
 	eq(resClaim1.amount, "50000", "reward amount is 50000")
 
 	-- 5. Duplicate ClaimOffer rejection
-	local okClaimDup, resClaimDup = server:claimOffer("999", "offer_parcel_1")
+	local okClaimDup, resClaimDup = server:claimOffer("999", "offer_parcel_1", {operationId="duplicate-offer"})
 	eq(okClaimDup, false, "Duplicate claim on same offerId rejected")
 
 	-- 6. Verify profile balance persisted & checkpointer flushed

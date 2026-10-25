@@ -290,7 +290,10 @@ if serverToClient then
 			end
 			return
 		elseif type(message) == "table" and message.kind == "PetHatchFailed" then
-			showLootNotification("⚠️ BŁĄD INKUBACJI", "Niewystarczająco Złotych Jaj (wymagane 100 GE)")
+			local reason = if message.error == "FEATURE_UNAVAILABLE" then "Inkubacja jest obecnie niedostępna."
+				elseif message.error == "INSUFFICIENT_GE" then "Niewystarczająco Złotych Jaj."
+				else "Nie można teraz wykonać inkubacji."
+			showLootNotification("⚠️ BŁĄD INKUBACJI", reason)
 			return
 		end
 
