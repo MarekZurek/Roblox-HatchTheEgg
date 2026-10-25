@@ -406,7 +406,21 @@ function ServerBootstrap:_getRoute(slot)
 	}
 end
 
+-- Compare committed farm identity, never a tentative domain plan. An old replay
+-- has the same identity and must not stop a newly started hold.
+function ServerBootstrap:_reconcileReset(playerSession)
+    local durable = playerSession.coordinator and playerSession.coordinator.snapshots().durable
+    if not durable then return end
+    local identity = durable.permanent.prestigeCount .. ":" .. tostring(durable.farm.eggIndex)
+    if playerSession.confirmedResetIdentity ~= identity then
+        playerSession.hatchingRuntime.held = false
+        playerSession.hatchingRuntime.holdElapsed = 0
+        playerSession.confirmedResetIdentity = identity
+    end
+end
+
 function ServerBootstrap:_simulationAdvance(playerSession, profile, request)
+	self:_reconcileReset(playerSession)
 	if request == nil then
 		return { profile = profile, complete = true }
 	end
@@ -534,6 +548,8 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 	local playerSession = {
 		playerId = pId,
 		handle = handle,
+		confirmedResetIdentity = handle.snapshot.permanent.prestigeCount .. ":" .. tostring(handle.snapshot.farm.eggIndex),
+		pendingEntitlements = {},
 		hatchingRuntime = {
 			streamId = "stream-" .. pId .. "-1",
 			lastInputSeq = "0",
@@ -641,7 +657,6 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
                 deps.prestigeEventMult=Effects.calculateMultipliers(nil,candidateProfile.farm,self.clock.utcNowMs(),self.liveEvents).eventPrestigeMult
             end
             local outcome=ProgressActions.apply(candidateProfile,op,deps)
-            if outcome.terminalStatus=="APPLIED" then playerSession.hatchingRuntime.held=false;playerSession.hatchingRuntime.holdElapsed=0 end
             if op.kind=="Prestige" then
                 local validate=outcome.validate
                 outcome.validate=function(fresh,now)
@@ -953,6 +968,7 @@ function ServerBootstrap:playerLeaving(playerId)
 
 	-- 3. Unregister from gateway
 	self.gateway:unregisterPlayer(pId)
+	if self.farmActions.forgetPlayer then self.farmActions.forgetPlayer(pId) end
 
 	-- 4. Clean up local session
 	self.players[pId] = nil
@@ -1063,6 +1079,7 @@ end
 
 function ServerBootstrap:grantEntitlement(playerId, entitlementId, _legacyOpts)
 	if not self.purchasesEnabled then return false, "LOCAL_PAYMENTS_DISABLED" end
+	if entitlementId ~= "pro_permit" and entitlementId ~= "buy_max" then return false, "UNKNOWN_ENTITLEMENT" end
 	local pId = tostring(playerId)
 	local playerSession = self.players[pId]
 	if not playerSession then
@@ -1072,9 +1089,10 @@ function ServerBootstrap:grantEntitlement(playerId, entitlementId, _legacyOpts)
 	local coordinator = playerSession.coordinator
 	local snapshots = coordinator.snapshots()
 	local currentRev = (snapshots.durable and snapshots.durable.meta and snapshots.durable.meta.revision) or "0"
+	local op = playerSession.pendingEntitlements[entitlementId]
+	if not op then
 	self._entitlementSerial=(self._entitlementSerial or 0)+1
-
-	local op = {
+	op = {
 		operationId = "entitlement-" .. pId .. "-" .. entitlementId .. "-" .. snapshots.durable.ownership.generation .. "-" .. tostring(self.clock.utcNowMs()) .. "-" .. tostring(self._entitlementSerial),
 		kind = "GrantEntitlement",
 		expectedRevision = currentRev,
@@ -1082,16 +1100,42 @@ function ServerBootstrap:grantEntitlement(playerId, entitlementId, _legacyOpts)
 			entitlementId = entitlementId,
 		},
 	}
+	playerSession.pendingEntitlements[entitlementId] = op
+	end
+	-- Preserve the operation ID while the write result is unknown. Only retry a
+	-- known non-execution after settlement, under the current committed revision.
+	local previous = coordinator.resultOf(op.operationId)
+	if previous and ((previous.status == "UNKNOWN" and previous.errorCode ~= "STATUS_NOT_TRACKED") or (previous.status == "REPLAYED" and not snapshots.ready)) then
+		previous = coordinator.query(op.operationId)
+		if not coordinator.snapshots().ready then
+			local recovered = coordinator.recover(op.operationId)
+			if recovered.status ~= "ACQUIRED" then return false, "UNKNOWN" end
+			coordinator.setReady(true)
+			previous = coordinator.resultOf(op.operationId)
+			currentRev = coordinator.snapshots().durable.meta.revision
+		end
+		if previous.status == "UNKNOWN" then return false, "UNKNOWN" end
+	end
+	if previous and (previous.status == "APPLIED" or (previous.status == "REPLAYED" and previous.terminalStatus == "APPLIED")) then
+		playerSession.pendingEntitlements[entitlementId] = nil
+		return true, previous
+	end
+	op.expectedRevision = currentRev
 
 	coordinator.submit(op,{kind="TimeAdvance",targetMs=self.clock.utcNowMs(),budget=100})
 	coordinator.drain()
 
 	local res = coordinator.resultOf(op.operationId)
 	if res and (res.status == "APPLIED" or (res.status == "REPLAYED" and res.terminalStatus == "APPLIED")) then
+		playerSession.pendingEntitlements[entitlementId] = nil
 		self:checkpointPlayer(pId)
 		return true, res
 	end
 
+	if res and (res.status == "REJECTED" or (res.status == "REPLAYED" and res.terminalStatus == "REJECTED")) then
+		self._entitlementSerial += 1
+		op.operationId = "entitlement-" .. pId .. "-" .. entitlementId .. "-" .. snapshots.durable.ownership.generation .. "-" .. tostring(self.clock.utcNowMs()) .. "-" .. tostring(self._entitlementSerial)
+	end
 	return false, (res and res.errorCode) or "GRANT_FAILED"
 end
 
@@ -1313,6 +1357,11 @@ function ServerBootstrap:tick(dtSeconds, nowMs)
 				budget = 100,
 			})
 			coordinator.drain()
+			self:_reconcileReset(playerSession)
+			for entitlementId, pending in pairs(playerSession.pendingEntitlements) do
+				local result = coordinator.resultOf(pending.operationId)
+				if coordinator.snapshots().ready or result.status == "UNKNOWN" or result.status == "REPLAYED" then self:grantEntitlement(playerId, entitlementId) end
+			end
 		end
 	end
 end
@@ -1337,7 +1386,10 @@ function ServerBootstrap:getRepository()
 end
 
 function ServerBootstrap:dispatch(playerId, message)
-	return self.gateway:handleRequest(playerId, message)
+	local result = self.gateway:handleRequest(playerId, message)
+	local session = self.players[tostring(playerId)]
+	if session then self:_reconcileReset(session) end
+	return result
 end
 ServerBootstrap.handleRequest = ServerBootstrap.dispatch
 

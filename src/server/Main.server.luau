@@ -196,6 +196,7 @@ local function onPlayerAdded(player)
 	end)
 
 	-- Asynchronously check and grant owned GamePasses (Pro Permit, Buy MAX)
+    local grantSession = server:getPlayer(pId)
     if server.purchasesEnabled then task.spawn(function()
         local passMapping={}
         for _,catalogId in {"pro_permit","buy_max"} do
@@ -205,7 +206,7 @@ local function onPlayerAdded(player)
 			local ok, owns = pcall(function()
 				return MarketplaceService:UserOwnsGamePassAsync(player.UserId, passId)
 			end)
-			if ok and owns then
+			if ok and owns and player.Parent == Players and activePlayerObjects[pId] == player and server:getPlayer(pId) == grantSession then
 				server:grantEntitlement(pId, catalogId)
 			end
 		end

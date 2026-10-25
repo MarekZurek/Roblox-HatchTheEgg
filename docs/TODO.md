@@ -161,3 +161,5 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 - [x] #66–70: autorytatywna prezentacja rekordów nagród / nieaktywny pusty kanał, Accounting Tricks w FV, Hold to Hatch, IHR Sharing i bramka stacji Hyperloop. [Dostawa](workflow/farm_gaps_66_70.md).
 
 - [ ] Pozostała integracja premiery: rzeczywisty harmonogram wystawiania nagród, niedostarczone ścieżki aktywacji/zakupów i odbiór S/D/H. #66–70 nie zatwierdzają tych funkcji, parametrów ani wznowienia bilansu.
+
+- [x] #71–74: ponowienie potwierdzonych passów, maksimum RCB w FV, zniżki Epic i granica zatwierdzenia resetu dla hold. [Dostawa](workflow/entitlement_farm_fixes_71_74.md). Nie zalicza S/D/H ani pozostałej integracji premiery.

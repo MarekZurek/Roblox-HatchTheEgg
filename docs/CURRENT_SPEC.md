@@ -184,3 +184,5 @@ Zadania `DOC-01..05`, `PRE-01..03`, `IMP-01..15`, `QA-01`, `NEXT-01..10`, `REL-0
 ## Poprawki #66–70 — 25.10.2026
 
 [Dostawa #66–70](workflow/farm_gaps_66_70.md): widoczne nagrody mają ID wystawione przez serwer; pusty/nieskonfigurowany kanał nie udaje dostępnej nagrody. Accounting Tricks wpływa na FV, hold działa według Epic z dzierżawą intencji, Sharing przekazuje rzeczywisty efekt i zachowuje kursor wyboru celu, a pociąg wymaga trwałej stacji. Nie dodano harmonogramu nagród, kupna stacji/wagonów ani konfiguracji odłożonego bilansu. To naprawa błędów integracji, nie zakończenie wszystkich funkcji premiery. Tylko L/statyczny build, bez zaliczenia S/D/H.
+
+[Dostawa #71–74](workflow/entitlement_farm_fixes_71_74.md): naprawiono ponowienie potwierdzonych nadań Pro/Buy MAX, odrębne maksimum RCB badań w FV, zniżki Epic w wycenie i wydatku oraz zatrzymanie hold dopiero po zatwierdzonym resecie. Nie zmieniono zasad R, konfiguracji referencyjnej ani bilansu 17–21; weryfikacja lokalna nie zatwierdza wydania.

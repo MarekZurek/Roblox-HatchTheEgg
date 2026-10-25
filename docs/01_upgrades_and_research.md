@@ -183,3 +183,5 @@ Pełne ceny i efekty wszystkich poziomów są w [research.json](reference_data/r
 ## Progi Common — doprecyzowanie 24.10.2026
 
 Punkty Common to suma aktualnych poziomów wszystkich Common; jeden poziom daje jeden punkt, koszt nie jest wagą. Epic mają osobny licznik. Tier jest dostępny przy points >= tierThresholds[tier_raw]. Pełna tabela, granice i osiągalność siedmiu wybranych badań: [31](31_research_hatching_rcb_and_new_account.md). Nie zmienia to cen lub bilansu.
+
+[Integracja zniżek #73](workflow/entitlement_farm_fixes_71_74.md): quote, wydatek i świeża walidacja uwzględniają istniejące efekty Cheaper Research, Cheaper Contractors oraz Bust Unions. Bez zmiany tabel cen.

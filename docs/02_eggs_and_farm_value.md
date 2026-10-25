@@ -95,3 +95,5 @@ Gdy $\text{Farm Value} \ge \text{Wymagany Próg}$:
 ## Dane referencyjne w projekcie
 
 Maszynowa tabela 19 jaj, ich wartości i trofeów: [infrastructure.json](reference_data/infrastructure.json). Progi FV odkrycia i awansu pozostają w tabeli tego dokumentu.
+
+[Integracja maksimum RCB #72](workflow/entitlement_farm_fixes_71_74.md): adapter przekazuje addytywne onscreenChickenMultMax Common oraz Epic Multiplier jako researchMaxRCBBase. researchMaxRCBMult=1 wobec braku odrębnego efektu w katalogu. Bieżące runningCount i Epic Clucking nie zastępują tego członu.

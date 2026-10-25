@@ -25,3 +25,5 @@ Pełna jakość offline oznacza udział w dochodzie wyliczonym z prawidłowej sy
 - Automatyczne otwieranie inkubatorów petów jest inną funkcją, niewłączoną do tej akceptacji Auto-Hatch kurczaków.
 
 Dokumenty 17–21 oraz materiały robocze zachowują historyczne warianty. Nie zmieniono ich parametrów ani wyników, nie przeprowadzono nowych symulacji i nie rozpoczęto implementacji. Backup sprzed aktualizacji: ZIP.
+
+[Integracja własności #71](workflow/entitlement_farm_fixes_71_74.md): zaufane nadanie czeka na ukończenie wcześniejszego rozliczenia i jest ponawiane bez ponownego zakupu. Polityka +10 p.p. pozostaje osobna; nowy pass nie jest dopisywany wstecz do całego offline.

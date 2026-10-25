@@ -39,7 +39,7 @@ local function runMain(options)
  services.RunService={IsStudio=function()return options.studio==true end}
  h.owns=options.owns or {};h.policyCalls=0;h.policyResponse=options.policyResult or {ArePaidRandomItemsRestricted=false}
  local market={PromptGamePassPurchaseFinished=signal(),ownershipChecks=0}
- function market:UserOwnsGamePassAsync(_id,passId)self.ownershipChecks+=1;if h.ownershipError then error("ownership unavailable")end;return if h.owns[passId]==nil then true else h.owns[passId] end
+	function market:UserOwnsGamePassAsync(_id,passId)self.ownershipChecks+=1;if h.onOwnership then return h.onOwnership(_id,passId) end;if h.ownershipError then error("ownership unavailable")end;return if h.owns[passId]==nil then true else h.owns[passId] end
  services.MarketplaceService=market;h.market=market
  local native={}
  function native:GetAsync(key,readOptions)

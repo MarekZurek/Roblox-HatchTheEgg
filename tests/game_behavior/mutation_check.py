@@ -103,6 +103,24 @@ MUTANTS=[
  ('hyperloop_unlock_checks_omitted','src/server/FarmActions.luau',
   'if typeIndex==11 and profile.permanent.hyperloop~=true then available=false;blockedReason="HYPERLOOP_LOCKED" end',
   '-- Missing quote unlock guard'),
+ ('owned_pass_retry_dropped','src/server/Bootstrap.luau',
+  'then self:grantEntitlement(playerId, entitlementId) end',
+  'then local ignored = entitlementId end'),
+ ('fv_max_rcb_ignored','src/server/ProgressActions.luau',
+  'researchMaxRCBBase = r.rcbCap - 5 + (catalog.epicEffects("epic_multiplier",epic.epic_multiplier or 0).onscreenChickenMultMax or 0),',
+  'researchMaxRCBBase = 0,'),
+ ('epic_discounts_ignored','src/server/FarmActions.luau',
+  'return catalog.epicEffects(spec[1], epic[spec[1]] or 0)[spec[2]] or 1',
+  'return 1'),
+ ('reset_stops_hold_before_commit','src/server/Bootstrap.luau',
+  'local outcome=ProgressActions.apply(candidateProfile,op,deps)',
+  'local outcome=ProgressActions.apply(candidateProfile,op,deps);if outcome.terminalStatus=="APPLIED" then playerSession.hatchingRuntime.held=false;playerSession.hatchingRuntime.holdElapsed=0 end'),
+ ('discount_quote_change_ignored','src/server/FarmActions.luau',
+  'if playerQuotes and op.quoteId and (not quoted or quoted.kind ~= op.kind or quoted.generation ~= candidateProfile.ownership.generation or quoted.multiplier ~= costMultiplier(candidateProfile,catalog,op.kind)) then',
+  'if false then'),
+ ('stale_ownership_callback_allowed','src/server/Main.server.luau',
+  'if ok and owns and player.Parent == Players and activePlayerObjects[pId] == player and server:getPlayer(pId) == grantSession then',
+  'if ok and owns then'),
 ]
 def main():
  base=ROOT/'build'/('behavior-mutations-'+uuid.uuid4().hex[:8]);base.mkdir(parents=True)
@@ -119,6 +137,7 @@ def main():
   shutil.copytree(ROOT/'tests/event_time',target/'tests/event_time')
   shutil.copytree(ROOT/'tests/session_prestige_rcb',target/'tests/session_prestige_rcb')
   shutil.copytree(ROOT/'tests/farm_gaps',target/'tests/farm_gaps')
+  shutil.copytree(ROOT/'tests/entitlement_farm_regressions',target/'tests/entitlement_farm_regressions')
   (target/'docs/reference_data').mkdir(parents=True);(target/'build').mkdir()
   for ref in ['infrastructure','research','rewards']:
    shutil.copy2(ROOT/f'docs/reference_data/{ref}.json',target/f'docs/reference_data/{ref}.json')
@@ -137,7 +156,7 @@ def main():
    old='if not Calendar.canClaimCalendarDay(draft,self.clock.utcNowMs()) then'
    assert text.count(old)==1
    server.write_text(text.replace(old,'if false then'),encoding='utf-8')
-  suite='farm_gaps' if name in {'issued_drone_not_projected_to_visual','valuation_epic_ignored','hold_rate_ignored','hold_timeout_unbounded','sharing_ignored','hyperloop_unlock_checks_omitted'} else 'session_prestige_rcb' if name in {'shop_operation_reuses_local_counter','stream_omits_session_generation','prestige_ignores_collection_event','running_chickens_ignored'} else 'event_time' if name in {'event_end_point_sampling','event_ignores_deadline','event_overlap_applies_whole_step'} else 'resets' if name in {'egg_reset_reuses_group_ids','prestige_reuses_group_ids'} else 'pro_policy' if name in {'unknown_policy_allowed','fusion_trusts_saved_pro_flag','fulfillment_trusts_prepared_policy','late_policy_response_overwrites_current','sensitive_action_skips_policy_refresh'} else 'persistence_startup' if name in {'startup_receipt_handler_missing','local_payments_enabled','rejected_receipt_acknowledged','durable_receipt_replay_ignored','confirmed_retry_snapshot_stale'} else 'calendar_cycle' if name in {'calendar_cash_percent_omitted','calendar_shell_precision_lost','calendar_prestige_base_lost'} else 'game_behavior'
+  suite='entitlement_farm_regressions' if name in {'owned_pass_retry_dropped','fv_max_rcb_ignored','epic_discounts_ignored','reset_stops_hold_before_commit','discount_quote_change_ignored','stale_ownership_callback_allowed'} else 'farm_gaps' if name in {'issued_drone_not_projected_to_visual','valuation_epic_ignored','hold_rate_ignored','hold_timeout_unbounded','sharing_ignored','hyperloop_unlock_checks_omitted'} else 'session_prestige_rcb' if name in {'shop_operation_reuses_local_counter','stream_omits_session_generation','prestige_ignores_collection_event','running_chickens_ignored'} else 'event_time' if name in {'event_end_point_sampling','event_ignores_deadline','event_overlap_applies_whole_step'} else 'resets' if name in {'egg_reset_reuses_group_ids','prestige_reuses_group_ids'} else 'pro_policy' if name in {'unknown_policy_allowed','fusion_trusts_saved_pro_flag','fulfillment_trusts_prepared_policy','late_policy_response_overwrites_current','sensitive_action_skips_policy_refresh'} else 'persistence_startup' if name in {'startup_receipt_handler_missing','local_payments_enabled','rejected_receipt_acknowledged','durable_receipt_replay_ignored','confirmed_retry_snapshot_stale'} else 'calendar_cycle' if name in {'calendar_cash_percent_omitted','calendar_shell_precision_lost','calendar_prestige_base_lost'} else 'game_behavior'
   run=subprocess.run([str(ROOT/'.tools/lune-0.11.1/lune.exe'),'run',f'tests/{suite}/run.luau'],cwd=target,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=120)
   output=run.stdout+run.stderr
   invalid=any(word in output for word in ['SyntaxError','Failed to resolve require','could not resolve','error parsing'])
@@ -145,7 +164,7 @@ def main():
   (target/'build/output.txt').write_text(output,encoding='utf-8')
   print(f'{name}: {state}',flush=True)
   results.append({'mutant':name,'state':state,'exitCode':run.returncode,'output':str((target/'build/output.txt').relative_to(ROOT))})
- report={'status':'PASS' if all(r['state']=='KILLED' for r in results) else 'FAIL','mutants':results,'scope':'Thirty-five selected semantic mutations; not exhaustive mutation coverage'}
+ report={'status':'PASS' if all(r['state']=='KILLED' for r in results) else 'FAIL','mutants':results,'scope':'Forty-one selected semantic mutations; not exhaustive mutation coverage'}
  (ROOT/'build/game-behavior-mutations.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
  assert report['status']=='PASS',report
 if __name__=='__main__':main()

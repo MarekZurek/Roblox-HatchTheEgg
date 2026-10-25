@@ -144,3 +144,5 @@ Utworzono na GitHubie 8 zadań pełnego wdrożenia produkcyjnego `PROD-01–08` 
 ## Poprawki #66–70 — 25.10.2026
 
 [Dostawa #66–70](workflow/farm_gaps_66_70.md): widoczne nagrody mają ID wystawione przez serwer; pusty/nieskonfigurowany kanał nie udaje dostępnej nagrody. Accounting Tricks wpływa na FV, hold działa według Epic z dzierżawą intencji, Sharing przekazuje rzeczywisty efekt i zachowuje kursor wyboru celu, a pociąg wymaga trwałej stacji. Nie dodano harmonogramu nagród, kupna stacji/wagonów ani konfiguracji odłożonego bilansu. To naprawa błędów integracji, nie zakończenie wszystkich funkcji premiery. Tylko L/statyczny build, bez zaliczenia S/D/H.
+
+[Dostawa #71–74](workflow/entitlement_farm_fixes_71_74.md): posiadany pass jest nadawany po rozliczeniu starego okresu; UNKNOWN wymaga rozstrzygnięcia i odzyskania sesji. FV uwzględnia Common/Epic maksimum RCB, zakupy zniżki Epic, a runtime hold tylko potwierdzony reset. Tylko L i statyczny build; bilans bez zmian.

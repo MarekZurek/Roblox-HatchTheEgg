@@ -25,6 +25,17 @@ end, "./CatalogRegistry")
 
 local defaultCatalog = CatalogRegistry.new(NumericCodec, CatalogData, { mode = "INTERNAL_TEST_ONLY" })
 
+local costEffects = {
+	BuyResearch = {"cheaper_research", "researchCostMult"},
+	BuyHabitat = {"cheaper_contractors", "habCostMult"},
+	BuyVehicle = {"bust_unions", "vehicleCostMult"},
+}
+local function costMultiplier(profile, catalog, kind)
+	local spec = costEffects[kind]
+	local epic = profile.permanent.epic or {}
+	return catalog.epicEffects(spec[1], epic[spec[1]] or 0)[spec[2]] or 1
+end
+
 local FarmActions = {
 	VERSION = 1,
 	HABITAT_NAME_TO_INDEX = table.freeze({
@@ -164,7 +175,7 @@ function FarmActions.createQuote(profile, catalog, target, requestId, expectedRe
 			price = 0
 		else
 			nextLevel = currentLevel + 1
-			price = catalog.researchPrice(researchId, currentLevel)
+			price = catalog.researchPrice(researchId, currentLevel) * costMultiplier(profile, catalog, kind)
 		end
 
 		local currentCash = BigAmount.decode(profile.farm.cash)
@@ -197,7 +208,7 @@ function FarmActions.createQuote(profile, catalog, target, requestId, expectedRe
 			blockedReason = "MAX_LEVEL"
 			price = 0
 		else
-			price = catalog.habitatPrice(typeIndex, sameTypeOwned)
+			price = catalog.habitatPrice(typeIndex, sameTypeOwned) * costMultiplier(profile, catalog, kind)
 		end
 
 		local currentCash = BigAmount.decode(profile.farm.cash)
@@ -232,7 +243,7 @@ function FarmActions.createQuote(profile, catalog, target, requestId, expectedRe
 			blockedReason = "MAX_LEVEL"
 			price = 0
 		else
-			price = catalog.vehiclePrice(typeIndex, sameTypeOwned)
+			price = catalog.vehiclePrice(typeIndex, sameTypeOwned) * costMultiplier(profile, catalog, kind)
 		end
 
 		local currentCash = BigAmount.decode(profile.farm.cash)
@@ -286,6 +297,7 @@ function FarmActions.apply(candidateProfile, op, options)
 
 	local kind = op.kind
 	local args = op.args
+	local preparedMultiplier = costEffects[kind] and costMultiplier(candidateProfile, catalog, kind)
 
 	if kind == "BuyResearch" then
 		local researchId = args.researchId
@@ -325,7 +337,7 @@ function FarmActions.apply(candidateProfile, op, options)
 			}
 		end
 
-		local price = catalog.researchPrice(researchId, currentLevel)
+		local price = catalog.researchPrice(researchId, currentLevel) * preparedMultiplier
 		local currentCash = BigAmount.decode(candidateProfile.farm.cash)
 		if currentCash < price then
 			return {
@@ -351,6 +363,7 @@ function FarmActions.apply(candidateProfile, op, options)
 		}
 
 		local function validateFn(freshProfile, now)
+			if costMultiplier(freshProfile, catalog, kind) ~= preparedMultiplier then return false, "QUOTE_CHANGED" end
 			local freshCash = BigAmount.decode(freshProfile.farm.cash)
 			if freshCash < price then return false, "INSUFFICIENT_CASH" end
 			local freshLevel = freshProfile.farm.common[researchId] or 0
@@ -392,7 +405,7 @@ function FarmActions.apply(candidateProfile, op, options)
 			}
 		end
 
-		local price = catalog.habitatPrice(typeIndex, sameTypeOwned)
+		local price = catalog.habitatPrice(typeIndex, sameTypeOwned) * preparedMultiplier
 		local currentCash = BigAmount.decode(candidateProfile.farm.cash)
 		if currentCash < price then
 			return {
@@ -418,6 +431,7 @@ function FarmActions.apply(candidateProfile, op, options)
 		}
 
 		local function validateFn(freshProfile, now)
+			if costMultiplier(freshProfile, catalog, kind) ~= preparedMultiplier then return false, "QUOTE_CHANGED" end
 			local freshCash = BigAmount.decode(freshProfile.farm.cash)
 			if freshCash < price then return false, "INSUFFICIENT_CASH" end
 			local freshSlot = freshProfile.farm.habitats[slotId]
@@ -465,7 +479,7 @@ function FarmActions.apply(candidateProfile, op, options)
 			}
 		end
 
-		local price = catalog.vehiclePrice(typeIndex, sameTypeOwned)
+		local price = catalog.vehiclePrice(typeIndex, sameTypeOwned) * preparedMultiplier
 		local currentCash = BigAmount.decode(candidateProfile.farm.cash)
 		if currentCash < price then
 			return {
@@ -494,6 +508,7 @@ function FarmActions.apply(candidateProfile, op, options)
 		}
 
 		local function validateFn(freshProfile, now)
+			if costMultiplier(freshProfile, catalog, kind) ~= preparedMultiplier then return false, "QUOTE_CHANGED" end
 			if typeIndex==11 and freshProfile.permanent.hyperloop~=true then return false,"HYPERLOOP_LOCKED" end
 			local freshCash = BigAmount.decode(freshProfile.farm.cash)
 			if freshCash < price then return false, "INSUFFICIENT_CASH" end
@@ -545,20 +560,39 @@ function FarmActions.new(codec, catalog, options)
 		VEHICLE_INDEX_TO_NAME = FarmActions.VEHICLE_INDEX_TO_NAME,
 	}
 
+	local quotes, quoteOrder = {}, {}
 	function instance.createQuote(profile, targetOrCatalog, ...)
+		local quote
 		if type(targetOrCatalog) == "table" and targetOrCatalog.STATUS ~= nil then
-			return FarmActions.createQuote(profile, targetOrCatalog, ...)
+			quote = FarmActions.createQuote(profile, targetOrCatalog, ...)
 		else
-			return FarmActions.createQuote(profile, catalog, targetOrCatalog, ...)
+			quote = FarmActions.createQuote(profile, catalog, targetOrCatalog, ...)
 		end
+		local playerId = profile.meta.playerId
+		quotes[playerId] = quotes[playerId] or {}
+		quoteOrder[playerId] = quoteOrder[playerId] or {}
+		local key = quote.quoteId
+		quotes[playerId][key] = {generation=profile.ownership.generation, kind=quote.target.kind, multiplier=costMultiplier(profile,catalog,quote.target.kind)}
+		table.insert(quoteOrder[playerId],key)
+		if #quoteOrder[playerId] > 64 then quotes[playerId][table.remove(quoteOrder[playerId],1)] = nil end
+		return quote
 	end
 
 	function instance.apply(candidateProfile, op, callOptions)
+		local playerQuotes = quotes[candidateProfile.meta.playerId]
+		local quoted = playerQuotes and playerQuotes[op.quoteId]
+		if playerQuotes and op.quoteId and (not quoted or quoted.kind ~= op.kind or quoted.generation ~= candidateProfile.ownership.generation or quoted.multiplier ~= costMultiplier(candidateProfile,catalog,op.kind)) then
+			return {profile=candidateProfile,terminalStatus="REJECTED",result={terminalStatus="REJECTED",errorCode="QUOTE_CHANGED"},validate=function()return true end}
+		end
 		local merged = { catalog = catalog, codec = codec }
 		if callOptions then
 			for k, v in callOptions do merged[k] = v end
 		end
 		return FarmActions.apply(candidateProfile, op, merged)
+	end
+	function instance.forgetPlayer(playerId)
+		quotes[playerId] = nil
+		quoteOrder[playerId] = nil
 	end
 
 	return table.freeze(instance)

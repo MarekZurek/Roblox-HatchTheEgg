@@ -1,0 +1,145 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "ad6a2256f54665e1c7883a8879a7ef3f6e222c7e",
+  "issues": [
+    71,
+    72,
+    73,
+    74
+  ],
+  "status": "PASS_L_AND_STATIC_BUILD",
+  "releaseCandidateReady": false,
+  "completeProductionCoverage": false,
+  "luauSuiteCount": 38,
+  "luauAssertions": 80838,
+  "newRegressionAssertions": 192,
+  "pythonReportingTests": 11,
+  "selectedMutationsKilled": 41,
+  "selectedMutationCount": 41,
+  "newMutations": [
+    {
+      "name": "owned_pass_retry_dropped",
+      "state": "KILLED"
+    },
+    {
+      "name": "fv_max_rcb_ignored",
+      "state": "KILLED"
+    },
+    {
+      "name": "epic_discounts_ignored",
+      "state": "KILLED"
+    },
+    {
+      "name": "reset_stops_hold_before_commit",
+      "state": "KILLED"
+    },
+    {
+      "name": "discount_quote_change_ignored",
+      "state": "KILLED"
+    },
+    {
+      "name": "stale_ownership_callback_allowed",
+      "state": "KILLED"
+    }
+  ],
+  "staticModules": 39,
+  "entrypoints": 2,
+  "studioTested": false,
+  "realDataStoreTested": false,
+  "realPurchasesTested": false,
+  "humanAcceptanceTested": false,
+  "protectedBalanceAndReferenceFilesByteIdentical": 14,
+  "historicalJsonFilesUnchangedNormalizedLF": 24,
+  "verificationNotes": [
+    "Final full suite run passed on final code. Mutation run killed 41/41; subsequent registration check exposed a runner registration omission, corrected before final full runner passed.",
+    "New suite rerun after adding ledger-read-before-recovery and successful/rejected egg-reset cases.",
+    "Protected docs/17-21 and reference_data compared byte-for-byte to baseCommit; historical workflow JSON compared with LF normalization."
+  ],
+  "limitations": [
+    "Local L and static build only; no S/D/H acceptance, live purchases or production DataStore.",
+    "Remaining launch integration and deferred balance outside scope."
+  ],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256NormalizedLF": "7e00099b863ee65e6698ad96aec54f4693f657c61bfde7fbb8dd554cae1e9566"
+    },
+    {
+      "path": "docs/01_upgrades_and_research.md",
+      "sha256NormalizedLF": "19f868e4543cd1e5cc3848c93e51ce95fa523dee1c4e48513657be733df5dc86"
+    },
+    {
+      "path": "docs/02_eggs_and_farm_value.md",
+      "sha256NormalizedLF": "7290eb9f26e084ebe368fe31cf55589074d84483ee43f2b19b9834e52b9548de"
+    },
+    {
+      "path": "docs/25_approved_product_structure.md",
+      "sha256NormalizedLF": "0ec356450a9c01af53d5d89baf3f7c8e8887216c2298dc928771c97e78d041d3"
+    },
+    {
+      "path": "docs/28_modules_and_client_server_contract.md",
+      "sha256NormalizedLF": "cd1b20ee9f862cfe1044a48604c666e0c61147c55a978c39c88ca1eca20aff0e"
+    },
+    {
+      "path": "docs/CURRENT_SPEC.md",
+      "sha256NormalizedLF": "fd203bc46fc191e94e1d4d63f956e295273885d1d49d74d4a5cc7558121500cb"
+    },
+    {
+      "path": "docs/README.md",
+      "sha256NormalizedLF": "759b790d4293f5aff9a33f2e3935a17ffaee9324b64dec1f5d96c620f86c46e4"
+    },
+    {
+      "path": "docs/TODO.md",
+      "sha256NormalizedLF": "33ae7769d8af4a1d138400267b8f29a13606507dc2362bfe69b6fc0cf383b37a"
+    },
+    {
+      "path": "docs/WORKING_CONTEXT.md",
+      "sha256NormalizedLF": "f03a6fa1376ab91da97a2b919cd7b9b4ad0d50ed53e22df3248c45662c2139d8"
+    },
+    {
+      "path": "src/server/Bootstrap.luau",
+      "sha256NormalizedLF": "ec23b45d330c6d49b4abb7e6c2ea73c06c146a18a61e3ef3fced625d32019a96"
+    },
+    {
+      "path": "src/server/FarmActions.luau",
+      "sha256NormalizedLF": "0374a1a40ae1ad57553be231b84a2918dfda50fcd39f665deb03f856dd7daf78"
+    },
+    {
+      "path": "src/server/Main.server.luau",
+      "sha256NormalizedLF": "0ebf1ea7cd685eb2ba180c7ea7863b26bc27b6370e7d32311740f28435e37b28"
+    },
+    {
+      "path": "src/server/ProgressActions.luau",
+      "sha256NormalizedLF": "b113e3c7cec71ca3ab5d58e57b6ed0c83ff3624b01b5107e88b001377a7cfc4b"
+    },
+    {
+      "path": "tests/calendar_cycle/run.luau",
+      "sha256NormalizedLF": "36af86ff20159b8c6d0560134f22bbb6b13071806bdf784d6d7b8f33ce25f639"
+    },
+    {
+      "path": "tests/game_behavior/README.md",
+      "sha256NormalizedLF": "63b6f9bedd14e72e40901789e99801c68eef8180ca79362a4640d1c183f23f45"
+    },
+    {
+      "path": "tests/game_behavior/mutation_check.py",
+      "sha256NormalizedLF": "93f4f600e07b82a1d40265dec181cf74e1a8e867d6c9dc6e400167feecb9416d"
+    },
+    {
+      "path": "tests/support/MainHarness.luau",
+      "sha256NormalizedLF": "72458997ca0b71c8967c571b2e379d1ab2771e5cd7c8b209874de53f5230ce45"
+    },
+    {
+      "path": "tools/test.ps1",
+      "sha256NormalizedLF": "c71cffa1ff2934a3c70a35655fadf252091df43deb8da3f7ff05846bece5b80b"
+    },
+    {
+      "path": "tests/entitlement_farm_regressions/run.luau",
+      "sha256NormalizedLF": "c25ccd6b7e5de188ce75ee61027e7259aa633b83a965cf7b08a9bbff2cf5dcbf"
+    },
+    {
+      "path": "docs/workflow/entitlement_farm_fixes_71_74.md",
+      "sha256NormalizedLF": "5200f7a637e2e35d9abc6666c6de915f07d07a295a136d6245500bd924b439d9"
+    }
+  ],
+  "checkedMarkdownLinksInChangedFiles": 268
+}

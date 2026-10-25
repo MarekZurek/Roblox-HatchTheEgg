@@ -125,7 +125,7 @@ local function calculateProfileFarmValue(
 		siloCapacityLevel = siloCapacityLevel,
 		researchIHRBase = researchIHRBase,
 		researchIHRMult = 1.0,
-		researchMaxRCBBase = 0,
+		researchMaxRCBBase = r.rcbCap - 5 + (catalog.epicEffects("epic_multiplier",epic.epic_multiplier or 0).onscreenChickenMultMax or 0),
 		researchMaxRCBMult = 1.0,
 		valuationMult = catalog.epicEffects("accounting_tricks",epic.accounting_tricks or 0).valuationMult or 1.0,
 		localMysticalEarningsMultiplier = mysticalMultiplier,

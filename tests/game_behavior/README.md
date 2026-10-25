@@ -30,7 +30,7 @@ Ta mapa nie oznacza 100% gotowości gry. Obecność fixture'ów i przechodzącyc
 
 Pełny runner: `./tools/test.ps1 -PythonExecutable python -MutationChecks`. Szybko: `.tools/lune-0.11.1/lune.exe run tests/game_behavior/run.luau`.
 
-`mutation_check.py` tworzy kopie src/testów/reference JSON pod ignorowanym build/ i wprowadza trzydzieści pięć konkretnych błędów zachowania. Test musi zakończyć się niepowodzeniem z powodu obserwowalnej regresji, a nie błędu składni/importu. Mutacja UTC wyłącza oba niezależne zabezpieczenia: wyłączenie tylko jednego nie zmienia zachowania dzięki drugiemu i nie jest poprawnym przykładem usterki na poziomie przycisku. Trzy dodatkowe przypadki z #62 uruchamiają calendar_cycle: procent FV, dokładność Shell Scripts i earned prestiżu. Pięć przypadków #57 uruchamia persistence_startup: wczesny handler receipt, blokada lokalnych płatności, odrzucony replay, trwały replay po restarcie i synchronizacja stanu po retry. Zestaw nie deklaruje pełnego mutation score repozytorium.
+`mutation_check.py` tworzy kopie src/testów/reference JSON pod ignorowanym build/ i wprowadza czterdzieści jeden konkretnych błędów zachowania. Test musi zakończyć się niepowodzeniem z powodu obserwowalnej regresji, a nie błędu składni/importu. Mutacja UTC wyłącza oba niezależne zabezpieczenia: wyłączenie tylko jednego nie zmienia zachowania dzięki drugiemu i nie jest poprawnym przykładem usterki na poziomie przycisku. Trzy dodatkowe przypadki z #62 uruchamiają calendar_cycle: procent FV, dokładność Shell Scripts i earned prestiżu. Pięć przypadków #57 uruchamia persistence_startup: wczesny handler receipt, blokada lokalnych płatności, odrzucony replay, trwały replay po restarcie i synchronizacja stanu po retry. Zestaw nie deklaruje pełnego mutation score repozytorium.
 
 Raporty lokalne: `build/game-behavior-results.json`, `build/game-behavior-mutations.json`. Bez binariów, prywatnych danych ani prawdziwej waluty. [Szczegóły dostawy](../../docs/workflow/action_wiring_56.md).
 
@@ -45,3 +45,5 @@ Trzy mutacje #61 uruchamiają event_time: odczyt tylko końca kroku, pomijanie d
 Cztery mutacje #63–65 uruchamiają session_prestige_rcb: lokalne ID sklepu, brak generacji w strumieniu, pominięta kolekcja eventu i neutralne RCB. Nowe intencje po reconnect są badane dwoma rzeczywistymi klientami; retry nadal ma odtwarzać dawny wynik.
 
 Sześć mutacji #66–70 uruchamia farm_gaps: projekcja drona, valuation, rate hold, timeout, sharing oraz bramka stacji (wyłączane wszystkie trzy zabezpieczenia w kopii testowej). Pusty kanał pozostaje jawnie nieaktywny; nie dodano produkcyjnego harmonogramu.
+
+Sześć mutacji #71–74 uruchamia entitlement_farm_regressions: utrata nadania po offline, pominięcie maksimum RCB w FV, neutralne zniżki Epic, zatrzymanie hold przed zatwierdzeniem resetu, stara wycena po zmianie zniżki i spóźniona odpowiedź własności. Wyniki wyłącznie L; bez realnych zakupów lub chmury.

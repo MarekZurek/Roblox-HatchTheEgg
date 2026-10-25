@@ -40,3 +40,5 @@ Poprawka [#56 — rzeczywiste operacje przycisków](docs/workflow/action_wiring_
 
 
 [Poprawki #66–70](docs/workflow/farm_gaps_66_70.md): serwerowe ID nagród i nieaktywny pusty kanał, Accounting Tricks w FV, hold, Sharing oraz bramka Hyperloop. Harmonogram i niedostarczone operacje nadal wymagają osobnej integracji; bilans pozostaje odłożony.
+
+[Poprawki #71–74](docs/workflow/entitlement_farm_fixes_71_74.md): nadania posiadanych passów po offline, maksimum RCB w FV, zniżki Epic i hold kończony po zatwierdzonym resecie. Regresje lokalne; bilans i gotowość wydania bez zmian.

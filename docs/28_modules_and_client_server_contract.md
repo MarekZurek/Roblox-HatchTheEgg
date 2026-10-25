@@ -254,3 +254,5 @@ Nie uznaje się tego za pełne wdrożenie tabel docelowych tego kontraktu. Produ
 ## Projekcja nagród i dzierżawa hold — #66–69
 
 [Dostawa #66–70](workflow/farm_gaps_66_70.md): opcjonalne prywatne progress.issuedDrones (ID, elitarność, terminy) i ordinaryOffers (ID, rodzaj, ilość) nie ujawniają terms/rolls lub cudzych rekordów. Brak serwerowego wpisu oznacza brak aktywnego aktora/przycisku odbioru. Hold ma techniczną dzierżawę 2000 ms i heartbeat co 500 ms; rate wynika nadal z Epic, nie z transportu. Nowy strumień, reset, away lub utrata sesji kończą intencję. Nie jest to wdrożenie bonusowych ofert Robux lub nowego harmonogramu.
+
+[Granica potwierdzonego resetu #74](workflow/entitlement_farm_fixes_71_74.md): pure domain plan nie zatrzymuje runtime hold. Host kończy intencję po zmianie zatwierdzonej tożsamości farmy; odrzucenie zachowuje ważny hold, replay starego sukcesu nie przerywa nowego. UNKNOWN blokuje symulację do odzyskania stanu.

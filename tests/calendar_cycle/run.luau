@@ -58,8 +58,10 @@ end
 
 -- Fixed independent FV for an empty Edible farm with one 250-capacity henhouse:
 -- 50*K*L*eggValue*(P+F), K=1200, L=1/30, P=0, F=250^.6.
-local function expectedFV(se,pe,soulFood)
- return 50*1200*(1+se*(.1+.01*soulFood)*1.05^pe)*(1/30)*.25*250^.6
+local function expectedFV(se,pe,soulFood,epicMultiplier)
+ -- Calendar day 11 grants Epic Multiplier: its cap is +2 per level, so
+ -- the documented FV factor is (1 + 2*level)^0.25 on this empty farm.
+ return 50*1200*(1+se*(.1+.01*soulFood)*1.05^pe)*(1/30)*.25*250^.6*(1+2*(epicMultiplier or 0))^.25
 end
 
 -- Exact uint64, including above 2^53, persists through prestige and old profiles.
@@ -79,7 +81,7 @@ for _,case in oracle.cases do
  local expected={GE=10,SE=0,PE=math.min(24,m),cash=0,piggy=0,level=0,shells=0,epic={},boosts={}}
  for _,row in case.rewards do
   local day=row.day
-  local fv=expectedFV(expected.SE,expected.PE,expected.epic.soul_eggs or 0)
+  local fv=expectedFV(expected.SE,expected.PE,expected.epic.soul_eggs or 0,expected.epic.epic_multiplier or 0)
   local amount=if row.kind=='Cash' then row.amount/100*fv else row.amount
   local preview=h.state:getFarm().progress.calendar[day]
   eq(preview.available,true,'every calendar day has an available preview')
