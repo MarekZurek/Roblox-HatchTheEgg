@@ -76,6 +76,7 @@ local Calendar = resolve(function() return script.Parent.rewards.calendar end, "
 local Trophies = resolve(function() return script.Parent.rewards.trophies end, "./rewards/trophies")
 local Fusion = resolve(function() return script.Parent.pets.fusion end, "./pets/fusion")
 local ActionReference = resolve(function() return script.Parent.ActionReferenceData end, "./ActionReferenceData")
+local Effects = resolve(function() return script.Parent.EffectsManager end, "./EffectsManager")
 local ProgressActions = resolve(function()
 	return script.Parent.ProgressActions
 end, "./ProgressActions")
@@ -515,11 +516,21 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
             local result={terminalStatus="APPLIED",actionKind=op.kind}
             if op.kind=="ClaimDailyGift" then
                 local m,day=Calendar.getCycleAndDay(draft.rewards.numDailyGiftsCollected or 0)
-                local def=Calendar.referenceReward(draft.rewards.numDailyGiftsCollected or 0,ActionReference.calendar)
+                local count=draft.rewards.numDailyGiftsCollected or 0
+                local def=Calendar.referenceReward(count,ActionReference.calendar)
+                local prestigeMultiplier=1
+                if def and def.rewardType=="CashPercent" and not draft.farm.isContract then
+                    local homeFV=ProgressActions.calculateProfileFarmValue(draft,self.catalog,self.productionMath)
+                    def=Calendar.resolveReward(count,ActionReference.calendar,homeFV)
+                    local pets=Equipment.calculatePetMultipliers(draft.inventory,draft.farm)
+                    local effects=Effects.calculateMultipliers(decodeEffects(draft.effects,self.codec,self.data),draft.farm,self.clock.utcNowMs(),self.liveEvents,{boostBoostMult=pets.boostBoostMult})
+                    prestigeMultiplier=self.codec.BigAmount.multiply(effects.effectivePrestigeBoost,pets.prestigeEarningsMult)
+                end
                 if not Calendar.canClaimCalendarDay(draft,self.clock.utcNowMs()) then code="ALREADY_CLAIMED_TODAY"
+                elseif def and def.rewardType=="CashPercent" then code="HOME_FARM_REQUIRED"
                 elseif def then
                     local reward,err
-                    ok,reward,err=Calendar.claimDailyGift(draft,self.clock.utcNowMs(),{[day]=def},ActionReference.epic)
+                    ok,reward,err=Calendar.claimDailyGift(draft,self.clock.utcNowMs(),{[day]=def},ActionReference.epic,prestigeMultiplier)
                     code=err
                     if ok then result.rewardType=def.rewardType;result.amount=self.codec.BigAmount.encode(def.amountNumber);result.day=day;result.cycle=m end
                 end

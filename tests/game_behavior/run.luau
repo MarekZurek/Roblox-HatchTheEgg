@@ -118,10 +118,12 @@ do
  h2.retryCallback=true;h2.expect(h2.call('claimDailyGift'),'APPLIED');eq(h2.profile().permanent.GE,'510');eq(h2.profile().permanent.epic.hold_to_hatch,15)
  h2.client:destroy()
 end
--- Unresolved conversion is unavailable, never a replacement reward; no progress lost.
+-- Regression #62: every formerly blocked calendar position now grants its own type.
 for _,day in {4,10,15,18,22} do
- local h=harness(function(p)p.rewards.numDailyGiftsCollected=day-1 end);local before=assets(h.profile())
- h.expect(h.call('claimDailyGift'),'REJECTED','FEATURE_UNAVAILABLE');eq(assets(h.profile()),before)
+ local h=harness(function(p)p.rewards.numDailyGiftsCollected=day-1 end)
+ h.expect(h.call('claimDailyGift'),'APPLIED');eq(h.profile().rewards.numDailyGiftsCollected,day)
+ if day==10 or day==18 then eq(h.profile().permanent.shellScripts,if day==10 then '5' else '10')
+ else eq(C.BigAmount.decode(h.profile().farm.cash)>0,true) end
  h.client:destroy()
 end
 

@@ -104,3 +104,8 @@ Wspólny runner: **23 875 asercji (100% PASS L)** w 28 zestawach testów.
 Rojo: Dokładnie **37 modułów Luau** oraz **2 skrypty wejściowe** (`Main.server.luau`, `Main.client.luau`).  
 Zadania #2–#42 (`DOC`, `PRE`, `IMP`, `QA`, `NEXT`, `REL`, `VIS`) zamknięte w rejestrze GitHub; warstwa wizualna i HUD w `StarterGui` zsynchronizowane z Roblox Studio.
 Utworzono na GitHubie 8 zadań pełnego wdrożenia produkcyjnego `PROD-01–08` (#43–#50) na podstawie dogłębnej analizy dokumentacji referencyjnej. Repozytorium ma status **Release Candidate Approved / Ready for PROD Phase**. Bilans 17–21 i referencyjne JSON-y bez zmian.
+
+
+## Pełne nagrody kalendarza — #62 (25.10.2026)
+
+[Dostawa #62](workflow/calendar_rewards_62.md) zastępuje wcześniejsze ograniczenie pięciu dni z #56. Wzór gotówki był już w 11 §3: procent aktualnego Home Farm Value; typ 14 z 13 zapisuje się jako trwały ExactUInt permanent.shellScripts, bez nowej wymiany lub sklepu. Wszystkie 28 pozycji są rozliczane przez serwer, z ochroną dnia UTC/replay i księgowaniem earned/prestiżu. Testy obejmują dziesięć kompletnych cykli z niezależnym oracle oraz awarie. Wyłącznie L i statyczny build, bez Studio/chmury. Bilans 17–21 i referencyjne JSON-y bez zmian; pozostałe #57–61 i niedostępność funkcji bez konfiguracji pozostają aktualne. Dawna informacja o zatrzymaniu na dniu 4 opisuje stan poprzedniego commitu.

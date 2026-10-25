@@ -144,3 +144,8 @@ Zadania `DOC-01..05`, `PRE-01..03`, `IMP-01..15`, `QA-01`, `NEXT-01..10`, `REL-0
 ## Przyciski i testy zachowania — #56 (25.10.2026)
 
 [Zakres poprawki i ograniczenia](workflow/action_wiring_56.md): rzeczywiste komendy serwera, prywatna projekcja postępu, jawny wybór petów, pełny panel trofeów i podgląd produktu przed promptem. Brak konfiguracji nie daje sukcesu. Nowe testy sprawdzają oczekiwane zachowanie przez rzeczywisty transport, niezależne JSON-y i mutacje semantyczne. Weryfikacja wyłącznie L i statyczny build; bez zatwierdzenia bilansu, Studio lub chmury. Produkcyjna fuzja/zakup boostu pozostają niedostępne. Dni kalendarza 4/10/15/18/22 wymagają resolvera — nowe konto zatrzyma kalendarz na dniu 4 ([#62](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/62)). Pozostałe ustalenia #57–61 nadal otwarte. Wcześniejsze deklaracje pełnej gotowości nie są potwierdzeniem tej dostawy.
+
+
+## Pełne nagrody kalendarza — #62 (25.10.2026)
+
+[Dostawa #62](workflow/calendar_rewards_62.md) zastępuje wcześniejsze ograniczenie pięciu dni z #56. Wzór gotówki był już w 11 §3: procent aktualnego Home Farm Value; typ 14 z 13 zapisuje się jako trwały ExactUInt permanent.shellScripts, bez nowej wymiany lub sklepu. Wszystkie 28 pozycji są rozliczane przez serwer, z ochroną dnia UTC/replay i księgowaniem earned/prestiżu. Testy obejmują dziesięć kompletnych cykli z niezależnym oracle oraz awarie. Wyłącznie L i statyczny build, bez Studio/chmury. Bilans 17–21 i referencyjne JSON-y bez zmian; pozostałe #57–61 i niedostępność funkcji bez konfiguracji pozostają aktualne. Dawna informacja o zatrzymaniu na dniu 4 opisuje stan poprzedniego commitu.

@@ -28,6 +28,7 @@ function Schema.new(codec)
 		end
 		assert(U.encode(reserved)==p.farm.runningCount,"INCONSISTENT_RESERVATIONS")
 		uint(p.permanent.GE); uint(p.permanent.totalGESpent); A.decode(p.permanent.SE);uint(p.permanent.PE)
+		if p.permanent.shellScripts~=nil then uint(p.permanent.shellScripts) end
 		for _,name in {"prestigeSessionArchivedCash","prestigeExtraEarnings","lastBaseEarnings","currentFarmCash","lastCashEarned"} do A.decode(p.accounting[name]) end
 		instant(p.timeline.settledWallThrough)
 		if p.effects.boosts~=nil then
@@ -78,7 +79,7 @@ function Schema.new(codec)
 			ownership={generation="0",ownerToken="",endsAtMs=0},
 			farm={eggIndex=0,maxEggReached=0,cash="0",habitats=habitats,vehicles={{typeIndex=0}},fleetLimit=4,siloOwned=1,common={},hatcheryStock="250",runningCount="0",hatchGroupSequence="0",groups={}},
 			accounting={prestigeSessionArchivedCash="0",prestigeExtraEarnings="0",lastBaseEarnings="0",currentFarmCash="0",lastCashEarned="0"},
-			permanent={GE="10",totalGESpent="0",SE="0",PE="0",epic={},hyperloop=false,prestigeCount="0"},
+			permanent={GE="10",shellScripts="0",totalGESpent="0",SE="0",PE="0",epic={},hyperloop=false,prestigeCount="0"},
 			inventory={boosts={},pets={},equipped={},guarantees={}}, effects={boosts={}},
 			timeline={settledWallThrough=nowMs},rewards={},piggy={},entitlements={},operations={},
 		}

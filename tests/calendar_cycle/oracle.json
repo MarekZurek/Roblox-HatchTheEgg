@@ -1,0 +1,1735 @@
+{
+  "sourceSha256": "e645cd9f054c2c315d2998ea0807f94dd57eea983cde0e8d14b61365f125db75",
+  "cases": [
+    {
+      "cycle": 0,
+      "rewards": [
+        {
+          "day": 1,
+          "kind": "GE",
+          "amount": 192,
+          "subtype": ""
+        },
+        {
+          "day": 2,
+          "kind": "Boost",
+          "amount": 2,
+          "subtype": "jimbos_purple_v2"
+        },
+        {
+          "day": 3,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "hold_to_hatch"
+        },
+        {
+          "day": 4,
+          "kind": "Cash",
+          "amount": 50,
+          "subtype": ""
+        },
+        {
+          "day": 5,
+          "kind": "PiggyLevel",
+          "amount": 1,
+          "subtype": ""
+        },
+        {
+          "day": 6,
+          "kind": "GE",
+          "amount": 1000,
+          "subtype": ""
+        },
+        {
+          "day": 7,
+          "kind": "SE",
+          "amount": 5000,
+          "subtype": ""
+        },
+        {
+          "day": 8,
+          "kind": "GE",
+          "amount": 396,
+          "subtype": ""
+        },
+        {
+          "day": 9,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "tachyon_prism_purple_v2"
+        },
+        {
+          "day": 10,
+          "kind": "ShellScripts",
+          "amount": 5,
+          "subtype": ""
+        },
+        {
+          "day": 11,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "epic_multiplier"
+        },
+        {
+          "day": 12,
+          "kind": "SE",
+          "amount": 10000,
+          "subtype": ""
+        },
+        {
+          "day": 13,
+          "kind": "Piggy",
+          "amount": 5000,
+          "subtype": ""
+        },
+        {
+          "day": 14,
+          "kind": "GE",
+          "amount": 1500,
+          "subtype": ""
+        },
+        {
+          "day": 15,
+          "kind": "Cash",
+          "amount": 75,
+          "subtype": ""
+        },
+        {
+          "day": 16,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "epic_hatchery"
+        },
+        {
+          "day": 17,
+          "kind": "GE",
+          "amount": 96,
+          "subtype": ""
+        },
+        {
+          "day": 18,
+          "kind": "ShellScripts",
+          "amount": 10,
+          "subtype": ""
+        },
+        {
+          "day": 19,
+          "kind": "SE",
+          "amount": 25000,
+          "subtype": ""
+        },
+        {
+          "day": 20,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "soul_beacon_purple_v2"
+        },
+        {
+          "day": 21,
+          "kind": "GE",
+          "amount": 792,
+          "subtype": ""
+        },
+        {
+          "day": 22,
+          "kind": "Cash",
+          "amount": 150,
+          "subtype": ""
+        },
+        {
+          "day": 23,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "money_printer"
+        },
+        {
+          "day": 24,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "soul_eggs"
+        },
+        {
+          "day": 25,
+          "kind": "SE",
+          "amount": 100000,
+          "subtype": ""
+        },
+        {
+          "day": 26,
+          "kind": "GE",
+          "amount": 396,
+          "subtype": ""
+        },
+        {
+          "day": 27,
+          "kind": "Piggy",
+          "amount": 10000,
+          "subtype": ""
+        },
+        {
+          "day": 28,
+          "kind": "PE",
+          "amount": 1,
+          "subtype": ""
+        }
+      ]
+    },
+    {
+      "cycle": 1,
+      "rewards": [
+        {
+          "day": 1,
+          "kind": "GE",
+          "amount": 384,
+          "subtype": ""
+        },
+        {
+          "day": 2,
+          "kind": "Boost",
+          "amount": 2,
+          "subtype": "jimbos_purple_big"
+        },
+        {
+          "day": 3,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "hold_to_hatch"
+        },
+        {
+          "day": 4,
+          "kind": "Cash",
+          "amount": 100,
+          "subtype": ""
+        },
+        {
+          "day": 5,
+          "kind": "PiggyLevel",
+          "amount": 1,
+          "subtype": ""
+        },
+        {
+          "day": 6,
+          "kind": "GE",
+          "amount": 2000,
+          "subtype": ""
+        },
+        {
+          "day": 7,
+          "kind": "SE",
+          "amount": 250000,
+          "subtype": ""
+        },
+        {
+          "day": 8,
+          "kind": "GE",
+          "amount": 792,
+          "subtype": ""
+        },
+        {
+          "day": 9,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "tachyon_prism_purple_big"
+        },
+        {
+          "day": 10,
+          "kind": "ShellScripts",
+          "amount": 7,
+          "subtype": ""
+        },
+        {
+          "day": 11,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "epic_multiplier"
+        },
+        {
+          "day": 12,
+          "kind": "SE",
+          "amount": 1000000,
+          "subtype": ""
+        },
+        {
+          "day": 13,
+          "kind": "Piggy",
+          "amount": 10000,
+          "subtype": ""
+        },
+        {
+          "day": 14,
+          "kind": "GE",
+          "amount": 3000,
+          "subtype": ""
+        },
+        {
+          "day": 15,
+          "kind": "Cash",
+          "amount": 75,
+          "subtype": ""
+        },
+        {
+          "day": 16,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "transportation_lobbyist"
+        },
+        {
+          "day": 17,
+          "kind": "GE",
+          "amount": 192,
+          "subtype": ""
+        },
+        {
+          "day": 18,
+          "kind": "ShellScripts",
+          "amount": 10,
+          "subtype": ""
+        },
+        {
+          "day": 19,
+          "kind": "SE",
+          "amount": 1600000,
+          "subtype": ""
+        },
+        {
+          "day": 20,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "boost_beacon_blue"
+        },
+        {
+          "day": 21,
+          "kind": "GE",
+          "amount": 1584,
+          "subtype": ""
+        },
+        {
+          "day": 22,
+          "kind": "Cash",
+          "amount": 150,
+          "subtype": ""
+        },
+        {
+          "day": 23,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "jimbos_orange_big"
+        },
+        {
+          "day": 24,
+          "kind": "Epic",
+          "amount": 3,
+          "subtype": "soul_eggs"
+        },
+        {
+          "day": 25,
+          "kind": "SE",
+          "amount": 2500000,
+          "subtype": ""
+        },
+        {
+          "day": 26,
+          "kind": "GE",
+          "amount": 792,
+          "subtype": ""
+        },
+        {
+          "day": 27,
+          "kind": "Piggy",
+          "amount": 20000,
+          "subtype": ""
+        },
+        {
+          "day": 28,
+          "kind": "PE",
+          "amount": 1,
+          "subtype": ""
+        }
+      ]
+    },
+    {
+      "cycle": 2,
+      "rewards": [
+        {
+          "day": 1,
+          "kind": "GE",
+          "amount": 768,
+          "subtype": ""
+        },
+        {
+          "day": 2,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "jimbos_orange"
+        },
+        {
+          "day": 3,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "hold_to_hatch"
+        },
+        {
+          "day": 4,
+          "kind": "Cash",
+          "amount": 150,
+          "subtype": ""
+        },
+        {
+          "day": 5,
+          "kind": "PiggyLevel",
+          "amount": 1,
+          "subtype": ""
+        },
+        {
+          "day": 6,
+          "kind": "GE",
+          "amount": 3000,
+          "subtype": ""
+        },
+        {
+          "day": 7,
+          "kind": "SE",
+          "amount": 5000000,
+          "subtype": ""
+        },
+        {
+          "day": 8,
+          "kind": "GE",
+          "amount": 1584,
+          "subtype": ""
+        },
+        {
+          "day": 9,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "tachyon_prism_orange"
+        },
+        {
+          "day": 10,
+          "kind": "ShellScripts",
+          "amount": 9,
+          "subtype": ""
+        },
+        {
+          "day": 11,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "epic_multiplier"
+        },
+        {
+          "day": 12,
+          "kind": "SE",
+          "amount": 10000000,
+          "subtype": ""
+        },
+        {
+          "day": 13,
+          "kind": "Piggy",
+          "amount": 15000,
+          "subtype": ""
+        },
+        {
+          "day": 14,
+          "kind": "GE",
+          "amount": 4500,
+          "subtype": ""
+        },
+        {
+          "day": 15,
+          "kind": "Cash",
+          "amount": 75,
+          "subtype": ""
+        },
+        {
+          "day": 16,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "epic_hatchery"
+        },
+        {
+          "day": 17,
+          "kind": "GE",
+          "amount": 384,
+          "subtype": ""
+        },
+        {
+          "day": 18,
+          "kind": "ShellScripts",
+          "amount": 10,
+          "subtype": ""
+        },
+        {
+          "day": 19,
+          "kind": "SE",
+          "amount": 18000000,
+          "subtype": ""
+        },
+        {
+          "day": 20,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "money_printer"
+        },
+        {
+          "day": 21,
+          "kind": "GE",
+          "amount": 2376,
+          "subtype": ""
+        },
+        {
+          "day": 22,
+          "kind": "Cash",
+          "amount": 150,
+          "subtype": ""
+        },
+        {
+          "day": 23,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "boost_beacon_purple"
+        },
+        {
+          "day": 24,
+          "kind": "Epic",
+          "amount": 5,
+          "subtype": "soul_eggs"
+        },
+        {
+          "day": 25,
+          "kind": "SE",
+          "amount": 50000000,
+          "subtype": ""
+        },
+        {
+          "day": 26,
+          "kind": "GE",
+          "amount": 1584,
+          "subtype": ""
+        },
+        {
+          "day": 27,
+          "kind": "Piggy",
+          "amount": 40000,
+          "subtype": ""
+        },
+        {
+          "day": 28,
+          "kind": "PE",
+          "amount": 1,
+          "subtype": ""
+        }
+      ]
+    },
+    {
+      "cycle": 3,
+      "rewards": [
+        {
+          "day": 1,
+          "kind": "GE",
+          "amount": 1536,
+          "subtype": ""
+        },
+        {
+          "day": 2,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "jimbos_orange_big"
+        },
+        {
+          "day": 3,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "hold_to_hatch"
+        },
+        {
+          "day": 4,
+          "kind": "Cash",
+          "amount": 200,
+          "subtype": ""
+        },
+        {
+          "day": 5,
+          "kind": "PiggyLevel",
+          "amount": 1,
+          "subtype": ""
+        },
+        {
+          "day": 6,
+          "kind": "GE",
+          "amount": 4000,
+          "subtype": ""
+        },
+        {
+          "day": 7,
+          "kind": "SE",
+          "amount": 250000000,
+          "subtype": ""
+        },
+        {
+          "day": 8,
+          "kind": "GE",
+          "amount": 3168,
+          "subtype": ""
+        },
+        {
+          "day": 9,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "tachyon_prism_orange_big"
+        },
+        {
+          "day": 10,
+          "kind": "ShellScripts",
+          "amount": 12,
+          "subtype": ""
+        },
+        {
+          "day": 11,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "epic_multiplier"
+        },
+        {
+          "day": 12,
+          "kind": "SE",
+          "amount": 750000000,
+          "subtype": ""
+        },
+        {
+          "day": 13,
+          "kind": "Piggy",
+          "amount": 20000,
+          "subtype": ""
+        },
+        {
+          "day": 14,
+          "kind": "GE",
+          "amount": 6000,
+          "subtype": ""
+        },
+        {
+          "day": 15,
+          "kind": "Cash",
+          "amount": 75,
+          "subtype": ""
+        },
+        {
+          "day": 16,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "transportation_lobbyist"
+        },
+        {
+          "day": 17,
+          "kind": "GE",
+          "amount": 768,
+          "subtype": ""
+        },
+        {
+          "day": 18,
+          "kind": "ShellScripts",
+          "amount": 10,
+          "subtype": ""
+        },
+        {
+          "day": 19,
+          "kind": "SE",
+          "amount": 1000000000,
+          "subtype": ""
+        },
+        {
+          "day": 20,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "soul_beacon_purple_v2"
+        },
+        {
+          "day": 21,
+          "kind": "GE",
+          "amount": 3168,
+          "subtype": ""
+        },
+        {
+          "day": 22,
+          "kind": "Cash",
+          "amount": 150,
+          "subtype": ""
+        },
+        {
+          "day": 23,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "tachyon_prism_purple_big"
+        },
+        {
+          "day": 24,
+          "kind": "Epic",
+          "amount": 5,
+          "subtype": "soul_eggs"
+        },
+        {
+          "day": 25,
+          "kind": "SE",
+          "amount": 2500000000,
+          "subtype": ""
+        },
+        {
+          "day": 26,
+          "kind": "GE",
+          "amount": 3168,
+          "subtype": ""
+        },
+        {
+          "day": 27,
+          "kind": "Piggy",
+          "amount": 40000,
+          "subtype": ""
+        },
+        {
+          "day": 28,
+          "kind": "PE",
+          "amount": 1,
+          "subtype": ""
+        }
+      ]
+    },
+    {
+      "cycle": 5,
+      "rewards": [
+        {
+          "day": 1,
+          "kind": "GE",
+          "amount": 6144,
+          "subtype": ""
+        },
+        {
+          "day": 2,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "jimbos_orange_big"
+        },
+        {
+          "day": 3,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "hold_to_hatch"
+        },
+        {
+          "day": 4,
+          "kind": "Cash",
+          "amount": 200,
+          "subtype": ""
+        },
+        {
+          "day": 5,
+          "kind": "PiggyLevel",
+          "amount": 1,
+          "subtype": ""
+        },
+        {
+          "day": 6,
+          "kind": "GE",
+          "amount": 6000,
+          "subtype": ""
+        },
+        {
+          "day": 7,
+          "kind": "SE",
+          "amount": 250000000,
+          "subtype": ""
+        },
+        {
+          "day": 8,
+          "kind": "GE",
+          "amount": 9472,
+          "subtype": ""
+        },
+        {
+          "day": 9,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "tachyon_prism_orange_big"
+        },
+        {
+          "day": 10,
+          "kind": "ShellScripts",
+          "amount": 18,
+          "subtype": ""
+        },
+        {
+          "day": 11,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "epic_multiplier"
+        },
+        {
+          "day": 12,
+          "kind": "SE",
+          "amount": 750000000,
+          "subtype": ""
+        },
+        {
+          "day": 13,
+          "kind": "Piggy",
+          "amount": 30000,
+          "subtype": ""
+        },
+        {
+          "day": 14,
+          "kind": "GE",
+          "amount": 9000,
+          "subtype": ""
+        },
+        {
+          "day": 15,
+          "kind": "Cash",
+          "amount": 75,
+          "subtype": ""
+        },
+        {
+          "day": 16,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "transportation_lobbyist"
+        },
+        {
+          "day": 17,
+          "kind": "GE",
+          "amount": 3072,
+          "subtype": ""
+        },
+        {
+          "day": 18,
+          "kind": "ShellScripts",
+          "amount": 10,
+          "subtype": ""
+        },
+        {
+          "day": 19,
+          "kind": "SE",
+          "amount": 1000000000,
+          "subtype": ""
+        },
+        {
+          "day": 20,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "money_printer"
+        },
+        {
+          "day": 21,
+          "kind": "GE",
+          "amount": 4752,
+          "subtype": ""
+        },
+        {
+          "day": 22,
+          "kind": "Cash",
+          "amount": 150,
+          "subtype": ""
+        },
+        {
+          "day": 23,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "boost_beacon_blue_big"
+        },
+        {
+          "day": 24,
+          "kind": "Epic",
+          "amount": 5,
+          "subtype": "soul_eggs"
+        },
+        {
+          "day": 25,
+          "kind": "SE",
+          "amount": 2500000000,
+          "subtype": ""
+        },
+        {
+          "day": 26,
+          "kind": "GE",
+          "amount": 6336,
+          "subtype": ""
+        },
+        {
+          "day": 27,
+          "kind": "Piggy",
+          "amount": 40000,
+          "subtype": ""
+        },
+        {
+          "day": 28,
+          "kind": "PE",
+          "amount": 1,
+          "subtype": ""
+        }
+      ]
+    },
+    {
+      "cycle": 7,
+      "rewards": [
+        {
+          "day": 1,
+          "kind": "GE",
+          "amount": 6144,
+          "subtype": ""
+        },
+        {
+          "day": 2,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "jimbos_orange_big"
+        },
+        {
+          "day": 3,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "hold_to_hatch"
+        },
+        {
+          "day": 4,
+          "kind": "Cash",
+          "amount": 200,
+          "subtype": ""
+        },
+        {
+          "day": 5,
+          "kind": "PiggyLevel",
+          "amount": 1,
+          "subtype": ""
+        },
+        {
+          "day": 6,
+          "kind": "GE",
+          "amount": 8000,
+          "subtype": ""
+        },
+        {
+          "day": 7,
+          "kind": "SE",
+          "amount": 250000000,
+          "subtype": ""
+        },
+        {
+          "day": 8,
+          "kind": "GE",
+          "amount": 9472,
+          "subtype": ""
+        },
+        {
+          "day": 9,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "tachyon_prism_orange_big"
+        },
+        {
+          "day": 10,
+          "kind": "ShellScripts",
+          "amount": 18,
+          "subtype": ""
+        },
+        {
+          "day": 11,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "epic_multiplier"
+        },
+        {
+          "day": 12,
+          "kind": "SE",
+          "amount": 750000000,
+          "subtype": ""
+        },
+        {
+          "day": 13,
+          "kind": "Piggy",
+          "amount": 40000,
+          "subtype": ""
+        },
+        {
+          "day": 14,
+          "kind": "GE",
+          "amount": 10000,
+          "subtype": ""
+        },
+        {
+          "day": 15,
+          "kind": "Cash",
+          "amount": 75,
+          "subtype": ""
+        },
+        {
+          "day": 16,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "transportation_lobbyist"
+        },
+        {
+          "day": 17,
+          "kind": "GE",
+          "amount": 12288,
+          "subtype": ""
+        },
+        {
+          "day": 18,
+          "kind": "ShellScripts",
+          "amount": 10,
+          "subtype": ""
+        },
+        {
+          "day": 19,
+          "kind": "SE",
+          "amount": 1000000000,
+          "subtype": ""
+        },
+        {
+          "day": 20,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "boost_beacon_blue"
+        },
+        {
+          "day": 21,
+          "kind": "GE",
+          "amount": 6336,
+          "subtype": ""
+        },
+        {
+          "day": 22,
+          "kind": "Cash",
+          "amount": 150,
+          "subtype": ""
+        },
+        {
+          "day": 23,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "money_printer"
+        },
+        {
+          "day": 24,
+          "kind": "Epic",
+          "amount": 5,
+          "subtype": "soul_eggs"
+        },
+        {
+          "day": 25,
+          "kind": "SE",
+          "amount": 2500000000,
+          "subtype": ""
+        },
+        {
+          "day": 26,
+          "kind": "GE",
+          "amount": 6336,
+          "subtype": ""
+        },
+        {
+          "day": 27,
+          "kind": "Piggy",
+          "amount": 40000,
+          "subtype": ""
+        },
+        {
+          "day": 28,
+          "kind": "PE",
+          "amount": 1,
+          "subtype": ""
+        }
+      ]
+    },
+    {
+      "cycle": 9,
+      "rewards": [
+        {
+          "day": 1,
+          "kind": "GE",
+          "amount": 6144,
+          "subtype": ""
+        },
+        {
+          "day": 2,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "jimbos_orange_big"
+        },
+        {
+          "day": 3,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "hold_to_hatch"
+        },
+        {
+          "day": 4,
+          "kind": "Cash",
+          "amount": 200,
+          "subtype": ""
+        },
+        {
+          "day": 5,
+          "kind": "PiggyLevel",
+          "amount": 1,
+          "subtype": ""
+        },
+        {
+          "day": 6,
+          "kind": "GE",
+          "amount": 10000,
+          "subtype": ""
+        },
+        {
+          "day": 7,
+          "kind": "SE",
+          "amount": 250000000,
+          "subtype": ""
+        },
+        {
+          "day": 8,
+          "kind": "GE",
+          "amount": 9472,
+          "subtype": ""
+        },
+        {
+          "day": 9,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "tachyon_prism_orange_big"
+        },
+        {
+          "day": 10,
+          "kind": "ShellScripts",
+          "amount": 18,
+          "subtype": ""
+        },
+        {
+          "day": 11,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "epic_multiplier"
+        },
+        {
+          "day": 12,
+          "kind": "SE",
+          "amount": 750000000,
+          "subtype": ""
+        },
+        {
+          "day": 13,
+          "kind": "Piggy",
+          "amount": 50000,
+          "subtype": ""
+        },
+        {
+          "day": 14,
+          "kind": "GE",
+          "amount": 10000,
+          "subtype": ""
+        },
+        {
+          "day": 15,
+          "kind": "Cash",
+          "amount": 75,
+          "subtype": ""
+        },
+        {
+          "day": 16,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "transportation_lobbyist"
+        },
+        {
+          "day": 17,
+          "kind": "GE",
+          "amount": 12288,
+          "subtype": ""
+        },
+        {
+          "day": 18,
+          "kind": "ShellScripts",
+          "amount": 10,
+          "subtype": ""
+        },
+        {
+          "day": 19,
+          "kind": "SE",
+          "amount": 1000000000,
+          "subtype": ""
+        },
+        {
+          "day": 20,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "soul_beacon_purple_v2"
+        },
+        {
+          "day": 21,
+          "kind": "GE",
+          "amount": 7920,
+          "subtype": ""
+        },
+        {
+          "day": 22,
+          "kind": "Cash",
+          "amount": 150,
+          "subtype": ""
+        },
+        {
+          "day": 23,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "boost_beacon_purple"
+        },
+        {
+          "day": 24,
+          "kind": "Epic",
+          "amount": 5,
+          "subtype": "soul_eggs"
+        },
+        {
+          "day": 25,
+          "kind": "SE",
+          "amount": 2500000000,
+          "subtype": ""
+        },
+        {
+          "day": 26,
+          "kind": "GE",
+          "amount": 6336,
+          "subtype": ""
+        },
+        {
+          "day": 27,
+          "kind": "Piggy",
+          "amount": 40000,
+          "subtype": ""
+        },
+        {
+          "day": 28,
+          "kind": "PE",
+          "amount": 1,
+          "subtype": ""
+        }
+      ]
+    },
+    {
+      "cycle": 23,
+      "rewards": [
+        {
+          "day": 1,
+          "kind": "GE",
+          "amount": 6144,
+          "subtype": ""
+        },
+        {
+          "day": 2,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "jimbos_orange_big"
+        },
+        {
+          "day": 3,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "hold_to_hatch"
+        },
+        {
+          "day": 4,
+          "kind": "Cash",
+          "amount": 200,
+          "subtype": ""
+        },
+        {
+          "day": 5,
+          "kind": "PiggyLevel",
+          "amount": 1,
+          "subtype": ""
+        },
+        {
+          "day": 6,
+          "kind": "GE",
+          "amount": 10000,
+          "subtype": ""
+        },
+        {
+          "day": 7,
+          "kind": "SE",
+          "amount": 250000000,
+          "subtype": ""
+        },
+        {
+          "day": 8,
+          "kind": "GE",
+          "amount": 9472,
+          "subtype": ""
+        },
+        {
+          "day": 9,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "tachyon_prism_orange_big"
+        },
+        {
+          "day": 10,
+          "kind": "ShellScripts",
+          "amount": 18,
+          "subtype": ""
+        },
+        {
+          "day": 11,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "epic_multiplier"
+        },
+        {
+          "day": 12,
+          "kind": "SE",
+          "amount": 750000000,
+          "subtype": ""
+        },
+        {
+          "day": 13,
+          "kind": "Piggy",
+          "amount": 50000,
+          "subtype": ""
+        },
+        {
+          "day": 14,
+          "kind": "GE",
+          "amount": 10000,
+          "subtype": ""
+        },
+        {
+          "day": 15,
+          "kind": "Cash",
+          "amount": 75,
+          "subtype": ""
+        },
+        {
+          "day": 16,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "transportation_lobbyist"
+        },
+        {
+          "day": 17,
+          "kind": "GE",
+          "amount": 12288,
+          "subtype": ""
+        },
+        {
+          "day": 18,
+          "kind": "ShellScripts",
+          "amount": 10,
+          "subtype": ""
+        },
+        {
+          "day": 19,
+          "kind": "SE",
+          "amount": 1000000000,
+          "subtype": ""
+        },
+        {
+          "day": 20,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "money_printer"
+        },
+        {
+          "day": 21,
+          "kind": "GE",
+          "amount": 7920,
+          "subtype": ""
+        },
+        {
+          "day": 22,
+          "kind": "Cash",
+          "amount": 150,
+          "subtype": ""
+        },
+        {
+          "day": 23,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "boost_beacon_purple"
+        },
+        {
+          "day": 24,
+          "kind": "Epic",
+          "amount": 5,
+          "subtype": "soul_eggs"
+        },
+        {
+          "day": 25,
+          "kind": "SE",
+          "amount": 2500000000,
+          "subtype": ""
+        },
+        {
+          "day": 26,
+          "kind": "GE",
+          "amount": 6336,
+          "subtype": ""
+        },
+        {
+          "day": 27,
+          "kind": "Piggy",
+          "amount": 40000,
+          "subtype": ""
+        },
+        {
+          "day": 28,
+          "kind": "PE",
+          "amount": 1,
+          "subtype": ""
+        }
+      ]
+    },
+    {
+      "cycle": 24,
+      "rewards": [
+        {
+          "day": 1,
+          "kind": "GE",
+          "amount": 6144,
+          "subtype": ""
+        },
+        {
+          "day": 2,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "jimbos_orange_big"
+        },
+        {
+          "day": 3,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "hold_to_hatch"
+        },
+        {
+          "day": 4,
+          "kind": "Cash",
+          "amount": 200,
+          "subtype": ""
+        },
+        {
+          "day": 5,
+          "kind": "PiggyLevel",
+          "amount": 1,
+          "subtype": ""
+        },
+        {
+          "day": 6,
+          "kind": "GE",
+          "amount": 10000,
+          "subtype": ""
+        },
+        {
+          "day": 7,
+          "kind": "SE",
+          "amount": 250000000,
+          "subtype": ""
+        },
+        {
+          "day": 8,
+          "kind": "GE",
+          "amount": 9472,
+          "subtype": ""
+        },
+        {
+          "day": 9,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "tachyon_prism_orange_big"
+        },
+        {
+          "day": 10,
+          "kind": "ShellScripts",
+          "amount": 18,
+          "subtype": ""
+        },
+        {
+          "day": 11,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "epic_multiplier"
+        },
+        {
+          "day": 12,
+          "kind": "SE",
+          "amount": 750000000,
+          "subtype": ""
+        },
+        {
+          "day": 13,
+          "kind": "Piggy",
+          "amount": 50000,
+          "subtype": ""
+        },
+        {
+          "day": 14,
+          "kind": "GE",
+          "amount": 10000,
+          "subtype": ""
+        },
+        {
+          "day": 15,
+          "kind": "Cash",
+          "amount": 75,
+          "subtype": ""
+        },
+        {
+          "day": 16,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "epic_hatchery"
+        },
+        {
+          "day": 17,
+          "kind": "GE",
+          "amount": 12288,
+          "subtype": ""
+        },
+        {
+          "day": 18,
+          "kind": "ShellScripts",
+          "amount": 10,
+          "subtype": ""
+        },
+        {
+          "day": 19,
+          "kind": "SE",
+          "amount": 1000000000,
+          "subtype": ""
+        },
+        {
+          "day": 20,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "soul_beacon_purple_v2"
+        },
+        {
+          "day": 21,
+          "kind": "GE",
+          "amount": 7920,
+          "subtype": ""
+        },
+        {
+          "day": 22,
+          "kind": "Cash",
+          "amount": 150,
+          "subtype": ""
+        },
+        {
+          "day": 23,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "tachyon_prism_purple_big"
+        },
+        {
+          "day": 24,
+          "kind": "Epic",
+          "amount": 5,
+          "subtype": "soul_eggs"
+        },
+        {
+          "day": 25,
+          "kind": "SE",
+          "amount": 2500000000,
+          "subtype": ""
+        },
+        {
+          "day": 26,
+          "kind": "GE",
+          "amount": 6336,
+          "subtype": ""
+        },
+        {
+          "day": 27,
+          "kind": "Piggy",
+          "amount": 40000,
+          "subtype": ""
+        },
+        {
+          "day": 28,
+          "kind": "GE",
+          "amount": 100000,
+          "subtype": ""
+        }
+      ]
+    },
+    {
+      "cycle": 66,
+      "rewards": [
+        {
+          "day": 1,
+          "kind": "GE",
+          "amount": 6144,
+          "subtype": ""
+        },
+        {
+          "day": 2,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "jimbos_orange_big"
+        },
+        {
+          "day": 3,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "hold_to_hatch"
+        },
+        {
+          "day": 4,
+          "kind": "Cash",
+          "amount": 200,
+          "subtype": ""
+        },
+        {
+          "day": 5,
+          "kind": "PiggyLevel",
+          "amount": 1,
+          "subtype": ""
+        },
+        {
+          "day": 6,
+          "kind": "GE",
+          "amount": 10000,
+          "subtype": ""
+        },
+        {
+          "day": 7,
+          "kind": "SE",
+          "amount": 250000000,
+          "subtype": ""
+        },
+        {
+          "day": 8,
+          "kind": "GE",
+          "amount": 9472,
+          "subtype": ""
+        },
+        {
+          "day": 9,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "tachyon_prism_orange_big"
+        },
+        {
+          "day": 10,
+          "kind": "ShellScripts",
+          "amount": 18,
+          "subtype": ""
+        },
+        {
+          "day": 11,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "epic_multiplier"
+        },
+        {
+          "day": 12,
+          "kind": "SE",
+          "amount": 750000000,
+          "subtype": ""
+        },
+        {
+          "day": 13,
+          "kind": "Piggy",
+          "amount": 50000,
+          "subtype": ""
+        },
+        {
+          "day": 14,
+          "kind": "GE",
+          "amount": 10000,
+          "subtype": ""
+        },
+        {
+          "day": 15,
+          "kind": "Cash",
+          "amount": 75,
+          "subtype": ""
+        },
+        {
+          "day": 16,
+          "kind": "Epic",
+          "amount": 1,
+          "subtype": "epic_hatchery"
+        },
+        {
+          "day": 17,
+          "kind": "GE",
+          "amount": 12288,
+          "subtype": ""
+        },
+        {
+          "day": 18,
+          "kind": "ShellScripts",
+          "amount": 10,
+          "subtype": ""
+        },
+        {
+          "day": 19,
+          "kind": "SE",
+          "amount": 1000000000,
+          "subtype": ""
+        },
+        {
+          "day": 20,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "soul_beacon_purple_v2"
+        },
+        {
+          "day": 21,
+          "kind": "GE",
+          "amount": 7920,
+          "subtype": ""
+        },
+        {
+          "day": 22,
+          "kind": "Cash",
+          "amount": 150,
+          "subtype": ""
+        },
+        {
+          "day": 23,
+          "kind": "Boost",
+          "amount": 1,
+          "subtype": "tachyon_prism_purple_big"
+        },
+        {
+          "day": 24,
+          "kind": "Epic",
+          "amount": 5,
+          "subtype": "soul_eggs"
+        },
+        {
+          "day": 25,
+          "kind": "SE",
+          "amount": 2500000000,
+          "subtype": ""
+        },
+        {
+          "day": 26,
+          "kind": "GE",
+          "amount": 6336,
+          "subtype": ""
+        },
+        {
+          "day": 27,
+          "kind": "Piggy",
+          "amount": 40000,
+          "subtype": ""
+        },
+        {
+          "day": 28,
+          "kind": "GE",
+          "amount": 100000,
+          "subtype": ""
+        }
+      ]
+    }
+  ]
+}

@@ -22,6 +22,13 @@ MUTANTS=[
   'U.subtract(U.decode(draft.permanent.GE),cost)','U.add(U.decode(draft.permanent.GE),cost)'),
  ('trophy_wrong_GE','src/server/rewards/trophies.luau',
   'ExactUInt.fromSafeNumber(spec.goldenEggs)','ExactUInt.fromSafeNumber(spec.goldenEggs+1)'),
+ ('calendar_cash_percent_omitted','src/server/rewards/calendar.luau',
+  'BigAmount.divide(reward.amountNumber,100)','reward.amountNumber'),
+ ('calendar_shell_precision_lost','src/server/rewards/calendar.luau',
+  'ExactUInt.decode(profile.permanent.shellScripts or "0")','ExactUInt.fromSafeNumber(tonumber(profile.permanent.shellScripts or "0"))'),
+ ('calendar_prestige_base_lost','src/server/rewards/calendar.luau',
+  'profile.accounting.currentFarmCash = BigAmount.encode(BigAmount.add(BigAmount.decode(profile.accounting.currentFarmCash or "0"),addCash))',
+  'profile.accounting.currentFarmCash = profile.accounting.currentFarmCash'),
 ]
 def main():
  base=ROOT/'build'/('behavior-mutations-'+uuid.uuid4().hex[:8]);base.mkdir(parents=True)
@@ -30,6 +37,7 @@ def main():
   target=base/name;target.mkdir()
   shutil.copytree(ROOT/'src',target/'src')
   shutil.copytree(ROOT/'tests/game_behavior',target/'tests/game_behavior')
+  shutil.copytree(ROOT/'tests/calendar_cycle',target/'tests/calendar_cycle')
   (target/'docs/reference_data').mkdir(parents=True);(target/'build').mkdir()
   for ref in ['infrastructure','research','rewards']:
    shutil.copy2(ROOT/f'docs/reference_data/{ref}.json',target/f'docs/reference_data/{ref}.json')
@@ -42,14 +50,15 @@ def main():
    old='if not Calendar.canClaimCalendarDay(draft,self.clock.utcNowMs()) then'
    assert text.count(old)==1
    server.write_text(text.replace(old,'if false then'),encoding='utf-8')
-  run=subprocess.run([str(ROOT/'.tools/lune-0.11.1/lune.exe'),'run','tests/game_behavior/run.luau'],cwd=target,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=90)
+  suite='calendar_cycle' if name in {'calendar_cash_percent_omitted','calendar_shell_precision_lost','calendar_prestige_base_lost'} else 'game_behavior'
+  run=subprocess.run([str(ROOT/'.tools/lune-0.11.1/lune.exe'),'run',f'tests/{suite}/run.luau'],cwd=target,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=120)
   output=run.stdout+run.stderr
   invalid=any(word in output for word in ['SyntaxError','Failed to resolve require','could not resolve','error parsing'])
   state='INVALID' if invalid else 'KILLED' if run.returncode else 'SURVIVED'
   (target/'build/output.txt').write_text(output,encoding='utf-8')
   print(f'{name}: {state}',flush=True)
   results.append({'mutant':name,'state':state,'exitCode':run.returncode,'output':str((target/'build/output.txt').relative_to(ROOT))})
- report={'status':'PASS' if all(r['state']=='KILLED' for r in results) else 'FAIL','mutants':results,'scope':'Seven selected semantic mutations; not exhaustive mutation coverage'}
+ report={'status':'PASS' if all(r['state']=='KILLED' for r in results) else 'FAIL','mutants':results,'scope':'Ten selected semantic mutations; not exhaustive mutation coverage'}
  (ROOT/'build/game-behavior-mutations.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
  assert report['status']=='PASS',report
 if __name__=='__main__':main()

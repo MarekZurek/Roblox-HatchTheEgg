@@ -88,6 +88,7 @@ local Equipment=if isStudio then require(script.Parent.pets.equipment) else requ
 local Effects=if isStudio then require(script.Parent.EffectsManager) else require("./EffectsManager")
 local Calendar=if isStudio then require(script.Parent.rewards.calendar) else require("./rewards/calendar")
 local ActionReference=if isStudio then require(script.Parent.ActionReferenceData) else require("./ActionReferenceData")
+local ProgressActions=if isStudio then require(script.Parent.ProgressActions) else require("./ProgressActions")
 local ViewProjector = {}
 ViewProjector.__index = ViewProjector
 ViewProjector.ALL_COMMON_RESEARCH_IDS = ALL_COMMON_RESEARCH_IDS
@@ -252,8 +253,10 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
 	if ownFarm then
         local pets,claimed={},{}
         local calendar={};local cycle=math.floor((profile.rewards.numDailyGiftsCollected or 0)/28)
+        local fvOk,homeFV=pcall(ProgressActions.calculateProfileFarmValue,profile,catalog,productionMath)
+        if not fvOk or profile.farm.isContract then homeFV=nil end
         for day=1,28 do
-            local reward=Calendar.referenceReward(cycle*28+day-1,ActionReference.calendar)
+            local reward=Calendar.resolveReward(cycle*28+day-1,ActionReference.calendar,homeFV)
             table.insert(calendar,{day=day,available=reward~=nil,rewardType=if reward then reward.rewardType else "Unavailable",amount=codec.BigAmount.encode(if reward then reward.amountNumber else 0)})
         end
         local ids={};for uid in profile.inventory.pets do table.insert(ids,uid) end;table.sort(ids)
@@ -266,7 +269,7 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
         for key,value in profile.rewards.trophies or {} do if value==true then table.insert(claimed,key) end end;table.sort(claimed)
         ownFarm.progress={GE=profile.permanent.GE,SE=profile.permanent.SE,PE=profile.permanent.PE,
             numDailyGiftsCollected=profile.rewards.numDailyGiftsCollected or 0,lastCalendarDayUtc=profile.rewards.lastCalendarDayUtc or -1,
-            pets=pets,equipped=deepCopy(profile.inventory.equipped),trophies=claimed,calendar=calendar}
+            pets=pets,equipped=deepCopy(profile.inventory.equipped),trophies=claimed,calendar=calendar,shellScripts=profile.permanent.shellScripts or "0"}
     end
     local commitRevision = (profile.meta and profile.meta.revision) or "0"
 	local configRev = (profile.meta and profile.meta.configRevision) or self.configRevision

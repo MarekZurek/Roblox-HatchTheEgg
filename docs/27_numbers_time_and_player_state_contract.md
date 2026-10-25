@@ -199,3 +199,8 @@ Nie przyjęto sugestii dodania nieuzgodnionego capu offline ani wymogu identyczn
 ### Redakcja po review Gemini
 
 Gemini 3.8 Flash Medium przez AGY oceniło pełny tekst kontraktu i przekazany zestaw reguł bazowych, bez pełnego porównania pozostałych docs i bez testów kodu. Po review doprecyzowano, że online rozlicza cały pozostały odcinek bez limitu silosów, a away używa czasu produkcji ograniczonego silosami; poprawiono także formę „ani bazowy”. Są to wyjaśnienie istniejącej reguły i korekta językowa, nie nowy limit lub zmiana bilansu. Status technicznych propozycji pozostaje P.
+
+
+### Doprecyzowanie zapisu kalendarza — implementacja #62
+
+Referencyjny typ 14 jest przechowywany jako permanent.shellScripts (ExactUInt, kanoniczny tekst; nowy profil "0", starszy brak pola odczytywany jako zero). Counter jest trwały i trafia do prywatnego progress; nie oznacza wdrożenia sklepu kosmetycznego lub kursu wymiany. Wypłata typu 2 jest BigAmount wyliczanym jako procent aktualnego FV farmy domowej. W obecnym modelu earned currentFarmCash dopisuje się ją do podstawy prestiżu niezależnej od portfela, z jednokrotnym dodatkiem aktywnego boostu/peta prestiżu. Nie zmieniono capów, cen, parametrów ani typów pozostałych sekcji. [Weryfikacja #62](workflow/calendar_rewards_62.md).

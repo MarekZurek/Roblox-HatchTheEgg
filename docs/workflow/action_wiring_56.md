@@ -1,5 +1,7 @@
 # Rzeczywiste operacje przycisków i testy zachowania — #56
 
+> Historyczny stan dostawy eb9a834. Pięć blokowanych dni kalendarza domknięto później w [#62](calendar_rewards_62.md); raport i liczby poniżej opisują wcześniejszy commit.
+
 25.10.2026. Dostawa L i statyczny build, bez publikacji gry, prawdziwych zakupów, DataStore ani testów Studio. Bilans 17–21 i JSON-y referencyjne pozostają bez zmian. Ta dostawa nie zamyka #57–61 ani nowej luki [#62](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/62).
 
 ## Podłączenie

@@ -1,0 +1,114 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "eb9a834dec2e4cf709d63af278cb7eceacefe7e5",
+  "status": "PASS_L_AND_STATIC_BUILD",
+  "calendarCycles": {
+    "assertions": 9812,
+    "claims": 280,
+    "completeCycles": 10,
+    "daysPerCycle": 28,
+    "realDataStoreTested": false,
+    "status": "PASS_L",
+    "studioTested": false
+  },
+  "suiteCount": 32,
+  "assertions": 79765,
+  "mutations": [
+    {
+      "name": "local_fake_success",
+      "state": "KILLED"
+    },
+    {
+      "name": "missing_trophy_route",
+      "state": "KILLED"
+    },
+    {
+      "name": "calendar_claim_twice",
+      "state": "KILLED"
+    },
+    {
+      "name": "trophy_below_threshold",
+      "state": "KILLED"
+    },
+    {
+      "name": "fusion_free_materials",
+      "state": "KILLED"
+    },
+    {
+      "name": "shop_credit_instead_of_debit",
+      "state": "KILLED"
+    },
+    {
+      "name": "trophy_wrong_GE",
+      "state": "KILLED"
+    },
+    {
+      "name": "calendar_cash_percent_omitted",
+      "state": "KILLED"
+    },
+    {
+      "name": "calendar_shell_precision_lost",
+      "state": "KILLED"
+    },
+    {
+      "name": "calendar_prestige_base_lost",
+      "state": "KILLED"
+    }
+  ],
+  "staticBuild": {
+    "modules": 39,
+    "entrypoints": 2
+  },
+  "protectedBalance": [
+    {
+      "path": "docs/17_pet_balance_draft.md",
+      "sha256": "681ea852e6db78738720855b99f8d38307543b982b0f7660e326006fffff6a29",
+      "unchangedBytes": true
+    },
+    {
+      "path": "docs/18_incubator_prices_and_acquisition_pacing.md",
+      "sha256": "2865cddf4da695711eb7a4e456fb733df188d6e89e9689d492c2eed4575fc2b1",
+      "unchangedBytes": true
+    },
+    {
+      "path": "docs/19_integrated_farm_progression_simulation.md",
+      "sha256": "60f918a879fdaf7a94aa2adf797e9de6489eb041364e9698003fd1dd14966356",
+      "unchangedBytes": true
+    },
+    {
+      "path": "docs/20_paying_player_balance_direction.md",
+      "sha256": "b8e61a36f3263ab8e765c85869f80f35ff21e3b7eb43513c742c18f40febdba6",
+      "unchangedBytes": true
+    },
+    {
+      "path": "docs/21_payer_progression_and_incubation.md",
+      "sha256": "48a2afe285d50281339079c757a74f6358fde695c236ad528a1f3a5fb8853de9",
+      "unchangedBytes": true
+    }
+  ],
+  "referenceDataUnchangedBytes": true,
+  "studioTested": false,
+  "realDataStoreTested": false,
+  "realPurchasesTested": false,
+  "releaseReadinessApproved": false,
+  "remainingAuditIssues": [
+    57,
+    58,
+    59,
+    60,
+    61
+  ],
+  "sourceSha256NormalizedLF": {
+    "src/server/rewards/calendar.luau": "f0bb474ceeb8b0ab641f3130d6ace4db4aa6192b1b58502371feb4a9d06a4c46",
+    "src/server/Bootstrap.luau": "f1392437799460e581acfdb81e31e0d2659cd850238a8da0ae534055ff81ab48",
+    "src/server/ProfileSchema.luau": "2536e6b6773fef340121f8ee0e8f2fd5ce6487d9f140b1e0489c4b70d807466b",
+    "src/server/ViewProjector.luau": "664eb1466b5b03f7dfcc78589c5a85fb062d1d81519fe52b5e6751458e45d390",
+    "src/shared/ProtocolSchemas.luau": "01d62a6a9fbaab866887c2a0495c5c3b75025405e33ae34fba2c7e3d98887f1b",
+    "tests/calendar_cycle/run.luau": "68df506337d3d69e949000e0c766cd47d3d0fbc10a68a352d17a8bc54250b912",
+    "tests/calendar_cycle/build_oracle.py": "436f6518f63c4373a379bf1f029d2215464aff72b4a14b907b798bf50a3c0ed1",
+    "tests/calendar_cycle/oracle.json": "3328c67ce4a03b9d12aa2b785c088a7eee9e81577b2144b349e7b37374fedd01",
+    "tests/game_behavior/run.luau": "be945d35561a0fef071816156f1653a051dd3c5c024ce846f7e6bf2af84d3c22",
+    "tests/game_behavior/mutation_check.py": "b4c7ace305294e093cf63a2451950364f527875001cd96dbef2a62692d517c63",
+    "tools/test.ps1": "b8b78f79c10ebe7d6ee5ff52e3f593dd0d9bab0bbc93ffe6755259ee73af258b"
+  }
+}

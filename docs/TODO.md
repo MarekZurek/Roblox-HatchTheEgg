@@ -137,5 +137,5 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 - [x] #54–55: podłączyć aktualne jajo, SE/PE, pety i boosty do produkcji, HUD oraz zapisu/wznowienia. [Zakres i dowody](workflow/production_fixes_54_55.md). Bilans bez zmian.
 
 - [x] #56: usunąć fikcyjne sukcesy przycisków, podłączyć komendy i serwerowe odpowiedzi oraz dodać regresje zachowania. [Dostawa i ograniczenia](workflow/action_wiring_56.md).
-- [ ] #62: resolver dni kalendarza 4/10/15/18/22; do ukończenia jawne FEATURE_UNAVAILABLE, bez przesunięcia dnia. Blokuje kalendarz premiery.
+- [x] #62: resolver dni 4/10/15/18/22, księgowanie gotówki i dokładny licznik Shell Scripts; testy pełnych 28 dni. [Dostawa i ograniczenia](workflow/calendar_rewards_62.md).
 - [ ] Włączenie produkcyjnej fuzji/zakupu boostów wymaga osobnego zadania: podgląd/quote z kontraktu 28 oraz zatwierdzona konfiguracja. Obecne porty fixture'ów są INTERNAL_TEST_ONLY; bilansu nie wznowiono.

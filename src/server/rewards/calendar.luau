@@ -18,6 +18,7 @@ local Codec = resolve(function()
 end, "../../shared/NumericCodec")
 local ExactUInt = Codec.ExactUInt
 local BigAmount = Codec.BigAmount
+local Reference = resolve(function() return script.Parent.Parent.ActionReferenceData end, "../ActionReferenceData")
 
 local Calendar = {
 	VERSION = 1,
@@ -25,7 +26,7 @@ local Calendar = {
 	MAX_PE_CYCLES = 24, -- cycles 0..23 award 1 PE (24 total), cycle >= 24 awards 100k GE
 }
 
-export type CalendarRewardType = "GE" | "PE" | "SE" | "Cash" | "Piggy" | "PiggyLevel" | "Boost" | "Epic"
+export type CalendarRewardType = "GE" | "PE" | "SE" | "Cash" | "CashPercent" | "ShellScripts" | "Piggy" | "PiggyLevel" | "Boost" | "Epic"
 
 export type CalendarReward = {
 	rewardType: CalendarRewardType,
@@ -37,15 +38,7 @@ export type CalendarReward = {
 	cycle: number,
 }
 
--- Legacy leaf-test fixture. Bootstrap supplies the full generated Epic price table;
--- these partial defaults must never be used as a production calendar catalogue.
-local DEFAULT_EPIC_PRICES: { [string]: { maxLevel: number, finalLevelPriceGE: number } } = {
-	hold_to_hatch = { maxLevel = 15, finalLevelPriceGE = 500 },
-	drone_rewards = { maxLevel = 20, finalLevelPriceGE = 1500 },
-	epic_prestige = { maxLevel = 20, finalLevelPriceGE = 2500 },
-	soul_food = { maxLevel = 100, finalLevelPriceGE = 500 },
-	video_doubler_time = { maxLevel = 12, finalLevelPriceGE = 1000 },
-}
+local DEFAULT_EPIC_PRICES = Reference.epic
 
 local function getCycleAndDay(numCollected: number): (number, number)
 	local count = math.max(0, math.floor(numCollected))
@@ -69,60 +62,7 @@ local function computeDayReward(m: number, day: number, customRewards: any?): Ca
 		}
 	end
 
-	-- 5 core scaling rewards + Day 28
-	if day == 1 then
-		-- GE: base 192, cap 6144 (cap at m=5)
-		local p = 2 ^ math.min(m, 5)
-		local val = math.min(6144, 192 * p)
-		return { rewardType = "GE", amount = tostring(val), amountNumber = val, day = day, cycle = m }
-	elseif day == 8 then
-		-- GE: base 396, cap 9472 (exact constant from docs/15 §2)
-		local p = 2 ^ math.min(m, 5)
-		local val = math.min(9472, 396 * p)
-		return { rewardType = "GE", amount = tostring(val), amountNumber = val, day = day, cycle = m }
-	elseif day == 17 then
-		-- GE: base 96, cap 12288 (cap at m=7)
-		local p = 2 ^ math.min(m, 7)
-		local val = math.min(12288, 96 * p)
-		return { rewardType = "GE", amount = tostring(val), amountNumber = val, day = day, cycle = m }
-	elseif day == 26 then
-		-- GE: base 396, cap 6336 (cap at m=4)
-		local p = 2 ^ math.min(m, 4)
-		local val = math.min(6336, 396 * p)
-		return { rewardType = "GE", amount = tostring(val), amountNumber = val, day = day, cycle = m }
-	elseif day == 27 then
-		-- Piggy fill: base 10000, cap 40000 (cap at m=2)
-		local p = 2 ^ math.min(m, 2)
-		local val = math.min(40000, 10000 * p)
-		return { rewardType = "Piggy", amount = tostring(val), amountNumber = val, day = day, cycle = m }
-	elseif day == 28 then
-		-- Day 28: 1 PE for first 24 cycles (m=0..23); 100,000 GE for cycle >= 24 (docs/15 §3)
-		if m < Calendar.MAX_PE_CYCLES then
-			return { rewardType = "PE", amount = "1", amountNumber = 1, day = day, cycle = m }
-		else
-			return { rewardType = "GE", amount = "100000", amountNumber = 100000, day = day, cycle = m }
-		end
-	end
-
-	-- Legacy leaf-test fixtures, not authoritative intermediate calendar rewards.
-    -- Bootstrap always supplies the selected reference row; unresolved categories
-    -- are refused before entering this function (tracked in issue #62).
-	if day == 4 or day == 11 or day == 18 or day == 24 then
-		-- Soul Eggs
-		local val = 50000
-		return { rewardType = "SE", amount = tostring(val), amountNumber = val, day = day, cycle = m }
-	elseif day == 5 or day == 12 or day == 21 then
-		-- Epic Research
-		local rId = if day == 5 then "hold_to_hatch" elseif day == 12 then "drone_rewards" else "epic_prestige"
-		return { rewardType = "Epic", amount = "1", amountNumber = 1, researchId = rId, day = day, cycle = m }
-	elseif day == 3 or day == 7 or day == 10 or day == 14 or day == 16 or day == 20 or day == 23 then
-		-- Boost
-		return { rewardType = "Boost", amount = "1", amountNumber = 1, boostId = "jimbos_blue_v2", day = day, cycle = m }
-	else
-		-- Cash
-		local val = 5000
-		return { rewardType = "Cash", amount = tostring(val), amountNumber = val, day = day, cycle = m }
-	end
+    return Calendar.referenceReward(m*28+day-1,Reference.calendar)
 end
 
 -- Convert/apply Epic Research reward with excess -> GE conversion (docs/13 §2 L10-15)
@@ -180,7 +120,8 @@ local function claimDailyGift(
 	profile: any,
 	nowMs: number,
 	customRewards: any?,
-	customPrices: any?
+	customPrices: any?,
+    prestigeEarningsMultiplier: number?
 ): (boolean, CalendarReward?, string?)
 	assert(profile ~= nil, "Calendar/INVALID_PROFILE")
 	local currentUtcDay = getUtcDayKey(nowMs)
@@ -194,6 +135,7 @@ local function claimDailyGift(
 	local numCollected = profile.rewards.numDailyGiftsCollected or 0
 	local m, day = getCycleAndDay(numCollected)
 	local reward = computeDayReward(m, day, customRewards)
+    if not reward or reward.rewardType=="CashPercent" then return false,nil,"CALENDAR_CONTEXT_REQUIRED" end
 
 	-- Increment counter BEFORE distribution (docs/13 §2 L53)
 	profile.rewards.numDailyGiftsCollected = numCollected + 1
@@ -222,6 +164,15 @@ local function claimDailyGift(
 		profile.farm.cash = BigAmount.encode(BigAmount.add(curCash, addCash))
 		local lastEarned = BigAmount.decode(profile.accounting.lastCashEarned)
 		profile.accounting.lastCashEarned = BigAmount.encode(BigAmount.add(lastEarned, addCash))
+        -- currentFarmCash is the earned base, independent of spending the wallet.
+        profile.accounting.currentFarmCash = BigAmount.encode(BigAmount.add(BigAmount.decode(profile.accounting.currentFarmCash or "0"),addCash))
+        local multiplier=Codec.Real64.validate(prestigeEarningsMultiplier or 1)
+        assert(multiplier>=1,"Calendar/INVALID_PRESTIGE_MULTIPLIER")
+        local extra=BigAmount.multiply(addCash,multiplier-1)
+        profile.accounting.prestigeExtraEarnings=BigAmount.encode(BigAmount.add(BigAmount.decode(profile.accounting.prestigeExtraEarnings or "0"),extra))
+    elseif reward.rewardType == "ShellScripts" then
+        local old=ExactUInt.decode(profile.permanent.shellScripts or "0")
+        profile.permanent.shellScripts=ExactUInt.encode(ExactUInt.add(old,ExactUInt.fromSafeNumber(reward.amountNumber)))
 	elseif reward.rewardType == "Piggy" then
 		profile.piggy = profile.piggy or {}
 		local curRaw = profile.piggy.rawAmount or "0"
@@ -258,7 +209,7 @@ Calendar.claimDailyGift = claimDailyGift
 function Calendar.referenceReward(numCollected: number, rows: any): any?
     local m,day=getCycleAndDay(numCollected)
     local row=rows[day]
-    local types={[0]="GE",[4]="SE",[5]="PE",[6]="Epic",[7]="Piggy",[9]="PiggyLevel",[10]="Boost"}
+    local types={[0]="GE",[2]="CashPercent",[14]="ShellScripts",[4]="SE",[5]="PE",[6]="Epic",[7]="Piggy",[9]="PiggyLevel",[10]="Boost"}
     local typ=types[row.type]
     if not typ then return nil end
     local n=row.rewardValues[math.min(m+1,#row.rewardValues)]
@@ -269,6 +220,23 @@ function Calendar.referenceReward(numCollected: number, rows: any): any?
     local subtype=row.subtypes[if row.scalingMode==1 then m%#row.subtypes+1 else math.min(m+1,#row.subtypes)]
     return {rewardType=typ,amount=tostring(n),amountNumber=n,day=day,cycle=m,
         researchId=if typ=="Epic" then subtype else nil,boostId=if typ=="Boost" then subtype else nil}
+end
+
+-- Resolve percent-of-home-FV at the authoritative claim instant. No earnings,
+-- video, gift or away multipliers are applied to the resulting wallet grant.
+function Calendar.resolveReward(numCollected: number, rows: any, homeFarmValue: number?): any?
+    local reward=Calendar.referenceReward(numCollected,rows)
+    if not reward then return nil end
+    if reward.rewardType=="CashPercent" then
+        if homeFarmValue==nil then return nil end
+        local fv=BigAmount.validate(homeFarmValue)
+        local amount=BigAmount.multiply(BigAmount.divide(reward.amountNumber,100),fv)
+        reward.percentOfHomeFV=reward.amountNumber
+        reward.rewardType="Cash"
+        reward.amountNumber=amount
+        reward.amount=BigAmount.encode(amount)
+    end
+    return reward
 end
 
 return table.freeze(Calendar)

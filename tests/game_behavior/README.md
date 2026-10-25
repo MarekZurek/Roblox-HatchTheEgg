@@ -16,7 +16,7 @@
 | Zmiana jaja i prestiż | resets, fv_se; realna komenda prestige w game_behavior | Dalsze znane problemy pozostają w Issues |
 | Pety, lock/wyposażenie, fuzja | pet_effects, fusion, game_behavior z jawnym fixture | Produkcyjna fuzja niedostępna; quote/config nieukończone |
 | Drony, paczki, nieuprawnione nagrody | drones, offers, reward_security przez rzeczywisty ingress | Harmonogramy i prezentacja nie są testem chmury |
-| Kalendarz: skala, UTC, Epic, PE | claims + game_behavior; JSON i równania | Dni 4/10/15/18/22 niedostępne (#62); brak udawanego testu 28/28 |
+| Kalendarz: skala, UTC, Epic, PE | claims + game_behavior; JSON i równania | Pełne 28/28, dziesięć cykli w calendar_cycle (#62) |
 | Wszystkie 95 trofeów i granice populacji | game_behavior, osobno odczytany infrastructure.json | UI testowany bez renderera Studio |
 | Zakupy, brak pieniędzy, replay | game_behavior, purchase_recovery, persistence | Kwoty testowe nie stają się parametrami premiery |
 | Produkty: podgląd/potwierdzenie/anulowanie/receipt | game_behavior, purchase_recovery, pet_effects | Żadnych realnych zakupów; uprawnienia #58 nadal otwarte |
@@ -30,6 +30,6 @@ Ta mapa nie oznacza 100% gotowości gry. Obecność fixture'ów i przechodzącyc
 
 Pełny runner: `./tools/test.ps1 -PythonExecutable python -MutationChecks`. Szybko: `.tools/lune-0.11.1/lune.exe run tests/game_behavior/run.luau`.
 
-`mutation_check.py` tworzy kopie src/testów/reference JSON pod ignorowanym build/ i wprowadza siedem konkretnych błędów zachowania. Test musi zakończyć się niepowodzeniem z powodu obserwowalnej regresji, a nie błędu składni/importu. Mutacja UTC wyłącza oba niezależne zabezpieczenia: wyłączenie tylko jednego nie zmienia zachowania dzięki drugiemu i nie jest poprawnym przykładem usterki na poziomie przycisku. Zestaw nie deklaruje pełnego mutation score repozytorium.
+`mutation_check.py` tworzy kopie src/testów/reference JSON pod ignorowanym build/ i wprowadza dziesięć konkretnych błędów zachowania. Test musi zakończyć się niepowodzeniem z powodu obserwowalnej regresji, a nie błędu składni/importu. Mutacja UTC wyłącza oba niezależne zabezpieczenia: wyłączenie tylko jednego nie zmienia zachowania dzięki drugiemu i nie jest poprawnym przykładem usterki na poziomie przycisku. Trzy dodatkowe przypadki z #62 uruchamiają calendar_cycle: procent FV, dokładność Shell Scripts i earned prestiżu. Zestaw nie deklaruje pełnego mutation score repozytorium.
 
 Raporty lokalne: `build/game-behavior-results.json`, `build/game-behavior-mutations.json`. Bez binariów, prywatnych danych ani prawdziwej waluty. [Szczegóły dostawy](../../docs/workflow/action_wiring_56.md).

@@ -21,6 +21,8 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Independent catalog oracle check failed.' }
     & $PythonExecutable tools/generate_population_vectors.py --check
     if ($LASTEXITCODE -ne 0) { throw 'Independent population oracle check failed.' }
+    & $PythonExecutable tests/calendar_cycle/build_oracle.py --check
+    if ($LASTEXITCODE -ne 0) { throw 'Independent calendar oracle check failed.' }
     # Build before suites that inspect the current mapping; no stale artifact dependency.
     & (Join-Path $taskRoot ('.tools/rojo-' + $taskManifest.rojo.version + '/rojo.exe')) build default.project.json --output build/HatchTheEgg.rbxlx
     if ($LASTEXITCODE -ne 0) { throw 'Rojo build failed.' }
@@ -30,7 +32,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Static mapping verification failed.' }
     & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run tests/numeric/run.luau
     if ($LASTEXITCODE -ne 0) { throw 'Numeric tests failed.' }
-    foreach ($taskSuite in @('catalog', 'protocol', 'persistence', 'math', 'fv_se', 'ihr', 'hatching', 'coordinator', 'timeline', 'integration89', 'purchases', 'resets', 'effect_boundaries', 'pet_effects', 'fusion', 'drones', 'offers', 'claims', 'purchase_recovery', 'tutorial', 'gateway', 'client_state', 'presentation', 'ui', 'integration', 'acceptance', 'release_candidate', 'reward_security', 'production_context', 'game_behavior')) {
+    foreach ($taskSuite in @('catalog', 'protocol', 'persistence', 'math', 'fv_se', 'ihr', 'hatching', 'coordinator', 'timeline', 'integration89', 'purchases', 'resets', 'effect_boundaries', 'pet_effects', 'fusion', 'drones', 'offers', 'claims', 'purchase_recovery', 'tutorial', 'gateway', 'client_state', 'presentation', 'ui', 'integration', 'acceptance', 'release_candidate', 'reward_security', 'production_context', 'game_behavior', 'calendar_cycle')) {
         & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
         if ($LASTEXITCODE -ne 0) { throw ('Tests failed: ' + $taskSuite) }
     }
