@@ -1,6 +1,17 @@
 --!nocheck
 -- Pure first-farm transitions. Input/runtime are separate from durable farm state.
 local Hatching={}
+function Hatching.rcb(codec,runningText,c,cap,multiplier)
+		local running=codec.ExactUInt.decode(runningText)
+		c,cap,multiplier=codec.BigAmount.validate(c),codec.BigAmount.validate(cap),codec.BigAmount.validate(multiplier)
+		local n,exact=codec.ExactUInt.toReal64Rounded(running)
+		local powered=c^n
+		assert(powered==powered,"Hatching/INVALID_RCB")
+		-- Overflow of the unbounded power is harmless when the finite cap selects the result.
+		local q=math.min(powered,cap)
+		if q>1 then q=codec.BigAmount.multiply(q,multiplier) end
+		return codec.BigAmount.validate(q),exact
+end
 function Hatching.new(codec,population,data,options)
 	assert(options and options.mode=="INTERNAL_TEST_ONLY","Hatching/INTERNAL_MODE_REQUIRED")
 	assert(codec.VERSION==1,"Hatching/UNSUPPORTED_CODEC")
@@ -50,17 +61,8 @@ function Hatching.new(codec,population,data,options)
 		assert(type(epicLevel)=="number" and epicLevel%1==0 and epicLevel>=0 and epicLevel<=15,"Hatching/INVALID_EPIC_LEVEL")
 		return epicLevel*2
 	end
-	function api.rcb(runningText,c,cap,multiplier)
-		local running=uint(runningText)
-		c,cap,multiplier=amount(c),amount(cap),amount(multiplier)
-		local n,exact=U.toReal64Rounded(running)
-		local powered=c^n
-		assert(powered==powered,"Hatching/INVALID_RCB")
-		-- Overflow of the unbounded power is harmless when the finite cap selects the result.
-		local q=math.min(powered,cap)
-		if q>1 then q=A.multiply(q,multiplier) end
-		return amount(q),exact
-	end
+	function api.rcb(...) return Hatching.rcb(codec,...) end
+
 	local function release(farm,drawSource,routeProvider)
 		if farm.hatcheryStock<1 then return "NO_STOCK" end
 		local _,free=population.vacancies(farm.habitats)

@@ -34,3 +34,6 @@ Poprawka [#56 — rzeczywiste operacje przycisków](docs/workflow/action_wiring_
 
 
 [Wydarzenia dochodu #61](docs/workflow/earnings_event_time_61.md): czas aktywności ważony wewnątrz kroku, bez dodatkowych faz IHR/boostów. Zakres lokalny L; brak zaliczenia S/D/H i zatwierdzenia wydania.
+
+
+[Poprawki #63–65](docs/workflow/session_prestige_rcb_63_65.md): bez kolizji nowych zakupów po reconnect, event kolekcji SE przy prestiżu i aktywne RCB w produkcji/HUD. Pozostałe #66–70; bilans bez zmian i brak odbioru S/D/H.

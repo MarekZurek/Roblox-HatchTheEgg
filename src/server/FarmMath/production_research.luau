@@ -2,6 +2,7 @@
 -- Pure production math with explicit server context. No purchases or persistence.
 local isStudio=(typeof(script)=="Instance")
 local FvSe=if isStudio then require(script.Parent.fv_se) else require("./fv_se")
+local Hatching=if isStudio then require(script.Parent.hatching_rcb) else require("./hatching_rcb")
 local Module = {}
 local function fail(code) error("FarmMath/" .. code, 3) end
 function Module.new(codec, catalog, options)
@@ -35,10 +36,13 @@ function Module.new(codec, catalog, options)
 		local habCapacityMult = 1
 		local vehicleCapacityMult = 1
 		local maxFleetSizeAdd = 0
+		local rcbGrowthBase,rcbCapAdd=1,0
 
 		for _, id in catalog.commonIds do
 			local eff = e[id]
 			if eff then
+				if eff.onscreenChickenMult ~= nil then rcbGrowthBase=amount.multiply(rcbGrowthBase,eff.onscreenChickenMult) end
+				if eff.onscreenChickenMultMax ~= nil then rcbCapAdd=amount.add(rcbCapAdd,eff.onscreenChickenMultMax) end
 				if eff.eggLayingRateMult ~= nil then
 					eggLayingRateMult = amount.multiply(eggLayingRateMult, eff.eggLayingRateMult)
 				end
@@ -68,6 +72,7 @@ function Module.new(codec, catalog, options)
 
 		return table.freeze({
 			commonPoints = points,
+			rcbGrowthBase=rcbGrowthBase,rcbCap=amount.add(5,rcbCapAdd),
 			layingPerChickenPerSecond = amount.divide(eggLayingRateMult, 30),
 			eggValue = amount.multiply(catalog.getEgg(0).value, eggValueMult),
             eggValueMult = eggValueMult,
@@ -94,6 +99,8 @@ function Module.new(codec, catalog, options)
   local shipping=effects("transportation_lobbyist")
   local calm=effects("int_hatch_calm")
   local _,silo=effects("silo_capacity")
+  local clucking=effects("epic_clucking")
+  local runningCap=effects("epic_multiplier")
   local se=codec.Real64.decode(permanent.SE or "0")
   amount.validate(se)
   -- The exact PE counter is retained in the profile; conversion for the exponent
@@ -101,7 +108,7 @@ function Module.new(codec, catalog, options)
   local pe=codec.ExactUInt.toReal64Rounded(codec.ExactUInt.decode(permanent.PE or "0"))
   local mystical=1
   if se~=0 then local _,m=FvSe.calculateEarningBonus(se,pe,sf,pb);mystical=amount.validate(m) end
-  return {mysticalMultiplier=mystical,layingRateMult=lay.eggLayingRateMult or 1,
+  return {rcbGrowthMult=clucking.onscreenChickenMult or 1,rcbCapAdd=runningCap.onscreenChickenMultMax or 0,mysticalMultiplier=mystical,layingRateMult=lay.eggLayingRateMult or 1,
    refillMult=refill.hatcheryRefillRateMult or 1,shippingMult=shipping.vehicleCapacityMult or 1,
    calmMult=calm.internalHatcheryMultAway or 1,siloCapacityLevel=silo}
  end
@@ -115,7 +122,13 @@ function Module.new(codec, catalog, options)
   r.mysticalMultiplier=progression.mysticalMultiplier
   r.calmMult=progression.calmMult
   r.siloCapacityLevel=progression.siloCapacityLevel
+  r.rcbGrowthBase=amount.multiply(r.rcbGrowthBase,progression.rcbGrowthMult)
+  r.rcbCap=amount.add(r.rcbCap,progression.rcbCapAdd)
   return r
+ end
+ function api.activeRCB(common,permanent,runningText)
+  local r=api.productionContext(common,0,permanent)
+  return Hatching.rcb(codec,runningText or "0",r.rcbGrowthBase,r.rcbCap,1)
  end
 	function api.tierUnlocked(input, tier)
 		local points = levels(input)
@@ -169,7 +182,7 @@ function Module.new(codec, catalog, options)
 			population += p
 			if population > 9007199254740991 then fail("UNSAFE_TOTAL_POPULATION") end
 		end
-		local rcb = if state.rcbMultiplier == nil then 1 else amount.validate(state.rcbMultiplier)
+		local rcb = if state.rcbMultiplier == nil then Hatching.rcb(codec,state.runningCount or "0",r.rcbGrowthBase,r.rcbCap,1) else amount.validate(state.rcbMultiplier)
 		if rcb < 1 then fail("INVALID_RCB") end
 		local producedRate = amount.multiply(population, r.layingPerChickenPerSecond)
 		local shippingRate = api.shippingPerSecond(state.commonLevels, state.vehicleTypes,state.permanent)

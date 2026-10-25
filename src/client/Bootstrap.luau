@@ -316,7 +316,7 @@ function ClientBootstrap:upgradeEgg(targetEggIndex, callback)
 	local rev = self.stateStore:getCommitRevision()
 	local nowMs = self.stateStore:getServerObservedAt() or 1000000
 	self._localUpgradeSerial = (self._localUpgradeSerial or 0) + 1
-	local opId = "op-upgrade-egg-" .. tostring(nowMs) .. "-" .. tostring(self._localUpgradeSerial)
+	local opId = "op-upgrade-" .. tostring(self.stateStore:getStreamId()) .. "-" .. tostring(self._localUpgradeSerial)
 	local reqId = "req-upgrade-" .. tostring(nowMs) .. "-" .. tostring(self._localUpgradeSerial)
 	local args = { targetEggIndex = targetEggIndex }
 	return self.transport:sendPurchase("UpgradeEgg", reqId, opId, rev, args, callback)

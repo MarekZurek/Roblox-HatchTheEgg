@@ -295,8 +295,6 @@ local function applyPrestige(candidateProfile: any, op: any, deps: any?): any
 	local epic = candidateProfile.permanent.epic or {}
 	local epicPrestigeBonusLvl = (epic.prestige_bonus or epic.epic_prestige_bonus) or 0
 	local prestigeEventMult = (deps and deps.prestigeEventMult)
-		or (op and op.args and op.args.prestigeEventMult)
-		or (op and op.prestigeEventMult)
 		or 1.0
 
 	local gainedSE = FvSe.calculateSoulEggs(E, epicPrestigeBonusLvl, prestigeEventMult)

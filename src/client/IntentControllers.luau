@@ -231,7 +231,7 @@ function ShopController:confirmPurchase(quoteView, callback)
 
 	-- 4. Generate operationId
 	self._opSerial += 1
-	local operationId = "op-" .. tostring(quoteView.target.kind) .. "-" .. tostring(self._opSerial)
+	local operationId = "op-shop-" .. tostring(self.stateStore:getStreamId()) .. "-" .. tostring(self._opSerial)
 
 	-- 5. Prepare mutation args with quoteId
 	local args = table.clone(quoteView.target.args)

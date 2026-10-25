@@ -1,0 +1,110 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "fe4d2ad54af8bbffc0368c4a2516ccfa8553d9bb",
+  "issues": [
+    63,
+    64,
+    65
+  ],
+  "status": "PASS_L_AND_STATIC_BUILD",
+  "releaseCandidateReady": false,
+  "completeProductionCoverage": false,
+  "luauSuiteCount": 36,
+  "luauAssertions": 80502,
+  "newRegressionAssertions": 142,
+  "pythonReportingTests": 11,
+  "selectedMutationsKilled": 29,
+  "selectedMutationCount": 29,
+  "newMutations": [
+    {
+      "name": "shop_operation_reuses_local_counter",
+      "state": "KILLED"
+    },
+    {
+      "name": "stream_omits_session_generation",
+      "state": "KILLED"
+    },
+    {
+      "name": "prestige_ignores_collection_event",
+      "state": "KILLED"
+    },
+    {
+      "name": "running_chickens_ignored",
+      "state": "KILLED"
+    }
+  ],
+  "preFixRegression": "New research purchase after reconnect: expected APPLIED, got REPLAYED",
+  "studioTested": false,
+  "realDataStoreTested": false,
+  "realPurchasesTested": false,
+  "humanAcceptanceTested": false,
+  "rojoModules": 39,
+  "entrypoints": 2,
+  "protectedBalanceAndReferenceFilesByteIdentical": 14,
+  "historicalJsonFilesUnchangedNormalizedLF": 22,
+  "remainingAuditIssues": [
+    66,
+    67,
+    68,
+    69,
+    70
+  ],
+  "files": [
+    {
+      "path": "src/client/Bootstrap.luau",
+      "sha256NormalizedLF": "6f58d8723e56fdb22aaaeb11c2d547cf3a194cfe214bab664af5c86a3095e9d5"
+    },
+    {
+      "path": "src/client/IntentControllers.luau",
+      "sha256NormalizedLF": "6b8eec7499c36bb21fbe3a9d7bd0af0545874c4a479fcc9d4c77615710b020d6"
+    },
+    {
+      "path": "src/server/Bootstrap.luau",
+      "sha256NormalizedLF": "046144b63fdcf57bacc70993b353c5201cfddf1e8718a23c9e196f5bdaecedae"
+    },
+    {
+      "path": "src/server/FarmMath/hatching_rcb.luau",
+      "sha256NormalizedLF": "602ad5f049328fb10a0446dbac197c0519f1640b0bb1ee8f4779aea6c0c35590"
+    },
+    {
+      "path": "src/server/FarmMath/production_research.luau",
+      "sha256NormalizedLF": "e1e3096c999ea022852c470e6181bff83f815b42caaf415b767a27778b66a770"
+    },
+    {
+      "path": "src/server/NetworkGateway.luau",
+      "sha256NormalizedLF": "3eef84ba7c7bceb9e47ee7dd7f81001ab55c4b7d560fa7d578d8f6130f587471"
+    },
+    {
+      "path": "src/server/ProgressActions.luau",
+      "sha256NormalizedLF": "7b1108c3241cc01e14bedf24fd17ce3291454bd659dcb4e9fb55a231baddfed7"
+    },
+    {
+      "path": "src/server/TimelineSimulation.luau",
+      "sha256NormalizedLF": "3ef6027417b2c3d53a3574107433eaef324f95bc1f3d5952d35205df6c3ac006"
+    },
+    {
+      "path": "src/server/ViewProjector.luau",
+      "sha256NormalizedLF": "d317bbeed4a84d51c4b6f811f2c4df9461859f667a46ce4f274622a61822fda7"
+    },
+    {
+      "path": "tests/game_behavior/README.md",
+      "sha256NormalizedLF": "12316405d8e3afec786295889c3204b8bbb8cc762bd6ff1ca3ee5bde689ea611"
+    },
+    {
+      "path": "tests/game_behavior/mutation_check.py",
+      "sha256NormalizedLF": "23a2628ccf0e3fe9afb29f581a41a0098729eb512d6594ad54e246f876d2bf1e"
+    },
+    {
+      "path": "tests/resets/run.luau",
+      "sha256NormalizedLF": "14078d10a53785a9a65566c6eb5b8944b7f9bea12c871a1ea48c25996d53899f"
+    },
+    {
+      "path": "tests/session_prestige_rcb/run.luau",
+      "sha256NormalizedLF": "71d1f8cab87e0a7bfd05b5d6aba6e9f80ac07f316265767e589f57c92378b766"
+    },
+    {
+      "path": "tools/test.ps1",
+      "sha256NormalizedLF": "f48e419023eadab6ec5ee8a8b3c795caddb7f5aca7837b3264838217677f3a92"
+    }
+  ]
+}

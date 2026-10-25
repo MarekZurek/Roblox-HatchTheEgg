@@ -807,6 +807,7 @@ do
 			}
 		end,
 		getCommitRevision = function() return "5" end,
+		getStreamId = function() return "stream-reset-fixture" end,
 		getServerObservedAt = function() return 1000000 end,
 		on = function() return function() end end,
 		onStatusChanged = function() return function() end end,

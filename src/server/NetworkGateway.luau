@@ -114,12 +114,17 @@ function NetworkGateway:registerPlayer(playerId, coordinator, streamId)
 	assert(coordinator ~= nil and type(coordinator.snapshots) == "function", "INVALID_COORDINATOR")
 
 	self.streamSerial += 1
-	local stream = streamId or ("stream-" .. playerId .. "-" .. tostring(self.streamSerial))
+	local durable=coordinator.snapshots().durable
+	local generation=(durable and durable.ownership and durable.ownership.generation) or "0"
+	self.codec.ExactUInt.decode(generation)
+	local streamPrefix="stream-" .. playerId .. "-g" .. generation .. "-"
+	local stream = streamId or (streamPrefix .. tostring(self.streamSerial))
 
 	self.players[playerId] = {
 		playerId = playerId,
 		coordinator = coordinator,
 		streamId = stream,
+		streamPrefix = streamPrefix,
 		streamSerial = self.streamSerial,
 		viewSeq = "1",
 		lastInputSeq = "0",
@@ -162,7 +167,7 @@ function NetworkGateway:_initHandlers()
 
 	handlers.Bootstrap = function(selfRef, playerId, message, pData)
 		pData.streamSerial += 1
-		pData.streamId = "stream-" .. playerId .. "-" .. tostring(pData.streamSerial)
+		pData.streamId = pData.streamPrefix .. tostring(pData.streamSerial)
 		pData.viewSeq = "1"
 		pData.lastInputSeq = "0"
 
@@ -184,7 +189,7 @@ function NetworkGateway:_initHandlers()
 	handlers.RefreshState = function(selfRef, playerId, message, pData)
 		if not pData.streamId then
 			pData.streamSerial += 1
-			pData.streamId = "stream-" .. playerId .. "-" .. tostring(pData.streamSerial)
+			pData.streamId = pData.streamPrefix .. tostring(pData.streamSerial)
 			pData.viewSeq = "1"
 		else
 			pData.viewSeq = selfRef.codec.ExactUInt.encode(

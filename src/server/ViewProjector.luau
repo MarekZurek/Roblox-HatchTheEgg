@@ -200,7 +200,8 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
   effects.boosts[i]=copy
  end
  local boosts=Effects.calculateMultipliers(effects,farm,serverObservedAt,self.liveEvents,{boostBoostMult=pets.boostBoostMult})
- local cashIncomePerSecondNum=codec.BigAmount.multiply(codec.BigAmount.multiply(codec.BigAmount.multiply(soldEggsPerSecondNum,r.eggValue),r.mysticalMultiplier),boosts.earningsMultiplier)
+ local activeRCB=productionMath.activeRCB(commonLevels,profile.permanent,farm.runningCount or "0")
+ local cashIncomePerSecondNum=codec.BigAmount.multiply(codec.BigAmount.multiply(codec.BigAmount.multiply(codec.BigAmount.multiply(soldEggsPerSecondNum,r.eggValue),activeRCB),r.mysticalMultiplier),boosts.earningsMultiplier)
 
 	-- Hatchery
 	local hatcheryStock = farm.hatcheryStock or "250"

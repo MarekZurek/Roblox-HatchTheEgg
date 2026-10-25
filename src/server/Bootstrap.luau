@@ -611,7 +611,20 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
             end}
         end
 		if op.kind == "UpgradeEgg" or op.kind == "Prestige" then
-			return ProgressActions.apply(candidateProfile, op, { catalog = self.catalog, productionMath = self.productionMath })
+			local deps={catalog=self.catalog,productionMath=self.productionMath}
+            if op.kind=="Prestige" then
+                deps.prestigeEventMult=Effects.calculateMultipliers(nil,candidateProfile.farm,self.clock.utcNowMs(),self.liveEvents).eventPrestigeMult
+            end
+            local outcome=ProgressActions.apply(candidateProfile,op,deps)
+            if op.kind=="Prestige" then
+                local validate=outcome.validate
+                outcome.validate=function(fresh,now)
+                    local current=Effects.calculateMultipliers(nil,fresh.farm,now,self.liveEvents).eventPrestigeMult
+                    if current~=deps.prestigeEventMult then return false,"PRESTIGE_EVENT_CHANGED" end
+                    return validate(fresh,now)
+                end
+            end
+            return outcome
 		elseif op.kind == "PlatformPurchase" or op.kind == "ConfirmPurchase" then
 			local pToken = (op.args and op.args.purchaseToken) or op.operationId
 			local receiptInfo = op.args and op.args.receiptInfo

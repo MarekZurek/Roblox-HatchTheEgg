@@ -153,3 +153,9 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 
 - [x] #60: rozdzielić lokalne wyniki od gotowości wydania, skorygować deklaracje i dodać regresje raportów/wybranego wiringu Main.
 - [ ] Odbiór S/D/H według scenariuszy 29: zebrać rzeczywiste dowody w osobno zleconych środowiskach; #60 nie zalicza tych poziomów.
+
+
+## Ponowny audyt — #63–70
+
+- [x] #63–65: ID nowych intencji po reconnect/restarcie, zaufany event kolekcji SE i aktywne RCB. [Dostawa](workflow/session_prestige_rcb_63_65.md).
+- [ ] #66–70: wystawianie widocznych nagród, Accounting Tricks w FV, Hold to Hatch, IHR Sharing i bramka stacji Hyperloop. Osobne zgłoszenia GitHub; nie wdrażać ich samowolnie w zakresie #63–65.

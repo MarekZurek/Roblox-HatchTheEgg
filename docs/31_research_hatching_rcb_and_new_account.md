@@ -90,3 +90,8 @@ Zamknięto referencyjną semantykę U01/U02 oraz matematyczny i stanowy rdzeń U
 ## Uzupełnienie techniczne PRE-03
 
 [35](35_pre03_routes_and_arrivals.md) wybiera projekt P: geometryczny termin oznacza gotowość, a dotarcie stosuje się w fazie po produkcji na końcu obejmującego go kroku, przed refill/IHR. Nie powstaje dodatkowy krok i nie przeliczamy wcześniej wypłaconej produkcji. To doprecyzowanie proponowanej integracji, nie nowy dowód domenowy; geometria/prędkość i test S nadal należą do IMP-13/15.
+
+
+## Realizacja aktywnego RCB — #65
+
+[Dostawa #63–65](workflow/session_prestige_rcb_63_65.md) podłącza wzór §3 do rzeczywistego runningCount w produkcji i HUD. c składa istniejące onscreenChickenMult Common/Epic, K to 5 plus istniejące onscreenChickenMultMax, M pozostaje 1 wobec braku odrębnego źródła w aktualnym katalogu. Nie jest to RCB dla FV ani nowy bonus. Dotarcie po produkcji oraz zamknięcie grup przed away zachowują kolejność. Weryfikacja L, bez zmian danych i bilansu.

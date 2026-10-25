@@ -134,3 +134,8 @@ Utworzono na GitHubie 8 zadań pełnego wdrożenia produkcyjnego `PROD-01–08` 
 ## Historyczny czas wydarzeń dochodu — #61 (25.10.2026)
 
 [Dostawa #61](workflow/earnings_event_time_61.md): graniczny krok otrzymuje mnożnik dochodu ważony rzeczywistym czasem wydarzenia. Bez dodatkowego IHR, dotarć lub odliczania boostów; VD zachowuje predykat końca kroku. Regresje obejmują silosy, wznowienie fazy i rzeczywisty most Bootstrap. Lokalne L i statyczny build nie zaliczają S/D/H ani nie zatwierdzają wydania. Bilans i reference_data bez zmian. Wcześniejsze listy otwartych ustaleń opisują stan historycznych dostaw; #61 jest domknięte w tej dostawie.
+
+
+## Poprawki #63–65 — 25.10.2026
+
+[Dostawa #63–65](workflow/session_prestige_rcb_63_65.md): nowe intencje zakupów mają ID w przestrzeni generacji/strumienia sesji, stare retry zachowują wynik. Prestige stosuje zaufany event kolekcji na końcowe SE, ze sprawdzeniem granicy zapisu. Produkcja i HUD używają aktywnego RCB z runningCount oraz istniejących badań Common/Epic. Nie zmieniono FV (#67) ani bilansu. Testy lokalne nie zaliczają S/D/H; pozostałe #66–70 pozostają otwarte.
