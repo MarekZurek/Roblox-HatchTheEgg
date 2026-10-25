@@ -230,6 +230,124 @@ local RESEARCH_DISPLAY_NAMES = table.freeze({
 	relativity_optimization = "Optymalizacja Relatywistyczna (+Wartość)",
 })
 
+local RESEARCH_ICONS = table.freeze({
+	comfy_nests = "🪹",
+	nutritional_sup = "🥚",
+	better_incubators = "🐣",
+	excitable_chickens = "🏃",
+	hab_capacity1 = "🏠",
+	internal_hatchery1 = "🏭",
+	padded_packaging = "📦",
+	hatchery_expansion = "🔋",
+	bigger_eggs = "✨",
+	internal_hatchery2 = "🏭",
+	leafsprings = "🚚",
+	vehicle_reliablity = "🔧",
+	rooster_booster = "🐓",
+	coordinated_clucking = "🎵",
+	hatchery_rebuild1 = "🏗️",
+	usde_prime = "🎖️",
+	hen_house_ac = "❄️",
+	superfeed = "🌾",
+	microlux = "💡",
+	compact_incubators = "🔋",
+	lightweight_boxes = "📦",
+	excoskeletons = "🦾",
+	internal_hatchery3 = "🏭",
+	improved_genetics = "🧬",
+	traffic_management = "🚦",
+	motivational_clucking = "📢",
+	driver_training = "🎓",
+	shell_fortification = "🛡️",
+	egg_loading_bots = "🤖",
+	super_alloy = "🔩",
+	even_bigger_eggs = "🥚",
+	internal_hatchery4 = "🏭",
+	quantum_storage = "🔮",
+	genetic_purification = "🧪",
+	internal_hatchery5 = "🏭",
+	time_compress = "⏳",
+	hover_upgrades = "🛸",
+	graviton_coating = "🪐",
+	grav_plating = "🛸",
+	chrystal_shells = "💎",
+	autonomous_vehicles = "🚗",
+	neural_linking = "🧠",
+	telepathic_will = "👁️",
+	enlightened_chickens = "✨",
+	dark_containment = "🌌",
+	atomic_purification = "⚛️",
+	multi_layering = "🥞",
+	timeline_diversion = "🌀",
+	wormhole_dampening = "🕳️",
+	eggsistor = "🔋",
+	micro_coupling = "🔌",
+	neural_net_refine = "🕸️",
+	matter_reconfig = "⚛️",
+	timeline_splicing = "⏳",
+	hyper_portalling = "🌌",
+	relativity_optimization = "🌠",
+})
+
+local COMMON_RESEARCH_MAX_LEVELS = table.freeze({
+	comfy_nests = 50,
+	nutritional_sup = 40,
+	better_incubators = 15,
+	excitable_chickens = 25,
+	hab_capacity1 = 8,
+	internal_hatchery1 = 10,
+	padded_packaging = 30,
+	hatchery_expansion = 10,
+	bigger_eggs = 1,
+	internal_hatchery2 = 10,
+	leafsprings = 30,
+	vehicle_reliablity = 2,
+	rooster_booster = 25,
+	coordinated_clucking = 50,
+	hatchery_rebuild1 = 1,
+	usde_prime = 1,
+	hen_house_ac = 50,
+	superfeed = 35,
+	microlux = 10,
+	compact_incubators = 10,
+	lightweight_boxes = 40,
+	excoskeletons = 2,
+	internal_hatchery3 = 15,
+	improved_genetics = 30,
+	traffic_management = 2,
+	motivational_clucking = 50,
+	driver_training = 30,
+	shell_fortification = 60,
+	egg_loading_bots = 2,
+	super_alloy = 50,
+	even_bigger_eggs = 5,
+	internal_hatchery4 = 30,
+	quantum_storage = 20,
+	genetic_purification = 100,
+	internal_hatchery5 = 250,
+	time_compress = 20,
+	hover_upgrades = 25,
+	graviton_coating = 7,
+	grav_plating = 25,
+	chrystal_shells = 100,
+	autonomous_vehicles = 5,
+	neural_linking = 30,
+	telepathic_will = 50,
+	enlightened_chickens = 150,
+	dark_containment = 25,
+	atomic_purification = 50,
+	multi_layering = 3,
+	timeline_diversion = 50,
+	wormhole_dampening = 25,
+	eggsistor = 100,
+	micro_coupling = 5,
+	neural_net_refine = 25,
+	matter_reconfig = 500,
+	timeline_splicing = 1,
+	hyper_portalling = 25,
+	relativity_optimization = 10,
+})
+
 local EPIC_RESEARCH_CATALOG = table.freeze({
 	{ id = "hold_to_hatch", name = "Przytrzymaj by Wylęgać", maxLevel = 15, basePriceGE = 10, desc = "+Szybkość ciągłego wylęgu" },
 	{ id = "epic_hatchery", name = "Epicka Wylęgarnia", maxLevel = 20, basePriceGE = 15, desc = "+Zapas wylęgarni" },
@@ -1412,56 +1530,98 @@ function HUD:_buildResearchModal(root)
 	local shopFrame = createGuiElement("Frame", {
 		Name = "ShopFrame",
 		Visible = false,
-		Size = isRoblox and UDim2.new(0, 520, 0, 480) or nil,
-		Position = isRoblox and UDim2.new(0.5, -260, 0.5, -240) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(64, 34, 20) or nil,
+		Size = isRoblox and UDim2.new(0, 540, 0, 500) or nil,
+		Position = isRoblox and UDim2.new(0.5, -270, 0.5, -250) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(62, 39, 35) or nil,
 	}, root)
-	addCornerAndStroke(shopFrame, 14, isRoblox and Color3.fromRGB(115, 225, 255) or nil, 3.2)
+	addCornerAndStroke(shopFrame, 16, isRoblox and Color3.fromRGB(43, 24, 16) or nil, 3.5)
 	applyModalMobileConstraints(shopFrame)
 	self.shopFrame = shopFrame
 
+	-- Top Header Bar (Tycoon 3D styling)
+	local headerBar = createGuiElement("Frame", {
+		Name = "HeaderBar",
+		Size = isRoblox and UDim2.new(1, -24, 0, 52) or nil,
+		Position = isRoblox and UDim2.new(0, 12, 0, 10) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(78, 52, 46) or nil,
+	}, shopFrame)
+	addCornerAndStroke(headerBar, 12, isRoblox and Color3.fromRGB(43, 24, 16) or nil, 2)
+
+	local headerIcon = createGuiElement("TextLabel", {
+		Name = "HeaderIcon",
+		Size = isRoblox and UDim2.new(0, 38, 0, 38) or nil,
+		Position = isRoblox and UDim2.new(0, 7, 0, 7) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(245, 158, 11) or nil,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextSize = 22,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "🔬",
+	}, headerBar)
+	addCornerAndStroke(headerIcon, 10, isRoblox and Color3.fromRGB(180, 83, 9) or nil, 1.5)
+
 	createGuiElement("TextLabel", {
 		Name = "ShopTitle",
-		Size = isRoblox and UDim2.new(1, -50, 0, 36) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 0, 8) or nil,
+		Size = isRoblox and UDim2.new(1, -115, 0, 22) or nil,
+		Position = isRoblox and UDim2.new(0, 52, 0, 6) or nil,
 		BackgroundTransparency = 1,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(135, 235, 255) or nil,
-		Text = "🔬 BADANIA I ULEPSZENIA TECHNOLOGICZNE",
-	}, shopFrame)
+		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 235, 150) or nil,
+		Text = "BADANIA I TECHNOLOGIA",
+	}, headerBar)
+
+	createGuiElement("TextLabel", {
+		Name = "ShopSubtitle",
+		Size = isRoblox and UDim2.new(1, -115, 0, 16) or nil,
+		Position = isRoblox and UDim2.new(0, 52, 0, 28) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = false,
+		TextSize = 12,
+		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+		TextColor3 = isRoblox and Color3.fromRGB(215, 195, 180) or nil,
+		Text = "Kupuj ulepszenia technologiczne, aby przyspieszyć farmę!",
+	}, headerBar)
 
 	self:_buildCloseButton(shopFrame, function()
 		self.shopFrame.Visible = false
 	end)
 
-	-- Tier Selector Bar: T1..T13 + EPICKIE
-	local tabsRow = createGuiElement("Frame", {
+	-- Tier Selector Bar: T1..T13 + EPICKIE in a comfortable horizontal ScrollingFrame
+	local tabsRow = createGuiElement("ScrollingFrame", {
 		Name = "TierTabsRow",
-		Size = isRoblox and UDim2.new(1, -24, 0, 32) or nil,
-		Position = isRoblox and UDim2.new(0, 12, 0, 46) or nil,
+		Size = isRoblox and UDim2.new(1, -24, 0, 36) or nil,
+		Position = isRoblox and UDim2.new(0, 12, 0, 68) or nil,
 		BackgroundTransparency = 1,
+		ScrollBarThickness = isRoblox and 3 or nil,
+		ScrollBarImageColor3 = isRoblox and Color3.fromRGB(245, 158, 11) or nil,
+		BorderSizePixel = 0,
+		CanvasSize = isRoblox and UDim2.new(0, 940, 0, 0) or nil,
 	}, shopFrame)
 
 	local tabNames = { "T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12", "T13", "EPICKIE" }
+	local tabOffset = 0
 	for idx, tabName in ipairs(tabNames) do
+		local tabWidth = if idx == 14 then 92 else 56
 		local tabBtn = createGuiElement("TextButton", {
 			Name = "TierTab_" .. tabName,
-			Size = isRoblox and UDim2.new(1 / #tabNames, -2, 1, 0) or nil,
-			Position = isRoblox and UDim2.new((idx - 1) * (1 / #tabNames), 1, 0, 0) or nil,
-			BackgroundColor3 = isRoblox and (if idx == 1 then Color3.fromRGB(115, 225, 255) else Color3.fromRGB(42, 22, 14)) or nil,
+			Size = isRoblox and UDim2.new(0, tabWidth, 0, 32) or nil,
+			Position = isRoblox and UDim2.new(0, tabOffset, 0, 0) or nil,
+			BackgroundColor3 = isRoblox and (if idx == 1 then Color3.fromRGB(245, 158, 11) else Color3.fromRGB(51, 30, 23)) or nil,
 			Font = isRoblox and Enum.Font.FredokaOne or nil,
 			TextScaled = true,
-			TextColor3 = isRoblox and (if idx == 1 then Color3.fromRGB(18, 12, 10) else Color3.fromRGB(240, 240, 240)) or nil,
+			TextColor3 = isRoblox and (if idx == 1 then Color3.fromRGB(69, 26, 3) else Color3.fromRGB(215, 204, 200)) or nil,
 			Text = tabName,
 		}, tabsRow)
-		addCornerAndStroke(tabBtn, 4, isRoblox and Color3.fromRGB(20, 12, 8) or nil, 1.2)
+		addCornerAndStroke(tabBtn, 8, isRoblox and (if idx == 1 then Color3.fromRGB(180, 83, 9) else Color3.fromRGB(35, 18, 12)) or nil, if idx == 1 then 2 else 1.2)
 		if tabBtn.Activated then
 			tabBtn.Activated:Connect(function()
 				self:selectResearchTier(idx)
 			end)
 		end
 		self.researchTabButtons[idx] = tabBtn
+		tabOffset += tabWidth + 6
 	end
 
 	-- Lock Banner
@@ -1469,21 +1629,25 @@ function HUD:_buildResearchModal(root)
 		Name = "TierLockBanner",
 		Visible = false,
 		Size = isRoblox and UDim2.new(1, -24, 0, 24) or nil,
-		Position = isRoblox and UDim2.new(0, 12, 0, 82) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(140, 40, 40) or nil,
+		Position = isRoblox and UDim2.new(0, 12, 0, 108) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(127, 29, 29) or nil,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		TextColor3 = isRoblox and Color3.fromRGB(254, 202, 202) or nil,
 		Text = "🔒 Tier zablokowany! Wymaga więcej zakupionych badań",
 	}, shopFrame)
-	addCornerAndStroke(self.researchTierLockBanner, 4, isRoblox and Color3.fromRGB(60, 15, 15) or nil, 1.5)
+	addCornerAndStroke(self.researchTierLockBanner, 6, isRoblox and Color3.fromRGB(69, 10, 10) or nil, 1.5)
 
-	-- Research List container
-	local listContainer = createGuiElement("Frame", {
+	-- Research List container (ScrollingFrame)
+	local listContainer = createGuiElement("ScrollingFrame", {
 		Name = "ResearchListContainer",
-		Size = isRoblox and UDim2.new(1, -24, 0, 360) or nil,
-		Position = isRoblox and UDim2.new(0, 12, 0, 110) or nil,
+		Size = isRoblox and UDim2.new(1, -24, 0, 350) or nil,
+		Position = isRoblox and UDim2.new(0, 12, 0, 138) or nil,
 		BackgroundTransparency = 1,
+		ScrollBarThickness = isRoblox and 5 or nil,
+		ScrollBarImageColor3 = isRoblox and Color3.fromRGB(245, 158, 11) or nil,
+		BorderSizePixel = 0,
+		CanvasSize = isRoblox and UDim2.new(0, 0, 0, 500) or nil,
 	}, shopFrame)
 	self.shopListContainer = listContainer
 end
@@ -2785,8 +2949,14 @@ function HUD:selectResearchTier(tierIndex)
 	self.selectedResearchTier = tierIndex
 	for idx, btn in ipairs(self.researchTabButtons) do
 		if isRoblox then
-			btn.BackgroundColor3 = if idx == tierIndex then Color3.fromRGB(115, 225, 255) else Color3.fromRGB(42, 22, 14)
-			btn.TextColor3 = if idx == tierIndex then Color3.fromRGB(18, 12, 10) else Color3.fromRGB(240, 240, 240)
+			local isActive = (idx == tierIndex)
+			btn.BackgroundColor3 = if isActive then Color3.fromRGB(245, 158, 11) else Color3.fromRGB(51, 30, 23)
+			btn.TextColor3 = if isActive then Color3.fromRGB(69, 26, 3) else Color3.fromRGB(215, 204, 200)
+			local stroke = btn:FindFirstChildOfClass("UIStroke")
+			if stroke then
+				stroke.Color = if isActive then Color3.fromRGB(180, 83, 9) else Color3.fromRGB(35, 18, 12)
+				stroke.Thickness = if isActive then 2 else 1.2
+			end
 		end
 	end
 	self:update()
@@ -3034,8 +3204,16 @@ function HUD:_updateResearchModal(farm)
 		if not isTierUnlocked and not isEpicTab then
 			self.researchTierLockBanner.Visible = true
 			self.researchTierLockBanner.Text = string.format("🔒 Tier %d zablokowany! Wymaga %d zakupionych badań (masz %d)", currentTier, requiredLevels, totalPurchasedLevels)
+			if isRoblox and self.shopListContainer then
+				self.shopListContainer.Position = UDim2.new(0, 12, 0, 138)
+				self.shopListContainer.Size = UDim2.new(1, -24, 0, 350)
+			end
 		else
 			self.researchTierLockBanner.Visible = false
+			if isRoblox and self.shopListContainer then
+				self.shopListContainer.Position = UDim2.new(0, 12, 0, 110)
+				self.shopListContainer.Size = UDim2.new(1, -24, 0, 378)
+			end
 		end
 	end
 
@@ -3051,6 +3229,9 @@ function HUD:_updateResearchModal(farm)
 				end
 				self:_updateResearchItem(research, visibleIdx, matchesTab)
 			end
+		end
+		if isRoblox and self.shopListContainer then
+			self.shopListContainer.CanvasSize = UDim2.new(0, 0, 0, math.max(350, visibleIdx * 66 + 10))
 		end
 	else
 		-- Epic research view: hide common items and render/update epic cards
@@ -3069,83 +3250,155 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 	local id = research.researchId
 	local item = self.shopResearch[id]
 
+	local rawName = RESEARCH_DISPLAY_NAMES[id] or id
+	local cleanTitle, cleanSubtitle = string.match(rawName, "^(.-)%s*%((%+.-)%)%s*$")
+	if not cleanTitle then
+		cleanTitle = rawName
+		cleanSubtitle = "Ulepszenie farmy"
+	end
+	local iconEmoji = RESEARCH_ICONS[id] or "🔬"
+	local maxLvl = COMMON_RESEARCH_MAX_LEVELS[id] or 25
+	local curLvl = tonumber(research.level) or 0
+
 	if item == nil then
 		local orderIdx = displayOrder or 1
 		local shouldBeVisible = if isTabVisible ~= nil then isTabVisible else (research.blockedReason ~= "UNSUPPORTED")
 		local card = createGuiElement("Frame", {
 			Name = "ResearchCard_" .. id,
 			Visible = shouldBeVisible,
-			Size = isRoblox and UDim2.new(1, 0, 0, 42) or nil,
-			Position = isRoblox and UDim2.new(0, 0, 0, (orderIdx - 1) * 46) or nil,
-			BackgroundColor3 = isRoblox and Color3.fromRGB(102, 56, 32) or nil,
+			Size = isRoblox and UDim2.new(1, -6, 0, 60) or nil,
+			Position = isRoblox and UDim2.new(0, 0, 0, (orderIdx - 1) * 66) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(78, 52, 46) or nil,
 		}, self.shopListContainer or self.shopFrame)
-		addCornerAndStroke(card, 6, isRoblox and Color3.fromRGB(38, 18, 10) or nil, 1.8)
+		addCornerAndStroke(card, 12, isRoblox and Color3.fromRGB(43, 24, 16) or nil, 2)
 
-		local friendlyName = RESEARCH_DISPLAY_NAMES[id] or id
+		-- Left Icon Badge (44x44)
+		local iconBadge = createGuiElement("Frame", {
+			Name = "IconBadge",
+			Size = isRoblox and UDim2.new(0, 44, 0, 44) or nil,
+			Position = isRoblox and UDim2.new(0, 8, 0, 8) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(254, 243, 199) or nil,
+		}, card)
+		addCornerAndStroke(iconBadge, 10, isRoblox and Color3.fromRGB(217, 119, 6) or nil, 1.5)
+
+		createGuiElement("TextLabel", {
+			Name = "IconEmoji",
+			Size = isRoblox and UDim2.new(1, 0, 1, 0) or nil,
+			BackgroundTransparency = 1,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextSize = 24,
+			TextColor3 = isRoblox and Color3.fromRGB(69, 26, 3) or nil,
+			Text = iconEmoji,
+		}, iconBadge)
+
+		-- Middle Column: Name, Subtitle, Level, Progress Bar
 		local nameLabel = createGuiElement("TextLabel", {
 			Name = "Title",
-			Size = isRoblox and UDim2.new(0.46, 0, 1, 0) or nil,
-			Position = isRoblox and UDim2.new(0.02, 0, 0, 0) or nil,
+			Size = isRoblox and UDim2.new(1, -205, 0, 18) or nil,
+			Position = isRoblox and UDim2.new(0, 58, 0, 6) or nil,
 			BackgroundTransparency = 1,
 			Font = isRoblox and Enum.Font.FredokaOne or nil,
 			TextScaled = true,
 			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
 			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-			Text = friendlyName,
+			Text = cleanTitle,
 		}, card)
 		addTextStroke(nameLabel, 1.8)
 
+		local subtitleLabel = createGuiElement("TextLabel", {
+			Name = "Subtitle",
+			Size = isRoblox and UDim2.new(1, -205, 0, 13) or nil,
+			Position = isRoblox and UDim2.new(0, 58, 0, 24) or nil,
+			BackgroundTransparency = 1,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextScaled = true,
+			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+			TextColor3 = isRoblox and Color3.fromRGB(214, 190, 178) or nil,
+			Text = cleanSubtitle,
+		}, card)
+
 		local levelLabel = createGuiElement("TextLabel", {
 			Name = "Level",
-			Size = isRoblox and UDim2.new(0.14, 0, 1, 0) or nil,
-			Position = isRoblox and UDim2.new(0.49, 0, 0, 0) or nil,
+			Size = isRoblox and UDim2.new(0, 95, 0, 13) or nil,
+			Position = isRoblox and UDim2.new(0, 58, 0, 40) or nil,
 			BackgroundTransparency = 1,
 			Font = isRoblox and Enum.Font.FredokaOne or nil,
 			TextScaled = true,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 235, 95) or nil,
-			Text = "Lv 0",
+			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+			TextColor3 = isRoblox and Color3.fromRGB(251, 191, 36) or nil,
+			Text = string.format("★ POZ. %d/%d", curLvl, maxLvl),
 		}, card)
-		addTextStroke(levelLabel, 1.8)
+		addTextStroke(levelLabel, 1.5)
 
-		local priceLabel = createGuiElement("TextLabel", {
-			Name = "Price",
-			Size = isRoblox and UDim2.new(0.16, 0, 1, 0) or nil,
-			Position = isRoblox and UDim2.new(0.64, 0, 0, 0) or nil,
-			BackgroundTransparency = 1,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextColor3 = isRoblox and Color3.fromRGB(115, 255, 85) or nil,
-			Text = "$0",
+		-- Mini Progress Bar
+		local progressTrack = createGuiElement("Frame", {
+			Name = "ProgressTrack",
+			Size = isRoblox and UDim2.new(1, -300, 0, 7) or nil,
+			Position = isRoblox and UDim2.new(0, 156, 0, 44) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(43, 24, 16) or nil,
 		}, card)
-		addTextStroke(priceLabel, 1.8)
+		addCornerAndStroke(progressTrack, 3, nil, 0)
 
+		local progressFill = createGuiElement("Frame", {
+			Name = "ProgressFill",
+			Size = isRoblox and UDim2.new(math.clamp(curLvl / math.max(1, maxLvl), 0, 1), 0, 1, 0) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(34, 197, 94) or nil,
+		}, progressTrack)
+		addCornerAndStroke(progressFill, 3, nil, 0)
+
+		-- Invisible status label for test invariants
 		local statusLabel = createGuiElement("TextLabel", {
 			Name = "Status",
 			Visible = false,
 			Text = "BUY",
 		}, card)
 
+		-- 3D Tycoon Buy Button (130x46)
 		local buyBtn = createGuiElement("TextButton", {
 			Name = "BuyButton",
-			Size = isRoblox and UDim2.new(0.17, 0, 0.78, 0) or nil,
-			Position = isRoblox and UDim2.new(0.81, 0, 0.11, 0) or nil,
-			BackgroundColor3 = isRoblox and Color3.fromRGB(95, 235, 45) or nil,
+			Size = isRoblox and UDim2.new(0, 130, 0, 46) or nil,
+			Position = isRoblox and UDim2.new(1, -138, 0, 7) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(34, 197, 94) or nil,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			Text = "",
+		}, card)
+		addCornerAndStroke(buyBtn, 10, isRoblox and Color3.fromRGB(20, 83, 45) or nil, 2.5)
+
+		local btnActionLabel = createGuiElement("TextLabel", {
+			Name = "ActionLabel",
+			Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil,
+			Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil,
+			BackgroundTransparency = 1,
 			Font = isRoblox and Enum.Font.FredokaOne or nil,
 			TextScaled = true,
 			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
 			Text = "KUP",
-		}, card)
-		addCornerAndStroke(buyBtn, 6, isRoblox and Color3.fromRGB(22, 48, 12) or nil, 2)
-		addTextStroke(buyBtn, 1.8)
+		}, buyBtn)
+		addTextStroke(btnActionLabel, 1.8)
+
+		local priceLabel = createGuiElement("TextLabel", {
+			Name = "Price",
+			Size = isRoblox and UDim2.new(1, 0, 0.44, 0) or nil,
+			Position = isRoblox and UDim2.new(0, 0, 0.50, 0) or nil,
+			BackgroundTransparency = 1,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextScaled = true,
+			TextColor3 = isRoblox and Color3.fromRGB(254, 240, 138) or nil,
+			Text = "$0",
+		}, buyBtn)
+		addTextStroke(priceLabel, 1.8)
 
 		item = {
 			id = id,
 			card = card,
 			nameLabel = nameLabel,
+			subtitleLabel = subtitleLabel,
 			levelLabel = levelLabel,
+			progressFill = progressFill,
 			priceLabel = priceLabel,
 			statusLabel = statusLabel,
 			buyButton = buyBtn,
+			actionLabel = btnActionLabel,
 			available = true,
 			blockedReason = nil,
 			quote = nil,
@@ -3163,12 +3416,15 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 	if isTabVisible ~= nil then
 		item.card.Visible = isTabVisible
 		if isTabVisible and displayOrder then
-			item.card.Position = isRoblox and UDim2.new(0, 0, 0, (displayOrder - 1) * 46) or nil
+			item.card.Position = isRoblox and UDim2.new(0, 0, 0, (displayOrder - 1) * 66) or nil
 		end
 	end
 
-	item.level = research.level
-	item.levelLabel.Text = "Lv " .. tostring(research.level)
+	item.level = curLvl
+	item.levelLabel.Text = string.format("★ POZ. %d/%d", curLvl, maxLvl)
+	if item.progressFill and isRoblox then
+		item.progressFill.Size = UDim2.new(math.clamp(curLvl / math.max(1, maxLvl), 0, 1), 0, 1, 0)
+	end
 
 	local quote = nil
 	if self.intentControllers and self.intentControllers.shop then
@@ -3199,17 +3455,69 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 	if available then
 		item.buyButton.Active = true
 		item.statusLabel.Text = "BUY"
-		item.buyButton.Text = "KUP"
+		if item.actionLabel then
+			item.actionLabel.Text = "KUP"
+			item.actionLabel.Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil
+			item.actionLabel.Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil
+		end
+		item.priceLabel.Visible = true
 		if isRoblox then
-			item.buyButton.BackgroundColor3 = Color3.fromRGB(95, 235, 45)
+			item.buyButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94)
+			local stroke = item.buyButton:FindFirstChildOfClass("UIStroke")
+			if stroke then stroke.Color = Color3.fromRGB(20, 83, 45) end
 		end
 	else
 		item.buyButton.Active = false
 		local reasonText = blockedReason or "LOCKED"
 		item.statusLabel.Text = reasonText
-		item.buyButton.Text = reasonText
-		if isRoblox then
-			item.buyButton.BackgroundColor3 = Color3.fromRGB(130, 115, 105)
+		if reasonText == "MAX_LEVEL" then
+			if item.actionLabel then
+				item.actionLabel.Text = "MAKS. POZ."
+				item.actionLabel.Size = isRoblox and UDim2.new(1, -6, 0.9, 0) or nil
+				item.actionLabel.Position = isRoblox and UDim2.new(0, 3, 0.05, 0) or nil
+			end
+			item.priceLabel.Visible = false
+			if isRoblox then
+				item.buyButton.BackgroundColor3 = Color3.fromRGB(75, 85, 99)
+				local stroke = item.buyButton:FindFirstChildOfClass("UIStroke")
+				if stroke then stroke.Color = Color3.fromRGB(31, 41, 55) end
+			end
+		elseif reasonText == "TIER_LOCKED" then
+			if item.actionLabel then
+				item.actionLabel.Text = "ZABLOKOWANE"
+				item.actionLabel.Size = isRoblox and UDim2.new(1, -6, 0.9, 0) or nil
+				item.actionLabel.Position = isRoblox and UDim2.new(0, 3, 0.05, 0) or nil
+			end
+			item.priceLabel.Visible = false
+			if isRoblox then
+				item.buyButton.BackgroundColor3 = Color3.fromRGB(127, 29, 29)
+				local stroke = item.buyButton:FindFirstChildOfClass("UIStroke")
+				if stroke then stroke.Color = Color3.fromRGB(69, 10, 10) end
+			end
+		elseif reasonText == "INSUFFICIENT_CASH" then
+			if item.actionLabel then
+				item.actionLabel.Text = "ZA MAŁO $"
+				item.actionLabel.Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil
+				item.actionLabel.Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil
+			end
+			item.priceLabel.Visible = true
+			if isRoblox then
+				item.buyButton.BackgroundColor3 = Color3.fromRGB(156, 163, 175)
+				local stroke = item.buyButton:FindFirstChildOfClass("UIStroke")
+				if stroke then stroke.Color = Color3.fromRGB(75, 85, 99) end
+			end
+		else
+			if item.actionLabel then
+				item.actionLabel.Text = reasonText
+				item.actionLabel.Size = isRoblox and UDim2.new(1, -6, 0.9, 0) or nil
+				item.actionLabel.Position = isRoblox and UDim2.new(0, 3, 0.05, 0) or nil
+			end
+			item.priceLabel.Visible = false
+			if isRoblox then
+				item.buyButton.BackgroundColor3 = Color3.fromRGB(120, 110, 105)
+				local stroke = item.buyButton:FindFirstChildOfClass("UIStroke")
+				if stroke then stroke.Color = Color3.fromRGB(60, 50, 45) end
+			end
 		end
 	end
 end
@@ -3279,8 +3587,22 @@ function HUD:onQuoteReceived(quoteView)
 				item.available = false
 				item.blockedReason = quoteView.blockedReason
 				item.buyButton.Active = false
-				item.statusLabel.Text = quoteView.blockedReason or "LOCKED"
-				item.buyButton.Text = quoteView.blockedReason or "LOCKED"
+				local reason = quoteView.blockedReason or "LOCKED"
+				item.statusLabel.Text = reason
+				if item.actionLabel then
+					item.actionLabel.Text = if reason == "INSUFFICIENT_CASH" then "ZA MAŁO $" elseif reason == "MAX_LEVEL" then "MAKS. POZ." elseif reason == "TIER_LOCKED" then "ZABLOKOWANE" else reason
+					if reason == "INSUFFICIENT_CASH" then
+						item.actionLabel.Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil
+						item.actionLabel.Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil
+						item.priceLabel.Visible = true
+					else
+						item.actionLabel.Size = isRoblox and UDim2.new(1, -6, 0.9, 0) or nil
+						item.actionLabel.Position = isRoblox and UDim2.new(0, 3, 0.05, 0) or nil
+						item.priceLabel.Visible = false
+					end
+				else
+					item.buyButton.Text = reason
+				end
 			end
 		end
 	end
