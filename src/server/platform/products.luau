@@ -365,7 +365,7 @@ local function confirmPurchase(
 		profile.piggy = profile.piggy or {}
 		local rawAmount = profile.piggy.rawAmount or 0
 		local curGE = ExactUInt.decode(profile.permanent.GE)
-		local addGE = ExactUInt.fromSafeNumber(rawAmount)
+		local addGE = if type(rawAmount)=="string" then ExactUInt.decode(rawAmount) else ExactUInt.fromSafeNumber(rawAmount)
 		profile.permanent.GE = ExactUInt.encode(ExactUInt.add(curGE, addGE))
 		profile.piggy.rawAmount = 0
 		profile.piggy.breaksCount = (profile.piggy.breaksCount or 0) + 1

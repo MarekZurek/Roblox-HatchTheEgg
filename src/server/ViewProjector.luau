@@ -86,6 +86,8 @@ end
 local isStudio=(typeof(script)=="Instance")
 local Equipment=if isStudio then require(script.Parent.pets.equipment) else require("./pets/equipment")
 local Effects=if isStudio then require(script.Parent.EffectsManager) else require("./EffectsManager")
+local Calendar=if isStudio then require(script.Parent.rewards.calendar) else require("./rewards/calendar")
+local ActionReference=if isStudio then require(script.Parent.ActionReferenceData) else require("./ActionReferenceData")
 local ViewProjector = {}
 ViewProjector.__index = ViewProjector
 ViewProjector.ALL_COMMON_RESEARCH_IDS = ALL_COMMON_RESEARCH_IDS
@@ -247,7 +249,26 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
 		common = commonList,
 	}
 
-	local commitRevision = (profile.meta and profile.meta.revision) or "0"
+	if ownFarm then
+        local pets,claimed={},{}
+        local calendar={};local cycle=math.floor((profile.rewards.numDailyGiftsCollected or 0)/28)
+        for day=1,28 do
+            local reward=Calendar.referenceReward(cycle*28+day-1,ActionReference.calendar)
+            table.insert(calendar,{day=day,available=reward~=nil,rewardType=if reward then reward.rewardType else "Unavailable",amount=codec.BigAmount.encode(if reward then reward.amountNumber else 0)})
+        end
+        local ids={};for uid in profile.inventory.pets do table.insert(ids,uid) end;table.sort(ids)
+        for i,uid in ids do
+            if i>32 then break end
+            local pet=profile.inventory.pets[uid];local equipped=false
+            for _,eq in profile.inventory.equipped do if eq==uid then equipped=true end end
+            table.insert(pets,{uid=uid,speciesId=pet.speciesId,tier=pet.tier,variant=pet.variant,locked=pet.locked==true,equipped=equipped})
+        end
+        for key,value in profile.rewards.trophies or {} do if value==true then table.insert(claimed,key) end end;table.sort(claimed)
+        ownFarm.progress={GE=profile.permanent.GE,SE=profile.permanent.SE,PE=profile.permanent.PE,
+            numDailyGiftsCollected=profile.rewards.numDailyGiftsCollected or 0,lastCalendarDayUtc=profile.rewards.lastCalendarDayUtc or -1,
+            pets=pets,equipped=deepCopy(profile.inventory.equipped),trophies=claimed,calendar=calendar}
+    end
+    local commitRevision = (profile.meta and profile.meta.revision) or "0"
 	local configRev = (profile.meta and profile.meta.configRevision) or self.configRevision
 
 	local snapshot = {
@@ -318,7 +339,7 @@ function ViewProjector:projectPublicView(profile, streamId, viewSeq, serverObser
 		vehicles = publicVehicles,
 	}
 
-	local commitRevision = (profile.meta and profile.meta.revision) or "0"
+    local commitRevision = (profile.meta and profile.meta.revision) or "0"
 	local configRev = (profile.meta and profile.meta.configRevision) or self.configRevision
 
 	local snapshot = {

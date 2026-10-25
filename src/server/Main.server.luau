@@ -103,7 +103,18 @@ local worldBuilder = FarmPlotBuilder.new()
 worldBuilder:build()
 
 -- 4. Initialize Authoritative ServerBootstrap
+local configuredProducts={}
+for _,catalogId in {"pro_permit","buy_max","ge_pack_small","ge_pack_large"} do
+    local id=script:GetAttribute(catalogId.."_PlatformId")
+    if type(id)=="number" and id>0 and id%1==0 then
+        Products.registerProductId(id,catalogId)
+        configuredProducts[catalogId]={platformId=id}
+    end
+end
+local policyByPlayer={}
 local server = ServerBootstrap.new({
+    platformProducts=configuredProducts,
+    paidRandomAllowed=function(id)return policyByPlayer[tostring(id)] end,
 	clock = serverClock,
 	store = persistentStore,
 })
@@ -137,7 +148,11 @@ local function onPlayerAdded(player)
 		return
 	end
 
-	-- Position character on the Farm SpawnLocation when character loads
+	task.spawn(function()
+        local ok,policy=pcall(function() return game:GetService("PolicyService"):GetPolicyInfoForPlayerAsync(player) end)
+        if ok and type(policy)=="table" and type(policy.ArePaidRandomItemsRestricted)=="boolean" then policyByPlayer[pId]=not policy.ArePaidRandomItemsRestricted end
+    end)
+    -- Position character on the Farm SpawnLocation when character loads
 	player.CharacterAdded:Connect(function(character)
 		task.defer(function()
 			local hrp = character:WaitForChild("HumanoidRootPart", 5)
@@ -153,10 +168,10 @@ local function onPlayerAdded(player)
 
 	-- Asynchronously check and grant owned GamePasses (Pro Permit, Buy MAX)
 	task.spawn(function()
-		local passMapping = {
-			[Products.CATALOG_ID_TO_PRODUCT_ID.pro_permit or 2001] = "pro_permit",
-			[Products.CATALOG_ID_TO_PRODUCT_ID.buy_max or 2002] = "buy_max",
-		}
+        local passMapping={}
+        for _,catalogId in {"pro_permit","buy_max"} do
+            if configuredProducts[catalogId] then passMapping[configuredProducts[catalogId].platformId]=catalogId end
+        end
 		for passId, catalogId in pairs(passMapping) do
 			local ok, owns = pcall(function()
 				return MarketplaceService:UserOwnsGamePassAsync(player.UserId, passId)
@@ -235,21 +250,7 @@ clientToServer.OnServerEvent:Connect(function(player, message)
 			})
 		end
 		return
-	elseif message.kind == "EquipPet" then
-		local petUid = message.petUid or message.petId
-		server:equipPet(pId, petUid)
-		syncWorldAndDelta(pId, player)
-		return
-	elseif message.kind == "UnequipPet" then
-		local petUid = message.petUid or message.petId
-		server:unequipPet(pId, petUid)
-		syncWorldAndDelta(pId, player)
-		return
-	elseif message.kind == "TogglePetLock" then
-		local petUid = message.petUid or message.petId
-		server:togglePetLock(pId, petUid, message.locked)
-		syncWorldAndDelta(pId, player)
-		return
+
 	end
 
 	local response = server:dispatch(pId, message)
@@ -311,6 +312,7 @@ MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, passI
 	if wasPurchased and player and player.Parent == Players then
 		local pId = resolveNumericPlayerId(player)
 		local catalogId = Products.resolveCatalogId(passId)
+        if not catalogId or not configuredProducts[catalogId] or configuredProducts[catalogId].platformId~=passId then return end
 		if catalogId then
 			server:grantEntitlement(pId, catalogId)
 			syncWorldAndDelta(pId, player)

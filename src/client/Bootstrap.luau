@@ -115,6 +115,7 @@ function ClientBootstrap.new(deps)
 		onTogglePetLock = deps.onTogglePetLock,
 		onBuyBoost = deps.onBuyBoost,
 		onPurchaseProduct = deps.onPurchaseProduct,
+        promptPurchase = deps.promptPurchase,
 		_localHatchSerial = 0,
 		_lastInTransitCounts = { 0, 0, 0, 0 },
 		_unsubs = {},
@@ -321,101 +322,40 @@ function ClientBootstrap:upgradeEgg(targetEggIndex, callback)
 	return self.transport:sendPurchase("UpgradeEgg", reqId, opId, rev, args, callback)
 end
 
-function ClientBootstrap:claimDailyGift(callback)
-	if self.audioController and type(self.audioController.playSFX) == "function" then
-		self.audioController:playSFX("fanfare")
-	end
-	if type(self.onClaimDailyGift) == "function" then
-		return self.onClaimDailyGift(callback)
-	end
-	local res = { status = "APPLIED", rewardType = "DailyGift" }
-	if callback then callback(res) end
-	return res
+-- Every action is an intent. Only a durable server response can report APPLIED.
+function ClientBootstrap:_command(kind,args,callback)
+    if not self.stateStore:isReady() or self.transport:getWire()==nil then
+        local code=if not self.stateStore:isReady() then "SESSION_NOT_READY" else "TRANSPORT_UNAVAILABLE"
+        if callback then callback({status="NOT_ACCEPTED",errorCode=code}) end
+        return nil,code
+    end
+    self._actionSerial=(self._actionSerial or 0)+1
+    local token=tostring(self.stateStore:getStreamId()).."-"..tostring(self._actionSerial)
+    return self.transport:sendPurchase(kind,"req-action-"..token,"op-action-"..token,self.stateStore:getCommitRevision(),args,function(response)
+        if response.kind=="CommandResult" and (response.status=="APPLIED" or response.status=="REPLAYED" or response.status=="REJECTED") then
+            self.transport:sendRefreshState()
+            if response.result and response.result.terminalStatus=="APPLIED" and response.result.actionKind=="PurchaseProduct" then
+                local prompt=self.promptPurchase
+                self._purchasePreviews=self._purchasePreviews or {}
+                if not self._purchasePreviews[response.operationId] and type(prompt)=="function" and self.hud then
+                    self._purchasePreviews[response.operationId]=true
+                    self.hud:showPurchasePreview(response.result,function() prompt(response.result) end)
+                end
+            end
+        end
+        if self.hud and type(self.hud.onActionResult)=="function" then self.hud:onActionResult(response) end
+        if callback then callback(response) end
+    end)
 end
-
-function ClientBootstrap:claimTrophy(eggIndex, tierIndex, callback)
-	if self.audioController and type(self.audioController.playSFX) == "function" then
-		self.audioController:playSFX("fanfare")
-	end
-	if type(self.onClaimTrophy) == "function" then
-		return self.onClaimTrophy(eggIndex, tierIndex, callback)
-	end
-	local res = { status = "APPLIED", eggIndex = eggIndex, tierIndex = tierIndex }
-	if callback then callback(res) end
-	return res
-end
-
-function ClientBootstrap:fusePets(basePetId, materialIds, callback)
-	if self.audioController and type(self.audioController.playSFX) == "function" then
-		self.audioController:playSFX("fanfare")
-	end
-	if type(self.onFusePets) == "function" then
-		return self.onFusePets(basePetId, materialIds, callback)
-	end
-	local res = { status = "SUCCESS", basePetId = basePetId, consumed = materialIds }
-	if callback then callback(res) end
-	return res
-end
-
-function ClientBootstrap:equipPet(petId, slotIndex, callback)
-	if self.audioController and type(self.audioController.playSFX) == "function" then
-		self.audioController:playSFX("click")
-	end
-	if type(self.onEquipPet) == "function" then
-		return self.onEquipPet(petId, slotIndex, callback)
-	end
-	local res = { status = "APPLIED", petId = petId, slotIndex = slotIndex or 1 }
-	if callback then callback(res) end
-	return res
-end
-
-function ClientBootstrap:unequipPet(slotIndex, callback)
-	if self.audioController and type(self.audioController.playSFX) == "function" then
-		self.audioController:playSFX("click")
-	end
-	if type(self.onUnequipPet) == "function" then
-		return self.onUnequipPet(slotIndex, callback)
-	end
-	local res = { status = "APPLIED", slotIndex = slotIndex }
-	if callback then callback(res) end
-	return res
-end
-
-function ClientBootstrap:togglePetLock(petId, callback)
-	if self.audioController and type(self.audioController.playSFX) == "function" then
-		self.audioController:playSFX("click")
-	end
-	if type(self.onTogglePetLock) == "function" then
-		return self.onTogglePetLock(petId, callback)
-	end
-	local res = { status = "APPLIED", petId = petId }
-	if callback then callback(res) end
-	return res
-end
-
-function ClientBootstrap:buyBoost(boostId, callback)
-	if self.audioController and type(self.audioController.playSFX) == "function" then
-		self.audioController:playSFX("coin")
-	end
-	if type(self.onBuyBoost) == "function" then
-		return self.onBuyBoost(boostId, callback)
-	end
-	local res = { status = "APPLIED", boostId = boostId }
-	if callback then callback(res) end
-	return res
-end
-
-function ClientBootstrap:purchaseProduct(productId, callback)
-	if self.audioController and type(self.audioController.playSFX) == "function" then
-		self.audioController:playSFX("coin")
-	end
-	if type(self.onPurchaseProduct) == "function" then
-		return self.onPurchaseProduct(productId, callback)
-	end
-	local res = { status = "APPLIED", productId = productId }
-	if callback then callback(res) end
-	return res
-end
+function ClientBootstrap:claimDailyGift(callback) return self:_command("ClaimDailyGift",{},callback) end
+function ClientBootstrap:claimTrophy(eggIndex,tierIndex,callback) return self:_command("ClaimTrophy",{eggIndex=eggIndex,tierIndex=tierIndex},callback) end
+function ClientBootstrap:fusePets(basePetId,materialIds,callback) return self:_command("FusePets",{basePetId=basePetId,materialIds=materialIds},callback) end
+function ClientBootstrap:equipPet(petId,_slotIndex,callback) return self:_command("EquipPet",{petUid=petId},callback) end
+function ClientBootstrap:unequipPet(slotIndex,callback) return self:_command("UnequipPet",{slotIndex=slotIndex},callback) end
+function ClientBootstrap:togglePetLock(petId,callback) return self:_command("TogglePetLock",{petUid=petId},callback) end
+function ClientBootstrap:buyBoost(boostId,callback) return self:_command("BuyBoost",{boostId=boostId},callback) end
+function ClientBootstrap:purchaseProduct(productId,callback) return self:_command("PurchaseProduct",{productId=productId},callback) end
+function ClientBootstrap:prestige(callback) return self:_command("Prestige",{},callback) end
 
 function ClientBootstrap:hitDrone(droneId, callback)
 	if self.audioController and type(self.audioController.playSFX) == "function" then

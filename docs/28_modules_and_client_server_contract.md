@@ -237,3 +237,10 @@ Są to kryteria przyszłej realizacji, nie wyniki testów. Kwestie związane z p
 Do osobnego zadania realizacyjnego pozostają: adapter transportu i sprawdzenie jego rzeczywistych ograniczeń, konkretny schemat publicznej projekcji, budżety kolejki/wiadomości i intencji wylęgu, liczbowy codec, sesja/zapis/retencja oraz integracja potwierdzeń platformy. Nie są nowymi decyzjami ekonomii. Pierwszy zakres może obejmować samą farmę; brak zatwierdzonej konfiguracji inkubacji nie blokuje projektowania protokołu badań i transportu.
 
 Kontrakt ma status P. Jego sporządzenie nie uruchamia realizacji, testów Studio, zakupów, delegacji, publikacji lub zmian historii Git. Dane referencyjne i dokumenty 17–21 pozostają niezmienione.
+
+
+## Stan wdrożenia przycisków — 25.10.2026, #56
+
+[Mapowanie rzeczywistych komend i dowody](workflow/action_wiring_56.md). Aktualny adapter używa nazw ClaimDailyGift (docelowe ClaimCalendar), TogglePetLock oraz PurchaseProduct dla podglądu prostego produktu; Prestige ma trasę protokołu. Polecenia przechodzą przez jednego koordynatora, a klient otrzymuje wynik serwera i odświeżenie własnego widoku. Wspólny envelope, ścisła lista argumentów i nowa prywatna sekcja farm.progress są opisane w raporcie dostawy.
+
+Nie uznaje się tego za pełne wdrożenie tabel docelowych tego kontraktu. Produkcyjna fuzja i zakupy boostów pozostają FEATURE_UNAVAILABLE; ich porty INTERNAL_TEST_ONLY nie są publiczną konfiguracją. Obowiązek podglądu/quote z §7 nadal dotyczy przyszłego włączenia fuzji. PurchaseProduct utrwala podgląd, nie płatność ani rezerwację prezentu Robux; PreparePurchase z offerId/orderId nadal wymaga właściwej ścieżki opisanej wyżej. Brak konfiguracji, nierozstrzygnięta polityka Pro i nieobsłużona kategoria kalendarza nie mogą zostać zastąpione fikcyjnym APPLIED. Szczegółowe ograniczenia i otwarte #57–62 pozostają jawne.

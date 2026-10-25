@@ -39,7 +39,8 @@ export type TrophyReward = {
 	prophecyEggs: number,
 }
 
--- Embedded reference table for 19 eggs (docs/reference_data/infrastructure.json)
+-- Legacy leaf-test fixture. Bootstrap supplies the generated reference catalogue;
+-- do not treat these handwritten defaults as the production source of payouts.
 -- Each egg has SE, GE, and PE rewards across 5 population tiers.
 local EGG_TROPHIES: { [number]: { se: { number }, ge: { number }, pe: { number } } } = table.freeze({
 	[0] = table.freeze({ -- Edible

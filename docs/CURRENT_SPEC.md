@@ -139,3 +139,8 @@ Zadania `DOC-01..05`, `PRE-01..03`, `IMP-01..15`, `QA-01`, `NEXT-01..10`, `REL-0
 ## Produkcja — poprawki #54–55 (25.10.2026)
 
 [Wykonano podłączenie kontekstu](workflow/production_fixes_54_55.md): aktualne jajo, SE/PE i właściwe warstwy petów/boostów działają w Bootstrap/Timeline, a timery przechodzą zapis i wznowienie. Dowód L: 147 nowych regresji, cały runner 67 941 asercji PASS. Tabele i odłożony bilans bez zmian; nie zatwierdza konfiguracji produkcyjnej. Pozostałe uwagi #56–61 nadal otwarte, w tym historyczne ważenie granicznego eventu.
+
+
+## Przyciski i testy zachowania — #56 (25.10.2026)
+
+[Zakres poprawki i ograniczenia](workflow/action_wiring_56.md): rzeczywiste komendy serwera, prywatna projekcja postępu, jawny wybór petów, pełny panel trofeów i podgląd produktu przed promptem. Brak konfiguracji nie daje sukcesu. Nowe testy sprawdzają oczekiwane zachowanie przez rzeczywisty transport, niezależne JSON-y i mutacje semantyczne. Weryfikacja wyłącznie L i statyczny build; bez zatwierdzenia bilansu, Studio lub chmury. Produkcyjna fuzja/zakup boostu pozostają niedostępne. Dni kalendarza 4/10/15/18/22 wymagają resolvera — nowe konto zatrzyma kalendarz na dniu 4 ([#62](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/62)). Pozostałe ustalenia #57–61 nadal otwarte. Wcześniejsze deklaracje pełnej gotowości nie są potwierdzeniem tej dostawy.

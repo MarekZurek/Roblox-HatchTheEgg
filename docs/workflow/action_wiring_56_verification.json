@@ -1,0 +1,102 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "a3a47523c813d49e584336df00b0eb7d7b1eb124",
+  "status": "PASS_L_AND_STATIC_BUILD",
+  "gameBehavior": {
+    "assertions": 2012,
+    "oracle": "docs + independent reference JSON + conservation/temporal invariants",
+    "realPurchasesTested": false,
+    "status": "PASS_L",
+    "studioTested": false
+  },
+  "suiteCount": 31,
+  "assertions": 69953,
+  "mutations": [
+    {
+      "name": "local_fake_success",
+      "state": "KILLED"
+    },
+    {
+      "name": "missing_trophy_route",
+      "state": "KILLED"
+    },
+    {
+      "name": "calendar_claim_twice",
+      "state": "KILLED"
+    },
+    {
+      "name": "trophy_below_threshold",
+      "state": "KILLED"
+    },
+    {
+      "name": "fusion_free_materials",
+      "state": "KILLED"
+    },
+    {
+      "name": "shop_credit_instead_of_debit",
+      "state": "KILLED"
+    },
+    {
+      "name": "trophy_wrong_GE",
+      "state": "KILLED"
+    }
+  ],
+  "staticBuild": {
+    "modules": 39,
+    "entrypoints": 2
+  },
+  "protectedBalance": [
+    {
+      "path": "docs/17_pet_balance_draft.md",
+      "sha256": "681ea852e6db78738720855b99f8d38307543b982b0f7660e326006fffff6a29",
+      "unchangedBytes": true
+    },
+    {
+      "path": "docs/18_incubator_prices_and_acquisition_pacing.md",
+      "sha256": "2865cddf4da695711eb7a4e456fb733df188d6e89e9689d492c2eed4575fc2b1",
+      "unchangedBytes": true
+    },
+    {
+      "path": "docs/19_integrated_farm_progression_simulation.md",
+      "sha256": "60f918a879fdaf7a94aa2adf797e9de6489eb041364e9698003fd1dd14966356",
+      "unchangedBytes": true
+    },
+    {
+      "path": "docs/20_paying_player_balance_direction.md",
+      "sha256": "b8e61a36f3263ab8e765c85869f80f35ff21e3b7eb43513c742c18f40febdba6",
+      "unchangedBytes": true
+    },
+    {
+      "path": "docs/21_payer_progression_and_incubation.md",
+      "sha256": "48a2afe285d50281339079c757a74f6358fde695c236ad528a1f3a5fb8853de9",
+      "unchangedBytes": true
+    }
+  ],
+  "referenceDataUnchangedBytes": true,
+  "studioTested": false,
+  "realDataStoreTested": false,
+  "realPurchasesTested": false,
+  "releaseReadinessApproved": false,
+  "openIssues": [
+    57,
+    58,
+    59,
+    60,
+    61,
+    62
+  ],
+  "sourceSha256NormalizedLF": {
+    "src/server/ActionReferenceData.luau": "3a9cd70ba56271bd4fd7b4ef6c540f81d43acc0997981360d1ad11c763c69b73",
+    "src/server/Bootstrap.luau": "fdeaa6fc1c8c11d65bc61d888756d8684b628a28d222a9cacb00a0f750d90c2a",
+    "src/server/NetworkGateway.luau": "1bae4e7f4a24cd83d733d9e0fc6cb28b954b707231ad43986f8a386ea8c4cf61",
+    "src/server/ViewProjector.luau": "0e5adc0fe6c5ab6be360fcd56d3e20e2ecc13ca084c4aa71d3aac0b5362eb303",
+    "src/shared/ProtocolSchemas.luau": "30441da58d74ef7f4765107780968d83eeff72831bb54e143f327730a2e86530",
+    "src/client/Bootstrap.luau": "6fe427c52ee530ee3e91470ea03e798a776c43f70e3d357e3041cb2221966789",
+    "src/client/ClientTransport.luau": "c5b9cdf3b9e7b67c2dd257b686363709b8cf234ab06bdefe154c7dd90967476a",
+    "src/client/HUD.luau": "a50188f44f79b5fabb81eb97769fdaa675c2fb1d4c754a96268f00d42f22be53",
+    "tests/game_behavior/run.luau": "081e34dce8d8a2977c5019679a4a8cb359b840ac33572add4731b58e4690026b",
+    "tests/game_behavior/mutation_check.py": "280c121e30324333ef0382f6efddb3d89d3d8428de24725a9a379fb5e5d6332e",
+    "tools/test.ps1": "e39a9f811f9d3a61b3d9e6799bee9b81d35948adee4887ed28bdf2c50b60f125",
+    "tools/generate_action_catalog.py": "7b87d1a4c79751b801ba584faf80870b7ca66cbfadd404129c14d4e4f68203d9"
+  }
+}

@@ -21,6 +21,7 @@ function ClientTransport.new(deps)
 		_kindSubscribers = {},
 		_pendingRequests = {},
 		_pendingOperations = {},
+		_operationRequests = {},
 	}, ClientTransport)
 
 	return self
@@ -140,6 +141,7 @@ function ClientTransport:sendPurchase(kind, requestId, operationId, expectedRevi
 	if callback then
 		self:registerRequestCallback(reqId, callback)
 		if operationId then
+			self._operationRequests[operationId] = reqId
 			self:registerOperationCallback(operationId, callback)
 		end
 	end
@@ -216,15 +218,18 @@ function ClientTransport:receive(message)
 	end
 
 	-- 2. Correlation by operationId (CommandResult or Admission)
-	if message.operationId ~= nil and self._pendingOperations[message.operationId] ~= nil then
+	local unrelatedAdmission = message.kind == "Admission" and self._operationRequests[message.operationId] ~= nil
+        and self._operationRequests[message.operationId] ~= message.requestId
+	if not unrelatedAdmission and message.operationId ~= nil and self._pendingOperations[message.operationId] ~= nil then
 		local callbacks = self._pendingOperations[message.operationId]
 		local isTerminal = true
-		if message.kind == "CommandResult" and message.status == "PENDING" then
+		if message.kind == "CommandResult" and (message.status == "PENDING" or message.status == "UNKNOWN") then
 			isTerminal = false
 		end
 
 		if isTerminal then
 			self._pendingOperations[message.operationId] = nil
+			self._operationRequests[message.operationId] = nil
 		end
 
 		for _, cb in ipairs(callbacks) do

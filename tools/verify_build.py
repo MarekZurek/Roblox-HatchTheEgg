@@ -35,7 +35,7 @@ def main():
                  "FarmMath/hatching_rcb", "FarmMath/PopulationMath",
                  "FarmMath/fv_se",
                  "PlayerCoordinator", "TimelineSimulation", "FarmActions",
-                 "ProgressActions", "EffectsManager", "pets/equipment", "pets/fusion",
+                 "ProgressActions", "ActionReferenceData", "EffectsManager", "pets/equipment", "pets/fusion",
                  "rewards/drones", "rewards/offers", "rewards/calendar", "rewards/trophies",
                  "platform/products", "onboarding/manager",
                  "world/FarmPlotBuilder",

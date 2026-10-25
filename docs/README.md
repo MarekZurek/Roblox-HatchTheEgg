@@ -92,3 +92,8 @@ Stan: 24.10.2026. Dokumentacja, planowanie oraz lokalnie wykonane i zweryfikowan
 ## Produkcja — poprawki 25.10.2026
 
 [#54–55: aktualne jajo, SE/PE, pety i boosty](workflow/production_fixes_54_55.md). 147 nowych regresji L, pełny runner 67 941 asercji PASS. Bez zatwierdzenia bilansu lub gotowości wydania; #56–61 pozostają do realizacji.
+
+
+## Przyciski i testy zachowania — #56 (25.10.2026)
+
+[Zakres poprawki i ograniczenia](workflow/action_wiring_56.md): rzeczywiste komendy serwera, prywatna projekcja postępu, jawny wybór petów, pełny panel trofeów i podgląd produktu przed promptem. Brak konfiguracji nie daje sukcesu. Nowe testy sprawdzają oczekiwane zachowanie przez rzeczywisty transport, niezależne JSON-y i mutacje semantyczne. Weryfikacja wyłącznie L i statyczny build; bez zatwierdzenia bilansu, Studio lub chmury. Produkcyjna fuzja/zakup boostu pozostają niedostępne. Dni kalendarza 4/10/15/18/22 wymagają resolvera — nowe konto zatrzyma kalendarz na dniu 4 ([#62](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/62)). Pozostałe ustalenia #57–61 nadal otwarte. Wcześniejsze deklaracje pełnej gotowości nie są potwierdzeniem tej dostawy.

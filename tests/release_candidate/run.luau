@@ -196,7 +196,7 @@ do
 	assertTrue(fs.isFile(mappingPath), "Rojo mapping results file exists")
 	local mapping = serde.decode("json", fs.readFile(mappingPath))
 	assertEq(mapping.status, "PASS_STATIC_BUILD", "Rojo build status is PASS_STATIC_BUILD")
-	assertEq(#mapping.modules, 38, "Exactly 38 Rojo modules mapped")
+	assertEq(#mapping.modules, 39, "Exactly 39 Rojo modules mapped (including ActionReferenceData)")
 	assertFalse(mapping.runtimeReplicationTested, "Static build does not falsely claim runtime replication")
 	assertFalse(mapping.studioTested, "Static build does not falsely claim studio run")
 end

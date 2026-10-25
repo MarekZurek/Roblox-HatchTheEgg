@@ -107,6 +107,15 @@ function ProtocolSchemas.new(codec)
 		BuyHabitat = record({ slotId = slot, habitatId = id, quoteId = id }),
 		BuyVehicle = record({ slotId = slot, vehicleId = id, quoteId = id }),
 		UpgradeEgg = record({ targetEggIndex = index }),
+        Prestige = record({}),
+        ClaimDailyGift = record({}),
+        ClaimTrophy = record({ eggIndex = integer(0,18), tierIndex = integer(1,5) }),
+        FusePets = record({ basePetId = id, materialIds = array(id, 32) }),
+        EquipPet = record({ petUid = id }),
+        UnequipPet = record({ slotIndex = integer(1,5) }),
+        TogglePetLock = record({ petUid = id }),
+        BuyBoost = record({ boostId = id }),
+        PurchaseProduct = record({ productId = id }),
 	}
 	local function target(value)
 		record({ kind = action, args = function(args) if type(value.kind) ~= "string" then fail() end; local check = targetSchemas[value.kind]; if not check then fail() end; check(args) end })(value)
@@ -139,7 +148,11 @@ function ProtocolSchemas.new(codec)
 		common = array(research, 56, "researchId"),
 	}
 	local publicFields = { eggIndex = index, population = exact, habitats = array(visibleHabitat, 4, "slotId"), vehicles = array(vehicle, 4, "slotId") }
-	local ownView, publicView = record(ownFields), record(publicFields)
+	local progress = record({GE=exact,SE=amount,PE=exact,numDailyGiftsCollected=instant,lastCalendarDayUtc=integer(-1,9007199254740991),
+        pets=array(record({uid=id,speciesId=id,tier=integer(1,65535),variant=id,locked=boolean,equipped=boolean}),32),
+        equipped=array(id,5), trophies=array(id,95)}, {calendar=array(record({day=integer(1,28),available=boolean,rewardType=id,amount=amount}),28)})
+    local ownView, publicView = record(ownFields,{progress=progress}), record(publicFields)
+    local ownDeltaFields=table.clone(ownFields);ownDeltaFields.progress=progress
 	local function view(value)
 		if value.audience == "own" then record({ audience = literal("own"), farm = ownView })(value)
 		elseif value.audience == "public" then record({ audience = literal("public"), farm = publicView })(value)
@@ -148,7 +161,7 @@ function ProtocolSchemas.new(codec)
 	-- Delta replaces named whole sections. Empty arrays explicitly remove all entries;
 	-- an absent section leaves it unchanged. Arbitrary paths and patches are forbidden.
 	local function changes(value)
-		if value.audience == "own" then record({ audience = literal("own"), farm = record({}, ownFields) })(value)
+		if value.audience == "own" then record({ audience = literal("own"), farm = record({}, ownDeltaFields) })(value)
 		elseif value.audience == "public" then record({ audience = literal("public"), farm = record({}, publicFields) })(value)
 		else fail() end
 	end
@@ -181,11 +194,24 @@ function ProtocolSchemas.new(codec)
 		if value.terminalStatus == "REJECTED" then record({ terminalStatus = literal("REJECTED"), errorCode = id })(value)
 		elseif value.terminalStatus == "APPLIED" then
 			local resultSchemas = {
+				UpgradeEgg = record({terminalStatus=literal("APPLIED"),actionKind=literal("UpgradeEgg"),success=boolean,newEggIndex=index,eggIndex=index,eggValueBase=function(v) if type(v)~="number" or v<0 then fail() end end}),
+				Prestige = record({terminalStatus=literal("APPLIED"),actionKind=literal("Prestige"),gainedSoulEggs=numeric(codec.Real64),newSoulEggs=amount,prestigeCount=exact}),
 				BuyResearch = record({ terminalStatus = literal("APPLIED"), actionKind = literal("BuyResearch"), researchId = id, level = index }),
 				BuyHabitat = record({ terminalStatus = literal("APPLIED"), actionKind = literal("BuyHabitat"), slotId = slot, habitatId = id }),
 				BuyVehicle = record({ terminalStatus = literal("APPLIED"), actionKind = literal("BuyVehicle"), slotId = slot, vehicleId = id }),
 			}
-			local check = resultSchemas[value.actionKind]; if not check then fail() end; check(value)
+            local connected = {ClaimDailyGift=true,ClaimTrophy=true,FusePets=true,EquipPet=true,UnequipPet=true,TogglePetLock=true,BuyBoost=true,PurchaseProduct=true}
+            if connected[value.actionKind] then
+                record({terminalStatus=literal("APPLIED"),actionKind=id}, {
+                    success=boolean, outcome=enum({SUCCESS=true,FAILURE=true}),
+                    rewardType=id, amount=amount, day=index, cycle=index,
+                    petUid=id, locked=boolean, productId=id, platformId=instant,
+                    productType=enum({gamepass=true,developer_product=true}), description=function(v) if type(v)~="string" then fail() end end,
+                    paidBonusAvailable=boolean
+                })(value)
+                return
+            end
+            local check = resultSchemas[value.actionKind]; if not check then fail() end; check(value)
 		else fail() end
 	end
 	server.CommandResult = function(value)

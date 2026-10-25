@@ -29,7 +29,7 @@ local function formatCommandResult(requestId, operationId, rawResult, currentRev
 	if status == "APPLIED" or status == "REPLAYED" or status == "REJECTED" then
 		cmdResult.resultRevision = rawResult.resultRevision or currentRevision
 		if status == "REJECTED" then
-			local err = (rawResult.result and rawResult.result.errorCode) or rawResult.errorCode or "OPERATION_REJECTED"
+			local err = (rawResult.result and (rawResult.result.errorCode or rawResult.result.error)) or rawResult.errorCode or "OPERATION_REJECTED"
 			cmdResult.result = {
 				terminalStatus = "REJECTED",
 				errorCode = err,
@@ -39,7 +39,7 @@ local function formatCommandResult(requestId, operationId, rawResult, currentRev
 		elseif status == "REPLAYED" then
 			local term = rawResult.terminalStatus or (rawResult.result and rawResult.result.terminalStatus) or "APPLIED"
 			if term == "REJECTED" then
-				local err = (rawResult.result and rawResult.result.errorCode) or rawResult.errorCode or "OPERATION_REJECTED"
+				local err = (rawResult.result and (rawResult.result.errorCode or rawResult.result.error)) or rawResult.errorCode or "OPERATION_REJECTED"
 				cmdResult.result = {
 					terminalStatus = "REJECTED",
 					errorCode = err,
@@ -55,6 +55,16 @@ local function formatCommandResult(requestId, operationId, rawResult, currentRev
 	end
 
 	return cmdResult
+end
+
+-- A ledger read can prove a lost write, but does not refresh the fenced actor.
+-- The host must recover ownership/state before exposing that revision to the UI.
+local function reconcileKnownResult(pData,operationId,result)
+    local snapshots=pData.coordinator.snapshots()
+    if result.status=="REPLAYED" and not snapshots.ready then
+        return {status="UNKNOWN",errorCode="RECOVERY_REQUIRED"}
+    end
+    return result
 end
 
 local NetworkGateway = {}
@@ -227,7 +237,9 @@ function NetworkGateway:_initHandlers()
 		local profile = snapshots.working or snapshots.durable
 		local streamId = pData.streamId or ("stream-" .. playerId)
 
-		local queryResult = pData.coordinator.query(message.operationId)
+		local queryResult = reconcileKnownResult(pData,message.operationId,pData.coordinator.query(message.operationId))
+		local current=pData.coordinator.snapshots()
+		profile=current.working or current.durable
 		return formatCommandResult(
 			message.requestId,
 			message.operationId,
@@ -277,12 +289,12 @@ function NetworkGateway:_initHandlers()
 
 		if selfRef.autoDrain then
 			pData.coordinator.drain()
-			local freshSnapshots = pData.coordinator.snapshots()
-			local freshProfile = freshSnapshots.working or freshSnapshots.durable
 			local finalResult = pData.coordinator.resultOf(message.operationId)
 			if finalResult.status == "UNKNOWN" then
-				finalResult = pData.coordinator.query(message.operationId)
+				finalResult = reconcileKnownResult(pData,message.operationId,pData.coordinator.query(message.operationId))
 			end
+			local freshSnapshots = pData.coordinator.snapshots()
+			local freshProfile = freshSnapshots.working or freshSnapshots.durable
 			return formatCommandResult(
 				message.requestId,
 				message.operationId,
@@ -307,6 +319,9 @@ function NetworkGateway:_initHandlers()
 	handlers.BuyHabitat = handleMutation
 	handlers.BuyVehicle = handleMutation
 	handlers.UpgradeEgg = handleMutation
+    for _, kind in {"ClaimDailyGift","ClaimTrophy","FusePets","EquipPet","UnequipPet","TogglePetLock","BuyBoost","PurchaseProduct","Prestige"} do
+        handlers[kind] = handleMutation
+    end
 
 	handlers.HatchPress = function(selfRef, playerId, message, pData)
 		if pData.streamId ~= nil and message.streamId ~= pData.streamId then

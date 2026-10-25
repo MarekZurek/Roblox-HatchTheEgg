@@ -405,36 +405,7 @@ local SHOP_PRODUCTS_CATALOG = table.freeze({
 	},
 })
 
-local CALENDAR_REWARDS_CATALOG = table.freeze({
-	[1] = { day = 1, type = "GE", label = "192 GE", icon = "💎" },
-	[2] = { day = 2, type = "Cash", label = "$5K Gotówka", icon = "💵" },
-	[3] = { day = 3, type = "Boost", label = "Pasza Jimbosa", icon = "⚡" },
-	[4] = { day = 4, type = "SE", label = "50K Soul Eggs", icon = "🌌" },
-	[5] = { day = 5, type = "Epic", label = "Badanie: Wylęg", icon = "🔬" },
-	[6] = { day = 6, type = "Cash", label = "$5K Gotówka", icon = "💵" },
-	[7] = { day = 7, type = "Boost", label = "Pryzmat Tachion", icon = "⚡" },
-	[8] = { day = 8, type = "GE", label = "396 GE", icon = "💎" },
-	[9] = { day = 9, type = "Cash", label = "$5K Gotówka", icon = "💵" },
-	[10] = { day = 10, type = "Boost", label = "Pasza Jimbosa", icon = "⚡" },
-	[11] = { day = 11, type = "SE", label = "50K Soul Eggs", icon = "🌌" },
-	[12] = { day = 12, type = "Epic", label = "Badanie: Drony", icon = "🔬" },
-	[13] = { day = 13, type = "Cash", label = "$5K Gotówka", icon = "💵" },
-	[14] = { day = 14, type = "Boost", label = "Pryzmat Tachion", icon = "⚡" },
-	[15] = { day = 15, type = "Cash", label = "$5K Gotówka", icon = "💵" },
-	[16] = { day = 16, type = "Boost", label = "Pasza Jimbosa", icon = "⚡" },
-	[17] = { day = 17, type = "GE", label = "96 GE", icon = "💎" },
-	[18] = { day = 18, type = "SE", label = "50K Soul Eggs", icon = "🌌" },
-	[19] = { day = 19, type = "Cash", label = "$5K Gotówka", icon = "💵" },
-	[20] = { day = 20, type = "Boost", label = "Pryzmat Tachion", icon = "⚡" },
-	[21] = { day = 21, type = "Epic", label = "Badanie: Prestiż", icon = "🔬" },
-	[22] = { day = 22, type = "Cash", label = "$5K Gotówka", icon = "💵" },
-	[23] = { day = 23, type = "Boost", label = "Pasza Jimbosa", icon = "⚡" },
-	[24] = { day = 24, type = "SE", label = "50K Soul Eggs", icon = "🌌" },
-	[25] = { day = 25, type = "Cash", label = "$5K Gotówka", icon = "💵" },
-	[26] = { day = 26, type = "GE", label = "396 GE", icon = "💎" },
-	[27] = { day = 27, type = "Piggy", label = "Skarbonka +10K", icon = "🐷" },
-	[28] = { day = 28, type = "PE", label = "1 Jajo Przepowiedni", icon = "✨" },
-})
+
 
 local TROPHY_POPULATION_TIERS = table.freeze({
 	{ tier = 1, name = "Brąz", pop = 10000000, icon = "🥉" },
@@ -666,26 +637,6 @@ end
 local function promptMarketplacePurchase(productId, onPurchaseProductCallback)
 	if type(onPurchaseProductCallback) == "function" then
 		onPurchaseProductCallback(productId)
-	end
-	if isRoblox then
-		local okMps, mps = pcall(function() return game:GetService("MarketplaceService") end)
-		local okPlrs, plrs = pcall(function() return game:GetService("Players") end)
-		local lp = okPlrs and plrs and plrs.LocalPlayer
-		if okMps and mps and lp then
-			local isGamepass = (productId == "pro_permit" or productId == "buy_max")
-			local robloxId = if productId == "ge_pack_small" then 1001
-				elseif productId == "ge_pack_large" then 1002
-				elseif productId == "piggy_break" then 1003
-				elseif productId == "pro_permit" then 2001
-				elseif productId == "buy_max" then 2002
-				else tonumber(productId) or 1001
-
-			if isGamepass then
-				pcall(function() mps:PromptGamePassPurchase(lp, robloxId) end)
-			else
-				pcall(function() mps:PromptProductPurchase(lp, robloxId) end)
-			end
-		end
 	end
 end
 
@@ -1238,6 +1189,9 @@ function HUD:_buildInterface()
 
 	-- 12. Calendar & Trophies Modal Drawer (28-day calendar + 19 eggs cups)
 	self:_buildCalendarModal(root)
+    self.actionStatusLabel=createGuiElement("TextLabel",{Name="ActionStatus",Text="",BackgroundTransparency=1,
+        Size=if isRoblox then UDim2.new(0.8,0,0,32) else nil,Position=if isRoblox then UDim2.new(0.1,0,0,8) else nil,
+        TextColor3=if isRoblox then Color3.new(1,1,1) else nil,TextScaled=true},root)
 
 	-- 13. Egg Upgrade Modal (PROD-02)
 	self:_buildEggUpgradeModal(root)
@@ -1741,7 +1695,7 @@ function HUD:_buildPetsModal(root)
 		}, invFrame)
 		addCornerAndStroke(pCard, 6, isRoblox and Color3.fromRGB(36, 16, 34) or nil, 1.5)
 
-		local nameLbl = createGuiElement("TextLabel", {
+		local nameLbl = createGuiElement("TextButton", {
 			Name = "PetName",
 			Size = isRoblox and UDim2.new(0.55, 0, 1, 0) or nil,
 			Position = isRoblox and UDim2.new(0.02, 0, 0, 0) or nil,
@@ -1753,6 +1707,12 @@ function HUD:_buildPetsModal(root)
 			Text = if pIdx == 1 then "🐶 Piesek Farmerski (T1 Normalny)" elseif pIdx == 2 then "🐓 Robo-Kogut (T1 Złoty)" else "🐶 Piesek (T1 Normalny)",
 		}, pCard)
 		addTextStroke(nameLbl, 1.6)
+        if nameLbl.Activated then nameLbl.Activated:Connect(function()
+            local pet=self._visiblePets and self._visiblePets[pIdx]
+            if not pet or pet.locked or pet.equipped then return end
+            if not self.fusionBaseUid or self.fusionBaseUid==pet.uid then self:selectFusionBase(pet.uid) else self:toggleFusionMaterial(pet.uid) end
+            if self.fusionChanceLabel then self.fusionChanceLabel.Text="Baza: "..tostring(self.fusionBaseUid).." | materiały: "..tostring(#self.fusionMaterialUids) end
+        end) end
 
 		local equipBtn = createGuiElement("TextButton", {
 			Name = "EquipBtn",
@@ -1768,7 +1728,8 @@ function HUD:_buildPetsModal(root)
 		if equipBtn.Activated then
 			equipBtn.Activated:Connect(function()
 				if type(self.onEquipPet) == "function" then
-					self.onEquipPet("pet_" .. tostring(pIdx), 1)
+					local pet=self._visiblePets and self._visiblePets[pIdx]
+                    if pet then self.onEquipPet(pet.uid,1) end
 				end
 			end)
 		end
@@ -1787,7 +1748,8 @@ function HUD:_buildPetsModal(root)
 		if lockBtn.Activated then
 			lockBtn.Activated:Connect(function()
 				if type(self.onTogglePetLock) == "function" then
-					self.onTogglePetLock("pet_" .. tostring(pIdx))
+					local pet=self._visiblePets and self._visiblePets[pIdx]
+                    if pet then self.onTogglePetLock(pet.uid) end
 				end
 			end)
 		end
@@ -1813,7 +1775,7 @@ function HUD:_buildPetsModal(root)
 		TextScaled = true,
 		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 235, 120) or nil,
-		Text = "Szansa Fuzji: 40% (Normalny ➔ Złoty)",
+		Text = "Wybierz bazę, potem materiały (kliknij nazwę peta)",
 	}, fusFrame)
 	addTextStroke(self.fusionChanceLabel, 1.8)
 
@@ -1826,7 +1788,7 @@ function HUD:_buildPetsModal(root)
 		TextScaled = true,
 		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
 		TextColor3 = isRoblox and Color3.fromRGB(150, 245, 160) or nil,
-		Text = "Gwarancja: 0 / 5 nieudanych prób",
+		Text = "Receptura i gwarancja wymagają konfiguracji serwera",
 	}, fusFrame)
 	addTextStroke(self.fusionGuaranteeLabel, 1.8)
 
@@ -1839,7 +1801,7 @@ function HUD:_buildPetsModal(root)
 		TextScaled = true,
 		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 175, 240) or nil,
-		Text = "✨ +10 p.p. Bonus Pro Permit (Dostępny)",
+		Text = "Bonus Pro zależy od uprawnień konta",
 	}, fusFrame)
 	addTextStroke(self.fusionProPermitBadge, 1.6)
 
@@ -1858,7 +1820,9 @@ function HUD:_buildPetsModal(root)
 	if self.fusePetsButton.Activated then
 		self.fusePetsButton.Activated:Connect(function()
 			if type(self.onFusePets) == "function" then
-				self.onFusePets("base_1", { "mat_1", "mat_2" })
+				if self.fusionBaseUid and #self.fusionMaterialUids>0 then
+                    self.onFusePets(self.fusionBaseUid,table.clone(self.fusionMaterialUids))
+                else self:onActionResult({status="NOT_ACCEPTED",errorCode="SELECT_FUSION_INPUTS"}) end
 			end
 		end)
 	end
@@ -2210,7 +2174,7 @@ function HUD:_buildCalendarModal(root)
 	for day = 1, 28 do
 		local col = (day - 1) % 7
 		local row = math.floor((day - 1) / 7)
-		local reward = CALENDAR_REWARDS_CATALOG[day] or { label = "Nagroda", icon = "🎁" }
+		local reward = {label="Dane z serwera",icon="🎁"}
 
 		local dayCell = createGuiElement("Frame", {
 			Name = "DayCell_" .. tostring(day),
@@ -2267,8 +2231,10 @@ function HUD:_buildCalendarModal(root)
 	end
 
 	-- Tab 2: Trophies List
-	local trophContent = createGuiElement("Frame", {
+	local trophContent = createGuiElement("ScrollingFrame", {
 		Name = "TrophiesContent_Tab2",
+		CanvasSize = if isRoblox then UDim2.new(0,0,0,19*60+12) else nil,
+		ScrollBarThickness = 8,
 		Visible = false,
 		Size = isRoblox and UDim2.new(1, -28, 0, 380) or nil,
 		Position = isRoblox and UDim2.new(0, 14, 0, 88) or nil,
@@ -2276,8 +2242,8 @@ function HUD:_buildCalendarModal(root)
 	}, cFrame)
 	addCornerAndStroke(trophContent, 8, isRoblox and Color3.fromRGB(20, 12, 24) or nil, 2)
 
-	-- Sample eggs trophies cards (first 6 displayed, extensible)
-	for eIdx = 0, 5 do
+	-- Every trophy in the authoritative catalogue is reachable.
+	for eIdx = 0, 18 do
 		local egg = EGGS_DATA[eIdx] or { name = "Jajo " .. tostring(eIdx) }
 		local card = createGuiElement("Frame", {
 			Name = "TrophyCard_Egg_" .. tostring(eIdx),
@@ -3034,7 +3000,58 @@ function HUD:updateStatus(newStatus)
 	end
 end
 
+-- Selection is explicit; stale/consumed/locked UIDs are never auto-replaced.
+function HUD:showPurchasePreview(preview,confirm)
+    if self.purchasePreviewFrame then self.purchasePreviewFrame:Destroy() end
+    local parent=if self.actionStatusLabel then self.actionStatusLabel.Parent else nil
+    local frame=createGuiElement("Frame",{Name="PurchasePreview",Visible=true,ZIndex=50,
+        Size=if isRoblox then UDim2.new(0,420,0,200) else nil,Position=if isRoblox then UDim2.new(.5,-210,.5,-100) else nil,
+        BackgroundColor3=if isRoblox then Color3.fromRGB(40,25,45) else nil},parent)
+    self.purchasePreviewFrame=frame
+    createGuiElement("TextLabel",{Name="Terms",Text=preview.description,TextWrapped=true,ZIndex=51,
+        Size=if isRoblox then UDim2.new(1,-20,.65,0) else nil,Position=if isRoblox then UDim2.new(0,10,0,10) else nil,
+        BackgroundTransparency=1,TextColor3=if isRoblox then Color3.new(1,1,1) else nil,TextScaled=true},frame)
+    local used=false
+    for i,label in {"Potwierdź","Anuluj"} do
+        local button=createGuiElement("TextButton",{Name=if i==1 then "Confirm" else "Cancel",Text=label,ZIndex=51,
+            Size=if isRoblox then UDim2.new(.45,0,.2,0) else nil,Position=if isRoblox then UDim2.new(.025+(i-1)*.5,0,.75,0) else nil},frame)
+        if button.Activated then button.Activated:Connect(function()
+            if used then return end;used=true;frame.Visible=false
+            if i==1 then confirm() end
+        end) end
+    end
+end
+function HUD:selectFusionBase(uid)
+    self.fusionBaseUid=uid;self.fusionMaterialUids={}
+end
+function HUD:toggleFusionMaterial(uid)
+    self.fusionMaterialUids=self.fusionMaterialUids or {}
+    if uid==self.fusionBaseUid then return end
+    local at=table.find(self.fusionMaterialUids,uid)
+    if at then table.remove(self.fusionMaterialUids,at) else table.insert(self.fusionMaterialUids,uid) end
+end
+function HUD:onActionResult(response)
+    self.lastActionResult=response
+    local result=response.result
+    local text=if result and result.terminalStatus=="APPLIED" then (if result.actionKind=="PurchaseProduct" then "Otwieranie zakupu — oczekiwanie na platformę" elseif result.outcome=="FAILURE" then "Łączenie nieudane — pet bazowy zachowany" else "Operacja potwierdzona przez serwer")
+        else response.errorCode or (result and result.errorCode) or response.status or "Oczekiwanie na serwer"
+    if self.actionStatusLabel then self.actionStatusLabel.Text=text end
+end
 function HUD:update()
+    self.fusionMaterialUids=self.fusionMaterialUids or {}
+    local farm=self.stateStore:getFarm()
+    local progress=farm and farm.progress
+    self._visiblePets=if progress then progress.pets else {}
+    for day,cell in self.calendarDayCells or {} do
+        local reward=progress and progress.calendar and progress.calendar[day]
+        local label=cell:FindFirstChild("RewardText")
+        if label then label.Text=if reward then (if reward.available then reward.rewardType.." "..reward.amount else "Niedostępne") else "Dane z serwera" end
+    end
+    for i,card in self.petInventoryCards or {} do
+        local pet=self._visiblePets[i]
+        local label=card:FindFirstChild("PetName")
+        if label then label.Text=if pet then pet.speciesId.." T"..tostring(pet.tier).." "..pet.variant else "Puste miejsce" end
+    end
 	self:updateStatus(self.stateStore:getStatus())
 
 	local farm = self.stateStore:getFarm()

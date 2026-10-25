@@ -72,6 +72,10 @@ local FarmActions = resolve(function()
 	return script.Parent.FarmActions
 end, "./FarmActions")
 
+local Calendar = resolve(function() return script.Parent.rewards.calendar end, "./rewards/calendar")
+local Trophies = resolve(function() return script.Parent.rewards.trophies end, "./rewards/trophies")
+local Fusion = resolve(function() return script.Parent.pets.fusion end, "./pets/fusion")
+local ActionReference = resolve(function() return script.Parent.ActionReferenceData end, "./ActionReferenceData")
 local ProgressActions = resolve(function()
 	return script.Parent.ProgressActions
 end, "./ProgressActions")
@@ -358,6 +362,10 @@ function ServerBootstrap.new(deps)
   liveEvents = data.copy(deps.liveEvents or {}),
   -- Test fixture only: no production hatch prices/chances have been approved.
   petHatchTestPolicy = deps.petHatchTestPolicy,
+        fusionPolicy = deps.fusionPolicy,
+        boostShop = deps.boostShop,
+        platformProducts = deps.platformProducts or {},
+        paidRandomAllowed = deps.paidRandomAllowed,
 	}, ServerBootstrap)
 
 	return self
@@ -499,6 +507,72 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 	end
 
 	local function domainApply(candidateProfile, op)
+        local connected={ClaimDailyGift=true,ClaimTrophy=true,FusePets=true,BuyBoost=true,PurchaseProduct=true}
+        if connected[op.kind] then
+            local draft=self.data.copy(candidateProfile)
+            local args=op.args or {}
+            local ok,code=false,"FEATURE_UNAVAILABLE"
+            local result={terminalStatus="APPLIED",actionKind=op.kind}
+            if op.kind=="ClaimDailyGift" then
+                local m,day=Calendar.getCycleAndDay(draft.rewards.numDailyGiftsCollected or 0)
+                local def=Calendar.referenceReward(draft.rewards.numDailyGiftsCollected or 0,ActionReference.calendar)
+                if not Calendar.canClaimCalendarDay(draft,self.clock.utcNowMs()) then code="ALREADY_CLAIMED_TODAY"
+                elseif def then
+                    local reward,err
+                    ok,reward,err=Calendar.claimDailyGift(draft,self.clock.utcNowMs(),{[day]=def},ActionReference.epic)
+                    code=err
+                    if ok then result.rewardType=def.rewardType;result.amount=self.codec.BigAmount.encode(def.amountNumber);result.day=day;result.cycle=m end
+                end
+            elseif op.kind=="ClaimTrophy" then
+                if args.eggIndex~=draft.farm.eggIndex then code="WRONG_EGG"
+                else
+                    local pop=self.codec.ExactUInt.decode("0")
+                    for _,hab in draft.farm.habitats do pop=self.codec.ExactUInt.add(pop,self.codec.ExactUInt.decode(hab.population)) end
+                    -- Clamp only after exact comparison: trophy thresholds are <= 10 billion.
+                    local limit=self.codec.ExactUInt.decode("10000000000")
+                    local population=if self.codec.ExactUInt.compare(pop,limit)>=0 then 10000000000 else self.codec.ExactUInt.toSafeNumber(pop)
+                    local catalog={};for k,v in ActionReference.trophies do catalog[tonumber(k)]=v end
+                    local reward;ok,reward,code=Trophies.claimTrophy(draft,args.eggIndex,args.tierIndex,population,catalog)
+                end
+            elseif op.kind=="FusePets" then
+                local policy=self.fusionPolicy
+                if policy and policy.mode=="INTERNAL_TEST_ONLY" and policy.recipes and type(policy.draw)=="function" then
+                    local res
+                    local eligible,preview=Fusion.getFusionPreview(draft.inventory,args.basePetId,args.materialIds,draft.entitlements.pro_plus10_enabled==true,policy.recipes)
+                    if eligible then
+                        ok,res=Fusion.executeFusion(draft.inventory,args.basePetId,args.materialIds,draft.entitlements.pro_plus10_enabled==true,policy.recipes,policy.draw())
+                    else ok=false;res=preview end
+                    if ok then result.success=res.success;result.outcome=res.status;result.petUid=args.basePetId else code=res end
+                end
+            elseif op.kind=="BuyBoost" then
+                local offer=self.boostShop and self.boostShop.mode=="INTERNAL_TEST_ONLY" and self.boostShop[args.boostId]
+                if offer then
+                    local U=self.codec.ExactUInt
+                    local cost=U.decode(offer.costGE)
+                    if U.compare(U.decode(draft.permanent.GE),cost)<0 then code="INSUFFICIENT_GE"
+                    else
+                        draft.permanent.GE=U.encode(U.subtract(U.decode(draft.permanent.GE),cost))
+                        draft.permanent.totalGESpent=U.encode(U.add(U.decode(draft.permanent.totalGESpent),cost))
+                        draft.inventory.boosts[args.boostId]=U.encode(U.add(U.decode(draft.inventory.boosts[args.boostId] or "0"),U.decode("1")))
+                        ok=true
+                    end
+                end
+            elseif op.kind=="PurchaseProduct" then
+                local spec=self.platformProducts[args.productId]
+                if spec and type(spec.platformId)=="number" and spec.platformId>0 and spec.platformId%1==0 and spec.platformId<=9007199254740991 then
+                    local allowed=if type(self.paidRandomAllowed)=="function" then self.paidRandomAllowed(playerId) else nil
+                    if args.productId~="pro_permit" or type(allowed)=="boolean" then
+                        local preview=Products.previewPurchase(draft,args.productId,{paidRandomAllowed=allowed},false)
+                        if preview.isAvailable then
+                            ok=true;result.productId=preview.productId;result.platformId=spec.platformId;result.productType=preview.productType
+                            result.description=preview.description;result.paidBonusAvailable=preview.paidBonusAvailable
+                        else code=preview.error end
+                    else code="POLICY_UNAVAILABLE" end
+                end
+            end
+            if not ok then return {profile=candidateProfile,terminalStatus="REJECTED",result={errorCode=code or "OPERATION_REJECTED"},validate=function()return false,code end} end
+            return {profile=draft,terminalStatus="APPLIED",result=result,validate=function()return true end}
+        end
 		if op.kind == "UpgradeEgg" or op.kind == "Prestige" then
 			return ProgressActions.apply(candidateProfile, op, { catalog = self.catalog, productionMath = self.productionMath })
 		elseif op.kind == "PlatformPurchase" or op.kind == "ConfirmPurchase" then
@@ -698,18 +772,19 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 			local okEq, errEq = Equipment.equipPet(candidateProfile.inventory, petUid, isPro)
 			return {
 				profile = candidateProfile,
-				result = { success = okEq, petUid = petUid, error = errEq },
+				result = if okEq then {terminalStatus="APPLIED",actionKind="EquipPet",success=true,petUid=petUid} else {errorCode=errEq},
 				terminalStatus = if okEq then "APPLIED" else "REJECTED",
 				validate = function() return okEq, errEq end,
 			}
 		elseif op.kind == "UnequipPet" then
 			local petUid = op.args and (op.args.petUid or op.args.petId)
+            if op.args and op.args.slotIndex then petUid=candidateProfile.inventory.equipped[op.args.slotIndex] end
 			candidateProfile.inventory = candidateProfile.inventory or {}
 			candidateProfile.inventory.equipped = candidateProfile.inventory.equipped or {}
 			local okUneq, errUneq = Equipment.unequipPet(candidateProfile.inventory, petUid)
 			return {
 				profile = candidateProfile,
-				result = { success = okUneq, petUid = petUid, error = errUneq },
+				result = if okUneq then {terminalStatus="APPLIED",actionKind="UnequipPet",success=true,petUid=petUid} else {errorCode=errUneq},
 				terminalStatus = if okUneq then "APPLIED" else "REJECTED",
 				validate = function() return okUneq, errUneq end,
 			}
@@ -722,7 +797,7 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 			local okLock, errLock = Equipment.setPetLock(candidateProfile.inventory, petUid, newLock)
 			return {
 				profile = candidateProfile,
-				result = { success = okLock, petUid = petUid, locked = newLock, error = errLock },
+				result = if okLock then {terminalStatus="APPLIED",actionKind="TogglePetLock",success=true,petUid=petUid,locked=newLock} else {errorCode=errLock},
 				terminalStatus = if okLock then "APPLIED" else "REJECTED",
 				validate = function() return okLock, errLock end,
 			}

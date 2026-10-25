@@ -14,3 +14,5 @@ Projekt gry Roblox. Wykonano i odebrano **IMP-01–15 oraz QA-01: kompletna pods
 W PowerShell: ./tools/bootstrap.ps1, następnie ./tools/test.ps1 -PythonExecutable python (Python 3.10+, stdlib). Narzędzia trafiają lokalnie do ignorowanego .tools, wyniki do build. Weryfikacja L nie oznacza testów Studio lub DataStore.
 
 REFERENCE_ONLY nie jest konfiguracją wydania. Bilans pozostaje odłożony. Issue nie jest automatycznym zleceniem realizacji lub publikacji gry. [Zakres kopii publicznej](PUBLIC_EXPORT.md).
+
+Bieżąca poprawka [#56 — rzeczywiste operacje przycisków](docs/workflow/action_wiring_56.md) usuwa lokalne sukcesy i dodaje [testy oczekiwanego zachowania](tests/game_behavior/README.md). Pełne sprawdzenie wraz z siedmioma mutacjami: `./tools/test.ps1 -PythonExecutable python -MutationChecks`. Ograniczenia wydania nadal obowiązują: #57–61, brak konfiguracji funkcji odłożonych i niedomknięte pięć dni kalendarza [#62](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/62). Wynik L nie oznacza gotowości całej gry.

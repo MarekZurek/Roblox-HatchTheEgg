@@ -25,7 +25,7 @@ local Calendar = {
 	MAX_PE_CYCLES = 24, -- cycles 0..23 award 1 PE (24 total), cycle >= 24 awards 100k GE
 }
 
-export type CalendarRewardType = "GE" | "PE" | "SE" | "Cash" | "Piggy" | "Boost" | "Epic"
+export type CalendarRewardType = "GE" | "PE" | "SE" | "Cash" | "Piggy" | "PiggyLevel" | "Boost" | "Epic"
 
 export type CalendarReward = {
 	rewardType: CalendarRewardType,
@@ -37,7 +37,8 @@ export type CalendarReward = {
 	cycle: number,
 }
 
--- Default final Epic level prices for excess conversion (docs/13 §2 L10-15)
+-- Legacy leaf-test fixture. Bootstrap supplies the full generated Epic price table;
+-- these partial defaults must never be used as a production calendar catalogue.
 local DEFAULT_EPIC_PRICES: { [string]: { maxLevel: number, finalLevelPriceGE: number } } = {
 	hold_to_hatch = { maxLevel = 15, finalLevelPriceGE = 500 },
 	drone_rewards = { maxLevel = 20, finalLevelPriceGE = 1500 },
@@ -103,7 +104,9 @@ local function computeDayReward(m: number, day: number, customRewards: any?): Ca
 		end
 	end
 
-	-- Intermediate standard calendar days (reference fixtures)
+	-- Legacy leaf-test fixtures, not authoritative intermediate calendar rewards.
+    -- Bootstrap always supplies the selected reference row; unresolved categories
+    -- are refused before entering this function (tracked in issue #62).
 	if day == 4 or day == 11 or day == 18 or day == 24 then
 		-- Soul Eggs
 		local val = 50000
@@ -221,13 +224,20 @@ local function claimDailyGift(
 		profile.accounting.lastCashEarned = BigAmount.encode(BigAmount.add(lastEarned, addCash))
 	elseif reward.rewardType == "Piggy" then
 		profile.piggy = profile.piggy or {}
-		local curRaw = profile.piggy.rawAmount or 0
-		profile.piggy.rawAmount = curRaw + reward.amountNumber
-	elseif reward.rewardType == "Boost" then
+		local curRaw = profile.piggy.rawAmount or "0"
+        if type(curRaw)=="number" then curRaw=ExactUInt.encode(ExactUInt.fromSafeNumber(curRaw)) end
+		profile.piggy.rawAmount = ExactUInt.encode(ExactUInt.add(ExactUInt.decode(curRaw),ExactUInt.fromSafeNumber(reward.amountNumber)))
+	elseif reward.rewardType == "PiggyLevel" then
+        local old=profile.piggy.level or "0"
+        if type(old)=="number" then old=ExactUInt.encode(ExactUInt.fromSafeNumber(old)) end
+        profile.piggy.level=ExactUInt.encode(ExactUInt.add(ExactUInt.decode(old),ExactUInt.fromSafeNumber(reward.amountNumber)))
+    elseif reward.rewardType == "Boost" then
 		profile.inventory = profile.inventory or {}
 		profile.inventory.boosts = profile.inventory.boosts or {}
 		local bId = reward.boostId or "unknown_boost"
-		profile.inventory.boosts[bId] = (profile.inventory.boosts[bId] or 0) + reward.amountNumber
+		local old=profile.inventory.boosts[bId] or "0"
+        if type(old)=="number" then old=ExactUInt.encode(ExactUInt.fromSafeNumber(old)) end
+        profile.inventory.boosts[bId] = ExactUInt.encode(ExactUInt.add(ExactUInt.decode(old),ExactUInt.fromSafeNumber(reward.amountNumber)))
 	elseif reward.rewardType == "Epic" then
 		local rId = reward.researchId or "hold_to_hatch"
 		applyEpicResearchReward(profile, rId, reward.amountNumber, customPrices)
@@ -242,5 +252,23 @@ Calendar.applyEpicResearchReward = applyEpicResearchReward
 Calendar.getUtcDayKey = getUtcDayKey
 Calendar.canClaimCalendarDay = canClaimCalendarDay
 Calendar.claimDailyGift = claimDailyGift
+
+-- Canonical base-table resolver shared by payout preparation and private previews.
+-- A nil result is an unresolved category, never an invented replacement reward.
+function Calendar.referenceReward(numCollected: number, rows: any): any?
+    local m,day=getCycleAndDay(numCollected)
+    local row=rows[day]
+    local types={[0]="GE",[4]="SE",[5]="PE",[6]="Epic",[7]="Piggy",[9]="PiggyLevel",[10]="Boost"}
+    local typ=types[row.type]
+    if not typ then return nil end
+    local n=row.rewardValues[math.min(m+1,#row.rewardValues)]
+    if row.scalingMode==1 then n=row.rewardValues[1]
+    elseif row.scalingMode==2 then n=math.min(row.cap,n*(m+1))
+    elseif row.scalingMode==3 then n=math.min(row.cap,n*2^math.min(m,32)) end
+    if day==28 and m>=24 then typ="GE";n=100000 end
+    local subtype=row.subtypes[if row.scalingMode==1 then m%#row.subtypes+1 else math.min(m+1,#row.subtypes)]
+    return {rewardType=typ,amount=tostring(n),amountNumber=n,day=day,cycle=m,
+        researchId=if typ=="Epic" then subtype else nil,boostId=if typ=="Boost" then subtype else nil}
+end
 
 return table.freeze(Calendar)

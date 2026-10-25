@@ -145,6 +145,11 @@ end
 
 -- Initialize ClientBootstrap
 client = ClientBootstrap.new({
+    promptPurchase=function(preview)
+        local mps=game:GetService("MarketplaceService")
+        if preview.productType=="gamepass" then mps:PromptGamePassPurchase(localPlayer,preview.platformId)
+        else mps:PromptProductPurchase(localPlayer,preview.platformId) end
+    end,
 	playerId = resolveNumericPlayerId(localPlayer),
 	guiRoot = screenGui,
 	modelsContainer = chickensContainer,

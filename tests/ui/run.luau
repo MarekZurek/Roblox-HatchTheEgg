@@ -989,10 +989,10 @@ do
 	ok(petCard1 ~= nil, "PetCard_1 exists")
 
 	petCard1:FindFirstChild("EquipBtn").Activated:Fire()
-	eq(equippedPet, "pet_1", "EquipBtn fired onEquipPet")
+	eq(equippedPet, nil, "Empty inventory must not select a fabricated pet")
 
 	petCard1:FindFirstChild("LockBtn").Activated:Fire()
-	eq(lockedPet, "pet_1", "LockBtn fired onTogglePetLock")
+	eq(lockedPet, nil, "Empty inventory must not lock a fabricated pet")
 
 	-- Fusion Section: Chance, Guarantee, Pro Permit badge, Fuse button
 	local fusFrame = pModal:FindFirstChild("FusionFrame")
@@ -1004,7 +1004,7 @@ do
 	local fuseBtn = fusFrame:FindFirstChild("FusePetsButton")
 	ok(fuseBtn ~= nil, "FusePetsButton exists")
 	fuseBtn.Activated:Fire()
-	eq(fusedBase, "base_1", "FusePetsButton fired onFusePets")
+	eq(fusedBase, nil, "Fusion requires explicit base and material selection")
 
 	hud:destroy()
 end
