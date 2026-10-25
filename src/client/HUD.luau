@@ -1,6 +1,6 @@
 --!nocheck
 -- HUD for HatchTheEgg (IMP-14, VIS-04, PROD-01, PROD-02, PROD-03).
--- Candy & Classic Studs styled responsive 2D HUD for PC and Mobile, inspired by
+-- Classic Studs styled responsive 2D HUD for PC and Mobile, inspired by
 -- the user's reference screenshots (Dom button at top, Koszyk Jajek at bottom center,
 -- huge green $ counter at bottom-left, studded quick-upgrade buttons on the left,
 -- 6 framed icon buttons dock on the right, and total chicken counter at bottom-right).
@@ -892,7 +892,7 @@ function HUD:_buildInterface()
 		TextScaled = true,
 		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 165, 125) or nil,
-		Text = "Odrodzenie 0 • 🍫 Cukierkowa Farma",
+		Text = "Odrodzenie 0 • 🥚 Farma Jajeczna",
 	}, bottomLeft)
 	addTextStroke(self.rebirthLabel, 2.4)
 

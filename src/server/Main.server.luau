@@ -3,7 +3,7 @@
 -- Automatically starts the authoritative server in Roblox Studio / Production:
 -- 1. Creates ReplicatedStorage/HatchTheEgg/Remotes (ClientToServer & ServerToClient RemoteEvents).
 -- 2. Connects to Roblox DataStoreService with resilient retries (falling back to memory in Studio without API access).
--- 3. Generates the 3D Candy & Chocolate Farm Island world via FarmPlotBuilder.
+-- 3. Generates the 3D Farm Island world via FarmPlotBuilder.
 -- 4. Manages player sessions (PlayerAdded / PlayerRemoving) via ServerBootstrap.
 -- 5. Runs authoritative simulation ticks and replicates StateSnapshot / StateDelta views.
 -- 6. Runs autosave loop (every 300s) and handles safe flush on server shutdown (BindToClose).
@@ -98,7 +98,7 @@ local serverClock = {
 	end,
 }
 
--- 3. Generate the 3D Candy & Chocolate Farm Island World in Workspace
+-- 3. Generate the 3D Farm Island World in Workspace
 local worldBuilder = FarmPlotBuilder.new()
 worldBuilder:build()
 

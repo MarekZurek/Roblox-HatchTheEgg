@@ -268,9 +268,9 @@ local function createBuyPad(parent, config)
 
 	local px, py, pz = config.pos.x, config.pos.y, config.pos.z
 
-	-- 1. Chocolate-Brown Outer Border Frame (exactly like Screenshot 1!)
+	-- 1. Wood Outer Border Frame
 	makePart({
-		Name = "ChocolateFrame",
+		Name = "WoodBorderFrame",
 		Size = v3(7.4, 0.5, 7.4),
 		Position = v3(px, py - 0.1, pz),
 		Color = rgb(112, 72, 38),
@@ -723,9 +723,9 @@ local function populateHabitatStructure(buildingModel, slotId, typeIndex)
 	local plotInfo = FarmPlotBuilder.HABITAT_PLOTS[slotId]
 	local cx, cy, cz = plotInfo.center.x, plotInfo.center.y, plotInfo.center.z
 
-	-- Raised Chocolate-Wafer Parcel Base
+	-- Raised Parcel Base Frame
 	makePart({
-		Name = "ParcelChocolateFrame",
+		Name = "ParcelBaseFrame",
 		Size = v3(25, 0.8, 25),
 		Position = v3(cx, cy + 0.2, cz),
 		Color = rgb(110, 64, 34),
@@ -742,7 +742,7 @@ local function populateHabitatStructure(buildingModel, slotId, typeIndex)
 	}, buildingModel, false)
 
 	if typeIndex == -1 then
-		-- Unbuilt Parcel: cute construction sign & candy corner posts
+		-- Unbuilt Parcel: construction sign & corner posts
 		for _, dx in ipairs({ -9, 9 }) do
 			for _, dz in ipairs({ -9, 9 }) do
 				makePart({
@@ -756,7 +756,7 @@ local function populateHabitatStructure(buildingModel, slotId, typeIndex)
 		return
 	end
 
-	-- Built Habitat (typeIndex 0 = Strawberry Coop, typeIndex 1 = Blueberry Candy Shack)
+	-- Built Habitat (typeIndex 0 = Starter Coop, typeIndex 1 = Wooden Shack)
 	local wallColor = if typeIndex == 0 then rgb(255, 242, 215) else rgb(175, 225, 255)
 	local roofColor = if typeIndex == 0 then rgb(255, 95, 145) else rgb(125, 85, 245)
 	local trimColor = if typeIndex == 0 then rgb(125, 68, 36) else rgb(255, 215, 65)
@@ -772,7 +772,7 @@ local function populateHabitatStructure(buildingModel, slotId, typeIndex)
 		CanCollide = true,
 	}, buildingModel, false)
 
-	-- Candy Corner Trim Pillars
+	-- Corner Trim Pillars
 	for _, dx in ipairs({ -7.8, 7.8 }) do
 		for _, dz in ipairs({ -7.8, 7.8 }) do
 			makePart({
@@ -784,7 +784,7 @@ local function populateHabitatStructure(buildingModel, slotId, typeIndex)
 		end
 	end
 
-	-- Stepped Studded Candy Roof (Classic Roblox Tycoon / Simulator style!)
+	-- Stepped Studded Roof (Classic Roblox Tycoon / Simulator style!)
 	for step = 1, 4 do
 		local w = 19 - (step - 1) * 3.6
 		makePart({
@@ -858,7 +858,7 @@ function FarmPlotBuilder:build()
 		if existing then
 			existing:Destroy()
 		end
-		-- Remove default Baseplate if present so our Chocolate Sea & Candy Islands shine!
+		-- Remove default Baseplate if present so our Farm Islands shine!
 		local baseplate = self.workspace:FindFirstChild("Baseplate")
 		if baseplate then
 			baseplate:Destroy()
@@ -1212,7 +1212,7 @@ function FarmPlotBuilder:_buildHatchery(worldFolder)
 	local pz = FarmPlotBuilder.PRESSURE_PLATE_POS.z
 
 	makePart({
-		Name = "HatchPadChocolateFrame",
+		Name = "HatchPadBorderFrame",
 		Size = v3(9.4, 0.5, 9.4),
 		Position = v3(px, py - 0.12, pz),
 		Color = rgb(110, 68, 36),
@@ -1437,7 +1437,7 @@ function FarmPlotBuilder:_buildSiloTower(worldFolder)
 			siloModel = { Name = "SiloTower_" .. tostring(i), Children = {} }
 		end
 
-		-- Candy-Striped Red & White Silo Rings (exact style from Screenshot 2!)
+		-- Red & White Silo Rings (exact style from Screenshot 2!)
 		for ring = 1, 7 do
 			local ringColor = if ring % 2 == 1 then rgb(235, 55, 65) else rgb(255, 250, 245)
 			makePart({
@@ -1451,7 +1451,7 @@ function FarmPlotBuilder:_buildSiloTower(worldFolder)
 			}, siloModel, false)
 		end
 
-		-- Chocolate Dome Cap
+		-- Silo Dome Cap
 		makePart({
 			Name = "SiloDome",
 			Shape = isRoblox and Enum.PartType.Ball or nil,
@@ -1523,7 +1523,7 @@ function FarmPlotBuilder:_buildShippingDepot(worldFolder)
 		CanCollide = true,
 	}, depotModel, false)
 
-	-- Candy Canopy over Depot
+	-- Canopy over Depot
 	makePart({
 		Name = "DepotRoof",
 		Size = v3(22, 1.5, 12),
@@ -1532,7 +1532,7 @@ function FarmPlotBuilder:_buildShippingDepot(worldFolder)
 		StudsTop = true,
 	}, depotModel, true)
 
-	-- Cute 3D Candy Delivery Vehicle in Slot 1
+	-- Cute 3D Delivery Vehicle in Slot 1
 	local trikeBody = makePart({
 		Name = "Vehicle_Slot1_Body",
 		Size = v3(5.5, 3.6, 8.5),
@@ -2020,7 +2020,7 @@ function FarmPlotBuilder:_buildPetIncubatorStation(worldFolder)
 
 	local ix, iy, iz = FarmPlotBuilder.INCUBATOR_STATION_POS.x, FarmPlotBuilder.INCUBATOR_STATION_POS.y, FarmPlotBuilder.INCUBATOR_STATION_POS.z
 
-	-- 1. Candy marble stepped pedestal
+	-- 1. Stepped pedestal
 	local pedestal = makePart({
 		Name = "IncubatorPedestal",
 		Size = v3(8, 2.8, 8),
@@ -2039,7 +2039,7 @@ function FarmPlotBuilder:_buildPetIncubatorStation(worldFolder)
 		CanCollide = true,
 	}, stationModel, false)
 
-	-- 2. Four Candy-Cane/Gold Corner Support Pillars
+	-- 2. Four Corner Support Pillars
 	local pillarOffsets = {
 		{ x = -3.2, z = -3.2 },
 		{ x = 3.2, z = -3.2 },

@@ -1,7 +1,7 @@
 --!nocheck
 -- RoutePresentation for HatchTheEgg (IMP-13 & VIS-05).
 -- Visual presentation of the 4 habitat plots, hatchery zone, cute 3D kawaii chicken models,
--- arrival particle puffs, and 3D flying candy drones based on PRE-03 (docs/35_pre03_routes_and_arrivals.md).
+-- arrival particle puffs, and 3D flying drones based on PRE-03 (docs/35_pre03_routes_and_arrivals.md).
 --
 -- CRITICAL ARCHITECTURAL INVARIANT:
 -- The presentation layer is strictly a one-way consumer of state.
@@ -113,14 +113,14 @@ local function destroyModel(model)
 end
 
 -- ============================================================================
--- 3D Kawaii Candy Chicken Model & Arrival Particle Puff (Roblox Studio)
+-- 3D Chicken Model & Arrival Particle Puff (Roblox Studio)
 -- ============================================================================
 
 local CHICKEN_PALETTE = table.freeze({
 	{ 255, 248, 235 }, -- Cream White
 	{ 255, 232, 95 },  -- Sunny Chick Yellow
 	{ 255, 195, 225 }, -- Strawberry Milk Pink
-	{ 195, 238, 255 }, -- Cotton Candy Blue
+	{ 195, 238, 255 }, -- Soft Sky Blue
 })
 
 local function makeChickenSubPart(parent, name, size, offsetCF, color, baseCF)
@@ -279,7 +279,7 @@ local function spawnArrivalPuff(pos, container)
 	pcall(function()
 		local x, y, z = getCoords(pos)
 		local puffPart = Instance.new("Part")
-		puffPart.Name = "ArrivalCandyPuff"
+		puffPart.Name = "ArrivalPuff"
 		puffPart.Shape = Enum.PartType.Ball
 		puffPart.Size = Vector3.new(2.2, 2.2, 2.2)
 		puffPart.Position = Vector3.new(x, y + 1.5, z)
@@ -671,7 +671,7 @@ function RoutePresentation:update(nowMs: number)
 		end
 	end
 
-	-- Clean up arrived groups: chickens visually disappear in target coop with a candy puff
+	-- Clean up arrived groups: chickens visually disappear in target coop with a particle puff
 	for _, group in ipairs(arrivedGroups) do
 		spawnArrivalPuff(group.currentPosition, self.container)
 		for _, model in ipairs(group.models) do
@@ -691,7 +691,7 @@ function RoutePresentation:update(nowMs: number)
 end
 
 -- ============================================================================
--- 3D Flying Candy Drones Presentation (VIS-05, PROD-06)
+-- 3D Flying Drones Presentation (VIS-05, PROD-06)
 -- ============================================================================
 
 local function bezierCubic(p0, p1, p2, p3, t)
@@ -737,7 +737,7 @@ function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startI
 	local model
 	if isRoblox then
 		model = Instance.new("Model")
-		model.Name = "CandyDrone_" .. tostring(droneId)
+		model.Name = "Drone_" .. tostring(droneId)
 
 		local core = Instance.new("Part")
 		core.Name = "DroneCore"
@@ -799,7 +799,7 @@ function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startI
 		lbl.BackgroundTransparency = 1
 		lbl.Font = Enum.Font.FredokaOne
 		lbl.TextScaled = true
-		lbl.Text = if isElite then "👑 ELITARNY DRON! [KLIKNIJ]" else "🎁 CUKIERKOWY DRON! [KLIKNIJ]"
+		lbl.Text = if isElite then "👑 ELITARNY DRON! [KLIKNIJ]" else "📦 DRON Z PACZKĄ! [KLIKNIJ]"
 		lbl.TextColor3 = Color3.fromRGB(255, 245, 95)
 		lbl.Parent = bb
 

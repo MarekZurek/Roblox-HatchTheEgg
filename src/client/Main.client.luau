@@ -2,10 +2,10 @@
 -- Main Client Entrypoint for HatchTheEgg (VIS-01, VIS-03, VIS-04, VIS-05).
 -- Wires the client runtime in Roblox Studio:
 -- 1. Connects ClientBootstrap to ReplicatedStorage/HatchTheEgg/Remotes.
--- 2. Mounts the Candy & Studs HUD in PlayerGui and wires TutorialController.
+-- 2. Mounts the Studs HUD in PlayerGui and wires TutorialController.
 -- 3. Connects 3D Physical Pressure Plate, Studded Step-On Buy Pads, and ProximityPrompts
 --    to authoritative client intents (HatchPress, BuyHabitat, BuyVehicle, BuyResearch).
--- 4. Drives 60 FPS 3D Kawaii Chicken route interpolation and flying Candy Drones.
+-- 4. Drives 60 FPS 3D Chicken route interpolation and flying Drones.
 
 local isRoblox = (typeof(game) == "Instance")
 if not isRoblox then
@@ -41,7 +41,7 @@ local remotesFolder = hteRoot and hteRoot:WaitForChild("Remotes", 15)
 local clientToServer = remotesFolder and remotesFolder:WaitForChild("ClientToServer", 15)
 local serverToClient = remotesFolder and remotesFolder:WaitForChild("ServerToClient", 15)
 
--- Container in Workspace for 3D running kawaii chickens and flying candy drones
+-- Container in Workspace for 3D running chickens and flying drones
 local chickensContainer = Workspace:FindFirstChild("HatchTheEggVisualActors")
 if not chickensContainer then
 	chickensContainer = Instance.new("Folder")
@@ -426,7 +426,7 @@ if client:getPresentation() and type(client:getPresentation().on) == "function" 
 	end)
 end
 
--- PROD-06: Raycasting click/tap to shoot down overhead Candy Drones
+-- PROD-06: Raycasting click/tap to shoot down overhead Drones
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	if gameProcessed then return end
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -441,8 +441,8 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 			local hit = Workspace:Raycast(ray.Origin, ray.Direction * 600, raycastParams)
 			if hit and hit.Instance then
 				local droneModel = hit.Instance:FindFirstAncestorWhichIsA("Model")
-				if droneModel and string.sub(droneModel.Name, 1, 11) == "CandyDrone_" then
-					local droneId = string.sub(droneModel.Name, 12)
+				if droneModel and string.sub(droneModel.Name, 1, 6) == "Drone_" then
+					local droneId = string.sub(droneModel.Name, 7)
 					client:getPresentation():shootDrone(droneId)
 				end
 			end
@@ -492,7 +492,7 @@ RunService.RenderStepped:Connect(function(dt)
 
 	local nowClock = os.clock()
 
-	-- Spawn periodic visual Candy Drones overhead
+	-- Spawn periodic visual Drones overhead
 	if nowClock >= nextDroneSpawnAt and client:getStore():isReady() then
 		nextDroneSpawnAt = nowClock + 14.0
 		droneSerial += 1
