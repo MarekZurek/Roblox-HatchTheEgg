@@ -113,7 +113,9 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
    for i,h in f.habitats do types[i]=if h.typeIndex==-1 then false else h.typeIndex;pops[i]=h.population end
    local result=production.productionStep({commonLevels=f.commonLevels,habitatTypes=types,settledPopulation=pops,vehicleTypes=f.vehicleTypes,rcbMultiplier=1,eggIndex=f.eggIndex,permanent=cp.state.permanent,petMultipliers=pets,permitExistingPopulation=true},dt)
    local baseIncome=if cp.mode=="AWAY" then A.multiply(result.cashIncome,if cp.config.pro then 1 else 0.5) else result.cashIncome
-   local income=A.multiply(baseIncome,mults.earningsMultiplier)
+   local eventAverage=EffectsManager.averageEarningsEventMultiplier(cp.config.liveEvents,cp.startInstantMs,cp.elapsedSeconds,dt)
+   local earningsMultiplier=A.multiply(A.multiply(mults.effectiveEarningsBoost,mults.vdMultiplier),eventAverage)
+   local income=A.multiply(baseIncome,earningsMultiplier)
    f.cash=A.add(f.cash,income)
    local accounting=cp.state.accounting
    accounting.currentFarmCash=A.add(accounting.currentFarmCash,income)

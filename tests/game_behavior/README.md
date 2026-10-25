@@ -8,10 +8,10 @@
 |---|---|---|
 | Liczby, granice i precyzja | numeric, catalog; niezależne wektory Pythona | Nie jest to typecheck Luau |
 | Nowe konto, tutorial | tutorial, integration, acceptance | Samouczek w silniku nieuruchomiony |
-| Wylęg/RCB, grupy, IHR | hatching, ihr, integration89, timeline | Reset sekwencji grup nadal #59 |
+| Wylęg/RCB, grupy, IHR | hatching, ihr, integration89, timeline | Tożsamość grup po resecie sprawdzana w resets (#59) |
 | Produkcja, badania, transport | math, catalog, purchases, production_context, game_behavior | Bez kalibracji tempa progresji |
-| Jajo, SE/PE, wyposażenie i boosty | production_context; rachunki niezależne, granice kontekstu | Nie zastępuje historycznego eventu w części kroku (#61) |
-| Wydarzenia, offline, silosy i VD | effect_boundaries, timeline, production_context | Częściowe kroki eventów #61; brak natywnych zegarów Studio |
+| Jajo, SE/PE, wyposażenie i boosty | production_context; rachunki niezależne, granice kontekstu | Ważenie granicznego kroku badane w event_time (#61) |
+| Wydarzenia, offline, silosy i VD | effect_boundaries, timeline, production_context, event_time | Ważenie granic i silosów #61; brak natywnych zegarów Studio |
 | Zakupy infrastruktury/badań | purchases, gateway, integration, acceptance | Buy MAX jako produkt wymaga odrębnego domknięcia logiki |
 | Zmiana jaja i prestiż | resets, fv_se; realna komenda prestige w game_behavior | Dalsze znane problemy pozostają w Issues |
 | Pety, lock/wyposażenie, fuzja | pet_effects, fusion, game_behavior z jawnym fixture | Produkcyjna fuzja niedostępna; quote/config nieukończone |
@@ -30,7 +30,7 @@ Ta mapa nie oznacza 100% gotowości gry. Obecność fixture'ów i przechodzącyc
 
 Pełny runner: `./tools/test.ps1 -PythonExecutable python -MutationChecks`. Szybko: `.tools/lune-0.11.1/lune.exe run tests/game_behavior/run.luau`.
 
-`mutation_check.py` tworzy kopie src/testów/reference JSON pod ignorowanym build/ i wprowadza dwadzieścia dwa konkretne błędów zachowania. Test musi zakończyć się niepowodzeniem z powodu obserwowalnej regresji, a nie błędu składni/importu. Mutacja UTC wyłącza oba niezależne zabezpieczenia: wyłączenie tylko jednego nie zmienia zachowania dzięki drugiemu i nie jest poprawnym przykładem usterki na poziomie przycisku. Trzy dodatkowe przypadki z #62 uruchamiają calendar_cycle: procent FV, dokładność Shell Scripts i earned prestiżu. Pięć przypadków #57 uruchamia persistence_startup: wczesny handler receipt, blokada lokalnych płatności, odrzucony replay, trwały replay po restarcie i synchronizacja stanu po retry. Zestaw nie deklaruje pełnego mutation score repozytorium.
+`mutation_check.py` tworzy kopie src/testów/reference JSON pod ignorowanym build/ i wprowadza dwadzieścia pięć konkretnych błędów zachowania. Test musi zakończyć się niepowodzeniem z powodu obserwowalnej regresji, a nie błędu składni/importu. Mutacja UTC wyłącza oba niezależne zabezpieczenia: wyłączenie tylko jednego nie zmienia zachowania dzięki drugiemu i nie jest poprawnym przykładem usterki na poziomie przycisku. Trzy dodatkowe przypadki z #62 uruchamiają calendar_cycle: procent FV, dokładność Shell Scripts i earned prestiżu. Pięć przypadków #57 uruchamia persistence_startup: wczesny handler receipt, blokada lokalnych płatności, odrzucony replay, trwały replay po restarcie i synchronizacja stanu po retry. Zestaw nie deklaruje pełnego mutation score repozytorium.
 
 Raporty lokalne: `build/game-behavior-results.json`, `build/game-behavior-mutations.json`. Bez binariów, prywatnych danych ani prawdziwej waluty. [Szczegóły dostawy](../../docs/workflow/action_wiring_56.md).
 
@@ -39,3 +39,5 @@ Pięć mutacji #58 uruchamia pro_policy: nieznana polityka dopuszczona, zaufanie
 Dwie mutacje #59 uruchamiają resets: przywrócenie zerowania hatchGroupSequence osobno w UpgradeEgg i Prestige. Testy śledzą rzeczywiste ID grup i skutki spóźnionego dotarcia, również powyżej 2^53.
 
 Raportowanie #60: tests/release_reporting/test_reporting.py odrzuca fałszywe poziomy i gotowość wydania. release_candidate dodatkowo wykonuje wybrane operacje przez rzeczywisty Main z kontrolowanymi usługami. Wyniki nadal wyłącznie L.
+
+Trzy mutacje #61 uruchamiają event_time: odczyt tylko końca kroku, pomijanie deadline oraz aktywność poza właściwym fragmentem kroku. Wymagane S/D/H pozostają niezweryfikowane.

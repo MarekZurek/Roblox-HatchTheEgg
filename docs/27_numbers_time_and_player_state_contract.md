@@ -204,3 +204,8 @@ Gemini 3.8 Flash Medium przez AGY oceniło pełny tekst kontraktu i przekazany z
 ### Doprecyzowanie zapisu kalendarza — implementacja #62
 
 Referencyjny typ 14 jest przechowywany jako permanent.shellScripts (ExactUInt, kanoniczny tekst; nowy profil "0", starszy brak pola odczytywany jako zero). Counter jest trwały i trafia do prywatnego progress; nie oznacza wdrożenia sklepu kosmetycznego lub kursu wymiany. Wypłata typu 2 jest BigAmount wyliczanym jako procent aktualnego FV farmy domowej. W obecnym modelu earned currentFarmCash dopisuje się ją do podstawy prestiżu niezależnej od portfela, z jednokrotnym dodatkiem aktywnego boostu/peta prestiżu. Nie zmieniono capów, cen, parametrów ani typów pozostałych sekcji. [Weryfikacja #62](workflow/calendar_rewards_62.md).
+
+
+## Realizacja historycznego czasu dochodu — #61
+
+[Dostawa #61](workflow/earnings_event_time_61.md) realizuje §3.2: średnia istniejącej warstwy wydarzeń dochodu po przecięciu okien z aktualnym krokiem, bez dzielenia faz IHR/boostów i bez zmiany ścisłego predykatu VD. Stan checkpointu i jego wersja pozostają bez zmian; zakończona faza produkcji nie jest naliczana ponownie. Weryfikacja L, nie S/D/H. Bez zmian typów, bilansu i danych referencyjnych.

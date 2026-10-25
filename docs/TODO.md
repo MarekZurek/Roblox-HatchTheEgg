@@ -132,7 +132,7 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 ## Bezpieczeństwo — 25.10.2026
 
 - [x] #51–53: zablokować wymuszanie ceny/wyniku inkubacji i wypłaty z nieistniejących dronów/ofert; dodać trwałe rejestry i regresję odbioru. [Zakres i ograniczenia](workflow/security_fixes_51_53.md). Nie zatwierdza bilansu ani całej gotowości wydania.
-- [ ] Pozostałe ustalenia audytu #61 pozostają do wykonania na osobne zlecenie.
+- [x] #61: historyczny czas wydarzeń dochodu w granicznym kroku, silosy i checkpointy. [Dostawa](workflow/earnings_event_time_61.md).
 
 - [x] #54–55: podłączyć aktualne jajo, SE/PE, pety i boosty do produkcji, HUD oraz zapisu/wznowienia. [Zakres i dowody](workflow/production_fixes_54_55.md). Bilans bez zmian.
 

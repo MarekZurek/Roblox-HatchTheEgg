@@ -112,7 +112,7 @@ W docelowej specyfikacji:
 - Wydarzenie prestiżu działa na końcową kolekcję przy faktycznym prestiżu; nie jest mnożnikiem wszystkich przychodów offline. Wyprzedaże i event długości boostów działają przy odpowiedniej czynności. Nie uśredniamy ich w dochodzie farmy.
 - Eventy prezentów/dronów dotyczą rzeczywistych nagród tych systemów. Brak ich generowania offline oznacza brak zaległych wypłat z historycznym mnożnikiem.
 
-Wariant historyczny nie został zaimplementowany ani porównany z gotowym kodem Roblox. Dotychczasowe 32 testy kernela używają stałych, kontrolowanych wymiarów wydarzenia; nie dowodzą działania przyszłego integratora czasu eventu. Oddzielne przykłady matematyczne kontrolują przecięcie okna eventu z okresem produkcji i ważenie granicznego kroku; nie są wykonaniem referencyjnego managera.
+Stan sprzed naprawy #61: wariant historyczny nie był zaimplementowany. Bieżący integrator i lokalne dowody opisuje [dostawa #61](workflow/earnings_event_time_61.md). Ówczesne 32 testy kernela używały stałych, kontrolowanych wymiarów wydarzenia; nie dowodzą działania przyszłego integratora czasu eventu. Oddzielne przykłady matematyczne kontrolują przecięcie okna eventu z okresem produkcji i ważenie granicznego kroku; nie są wykonaniem referencyjnego managera.
 
 Nowa walidacja:
 

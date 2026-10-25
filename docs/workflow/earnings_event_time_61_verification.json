@@ -1,0 +1,72 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "a7c6d48932b23a0e3886370e1992b8e9466ccb8f",
+  "status": "PASS_L_AND_STATIC_BUILD",
+  "releaseCandidateReady": false,
+  "completeProductionCoverage": false,
+  "luauSuiteCount": 35,
+  "luauAssertions": 80360,
+  "eventTimeAssertions": 109,
+  "pythonReportingTests": 11,
+  "regressionBeforeFix": {
+    "actualCash": 0.25,
+    "expectedCash": 0.4166666666666667,
+    "status": "FAIL_REPRODUCED"
+  },
+  "selectedMutationsKilled": 25,
+  "selectedMutationCount": 25,
+  "newMutations": [
+    {
+      "name": "event_end_point_sampling",
+      "state": "KILLED"
+    },
+    {
+      "name": "event_ignores_deadline",
+      "state": "KILLED"
+    },
+    {
+      "name": "event_overlap_applies_whole_step",
+      "state": "KILLED"
+    }
+  ],
+  "studioTested": false,
+  "realDataStoreTested": false,
+  "humanAcceptanceTested": false,
+  "realPurchasesTested": false,
+  "rojoModules": 39,
+  "entrypoints": 2,
+  "protectedBalanceAndReferenceFilesByteIdentical": 14,
+  "historicalJsonReportsUnchangedNormalizedLF": 21,
+  "limitations": [
+    "Selected interval and Bootstrap regressions, not exhaustive game coverage",
+    "No retroactive correction of previously settled income",
+    "No new live event scheduler, products or balance configuration",
+    "S/D/H remain unverified; unavailable features remain unavailable"
+  ],
+  "files": [
+    {
+      "path": "src/server/EffectsManager.luau",
+      "sha256NormalizedLF": "793329d6d18594f13395f2c3bba2d65348668d7ce9432e961c8b168cf0eaeecd"
+    },
+    {
+      "path": "src/server/TimelineSimulation.luau",
+      "sha256NormalizedLF": "25391e7c979b4a19ab5b4cc938ab777a14fff0c42d77287f1f140dd11a3808a5"
+    },
+    {
+      "path": "tests/event_time/run.luau",
+      "sha256NormalizedLF": "8a88c97a0b14767650b4ac73e0ff791f69a2de125826333965c52f989a7cf4a4"
+    },
+    {
+      "path": "tests/game_behavior/mutation_check.py",
+      "sha256NormalizedLF": "0013a0387eb6e51c6cd2363c23c7af6bd1afcbcb8df8650829cfd671385e4c02"
+    },
+    {
+      "path": "tools/test.ps1",
+      "sha256NormalizedLF": "ee44763f4ca39a4a29ba0a9be050175aa7f14be4cb446b73bfe1542d27be02a6"
+    },
+    {
+      "path": "tools/verify_release.py",
+      "sha256NormalizedLF": "d529297dd3508d16e222dc0f318fd80770522d172ab5922ffc36522379e64424"
+    }
+  ]
+}

@@ -129,3 +129,8 @@ Utworzono na GitHubie 8 zadań pełnego wdrożenia produkcyjnego `PROD-01–08` 
 ## Zakres dowodów — #60 (25.10.2026)
 
 [Raport #60](workflow/release_evidence_60.md) koryguje wcześniejsze deklaracje L/S/D i zatwierdzenia wydania. Lokalne harnessy dają wyłącznie L, także przy kontrolowanym DataStore i rzeczywistym Main. Dla A01–A16 brak zarejestrowanego dowodu per scenariusz S/D/H; pozostają NOT_VERIFIED. Zamknięcie Issues, synchronizacja sceny i liczby asercji nie dowodzą odbioru. Bieżące raporty mają releaseCandidateReady=false. Bez zmian bilansu i historycznych JSON-ów.
+
+
+## Historyczny czas wydarzeń dochodu — #61 (25.10.2026)
+
+[Dostawa #61](workflow/earnings_event_time_61.md): graniczny krok otrzymuje mnożnik dochodu ważony rzeczywistym czasem wydarzenia. Bez dodatkowego IHR, dotarć lub odliczania boostów; VD zachowuje predykat końca kroku. Regresje obejmują silosy, wznowienie fazy i rzeczywisty most Bootstrap. Lokalne L i statyczny build nie zaliczają S/D/H ani nie zatwierdzają wydania. Bilans i reference_data bez zmian. Wcześniejsze listy otwartych ustaleń opisują stan historycznych dostaw; #61 jest domknięte w tej dostawie.

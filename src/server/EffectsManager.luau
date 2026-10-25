@@ -174,6 +174,44 @@ local function calculateMultipliers(
 	}
 end
 
+-- Average only the earnings-event layer over this production step (docs/16 §3).
+-- Offsets are relative to the frozen timeline origin to avoid subtracting two rounded
+-- epoch-sized step endpoints. This does not subdivide production, IHR or boost decay.
+local function averageEarningsEventMultiplier(liveEvents: any?, originMs: number, elapsedSeconds: number, dt: number): number
+	assert(dt > 0 and dt < math.huge, "EffectsManager/INVALID_EVENT_INTERVAL")
+	local windows = {}
+	local boundaries = {0, dt}
+	for _, ev in liveEvents or {} do
+		if type(ev) == "table" and (ev.type == "earnings" or ev.type == "earnings-boost") then
+			local start = ev.startTimeMs or 0
+			local deadline = ev.deadlineMs or (start + (ev.durationSeconds or 0) * 1000)
+			local left = math.max(0, (start - originMs) / 1000 - elapsedSeconds)
+			local right = math.min(dt, (deadline - originMs) / 1000 - elapsedSeconds)
+			if left < right then
+				table.insert(windows, {left=left, right=right, multiplier=ev.multiplier or 1})
+				if left > 0 then table.insert(boundaries, left) end
+				if right < dt then table.insert(boundaries, right) end
+			end
+		end
+	end
+	if #windows == 0 then return 1 end
+	table.sort(boundaries)
+	local average = 0
+	for index = 2, #boundaries do
+		local left, right = boundaries[index-1], boundaries[index]
+		if right > left then
+			local multiplier = 1
+			for _, window in windows do
+				if window.left <= left and window.right >= right then multiplier *= window.multiplier end
+			end
+			-- Uniform windows preserve the original constant multiplier exactly.
+			if #boundaries == 2 then return multiplier end
+			average += ((right-left) / dt) * multiplier
+		end
+	end
+	return average
+end
+
 -- Decrements remaining duration for active boosts.
 -- Preserves entries when remainingSeconds == 0; removes strictly when remainingSeconds < 0.
 -- On Enlightenment (eggIndex == 18), time does not decay.
@@ -286,6 +324,7 @@ end
 EffectsManager.BOOST_CATALOG = BOOST_CATALOG
 EffectsManager.isEventActive = isEventActive
 EffectsManager.calculateMultipliers = calculateMultipliers
+EffectsManager.averageEarningsEventMultiplier = averageEarningsEventMultiplier
 EffectsManager.stepDecay = stepDecay
 EffectsManager.activateVideoDoubler = activateVideoDoubler
 EffectsManager.activateBoost = activateBoost

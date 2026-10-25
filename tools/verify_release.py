@@ -81,7 +81,7 @@ def check_build_artifacts():
         "limitations": ["No Studio, real cloud persistence or human acceptance evidence recorded per scenario",
                         "Counts and scenario names do not measure requirement coverage",
                         "Local Main harness uses controlled external services and world presentation",
-                        "Known runtime issue #61 and unavailable production features are not cleared by this tool"],
+                        "Unavailable production features and missing S/D/H acceptance are not cleared by this tool"],
         "scenarioEvidence": acceptance["scenarioEvidence"],
     }
     (ROOT / "build/release-verification-results.json").write_text(json.dumps(report, indent=2)+"\n", encoding="utf-8")
