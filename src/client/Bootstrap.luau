@@ -339,7 +339,14 @@ function ClientBootstrap:_command(kind,args,callback)
                 self._purchasePreviews=self._purchasePreviews or {}
                 if not self._purchasePreviews[response.operationId] and type(prompt)=="function" and self.hud then
                     self._purchasePreviews[response.operationId]=true
-                    self.hud:showPurchasePreview(response.result,function() prompt(response.result) end)
+                    self.hud:showPurchasePreview(response.result,function()
+                        local farm=self.stateStore:getFarm()
+                        local p=farm and farm.progress
+                        if response.result.productId=="pro_permit" and (not p or p.paidRandomPolicy=="unknown" or (p.paidRandomPolicy=="allowed")~=response.result.paidBonusAvailable) then
+                            self.hud:onActionResult({status="NOT_ACCEPTED",errorCode="POLICY_CHANGED"});return
+                        end
+                        prompt(response.result)
+                    end)
                 end
             end
         end

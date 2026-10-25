@@ -34,3 +34,8 @@ Ceny, liczby slotów, kwoty GE, parametry Piggy, procenty bazowe łączenia, rec
 Trzy grupy decyzji w [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md) są teraz zamknięte w zakresie zasad produktu i premiery. Szczegóły przyszłej implementacji oraz odłożony bilans nie tworzą automatycznie nowej rundy zatwierdzania mechanik. Task kalendarza dla Opusa pozostaje pominięty.
 
 Backup przed aktualizacją: ZIP.
+
+
+## Realizacja wariantu A — #58
+
+[Implementacja i ograniczenia weryfikacji](workflow/pro_policy_58.md). Własność Pro i bieżąca dostępność bonusu są rozdzielone; zapisany znacznik ostatniego nadania nie zastępuje polityki konta. Nieznana polityka blokuje bonus i podgląd zakupu Pro, nie pozostałe posiadane korzyści. Bez zmiany zatwierdzonych zasad produktu i bilansu.

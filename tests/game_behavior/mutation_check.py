@@ -35,14 +35,29 @@ MUTANTS=[
  ('local_payments_enabled','src/server/Bootstrap.luau',
   'purchasesEnabled = storageMode ~= "STUDIO_MEMORY",','purchasesEnabled = true,'),
  ('rejected_receipt_acknowledged','src/server/Bootstrap.luau',
-  'if res and (res.status == "APPLIED" or (res.status == "REPLAYED" and res.terminalStatus == "APPLIED")) then\n\t\tself:checkpointPlayer(pId)\n\t\treturn true, res\n\tend',
-  'if res and (res.status == "APPLIED" or res.status == "REPLAYED") then\n\t\tself:checkpointPlayer(pId)\n\t\treturn true, res\n\tend'),
+  'if res and (res.status == "APPLIED" or (res.status == "REPLAYED" and res.terminalStatus == "APPLIED")) then\n\t\tself:checkpointPlayer(pId)\n\t\treturn true, res\n\tend\n\n\treturn false, (res and res.errorCode) or "PURCHASE_FAILED"',
+  'if res and (res.status == "APPLIED" or res.status == "REPLAYED") then\n\t\tself:checkpointPlayer(pId)\n\t\treturn true, res\n\tend\n\n\treturn false, (res and res.errorCode) or "PURCHASE_FAILED"'),
  ('durable_receipt_replay_ignored','src/server/Bootstrap.luau',
   'res = admission -- a durable replay may not have an in-process entry after restart',
   'res = coordinator.resultOf(op.operationId) -- ignores the saved record'),
  ('confirmed_retry_snapshot_stale','src/server/PlayerCoordinator.luau',
   'working=data.copy(h.snapshot) -- confirmed retry may have refreshed the durable snapshot',
   'working=data.copy(candidate) -- stale state after a confirmed grant'),
+ ('unknown_policy_allowed','src/server/platform/products.luau',
+  'return paidRandomAllowed == true and profile.entitlements',
+  'return paidRandomAllowed ~= false and profile.entitlements'),
+ ('fusion_trusts_saved_pro_flag','src/server/Bootstrap.luau',
+  'local bonus=Products.isProBonusAvailable(draft,Products.readPaidRandomPolicy(self.paidRandomAllowed,playerId))',
+  'local bonus=draft.entitlements.pro_plus10_enabled==true'),
+ ('fulfillment_trusts_prepared_policy','src/server/platform/products.luau',
+  'profile.entitlements.pro_plus10_enabled = playerContext ~= nil and playerContext.paidRandomAllowed == true',
+  'profile.entitlements.pro_plus10_enabled = op ~= nil and op.paidRandomAllowed == true'),
+ ('late_policy_response_overwrites_current','src/server/Main.server.luau',
+  'if policyByPlayer[pId]~=row or player.Parent~=Players or activePlayerObjects[pId]~=player then return nil end',
+  'if player.Parent~=Players or activePlayerObjects[pId]~=player then return nil end\n    policyByPlayer[pId]=row'),
+ ('sensitive_action_skips_policy_refresh','src/server/Main.server.luau',
+  'refreshPolicy(player) -- outside the coordinator/UpdateAsync; concurrent requests coalesce',
+  '-- Sensitive action uses a stale cache'),
 ]
 def main():
  base=ROOT/'build'/('behavior-mutations-'+uuid.uuid4().hex[:8]);base.mkdir(parents=True)
@@ -53,6 +68,8 @@ def main():
   shutil.copytree(ROOT/'tests/game_behavior',target/'tests/game_behavior')
   shutil.copytree(ROOT/'tests/calendar_cycle',target/'tests/calendar_cycle')
   shutil.copytree(ROOT/'tests/persistence_startup',target/'tests/persistence_startup')
+  shutil.copytree(ROOT/'tests/support',target/'tests/support')
+  shutil.copytree(ROOT/'tests/pro_policy',target/'tests/pro_policy')
   (target/'docs/reference_data').mkdir(parents=True);(target/'build').mkdir()
   for ref in ['infrastructure','research','rewards']:
    shutil.copy2(ROOT/f'docs/reference_data/{ref}.json',target/f'docs/reference_data/{ref}.json')
@@ -65,7 +82,7 @@ def main():
    old='if not Calendar.canClaimCalendarDay(draft,self.clock.utcNowMs()) then'
    assert text.count(old)==1
    server.write_text(text.replace(old,'if false then'),encoding='utf-8')
-  suite='persistence_startup' if name in {'startup_receipt_handler_missing','local_payments_enabled','rejected_receipt_acknowledged','durable_receipt_replay_ignored','confirmed_retry_snapshot_stale'} else 'calendar_cycle' if name in {'calendar_cash_percent_omitted','calendar_shell_precision_lost','calendar_prestige_base_lost'} else 'game_behavior'
+  suite='pro_policy' if name in {'unknown_policy_allowed','fusion_trusts_saved_pro_flag','fulfillment_trusts_prepared_policy','late_policy_response_overwrites_current','sensitive_action_skips_policy_refresh'} else 'persistence_startup' if name in {'startup_receipt_handler_missing','local_payments_enabled','rejected_receipt_acknowledged','durable_receipt_replay_ignored','confirmed_retry_snapshot_stale'} else 'calendar_cycle' if name in {'calendar_cash_percent_omitted','calendar_shell_precision_lost','calendar_prestige_base_lost'} else 'game_behavior'
   run=subprocess.run([str(ROOT/'.tools/lune-0.11.1/lune.exe'),'run',f'tests/{suite}/run.luau'],cwd=target,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=120)
   output=run.stdout+run.stderr
   invalid=any(word in output for word in ['SyntaxError','Failed to resolve require','could not resolve','error parsing'])
@@ -73,7 +90,7 @@ def main():
   (target/'build/output.txt').write_text(output,encoding='utf-8')
   print(f'{name}: {state}',flush=True)
   results.append({'mutant':name,'state':state,'exitCode':run.returncode,'output':str((target/'build/output.txt').relative_to(ROOT))})
- report={'status':'PASS' if all(r['state']=='KILLED' for r in results) else 'FAIL','mutants':results,'scope':'Fifteen selected semantic mutations; not exhaustive mutation coverage'}
+ report={'status':'PASS' if all(r['state']=='KILLED' for r in results) else 'FAIL','mutants':results,'scope':'Twenty selected semantic mutations; not exhaustive mutation coverage'}
  (ROOT/'build/game-behavior-mutations.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
  assert report['status']=='PASS',report
 if __name__=='__main__':main()

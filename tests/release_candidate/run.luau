@@ -342,7 +342,7 @@ assertEq(inv.pets["pet_mat2"], nil, "Material 2 consumed")
 -- Prepare and confirm Pro Permit purchase
 local okPrepPro, prevPro = ProductsAdapter.preparePurchase(p, "pro_permit", "tok_pro_rc", t, { paidRandomAllowed = true })
 assertTrue(okPrepPro, "Pro permit purchase prepared")
-local okConfPro, resPro = ProductsAdapter.confirmPurchase(p, "tok_pro_rc", nil, t + 50)
+local okConfPro, resPro = ProductsAdapter.confirmPurchase(p, "tok_pro_rc", nil, t + 50, nil, {paidRandomAllowed=true})
 assertTrue(okConfPro, "Pro permit purchase confirmed")
 assertTrue(p.entitlements.pro_permit, "Pro permit entitlement active in profile")
 assertTrue(p.entitlements.pro_plus10_enabled, "Pro +10 fusion bonus active")

@@ -154,3 +154,8 @@ Zadania `DOC-01..05`, `PRE-01..03`, `IMP-01..15`, `QA-01`, `NEXT-01..10`, `REL-0
 ## DataStore bez fallbacku produkcyjnego — #57 (25.10.2026)
 
 [Dostawa #57](workflow/persistent_startup_57.md): runtime domyślnie wymaga PERSISTENT i portu read/update. Awaria otwarcia/sondy zatrzymuje start; brak skutecznego pozyskania sesji odrzuca wejście gracza. Pamięć jest jawnym trybem STUDIO_MEMORY z rzeczywistym IsStudio i atrybutem UseLocalMemoryStore=true, bez płatności/passów. INTERNAL_TEST_ONLY pozostaje poza runtime Roblox. Main ma od początku bezpieczny handler receipt; nowy zakup nie jest potwierdzany bez trwałego sukcesu. Potwierdzony retry synchronizuje również snapshot, a sukces po restarcie jest odtwarzany bez drugiego grantu. Weryfikacja lokalna rzeczywistego entrypointu z kontrolowanymi usługami, bez Studio/chmury. Pozostałe #58–61 nie są domknięte; bilans i reference_data bez zmian. Wcześniejsze listy #57–61 opisują stan poprzednich dostaw.
+
+
+## Polityka konta i bonus Pro — #58 (25.10.2026)
+
+[Dostawa #58](workflow/pro_policy_58.md): własność Pro pozostaje trwała, a +10 p.p. wymaga aktualnej zaufanej polityki. Brak/błąd odczytu wyłącza bonus, zachowując pozostałe korzyści. Zapisane pro_plus10_enabled jest wyłącznie historyczną kwalifikacją nadania; nie autoryzuje użycia. Podgląd i potwierdzenie zakupu uwzględniają dostępność. Testy L: 34 zestawy, 80 126 asercji, 20 wykrytych mutacji; bez Studio/chmury. Pozostałe #59–61; bilans i dane referencyjne bez zmian. Starsze listy otwartych ustaleń opisują poprzednie dostawy.

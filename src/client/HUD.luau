@@ -3041,6 +3041,8 @@ function HUD:update()
     self.fusionMaterialUids=self.fusionMaterialUids or {}
     local farm=self.stateStore:getFarm()
     local progress=farm and farm.progress
+    if self.fusionProPermitBadge and progress then
+        self.fusionProPermitBadge.Text=if progress.proBonusAvailable then "Pro +10 p.p.: aktywne" elseif progress.paidRandomPolicy=="unknown" then "Pro +10 p.p.: polityka nieznana" elseif not progress.proPermit then "Pro +10 p.p.: wymaga Pro" else "Pro +10 p.p.: niedostępne dla konta" end
     self._visiblePets=if progress then progress.pets else {}
     for day,cell in self.calendarDayCells or {} do
         local reward=progress and progress.calendar and progress.calendar[day]

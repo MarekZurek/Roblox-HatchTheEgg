@@ -19,7 +19,7 @@
 | Kalendarz: skala, UTC, Epic, PE | claims + game_behavior; JSON i równania | Pełne 28/28, dziesięć cykli w calendar_cycle (#62) |
 | Wszystkie 95 trofeów i granice populacji | game_behavior, osobno odczytany infrastructure.json | UI testowany bez renderera Studio |
 | Zakupy, brak pieniędzy, replay | game_behavior, purchase_recovery, persistence | Kwoty testowe nie stają się parametrami premiery |
-| Produkty: podgląd/potwierdzenie/anulowanie/receipt | game_behavior, purchase_recovery, pet_effects | Żadnych realnych zakupów; uprawnienia #58 nadal otwarte |
+| Produkty: podgląd/potwierdzenie/anulowanie/receipt | game_behavior, purchase_recovery, pet_effects | Żadnych realnych zakupów; polityka Pro sprawdzana w pro_policy (#58) |
 | Sesje, UNKNOWN, reconnect, atomowość | persistence, coordinator, integration89, reward_security, game_behavior | Fail-closed start w persistence_startup (#57) |
 | Rzeczywiste sygnały przycisków i transport | game_behavior + ui; brak injected success-stub | Bez S/D i weryfikacji dotyku na urządzeniu |
 | Sceny, trasy, dźwięk i HUD | presentation, ui, release_candidate — lokalne testy modułów | Nazwa testu nie dowodzi renderowania ani odbioru Studio; #60 |
@@ -30,6 +30,8 @@ Ta mapa nie oznacza 100% gotowości gry. Obecność fixture'ów i przechodzącyc
 
 Pełny runner: `./tools/test.ps1 -PythonExecutable python -MutationChecks`. Szybko: `.tools/lune-0.11.1/lune.exe run tests/game_behavior/run.luau`.
 
-`mutation_check.py` tworzy kopie src/testów/reference JSON pod ignorowanym build/ i wprowadza piętnaście konkretnych błędów zachowania. Test musi zakończyć się niepowodzeniem z powodu obserwowalnej regresji, a nie błędu składni/importu. Mutacja UTC wyłącza oba niezależne zabezpieczenia: wyłączenie tylko jednego nie zmienia zachowania dzięki drugiemu i nie jest poprawnym przykładem usterki na poziomie przycisku. Trzy dodatkowe przypadki z #62 uruchamiają calendar_cycle: procent FV, dokładność Shell Scripts i earned prestiżu. Pięć przypadków #57 uruchamia persistence_startup: wczesny handler receipt, blokada lokalnych płatności, odrzucony replay, trwały replay po restarcie i synchronizacja stanu po retry. Zestaw nie deklaruje pełnego mutation score repozytorium.
+`mutation_check.py` tworzy kopie src/testów/reference JSON pod ignorowanym build/ i wprowadza dwadzieścia konkretnych błędów zachowania. Test musi zakończyć się niepowodzeniem z powodu obserwowalnej regresji, a nie błędu składni/importu. Mutacja UTC wyłącza oba niezależne zabezpieczenia: wyłączenie tylko jednego nie zmienia zachowania dzięki drugiemu i nie jest poprawnym przykładem usterki na poziomie przycisku. Trzy dodatkowe przypadki z #62 uruchamiają calendar_cycle: procent FV, dokładność Shell Scripts i earned prestiżu. Pięć przypadków #57 uruchamia persistence_startup: wczesny handler receipt, blokada lokalnych płatności, odrzucony replay, trwały replay po restarcie i synchronizacja stanu po retry. Zestaw nie deklaruje pełnego mutation score repozytorium.
 
 Raporty lokalne: `build/game-behavior-results.json`, `build/game-behavior-mutations.json`. Bez binariów, prywatnych danych ani prawdziwej waluty. [Szczegóły dostawy](../../docs/workflow/action_wiring_56.md).
+
+Pięć mutacji #58 uruchamia pro_policy: nieznana polityka dopuszczona, zaufanie zapisanemu znacznikowi, kwalifikacja z przygotowania zamiast potwierdzenia, stara odpowiedź i pominięte odświeżenie przed decyzją.

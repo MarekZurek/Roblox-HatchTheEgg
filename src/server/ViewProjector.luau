@@ -89,6 +89,7 @@ local Effects=if isStudio then require(script.Parent.EffectsManager) else requir
 local Calendar=if isStudio then require(script.Parent.rewards.calendar) else require("./rewards/calendar")
 local ActionReference=if isStudio then require(script.Parent.ActionReferenceData) else require("./ActionReferenceData")
 local ProgressActions=if isStudio then require(script.Parent.ProgressActions) else require("./ProgressActions")
+local Products=if isStudio then require(script.Parent.platform.products) else require("./platform/products")
 local ViewProjector = {}
 ViewProjector.__index = ViewProjector
 ViewProjector.ALL_COMMON_RESEARCH_IDS = ALL_COMMON_RESEARCH_IDS
@@ -117,6 +118,7 @@ function ViewProjector.new(deps)
 		catalog = deps.catalog,
 		productionMath = productionMath,
 		configRevision = deps.configRevision or "CANONICAL_V1",
+        paidRandomAllowed = deps.paidRandomAllowed,
   liveEvents = deps.liveEvents or {},
 		supportedIds = table.freeze(supportedIds),
 	}, ViewProjector)
@@ -267,7 +269,10 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
             table.insert(pets,{uid=uid,speciesId=pet.speciesId,tier=pet.tier,variant=pet.variant,locked=pet.locked==true,equipped=equipped})
         end
         for key,value in profile.rewards.trophies or {} do if value==true then table.insert(claimed,key) end end;table.sort(claimed)
+        local paidAllowed=Products.readPaidRandomPolicy(self.paidRandomAllowed,profile.meta.playerId)
         ownFarm.progress={GE=profile.permanent.GE,SE=profile.permanent.SE,PE=profile.permanent.PE,
+            proPermit=profile.entitlements.pro_permit==true,proBonusAvailable=Products.isProBonusAvailable(profile,paidAllowed),
+            paidRandomPolicy=if paidAllowed==nil then "unknown" elseif paidAllowed then "allowed" else "restricted",
             numDailyGiftsCollected=profile.rewards.numDailyGiftsCollected or 0,lastCalendarDayUtc=profile.rewards.lastCalendarDayUtc or -1,
             pets=pets,equipped=deepCopy(profile.inventory.equipped),trophies=claimed,calendar=calendar,shellScripts=profile.permanent.shellScripts or "0"}
     end

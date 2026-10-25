@@ -65,7 +65,7 @@ do
 	-- Purchasing Pro Permit does not grant Buy MAX
 	local okPrepPro, prevPro = Products.preparePurchase(p, "pro_permit", "tok_pro", 2000, { paidRandomAllowed = true })
 	eq(okPrepPro, true, "prepare pro_permit")
-	local okConfPro, resPro = Products.confirmPurchase(p, "tok_pro", nil, 2050)
+	local okConfPro, resPro = Products.confirmPurchase(p, "tok_pro", nil, 2050, nil, {paidRandomAllowed=true})
 	eq(okConfPro, true, "confirm pro_permit")
 	eq(p.entitlements.pro_permit, true, "pro_permit granted")
 	eq(p.entitlements.pro_plus10_enabled, true, "plus10 enabled for qualified player")
@@ -261,6 +261,7 @@ do
 	local server = ServerBootstrap.new({
 		clock = clock,
 		initialNowMs = 10000000,
+        paidRandomAllowed = function(id)return id=="7701" end,
 	})
 
 	local j1 = server:playerJoined("7701")

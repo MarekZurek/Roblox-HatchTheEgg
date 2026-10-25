@@ -172,7 +172,8 @@ end
 
 -- UI pet commands use server UIDs and correlated results. Lock replay is not a toggle twice.
 for _,allowed in {false,true} do
- local draws={n=0};local h=harness(function(p)fusionProfile(p);p.entitlements.pro_permit=true;p.entitlements.pro_plus10_enabled=allowed end,fusionOptions(.45,draws))
+ local draws={n=0};local opts=fusionOptions(.45,draws);opts.paidRandomAllowed=function()return allowed end
+ local h=harness(function(p)fusionProfile(p);p.entitlements.pro_permit=true;p.entitlements.pro_plus10_enabled=allowed end,opts)
  local r=h.call('fusePets','base',{'a','b'});h.expect(r,'APPLIED')
  eq(r.result.success,allowed,'40% plus 10 percentage points only when eligible; 45% is above 40% and below 50%')
  h.client:destroy()

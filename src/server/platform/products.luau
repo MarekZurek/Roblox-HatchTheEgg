@@ -223,11 +223,16 @@ local function previewPurchase(
 		}
 	end
 
-	local paidBonusAvailable = true
+	local paidBonusAvailable = false
 	local desc = def.name
 
 	if resolvedId == "pro_permit" then
-		paidBonusAvailable = if playerContext and playerContext.paidRandomAllowed == false then false else true
+		if not playerContext or type(playerContext.paidRandomAllowed) ~= "boolean" then
+			return {productId=resolvedId,productType=def.productType,name=def.name,
+				description="Pro availability has not been verified. Try again when account policy is available.",
+				paidBonusAvailable=false,isAvailable=false,error="POLICY_UNAVAILABLE"}
+		end
+		paidBonusAvailable = playerContext.paidRandomAllowed == true
 		if paidBonusAvailable then
 			desc = "Pro Permit: 10 silos, 1.0x away rate, 5 boost slots, 5 pet slots, and +10 p.p. pet fusion chance."
 		else
@@ -297,7 +302,8 @@ local function confirmPurchase(
 	purchaseToken: string,
 	receiptInfo: ReceiptInfo?,
 	nowMs: number,
-	isPiggyEnabled: boolean?
+	isPiggyEnabled: boolean?,
+	playerContext: PlayerContext?
 ): (boolean, PurchaseResult)
 	assert(profile ~= nil and profile.permanent ~= nil, "Products/INVALID_PROFILE")
 	profile.operations = profile.operations or {}
@@ -355,9 +361,9 @@ local function confirmPurchase(
 	-- Execute single fulfillment
 	if productId == "pro_permit" then
 		profile.entitlements.pro_permit = true
-		profile.entitlements.pro_permit_effective_at = nowMs
-		local paidAllowed = if op then op.paidRandomAllowed else (receiptInfo and receiptInfo.paidRandomAllowed ~= false)
-		profile.entitlements.pro_plus10_enabled = (paidAllowed == true)
+		profile.entitlements.pro_permit_effective_at = profile.entitlements.pro_permit_effective_at or nowMs
+		-- Prepared disclosure and receipt fields are not current eligibility.
+		profile.entitlements.pro_plus10_enabled = playerContext ~= nil and playerContext.paidRandomAllowed == true
 	elseif productId == "buy_max" then
 		profile.entitlements.buy_max = true
 		profile.entitlements.buy_max_effective_at = nowMs
@@ -425,5 +431,19 @@ Products.previewPurchase = previewPurchase
 Products.preparePurchase = preparePurchase
 Products.confirmPurchase = confirmPurchase
 Products.cancelPurchase = cancelPurchase
+
+-- A server-owned, non-yielding policy snapshot. Unknown/error/malformed providers
+-- never grant a paid modifier or suspend the single-writer domain actor.
+function Products.readPaidRandomPolicy(provider, playerId): boolean?
+	if type(provider) ~= "function" then return nil end
+	local thread = coroutine.create(provider)
+	local ok,value = coroutine.resume(thread,tostring(playerId))
+	if coroutine.status(thread) ~= "dead" then coroutine.close(thread); return nil end
+	if not ok or type(value) ~= "boolean" then return nil end
+	return value
+end
+function Products.isProBonusAvailable(profile, paidRandomAllowed): boolean
+	return paidRandomAllowed == true and profile.entitlements ~= nil and profile.entitlements.pro_permit == true
+end
 
 return table.freeze(Products)

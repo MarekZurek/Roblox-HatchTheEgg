@@ -293,6 +293,7 @@ function ServerBootstrap.new(deps)
 	local configRevision = deps.configRevision or "first-farm-neutral:1"
 
 	local viewProjector = deps.viewProjector or ViewProjector.new({
+  paidRandomAllowed = deps.paidRandomAllowed,
   liveEvents = deps.liveEvents or {},
 		codec = codec,
 		catalog = catalog,
@@ -529,6 +530,7 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
             local draft=self.data.copy(candidateProfile)
             local args=op.args or {}
             local ok,code=false,"FEATURE_UNAVAILABLE"
+            local policySnapshot, bonusSnapshot
             local result={terminalStatus="APPLIED",actionKind=op.kind}
             if op.kind=="ClaimDailyGift" then
                 local m,day=Calendar.getCycleAndDay(draft.rewards.numDailyGiftsCollected or 0)
@@ -565,9 +567,11 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
                 local policy=self.fusionPolicy
                 if policy and policy.mode=="INTERNAL_TEST_ONLY" and policy.recipes and type(policy.draw)=="function" then
                     local res
-                    local eligible,preview=Fusion.getFusionPreview(draft.inventory,args.basePetId,args.materialIds,draft.entitlements.pro_plus10_enabled==true,policy.recipes)
+                    local bonus=Products.isProBonusAvailable(draft,Products.readPaidRandomPolicy(self.paidRandomAllowed,playerId))
+                    bonusSnapshot=bonus
+                    local eligible,preview=Fusion.getFusionPreview(draft.inventory,args.basePetId,args.materialIds,bonus,policy.recipes)
                     if eligible then
-                        ok,res=Fusion.executeFusion(draft.inventory,args.basePetId,args.materialIds,draft.entitlements.pro_plus10_enabled==true,policy.recipes,policy.draw())
+                        ok,res=Fusion.executeFusion(draft.inventory,args.basePetId,args.materialIds,bonus,policy.recipes,policy.draw())
                     else ok=false;res=preview end
                     if ok then result.success=res.success;result.outcome=res.status;result.petUid=args.basePetId else code=res end
                 end
@@ -587,7 +591,8 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
             elseif op.kind=="PurchaseProduct" then
                 local spec=self.platformProducts[args.productId]
                 if spec and type(spec.platformId)=="number" and spec.platformId>0 and spec.platformId%1==0 and spec.platformId<=9007199254740991 then
-                    local allowed=if type(self.paidRandomAllowed)=="function" then self.paidRandomAllowed(playerId) else nil
+                    local allowed=Products.readPaidRandomPolicy(self.paidRandomAllowed,playerId)
+                    policySnapshot=allowed
                     if args.productId~="pro_permit" or type(allowed)=="boolean" then
                         local preview=Products.previewPurchase(draft,args.productId,{paidRandomAllowed=allowed},false)
                         if preview.isAvailable then
@@ -598,7 +603,12 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
                 end
             end
             if not ok then return {profile=candidateProfile,terminalStatus="REJECTED",result={errorCode=code or "OPERATION_REJECTED"},validate=function()return false,code end} end
-            return {profile=draft,terminalStatus="APPLIED",result=result,validate=function()return true end}
+            return {profile=draft,terminalStatus="APPLIED",result=result,validate=function(fresh)
+                local current=Products.readPaidRandomPolicy(self.paidRandomAllowed,playerId)
+                if op.kind=="PurchaseProduct" and args.productId=="pro_permit" and current~=policySnapshot then return false,"POLICY_CHANGED" end
+                if op.kind=="FusePets" and Products.isProBonusAvailable(fresh,current)~=bonusSnapshot then return false,"POLICY_CHANGED" end
+                return true
+            end}
         end
 		if op.kind == "UpgradeEgg" or op.kind == "Prestige" then
 			return ProgressActions.apply(candidateProfile, op, { catalog = self.catalog, productionMath = self.productionMath })
@@ -607,7 +617,7 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 			local receiptInfo = op.args and op.args.receiptInfo
 			local nowMs = self.clock.utcNowMs()
 			local isPiggyEnabled = (self.config and self.config.isPiggyEnabled ~= false)
-			local ok, res = Products.confirmPurchase(candidateProfile, pToken, receiptInfo, nowMs, isPiggyEnabled)
+			local ok, res = Products.confirmPurchase(candidateProfile, pToken, receiptInfo, nowMs, isPiggyEnabled,{paidRandomAllowed=Products.readPaidRandomPolicy(self.paidRandomAllowed,playerId)})
 			return {
 				profile = candidateProfile,
 				result = res,
@@ -620,8 +630,8 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 			candidateProfile.entitlements = candidateProfile.entitlements or {}
 			if entId == "pro_permit" then
 				candidateProfile.entitlements.pro_permit = true
-				candidateProfile.entitlements.pro_permit_effective_at = nowMs
-				candidateProfile.entitlements.pro_plus10_enabled = (op.args and op.args.paidRandomAllowed ~= false)
+				candidateProfile.entitlements.pro_permit_effective_at = candidateProfile.entitlements.pro_permit_effective_at or nowMs
+				candidateProfile.entitlements.pro_plus10_enabled = Products.readPaidRandomPolicy(self.paidRandomAllowed,playerId) == true
 			elseif entId == "buy_max" then
 				candidateProfile.entitlements.buy_max = true
 				candidateProfile.entitlements.buy_max_effective_at = nowMs
@@ -1012,7 +1022,7 @@ function ServerBootstrap:applyPurchase(playerId, receiptInfo)
 	return false, (res and res.errorCode) or "PURCHASE_FAILED"
 end
 
-function ServerBootstrap:grantEntitlement(playerId, entitlementId, opts)
+function ServerBootstrap:grantEntitlement(playerId, entitlementId, _legacyOpts)
 	if not self.purchasesEnabled then return false, "LOCAL_PAYMENTS_DISABLED" end
 	local pId = tostring(playerId)
 	local playerSession = self.players[pId]
@@ -1023,14 +1033,14 @@ function ServerBootstrap:grantEntitlement(playerId, entitlementId, opts)
 	local coordinator = playerSession.coordinator
 	local snapshots = coordinator.snapshots()
 	local currentRev = (snapshots.durable and snapshots.durable.meta and snapshots.durable.meta.revision) or "0"
+	self._entitlementSerial=(self._entitlementSerial or 0)+1
 
 	local op = {
-		operationId = "entitlement-" .. pId .. "-" .. entitlementId .. "-" .. tostring(self.clock.utcNowMs()),
+		operationId = "entitlement-" .. pId .. "-" .. entitlementId .. "-" .. snapshots.durable.ownership.generation .. "-" .. tostring(self.clock.utcNowMs()) .. "-" .. tostring(self._entitlementSerial),
 		kind = "GrantEntitlement",
 		expectedRevision = currentRev,
 		args = {
 			entitlementId = entitlementId,
-			paidRandomAllowed = if opts and opts.paidRandomAllowed ~= nil then opts.paidRandomAllowed else true,
 		},
 	}
 
@@ -1038,7 +1048,7 @@ function ServerBootstrap:grantEntitlement(playerId, entitlementId, opts)
 	coordinator.drain()
 
 	local res = coordinator.resultOf(op.operationId)
-	if res and (res.status == "APPLIED" or res.status == "REPLAYED") then
+	if res and (res.status == "APPLIED" or (res.status == "REPLAYED" and res.terminalStatus == "APPLIED")) then
 		self:checkpointPlayer(pId)
 		return true, res
 	end

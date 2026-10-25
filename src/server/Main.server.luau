@@ -109,7 +109,10 @@ local server = ServerBootstrap.new({
     storageMode = storageMode,
     isStudio = studio,
     platformProducts=configuredProducts,
-    paidRandomAllowed=function(id)return policyByPlayer[tostring(id)] end,
+    paidRandomAllowed=function(id)
+        local row=policyByPlayer[tostring(id)]
+        return if row and row.player.Parent==Players then row.allowed else nil
+    end,
 	clock = serverClock,
 	store = persistentStore,
 })
@@ -133,11 +136,32 @@ local function syncWorldAndDelta(pId, playerObj)
 	end
 end
 
+-- Policy is a live server snapshot, never a durable entitlement. Identity checks
+-- discard old responses after disconnect/rejoin or a newer request.
+local function invalidatePolicy(player)
+    local row={player=player,allowed=nil,pending=false}
+    policyByPlayer[resolveNumericPlayerId(player)]=row
+    return row
+end
+local function refreshPolicy(player)
+    local pId=resolveNumericPlayerId(player)
+    local existing=policyByPlayer[pId]
+    if existing and existing.player==player and existing.pending then return nil end
+    local row=invalidatePolicy(player);row.pending=true
+    local ok,policy=pcall(function()return game:GetService("PolicyService"):GetPolicyInfoForPlayerAsync(player)end)
+    if policyByPlayer[pId]~=row or player.Parent~=Players or activePlayerObjects[pId]~=player then return nil end
+    row.pending=false
+    if ok and type(policy)=="table" and type(policy.ArePaidRandomItemsRestricted)=="boolean" then row.allowed=not policy.ArePaidRandomItemsRestricted end
+    syncWorldAndDelta(pId,player)
+    return row.allowed
+end
+
 -- 5. Player Lifecycle (PlayerAdded & PlayerRemoving)
 local function onPlayerAdded(player)
 	local pId = resolveNumericPlayerId(player)
     if joining[pId] or server:getPlayer(pId) or refusedPlayers[pId]==player then return end
     joining[pId] = true
+    invalidatePolicy(player)
     local opened, joinRes, err = pcall(server.playerJoined, server, pId)
     joining[pId] = nil
     if not opened or not joinRes then
@@ -156,10 +180,7 @@ local function onPlayerAdded(player)
         if response then serverToClient:FireClient(player,response) end
     end
 
-	task.spawn(function()
-        local ok,policy=pcall(function() return game:GetService("PolicyService"):GetPolicyInfoForPlayerAsync(player) end)
-        if ok and type(policy)=="table" and type(policy.ArePaidRandomItemsRestricted)=="boolean" then policyByPlayer[pId]=not policy.ArePaidRandomItemsRestricted end
-    end)
+    task.spawn(refreshPolicy,player)
     -- Position character on the Farm SpawnLocation when character loads
 	player.CharacterAdded:Connect(function(character)
 		task.defer(function()
@@ -198,6 +219,7 @@ local function onPlayerRemoving(player)
 	local pId = resolveNumericPlayerId(player)
     activePlayerObjects[pId] = nil
     pendingBootstrap[pId] = nil
+    if policyByPlayer[pId] and policyByPlayer[pId].player==player then policyByPlayer[pId]=nil end
 	if refusedPlayers[pId]==player then refusedPlayers[pId]=nil end
 	server:playerLeaving(pId)
 end
@@ -222,6 +244,16 @@ clientToServer.OnServerEvent:Connect(function(player, message)
         end
         if not joining[pId] then onPlayerAdded(player) end
         return
+    end
+
+    local valid=server.protocol.validateClient(message)
+    local needsPolicy=valid and server.purchasesEnabled and (
+        (message.kind=="PurchaseProduct" and message.args.productId=="pro_permit" and configuredProducts.pro_permit~=nil)
+        or (message.kind=="FusePets" and server.fusionPolicy~=nil))
+    if needsPolicy then
+        local session=server:getPlayer(pId)
+        refreshPolicy(player) -- outside the coordinator/UpdateAsync; concurrent requests coalesce
+        if activePlayerObjects[pId]~=player or session~=server:getPlayer(pId) or player.Parent~=Players then return end
     end
 
 	-- PROD-06: 3D Diegetic Actors Intents (HitDrone and ClaimOffer)
@@ -330,7 +362,9 @@ MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, passI
 		local catalogId = Products.resolveCatalogId(passId)
         if not catalogId or not configuredProducts[catalogId] or configuredProducts[catalogId].platformId~=passId then return end
 		if catalogId then
+            if catalogId=="pro_permit" then invalidatePolicy(player) end
 			server:grantEntitlement(pId, catalogId)
+            if catalogId=="pro_permit" then task.spawn(refreshPolicy,player) end
 			syncWorldAndDelta(pId, player)
 		end
 	end

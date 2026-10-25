@@ -1,0 +1,170 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "6d1a779d1888d9bc1b32b3f5cb45f191d723400b",
+  "status": "PASS_L_AND_STATIC_BUILD",
+  "suiteCount": 34,
+  "assertions": 80126,
+  "proPolicyAssertions": 207,
+  "mutations": [
+    {
+      "name": "local_fake_success",
+      "state": "KILLED"
+    },
+    {
+      "name": "missing_trophy_route",
+      "state": "KILLED"
+    },
+    {
+      "name": "calendar_claim_twice",
+      "state": "KILLED"
+    },
+    {
+      "name": "trophy_below_threshold",
+      "state": "KILLED"
+    },
+    {
+      "name": "fusion_free_materials",
+      "state": "KILLED"
+    },
+    {
+      "name": "shop_credit_instead_of_debit",
+      "state": "KILLED"
+    },
+    {
+      "name": "trophy_wrong_GE",
+      "state": "KILLED"
+    },
+    {
+      "name": "calendar_cash_percent_omitted",
+      "state": "KILLED"
+    },
+    {
+      "name": "calendar_shell_precision_lost",
+      "state": "KILLED"
+    },
+    {
+      "name": "calendar_prestige_base_lost",
+      "state": "KILLED"
+    },
+    {
+      "name": "startup_receipt_handler_missing",
+      "state": "KILLED"
+    },
+    {
+      "name": "local_payments_enabled",
+      "state": "KILLED"
+    },
+    {
+      "name": "rejected_receipt_acknowledged",
+      "state": "KILLED"
+    },
+    {
+      "name": "durable_receipt_replay_ignored",
+      "state": "KILLED"
+    },
+    {
+      "name": "confirmed_retry_snapshot_stale",
+      "state": "KILLED"
+    },
+    {
+      "name": "unknown_policy_allowed",
+      "state": "KILLED"
+    },
+    {
+      "name": "fusion_trusts_saved_pro_flag",
+      "state": "KILLED"
+    },
+    {
+      "name": "fulfillment_trusts_prepared_policy",
+      "state": "KILLED"
+    },
+    {
+      "name": "late_policy_response_overwrites_current",
+      "state": "KILLED"
+    },
+    {
+      "name": "sensitive_action_skips_policy_refresh",
+      "state": "KILLED"
+    }
+  ],
+  "mutationScope": "Twenty selected semantic mutations, not exhaustive coverage",
+  "rojoModules": 39,
+  "entrypoints": 2,
+  "studioTested": false,
+  "realPolicyServiceTested": false,
+  "realDataStoreTested": false,
+  "realPurchasesTested": false,
+  "deferredBalanceAndReferenceDataByteIdentical": true,
+  "protectedFilesChecked": 14,
+  "remainingAuditIssues": [
+    59,
+    60,
+    61
+  ],
+  "files": [
+    {
+      "path": "src/client/Bootstrap.luau",
+      "sha256NormalizedLF": "bf3b1e0c5a0e0460123b04c9c2a6c35a629c9389994cfc8de6507adc627f17f9"
+    },
+    {
+      "path": "src/client/HUD.luau",
+      "sha256NormalizedLF": "7381ebf7874b0824835b9cecd29befc763d888d0ee03a48364aeb03f69af8946"
+    },
+    {
+      "path": "src/server/Bootstrap.luau",
+      "sha256NormalizedLF": "c60f11da81ecaf387bf605f589ff6afbc3528d3982fbac29d3971fac18519075"
+    },
+    {
+      "path": "src/server/Main.server.luau",
+      "sha256NormalizedLF": "803c3f386a20d863a0a32f20a1234adede325bf9423af5335430d45a4bc2f581"
+    },
+    {
+      "path": "src/server/ViewProjector.luau",
+      "sha256NormalizedLF": "1582cc496b2274da0cc3c3c5302887ff19e6ec301b3cb0eb388f78647d63666a"
+    },
+    {
+      "path": "src/server/platform/products.luau",
+      "sha256NormalizedLF": "48708558c49d2dc07293469ed6c771c6bad7359284aa46994b75fe8f120fa6d5"
+    },
+    {
+      "path": "src/shared/ProtocolSchemas.luau",
+      "sha256NormalizedLF": "264b9e072cd9a7f9a17cd153629254a50dbf56be49f45f802088aeedb361e2fe"
+    },
+    {
+      "path": "tests/game_behavior/README.md",
+      "sha256NormalizedLF": "709b639e5dd68a7a357e2bf49d7e64f25633f53e212b9a2eda0256821f4f67c9"
+    },
+    {
+      "path": "tests/game_behavior/mutation_check.py",
+      "sha256NormalizedLF": "d3518baf2c3faf1daa5811845b68df4c6ebb4e0b411d8a770b8ecec633821f3f"
+    },
+    {
+      "path": "tests/game_behavior/run.luau",
+      "sha256NormalizedLF": "af08a652f3f4d33364a3c3c017f9f474e0fac2ddb945d3a8716587b697d62e37"
+    },
+    {
+      "path": "tests/persistence_startup/run.luau",
+      "sha256NormalizedLF": "9002a72155d9e2381d5be1790ea9bcd99ed9b76e6bcbcf28b22e6ca80b0b9499"
+    },
+    {
+      "path": "tests/pro_policy/run.luau",
+      "sha256NormalizedLF": "f9d08b13fbcc950c2c9a32f029dbf29e854773916771a71ccb9bed2ac5864707"
+    },
+    {
+      "path": "tests/purchase_recovery/run.luau",
+      "sha256NormalizedLF": "ccbb4c6de95a18856752eaadb7eac4b9bfc0a17bf5d52e9d0f191082610cb1c3"
+    },
+    {
+      "path": "tests/release_candidate/run.luau",
+      "sha256NormalizedLF": "f9a532706c5e22151d1526dab6bd5fdb4c9efc533bcd8736ca7c8e3599ac9525"
+    },
+    {
+      "path": "tests/support/MainHarness.luau",
+      "sha256NormalizedLF": "29199e46a4e55b04b7f1b8149f4f3d534d0825486c3161eca3cd8f72be89fca0"
+    },
+    {
+      "path": "tools/test.ps1",
+      "sha256NormalizedLF": "af2b79e8c2f06392cbd77a66faeab534904cbcba5eda8cb5ce1e98061cd4395f"
+    }
+  ]
+}
