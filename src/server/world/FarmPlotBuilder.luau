@@ -311,7 +311,7 @@ local function createBuyPad(parent, config)
 		bb.Size = UDim2.new(0, 210, 0, 95)
 		bb.StudsOffset = Vector3.new(0, 3.6, 0)
 		bb.AlwaysOnTop = false
-		bb.MaxDistance = 95
+		bb.MaxDistance = 25
 		bb.Parent = touchPart
 
 		line1Label = makeOutlinedText(bb, {
@@ -401,7 +401,7 @@ local function createEggUpgradePedestal(parent, pos, self)
 		bb.Adornee = pedestal
 		bb.Size = UDim2.new(0, 260, 0, 85)
 		bb.StudsOffset = Vector3.new(0, 6.2, 0)
-		bb.MaxDistance = 120
+		bb.MaxDistance = 32
 		bb.AlwaysOnTop = false
 		bb.Parent = pedestal
 
@@ -1186,7 +1186,7 @@ function FarmPlotBuilder:_buildHatchery(worldFolder)
 		bb.Adornee = mainBody
 		bb.Size = UDim2.new(0, 260, 0, 70)
 		bb.StudsOffset = Vector3.new(0, 12, 0)
-		bb.MaxDistance = 120
+		bb.MaxDistance = 32
 		bb.Parent = mainBody
 
 		makeOutlinedText(bb, {
@@ -1239,7 +1239,8 @@ function FarmPlotBuilder:_buildHatchery(worldFolder)
 		plateBb.Adornee = plate
 		plateBb.Size = UDim2.new(0, 220, 0, 75)
 		plateBb.StudsOffset = Vector3.new(0, 3.5, 0)
-		plateBb.MaxDistance = 90
+		plateBb.MaxDistance = 24
+		plateBb.AlwaysOnTop = false
 		plateBb.Parent = plate
 
 		makeOutlinedText(plateBb, {
@@ -1323,7 +1324,7 @@ function FarmPlotBuilder:_buildHabitats(worldFolder)
 			bb.Adornee = anchorPart
 			bb.Size = UDim2.new(0, 230, 0, 95)
 			bb.StudsOffset = Vector3.new(0, 12.5, 0)
-			bb.MaxDistance = 125
+			bb.MaxDistance = 40
 			bb.Parent = anchorPart
 
 			titleLabel = makeOutlinedText(bb, {
@@ -1567,7 +1568,7 @@ function FarmPlotBuilder:_buildShippingDepot(worldFolder)
 		bb.Adornee = dockBase
 		bb.Size = UDim2.new(0, 230, 0, 65)
 		bb.StudsOffset = Vector3.new(0, 12, 0)
-		bb.MaxDistance = 115
+		bb.MaxDistance = 35
 		bb.Parent = dockBase
 
 		makeOutlinedText(bb, {
@@ -1649,7 +1650,8 @@ function FarmPlotBuilder:_buildShippingDepot(worldFolder)
 		pbb.Adornee = parcelPart
 		pbb.Size = UDim2.new(0, 180, 0, 48)
 		pbb.StudsOffset = Vector3.new(0, 3.2, 0)
-		pbb.AlwaysOnTop = true
+		pbb.AlwaysOnTop = false
+		pbb.MaxDistance = 30
 		pbb.Parent = parcelPart
 
 		makeOutlinedText(pbb, {
@@ -1747,7 +1749,7 @@ function FarmPlotBuilder:_buildResearchStall(worldFolder)
 		bb.Adornee = counter
 		bb.Size = UDim2.new(0, 230, 0, 65)
 		bb.StudsOffset = Vector3.new(0, 9, 0)
-		bb.MaxDistance = 110
+		bb.MaxDistance = 35
 		bb.Parent = counter
 
 		makeOutlinedText(bb, {
@@ -2090,7 +2092,8 @@ function FarmPlotBuilder:_buildPetIncubatorStation(worldFolder)
 		bb.Name = "IncubatorBillboard"
 		bb.Size = UDim2.new(0, 240, 0, 75)
 		bb.StudsOffset = Vector3.new(0, 8.5, 0)
-		bb.AlwaysOnTop = true
+		bb.AlwaysOnTop = false
+		bb.MaxDistance = 35
 		bb.Adornee = pedestal
 		bb.Parent = pedestal
 

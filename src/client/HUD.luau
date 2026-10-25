@@ -799,13 +799,13 @@ function HUD:_buildInterface()
 
 	self.homeButton = createGuiElement("TextButton", {
 		Name = "DomButton",
-		Size = isRoblox and UDim2.new(0, 165, 0, 44) or nil,
-		Position = isRoblox and UDim2.new(0.5, -82, 0, 0) or nil,
+		Size = isRoblox and UDim2.new(0, 44, 0, 44) or nil,
+		Position = isRoblox and UDim2.new(0, 6, 0, 2) or nil,
 		BackgroundColor3 = isRoblox and Color3.fromRGB(78, 195, 255) or nil,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-		Text = "Dom",
+		Text = "🏠",
 	}, topBar)
 	addCornerAndStroke(self.homeButton, 8, isRoblox and Color3.fromRGB(18, 42, 68) or nil, 3)
 	addTextStroke(self.homeButton, 2.6)
@@ -865,8 +865,8 @@ function HUD:_buildInterface()
 
 	self.tutorialLabel = createGuiElement("TextLabel", {
 		Name = "TutorialBannerLabel",
-		Size = isRoblox and UDim2.new(1, 0, 0, 22) or nil,
-		Position = isRoblox and UDim2.new(0, 0, 0, 74) or nil,
+		Size = isRoblox and UDim2.new(1, 0, 0, 20) or nil,
+		Position = isRoblox and UDim2.new(0, 0, 0, 78) or nil,
 		BackgroundTransparency = 1,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
@@ -909,12 +909,13 @@ function HUD:_buildInterface()
 	}, bottomLeft)
 	addTextStroke(self.cashLabel, 3.4)
 
-	-- 4. Left-Side Green Studded Quick-Action Buttons
+	-- 4. Left-Side Green Studded Quick-Action Buttons (hidden by default per docs/ui/ui_design_specification.md to preserve clean view and mobile touch thumbstick zone)
 	local leftQuickCluster = createGuiElement("Frame", {
 		Name = "LeftQuickButtons",
 		Size = isRoblox and UDim2.new(0, 155, 0, 175) or nil,
 		Position = isRoblox and UDim2.new(0, 16, 0.5, -60) or nil,
 		BackgroundTransparency = 1,
+		Visible = false,
 	}, root)
 
 	local quickButtonsSpec = {

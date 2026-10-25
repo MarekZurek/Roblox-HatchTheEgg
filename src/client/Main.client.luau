@@ -49,20 +49,33 @@ if not chickensContainer then
 	chickensContainer.Parent = Workspace
 end
 
-local screenGui = playerGui:FindFirstChild("HatchTheEggHUD")
-if screenGui then
-	screenGui:ClearAllChildren()
-else
-	screenGui = Instance.new("ScreenGui")
-	screenGui.Name = "HatchTheEggHUD"
-	screenGui.ResetOnSpawn = false
-	screenGui.IgnoreGuiInset = false
-	pcall(function()
-		screenGui.ScreenInsets = Enum.ScreenInsets.SafeArea
-	end)
-	screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	screenGui.Parent = playerGui
+-- Clean up any existing or duplicate HatchTheEggHUD instances in PlayerGui
+for _, child in ipairs(playerGui:GetChildren()) do
+	if child:IsA("ScreenGui") and child.Name == "HatchTheEggHUD" then
+		child:Destroy()
+	end
 end
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "HatchTheEggHUD"
+screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = false
+pcall(function()
+	screenGui.ScreenInsets = Enum.ScreenInsets.SafeArea
+end)
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.Parent = playerGui
+
+-- Guard against any delayed clone from StarterGui or duplicate scripts
+playerGui.ChildAdded:Connect(function(child)
+	if child:IsA("ScreenGui") and child.Name == "HatchTheEggHUD" and child ~= screenGui then
+		task.defer(function()
+			if child.Parent == playerGui then
+				child:Destroy()
+			end
+		end)
+	end
+end)
 
 -- Helper to determine next habitat upgrade for a slot (1..4) with automatic quote resolution
 local client
