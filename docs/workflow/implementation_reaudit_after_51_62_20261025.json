@@ -1,0 +1,451 @@
+{
+  "issues": [
+    {
+      "id": "research_after_reconnect",
+      "title": "[P1][REAUDIT] Nowy zakup po reconnect używa dawnego operationId i odtwarza stary sukces",
+      "number": 63,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/63"
+    },
+    {
+      "id": "prestige_event",
+      "title": "[P1][REAUDIT] Prestiż pomija aktywne wydarzenie mnożące końcową kolekcję SE",
+      "number": 64,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/64"
+    },
+    {
+      "id": "active_rcb",
+      "title": "[P1][REAUDIT] Produkcja wymusza RCB=1 mimo biegających kur i niezerowych badań RCB",
+      "number": 65,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/65"
+    },
+    {
+      "id": "visible_rewards_unissued",
+      "title": "[P2][REAUDIT] Widoczne drony i punkt paczki używają ID bez wystawienia nagrody na serwerze",
+      "number": 66,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/66"
+    },
+    {
+      "id": "fv_valuation",
+      "title": "[P2][REAUDIT] Farm Value ignoruje posiadane Accounting Tricks i wymusza valuationMult=1",
+      "number": 67,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/67"
+    },
+    {
+      "id": "hold_hatching",
+      "title": "[P2][REAUDIT] Hold to Hatch zapisuje intencję, ale nie wykonuje powtórzeń wylęgu",
+      "number": 68,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/68"
+    },
+    {
+      "id": "ihr_sharing",
+      "title": "[P2][REAUDIT] Timeline pomija posiadane Internal Hatchery Sharing i zawsze przekazuje sharing=0",
+      "number": 69,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/69"
+    },
+    {
+      "id": "hyperloop_unlock",
+      "title": "[P2][REAUDIT] BuyVehicle pozwala kupić Hyperloop Train bez trwałego odblokowania stacji",
+      "number": 70,
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/70"
+    }
+  ],
+  "date": "2026-10-25",
+  "testedCommit": "fe4d2ad54af8bbffc0368c4a2516ccfa8553d9bb",
+  "verdict": "REQUIRES_FIXES",
+  "releaseCandidateReady": false,
+  "completeRequirementCoverageClaimed": false,
+  "reportedIssuesReproduced": 8,
+  "results": [
+    {
+      "actual": 7.943282347242814,
+      "evidence": {
+        "response": {
+          "currentCommitRevision": "1",
+          "kind": "CommandResult",
+          "operationId": "audit-prestige-event",
+          "protocolVersion": 1,
+          "requestId": "audit-prestige-event",
+          "result": {
+            "actionKind": "Prestige",
+            "gainedSoulEggs": "7.943282347242814",
+            "newSoulEggs": "7.943282347242814",
+            "prestigeCount": "1",
+            "terminalStatus": "APPLIED"
+          },
+          "resultRevision": "1",
+          "serverObservedAt": 1000000,
+          "status": "APPLIED",
+          "streamId": "stream-1-1"
+        }
+      },
+      "expected": 31.773129388971256,
+      "id": "prestige_event",
+      "mismatch": true
+    },
+    {
+      "actual": 13732.00679132647,
+      "evidence": {
+        "base": 13732.00679132647,
+        "epicLevel": 20,
+        "referenceMultiplier": 2
+      },
+      "expected": 27464.01358265294,
+      "id": "fv_valuation",
+      "mismatch": true
+    },
+    {
+      "actual": 0.25,
+      "evidence": {
+        "referenceC": 1.025,
+        "referenceK": 5,
+        "running": "10"
+      },
+      "expected": 0.32002113604908916,
+      "id": "active_rcb",
+      "mismatch": true
+    },
+    {
+      "actual": false,
+      "evidence": {
+        "response": {
+          "inputSeq": "1",
+          "kind": "HatchInput",
+          "requestId": "audit-hold",
+          "state": "start",
+          "status": "ACCEPTED",
+          "streamId": "stream-1-1"
+        },
+        "runtime": {
+          "held": true,
+          "holdElapsed": 0,
+          "lastInputSeq": "1",
+          "streamId": "stream-1-1"
+        },
+        "sequence": "0",
+        "stock": "250"
+      },
+      "expected": true,
+      "id": "hold_hatching",
+      "mismatch": true
+    },
+    {
+      "actual": 0.01,
+      "evidence": {
+        "commonRatePerHabPerMinute": 2,
+        "dt": 0.3,
+        "sharing": 1
+      },
+      "expected": 0.02,
+      "id": "ihr_sharing",
+      "mismatch": true
+    },
+    {
+      "actual": true,
+      "evidence": {
+        "quote": {
+          "available": true,
+          "calculationVersion": 1,
+          "cashCost": "2.1124569765380452e+37",
+          "configRevision": "first-farm-neutral:1",
+          "currency": "cash",
+          "expectedRevision": "0",
+          "expiresAt": 1060000,
+          "kind": "QuoteView",
+          "numericCodecVersion": 1,
+          "protocolVersion": 1,
+          "quoteId": "quote-1",
+          "requestId": "audit-train-quote",
+          "resultIndex": 11,
+          "target": {
+            "args": {
+              "slotId": 1,
+              "vehicleId": "HYPERLOOP TRAIN"
+            },
+            "kind": "BuyVehicle"
+          }
+        },
+        "response": {
+          "currentCommitRevision": "1",
+          "kind": "CommandResult",
+          "operationId": "audit-train-buy",
+          "protocolVersion": 1,
+          "requestId": "audit-train-buy",
+          "result": {
+            "actionKind": "BuyVehicle",
+            "slotId": 1,
+            "terminalStatus": "APPLIED",
+            "vehicleId": "HYPERLOOP TRAIN"
+          },
+          "resultRevision": "1",
+          "serverObservedAt": 1000000,
+          "status": "APPLIED",
+          "streamId": "stream-1-1"
+        },
+        "stationOwned": false
+      },
+      "expected": false,
+      "id": "hyperloop_unlock",
+      "mismatch": true
+    },
+    {
+      "actual": false,
+      "evidence": {
+        "GE": "10",
+        "droneError": "UNKNOWN_SPAWN",
+        "offerError": "OFFER_NOT_FOUND",
+        "realMainPopups": 0
+      },
+      "expected": true,
+      "id": "visible_rewards_unissued",
+      "mismatch": true
+    },
+    {
+      "actual": 1,
+      "evidence": {
+        "firstLevel": 1,
+        "firstResult": {
+          "currentCommitRevision": "1",
+          "kind": "CommandResult",
+          "operationId": "op-BuyResearch-1",
+          "protocolVersion": 1,
+          "requestId": "purchase-2",
+          "result": {
+            "actionKind": "BuyResearch",
+            "level": 1,
+            "researchId": "comfy_nests",
+            "terminalStatus": "APPLIED"
+          },
+          "resultRevision": "1",
+          "serverObservedAt": 1000000,
+          "status": "APPLIED",
+          "streamId": "stream-1-2"
+        },
+        "secondResult": {
+          "currentCommitRevision": "2",
+          "kind": "CommandResult",
+          "operationId": "op-BuyResearch-1",
+          "protocolVersion": 1,
+          "requestId": "purchase-2",
+          "result": {
+            "actionKind": "BuyResearch",
+            "level": 1,
+            "researchId": "comfy_nests",
+            "terminalStatus": "APPLIED"
+          },
+          "resultRevision": "1",
+          "serverObservedAt": 1000000,
+          "status": "REPLAYED",
+          "streamId": "stream-1-3"
+        }
+      },
+      "expected": 2,
+      "id": "research_after_reconnect",
+      "mismatch": true
+    }
+  ],
+  "excludedProbes": [
+    {
+      "id": "uint64_pe_projection",
+      "status": "NO_PROJECTION_FAILURE_REPRODUCED",
+      "reason": "Bootstrap view returned successfully for SE=0 and PE=9007199254740993; not reported as a projection failure"
+    }
+  ],
+  "verificationLevel": "L_AND_STATIC_INSPECTION",
+  "baselineRunner": {
+    "luauSuites": 35,
+    "luauAssertions": 80360,
+    "pythonReportingTests": 11,
+    "selectedMutationsKilled": 25,
+    "status": "PASS_LOCAL_CHECKS",
+    "log": "build/full-test-reaudit-20261025.log"
+  },
+  "rojo": {
+    "modules": 39,
+    "entrypoints": 2,
+    "status": "PASS_STATIC_BUILD"
+  },
+  "studioTested": false,
+  "realDataStoreTested": false,
+  "realPolicyServiceTested": false,
+  "realPurchasesTested": false,
+  "humanAcceptanceTested": false,
+  "sourceModified": false,
+  "existingTestsModified": false,
+  "protectedBalanceAndReferenceFilesByteIdentical": 14,
+  "historicalJsonFilesUnchangedNormalizedLF": 22,
+  "auditScript": {
+    "path": "docs/workflow/reaudit_after_51_62_20261025_repro.luau",
+    "sha256NormalizedLF": "364fbcafc14aa36d76bd0c40e9085051ae0d2c1aced5fc9a485c012b876a06fb"
+  },
+  "sourceManifest": [
+    {
+      "path": "src/client/AudioController.luau",
+      "sha256NormalizedLF": "5f38634c8a73012fbf9169fb76a6f1b0bb3d39b8f506128d3d6e4d0dcf214f8b"
+    },
+    {
+      "path": "src/client/Bootstrap.luau",
+      "sha256NormalizedLF": "bf3b1e0c5a0e0460123b04c9c2a6c35a629c9389994cfc8de6507adc627f17f9"
+    },
+    {
+      "path": "src/client/ClientStateStore.luau",
+      "sha256NormalizedLF": "cd9d63a9eee9ffa376ecc7fcc409cde703a4a25b10d6e640f7bdfbd4e1fe6725"
+    },
+    {
+      "path": "src/client/ClientTransport.luau",
+      "sha256NormalizedLF": "c5b9cdf3b9e7b67c2dd257b686363709b8cf234ab06bdefe154c7dd90967476a"
+    },
+    {
+      "path": "src/client/HUD.luau",
+      "sha256NormalizedLF": "7381ebf7874b0824835b9cecd29befc763d888d0ee03a48364aeb03f69af8946"
+    },
+    {
+      "path": "src/client/IntentControllers.luau",
+      "sha256NormalizedLF": "1ee875fea340d1012b8a3a7c1b4f21a9af5a3954da5d2a0ef99a6c6da5116f80"
+    },
+    {
+      "path": "src/client/Main.client.luau",
+      "sha256NormalizedLF": "bb86f80b08194f42bc0f16f2323524647cabc554544b058b9f11c802e68c04af"
+    },
+    {
+      "path": "src/client/onboarding/TutorialController.luau",
+      "sha256NormalizedLF": "d204381f4b89bde05892b15249265cbfa76b5d4c69a17d37d882fecf5759fceb"
+    },
+    {
+      "path": "src/client/RoutePresentation.luau",
+      "sha256NormalizedLF": "ac30b33b3f17031f1570361167665bfb2e591926332c12d4263c45d3c8084aef"
+    },
+    {
+      "path": "src/server/ActionReferenceData.luau",
+      "sha256NormalizedLF": "3a9cd70ba56271bd4fd7b4ef6c540f81d43acc0997981360d1ad11c763c69b73"
+    },
+    {
+      "path": "src/server/Bootstrap.luau",
+      "sha256NormalizedLF": "c60f11da81ecaf387bf605f589ff6afbc3528d3982fbac29d3971fac18519075"
+    },
+    {
+      "path": "src/server/CatalogRegistry/Data.luau",
+      "sha256NormalizedLF": "ec20e44ca2d26bf028c17f1e36415672a0b01f31bcf1c341ae7db902a1ac67f7"
+    },
+    {
+      "path": "src/server/CatalogRegistry/init.luau",
+      "sha256NormalizedLF": "0a435ba779c8411121e24a4f1a5d53544c2499ca8a1fdfaea52442e9b2907b66"
+    },
+    {
+      "path": "src/server/EffectsManager.luau",
+      "sha256NormalizedLF": "793329d6d18594f13395f2c3bba2d65348668d7ce9432e961c8b168cf0eaeecd"
+    },
+    {
+      "path": "src/server/FarmActions.luau",
+      "sha256NormalizedLF": "e7d2cde9bcf763bdcd36ee6ff9c6929150334d8e29fa627a2994c614893f2840"
+    },
+    {
+      "path": "src/server/FarmMath/fv_se.luau",
+      "sha256NormalizedLF": "80cb907c8a7ef85aab868ae9ce9fd0c3fd224b17ef7214bf570907216b9c4288"
+    },
+    {
+      "path": "src/server/FarmMath/hatching_rcb.luau",
+      "sha256NormalizedLF": "f0089b87f879a7c571da17e1d03a59f35b26cd44429def8576e4eaaafae85a66"
+    },
+    {
+      "path": "src/server/FarmMath/ihr.luau",
+      "sha256NormalizedLF": "346314f4264d96aa69244ab22ad29481c1cded2e342ba0849c23b4d0b1840ffd"
+    },
+    {
+      "path": "src/server/FarmMath/PopulationMath.luau",
+      "sha256NormalizedLF": "d69246b2db2cbca2a3a49f8133a8895489ca3901bf66373c32cabe4246e3f527"
+    },
+    {
+      "path": "src/server/FarmMath/production_research.luau",
+      "sha256NormalizedLF": "752117b4ff58acc427daa7881e3a93e374054284d9b04e56546467d9865faf69"
+    },
+    {
+      "path": "src/server/Main.server.luau",
+      "sha256NormalizedLF": "803c3f386a20d863a0a32f20a1234adede325bf9423af5335430d45a4bc2f581"
+    },
+    {
+      "path": "src/server/NetworkGateway.luau",
+      "sha256NormalizedLF": "1bae4e7f4a24cd83d733d9e0fc6cb28b954b707231ad43986f8a386ea8c4cf61"
+    },
+    {
+      "path": "src/server/onboarding/manager.luau",
+      "sha256NormalizedLF": "4115c5ee3e66665d2a35a774c6f86781b8eb2b73d2319cd7a0dd2543ce98c000"
+    },
+    {
+      "path": "src/server/PersistenceData.luau",
+      "sha256NormalizedLF": "9009b448dfae5311b69339b07e274688451d2dcf2c3d73501a9b743957afaa48"
+    },
+    {
+      "path": "src/server/pets/equipment.luau",
+      "sha256NormalizedLF": "bedd7dc2d34de16663000cf75a5a89cdca1843a02ec5e6a36d3530bf3af095e2"
+    },
+    {
+      "path": "src/server/pets/fusion.luau",
+      "sha256NormalizedLF": "80db419efe0dc516ea377f5b0987abef71cf49859730b1d2484d63442541a0da"
+    },
+    {
+      "path": "src/server/platform/products.luau",
+      "sha256NormalizedLF": "48708558c49d2dc07293469ed6c771c6bad7359284aa46994b75fe8f120fa6d5"
+    },
+    {
+      "path": "src/server/PlayerCoordinator.luau",
+      "sha256NormalizedLF": "2b89409cb2ea6cb4162240435767161e6908af88e287cf2cf985ce1e66c4b894"
+    },
+    {
+      "path": "src/server/ProfileSchema.luau",
+      "sha256NormalizedLF": "2536e6b6773fef340121f8ee0e8f2fd5ce6487d9f140b1e0489c4b70d807466b"
+    },
+    {
+      "path": "src/server/ProgressActions.luau",
+      "sha256NormalizedLF": "7fff32cf3b2394ab641e46ddf15c305d5a660983203b8c3a83a800caead32529"
+    },
+    {
+      "path": "src/server/rewards/calendar.luau",
+      "sha256NormalizedLF": "f0bb474ceeb8b0ab641f3130d6ace4db4aa6192b1b58502371feb4a9d06a4c46"
+    },
+    {
+      "path": "src/server/rewards/drones.luau",
+      "sha256NormalizedLF": "fceca438159e4aaf5a7c9d9cc70575505c4710fa721abb9e36f01adb6992daed"
+    },
+    {
+      "path": "src/server/rewards/offers.luau",
+      "sha256NormalizedLF": "499c25b2069c5f48ac27003a58880971950d233960af2af1836d4968212edbad"
+    },
+    {
+      "path": "src/server/rewards/trophies.luau",
+      "sha256NormalizedLF": "86f38c2652b8761c4cca6817baa386b6dae95e41456c2408dd823dc4d36a78b2"
+    },
+    {
+      "path": "src/server/RobloxDataStorePort.luau",
+      "sha256NormalizedLF": "0a85ea4bc3aa0c87a290c915f7cdfe42a0a84d3d0128d5a3f750d0360d8af902"
+    },
+    {
+      "path": "src/server/SessionRepository.luau",
+      "sha256NormalizedLF": "15098c50ea2ad62bea94956b10d048cf127be2a32922fafac07c067959431343"
+    },
+    {
+      "path": "src/server/TimelineSimulation.luau",
+      "sha256NormalizedLF": "25391e7c979b4a19ab5b4cc938ab777a14fff0c42d77287f1f140dd11a3808a5"
+    },
+    {
+      "path": "src/server/ViewProjector.luau",
+      "sha256NormalizedLF": "1582cc496b2274da0cc3c3c5302887ff19e6ec301b3cb0eb388f78647d63666a"
+    },
+    {
+      "path": "src/server/world/FarmPlotBuilder.luau",
+      "sha256NormalizedLF": "1412155d09a6e8b2fc69db0716121b6b5b49e21dd696800a77edc35c8c7ddb9a"
+    },
+    {
+      "path": "src/shared/NumericCodec.luau",
+      "sha256NormalizedLF": "f9c97ced4fe8e3a1c59f085b7fa8b153921f0716e34779958e11dc3b06261074"
+    },
+    {
+      "path": "src/shared/ProtocolSchemas.luau",
+      "sha256NormalizedLF": "264b9e072cd9a7f9a17cd153629254a50dbf56be49f45f802088aeedb361e2fe"
+    }
+  ],
+  "limitations": [
+    "Targeted integration and lifecycle probes, not proof of checking every possible state",
+    "Known missing production paths and deferred configuration listed separately in Markdown",
+    "No source fixes, runtime migrations, commits, pushes or history rewrite during audit"
+  ]
+}

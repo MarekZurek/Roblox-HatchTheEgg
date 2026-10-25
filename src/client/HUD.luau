@@ -2868,11 +2868,48 @@ function HUD:toggleVehiclesModal(forceState)
 	self.vehiclesModal.Visible = target
 end
 
+function HUD:requestQuotesForCurrentTier(force)
+	if not self.intentControllers or not self.intentControllers.shop then return end
+	local currentTier = self.selectedResearchTier or 1
+	if currentTier == 14 then return end
+
+	local now = os.clock()
+	if not force and self._lastTierQuoteReqTime and (now - self._lastTierQuoteReqTime) < 0.3 then
+		return
+	end
+	self._lastTierQuoteReqTime = now
+
+	local serverObservedAt = if self.stateStore then self.stateStore:getServerObservedAt() else nil
+	local currentRevision = if self.stateStore then self.stateStore:getCommitRevision() else nil
+
+	for rId, rTier in pairs(COMMON_RESEARCH_TIERS) do
+		if rTier == currentTier then
+			local item = self.shopResearch and self.shopResearch[rId]
+			local quote = item and item.quote
+			local curLvl = item and item.level or 0
+			local isFresh = quote ~= nil
+				and (currentRevision == nil or quote.expectedRevision == currentRevision)
+				and (serverObservedAt == nil or quote.expiresAt == nil or quote.expiresAt > serverObservedAt)
+				and (quote.nextLevel == nil or quote.nextLevel > curLvl)
+
+			if not isFresh then
+				self.intentControllers.shop:requestQuote({
+					kind = "BuyResearch",
+					args = { researchId = rId, mode = "single" },
+				})
+			end
+		end
+	end
+end
+
 function HUD:toggleResearchModal(forceState)
 	if not self.shopFrame then return end
 	local target = if forceState ~= nil then forceState else not self.shopFrame.Visible
 	self:closeAllModals()
 	self.shopFrame.Visible = target
+	if target then
+		self:requestQuotesForCurrentTier(true)
+	end
 end
 
 function HUD:togglePetsModal(forceState)
@@ -2926,6 +2963,7 @@ function HUD:selectResearchTier(tierIndex)
 		end
 	end
 	self:update()
+	self:requestQuotesForCurrentTier(true)
 end
 
 function HUD:selectShopTab(tabIndex)
@@ -3252,6 +3290,9 @@ function HUD:_updateResearchModal(farm)
 		if isRoblox and self.shopListContainer then
 			self.shopListContainer.CanvasSize = UDim2.new(0, 0, 0, math.max(350, visibleIdx * 66 + 10))
 		end
+		if self.shopFrame and self.shopFrame.Visible then
+			self:requestQuotesForCurrentTier(false)
+		end
 	else
 		-- Epic research view: hide common items and render/update epic cards
 		if type(farm.common) == "table" then
@@ -3282,12 +3323,14 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 	if item == nil then
 		local orderIdx = displayOrder or 1
 		local shouldBeVisible = if isTabVisible ~= nil then isTabVisible else (research.blockedReason ~= "UNSUPPORTED")
-		local card = createGuiElement("Frame", {
+		local card = createGuiElement("TextButton", {
 			Name = "ResearchCard_" .. id,
 			Visible = shouldBeVisible,
 			Size = isRoblox and UDim2.new(1, -6, 0, 60) or nil,
 			Position = isRoblox and UDim2.new(0, 0, 0, (orderIdx - 1) * 66) or nil,
 			BackgroundColor3 = isRoblox and Color3.fromRGB(78, 52, 46) or nil,
+			Text = "",
+			AutoButtonColor = false,
 		}, self.shopListContainer or self.shopFrame)
 		addCornerAndStroke(card, 12, isRoblox and Color3.fromRGB(43, 24, 16) or nil, 2)
 
@@ -3422,6 +3465,12 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 			blockedReason = nil,
 			quote = nil,
 		}
+
+		if card.Activated ~= nil then
+			card.Activated:Connect(function()
+				self:buyResearch(id)
+			end)
+		end
 
 		if buyBtn.Activated ~= nil then
 			buyBtn.Activated:Connect(function()
@@ -3602,7 +3651,23 @@ function HUD:onQuoteReceived(quoteView)
 			if quoteView.cashCost ~= nil then
 				item.priceLabel.Text = HUD.formatCash(quoteView.cashCost)
 			end
-			if not quoteView.available then
+			if quoteView.available then
+				item.available = true
+				item.blockedReason = nil
+				item.buyButton.Active = true
+				item.statusLabel.Text = "BUY"
+				if item.actionLabel then
+					item.actionLabel.Text = "KUP"
+					item.actionLabel.Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil
+					item.actionLabel.Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil
+				end
+				item.priceLabel.Visible = true
+				if isRoblox then
+					item.buyButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94)
+					local stroke = item.buyButton:FindFirstChildOfClass("UIStroke")
+					if stroke then stroke.Color = Color3.fromRGB(20, 83, 45) end
+				end
+			else
 				item.available = false
 				item.blockedReason = quoteView.blockedReason
 				item.buyButton.Active = false
@@ -3614,11 +3679,39 @@ function HUD:onQuoteReceived(quoteView)
 						item.actionLabel.Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil
 						item.actionLabel.Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil
 						item.priceLabel.Visible = true
+						if isRoblox then
+							item.buyButton.BackgroundColor3 = Color3.fromRGB(156, 163, 175)
+							local stroke = item.buyButton:FindFirstChildOfClass("UIStroke")
+							if stroke then stroke.Color = Color3.fromRGB(75, 85, 99) end
+						end
+					elseif reason == "MAX_LEVEL" then
+						item.actionLabel.Size = isRoblox and UDim2.new(1, -6, 0.9, 0) or nil
+						item.actionLabel.Position = isRoblox and UDim2.new(0, 3, 0.05, 0) or nil
+						item.priceLabel.Visible = false
+						if isRoblox then
+							item.buyButton.BackgroundColor3 = Color3.fromRGB(75, 85, 99)
+							local stroke = item.buyButton:FindFirstChildOfClass("UIStroke")
+							if stroke then stroke.Color = Color3.fromRGB(31, 41, 55) end
+						end
+					elseif reason == "TIER_LOCKED" then
+						item.actionLabel.Size = isRoblox and UDim2.new(1, -6, 0.9, 0) or nil
+						item.actionLabel.Position = isRoblox and UDim2.new(0, 3, 0.05, 0) or nil
+						item.priceLabel.Visible = false
+						if isRoblox then
+							item.buyButton.BackgroundColor3 = Color3.fromRGB(127, 29, 29)
+							local stroke = item.buyButton:FindFirstChildOfClass("UIStroke")
+							if stroke then stroke.Color = Color3.fromRGB(69, 10, 10) end
+						end
 					else
 						item.actionLabel.Size = isRoblox and UDim2.new(1, -6, 0.9, 0) or nil
 						item.actionLabel.Position = isRoblox and UDim2.new(0, 3, 0.05, 0) or nil
 						item.priceLabel.Visible = false
-					end
+						if isRoblox then
+							item.buyButton.BackgroundColor3 = Color3.fromRGB(120, 110, 105)
+							local stroke = item.buyButton:FindFirstChildOfClass("UIStroke")
+							if stroke then stroke.Color = Color3.fromRGB(60, 50, 45) end
+						end
+				end
 				else
 					item.buyButton.Text = reason
 				end
@@ -3664,7 +3757,20 @@ end
 
 function HUD:buyResearch(researchId, callback)
 	if not self.intentControllers or not self.intentControllers.shop then
+		if callback then callback({ status = "REJECTED", errorCode = "NO_SHOP_CONTROLLER" }) end
 		return false, "NO_SHOP_CONTROLLER"
+	end
+
+	if isRoblox then
+		local now = os.clock()
+		if self._lastResearchBuyTime and (now - self._lastResearchBuyTime) < 0.2 then
+			return false, "DEBOUNCED"
+		end
+		self._lastResearchBuyTime = now
+	end
+
+	if self.audioController and type(self.audioController.playSFX) == "function" then
+		self.audioController:playSFX("click")
 	end
 
 	local target = {
@@ -3673,17 +3779,49 @@ function HUD:buyResearch(researchId, callback)
 	}
 
 	local currentRevision = if self.stateStore then self.stateStore:getCommitRevision() else nil
+	local serverObservedAt = if self.stateStore then self.stateStore:getServerObservedAt() else nil
 	local quote = self.intentControllers.shop:getCachedQuote(target)
-	if quote ~= nil and quote.available and (currentRevision == nil or quote.expectedRevision == currentRevision) then
-		return self.intentControllers.shop:confirmPurchase(quote, callback)
-	else
+
+	local item = self.shopResearch and self.shopResearch[researchId]
+	local curLvl = item and item.level or 0
+
+	local isQuoteFresh = quote ~= nil
+		and quote.available == true
+		and (currentRevision == nil or quote.expectedRevision == currentRevision)
+		and (serverObservedAt == nil or quote.expiresAt == nil or quote.expiresAt > serverObservedAt)
+		and (quote.nextLevel == nil or quote.nextLevel > curLvl)
+
+	local function doRequestAndConfirm()
 		return self.intentControllers.shop:requestQuote(target, function(newQuote)
 			if newQuote and newQuote.kind == "QuoteView" and newQuote.available then
-				self.intentControllers.shop:confirmPurchase(newQuote, callback)
-			elseif callback then
-				callback({ status = "REJECTED", errorCode = "NO_QUOTE" })
+				self.intentControllers.shop:confirmPurchase(newQuote, function(res)
+					if callback then callback(res) end
+				end)
+			else
+				local errReason = if newQuote and newQuote.blockedReason then newQuote.blockedReason else "QUOTE_UNAVAILABLE"
+				if callback then
+					callback({ status = "REJECTED", errorCode = errReason })
+				end
 			end
 		end)
+	end
+
+	if isQuoteFresh then
+		local okConfirm, opIdOrErr, msg = self.intentControllers.shop:confirmPurchase(quote, function(res)
+			if res and res.status == "REJECTED" and (res.errorCode == "QUOTE_CHANGED" or res.errorCode == "STALE_REVISION" or res.errorCode == "REVISION_MISMATCH" or res.errorCode == "QUOTE_EXPIRED") then
+				doRequestAndConfirm()
+			else
+				if callback then callback(res) end
+			end
+		end)
+
+		if not okConfirm then
+			return doRequestAndConfirm()
+		end
+
+		return okConfirm, opIdOrErr, msg
+	else
+		return doRequestAndConfirm()
 	end
 end
 

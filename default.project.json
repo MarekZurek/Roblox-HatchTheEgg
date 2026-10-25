@@ -5,6 +5,15 @@
   "tree": {
     "$className": "DataModel",
     "$ignoreUnknownInstances": true,
+    "Lighting": {
+      "$className": "Lighting",
+      "$ignoreUnknownInstances": true,
+      "$properties": {
+        "LightingStyle": "Soft",
+        "PrioritizeLightingQuality": false,
+        "GlobalShadows": true
+      }
+    },
     "ServerScriptService": {
       "$className": "ServerScriptService",
       "$ignoreUnknownInstances": true,

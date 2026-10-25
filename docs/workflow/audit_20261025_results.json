@@ -1,0 +1,186 @@
+{
+  "client_controls_pet_result": {
+    "ok": true,
+    "value": {
+      "geAfter": "10",
+      "geBefore": "10",
+      "pet": {
+        "locked": false,
+        "rarity": "Legendary",
+        "speciesId": "drone_hawk",
+        "tier": 1,
+        "uid": "attacker-selected",
+        "variant": "rainbow"
+      },
+      "result": {
+        "costGE": 0,
+        "pet": {
+          "locked": false,
+          "rarity": "Legendary",
+          "speciesId": "drone_hawk",
+          "tier": 1,
+          "uid": "attacker-selected",
+          "variant": "rainbow"
+        },
+        "success": true
+      },
+      "success": true
+    }
+  },
+  "client_fake_success": {
+    "ok": true,
+    "value": {
+      "daily": {
+        "rewardType": "DailyGift",
+        "status": "APPLIED"
+      },
+      "fusion": {
+        "basePetId": "none",
+        "consumed": [
+          "none2"
+        ],
+        "status": "SUCCESS"
+      },
+      "networkSends": 0,
+      "purchase": {
+        "productId": "ge_pack_small",
+        "status": "APPLIED"
+      }
+    }
+  },
+  "event_boundary_not_weighted": {
+    "ok": true,
+    "value": {
+      "cash": 0.25,
+      "expectedWeighted": 0.4166666666666667
+    }
+  },
+  "invented_drone_ids": {
+    "ok": true,
+    "value": {
+      "cashAfter": "3.0005000447183847",
+      "first": true,
+      "geAfter": "10",
+      "geBefore": "10",
+      "reward1": {
+        "amount": 2.500000037252903,
+        "formattedAmount": "2.500000037252903",
+        "type": "Cash"
+      },
+      "reward2": {
+        "amount": 0.5005000074654817,
+        "formattedAmount": "0.50050000746548173",
+        "type": "Cash"
+      },
+      "second": true
+    }
+  },
+  "invented_offer_id": {
+    "ok": true,
+    "value": {
+      "cash": "50000",
+      "result": {
+        "amount": "50000",
+        "amountNumber": 50000,
+        "rewardType": "Cash"
+      },
+      "success": true
+    }
+  },
+  "prestige_resets_group_sequence": {
+    "ok": true,
+    "value": {
+      "sequence": "0",
+      "status": "APPLIED"
+    }
+  },
+  "production_egg_and_effects": {
+    "ok": true,
+    "value": {
+      "edible": {
+        "boosts": {},
+        "cash": "0.83333333333333326",
+        "settled": 1001000
+      },
+      "jimbo3": {
+        "boosts": [
+          {
+            "id": "jimbos_blue_v2",
+            "remainingSeconds": 1000
+          }
+        ],
+        "cash": "0.83333333333333326",
+        "settled": 1001000
+      },
+      "superfood": {
+        "boosts": {},
+        "cash": "0.83333333333333326",
+        "settled": 1001000
+      }
+    }
+  },
+  "restricted_pro_default": {
+    "ok": true,
+    "value": {
+      "entitlements": {
+        "pro_permit": true,
+        "pro_permit_effective_at": 1000000,
+        "pro_plus10_enabled": true
+      },
+      "success": true
+    }
+  },
+  "soul_and_pet_production": {
+    "ok": true,
+    "value": {
+      "base": "0.83333333333333326",
+      "pet": "0.83333333333333326",
+      "soul": "0.83333333333333326"
+    }
+  },
+  "unsupported_player_commands": {
+    "ok": true,
+    "value": {
+      "BuyBoost": {
+        "admission": "NOT_ACCEPTED",
+        "errorCode": "INVALID_REQUEST",
+        "kind": "Admission",
+        "operationId": "audit-BuyBoost",
+        "protocolVersion": 1,
+        "requestId": "audit-BuyBoost"
+      },
+      "ClaimDailyGift": {
+        "admission": "NOT_ACCEPTED",
+        "errorCode": "INVALID_REQUEST",
+        "kind": "Admission",
+        "operationId": "audit-ClaimDailyGift",
+        "protocolVersion": 1,
+        "requestId": "audit-ClaimDailyGift"
+      },
+      "ClaimTrophy": {
+        "admission": "NOT_ACCEPTED",
+        "errorCode": "INVALID_REQUEST",
+        "kind": "Admission",
+        "operationId": "audit-ClaimTrophy",
+        "protocolVersion": 1,
+        "requestId": "audit-ClaimTrophy"
+      },
+      "FusePets": {
+        "admission": "NOT_ACCEPTED",
+        "errorCode": "INVALID_REQUEST",
+        "kind": "Admission",
+        "operationId": "audit-FusePets",
+        "protocolVersion": 1,
+        "requestId": "audit-FusePets"
+      },
+      "Prestige": {
+        "admission": "NOT_ACCEPTED",
+        "errorCode": "INVALID_REQUEST",
+        "kind": "Admission",
+        "operationId": "audit-Prestige",
+        "protocolVersion": 1,
+        "requestId": "audit-Prestige"
+      }
+    }
+  }
+}

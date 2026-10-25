@@ -1,0 +1,350 @@
+{
+  "issues": [
+    {
+      "id": "owned_pro_after_offline",
+      "number": 71,
+      "title": "[P1][REAUDIT] Posiadany Pro nie jest nadawany po niepełnym rozliczeniu offline",
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/71"
+    },
+    {
+      "id": "fv_max_rcb",
+      "number": 72,
+      "title": "[P2][REAUDIT] Farm Value nadal pomija maksymalny RCB z posiadanych badań",
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/72"
+    },
+    {
+      "id": "epic_discounts",
+      "number": 73,
+      "title": "[P2][REAUDIT] Quote i zakupy ignorują zniżki Epic na badania, kurniki i pojazdy",
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/73"
+    },
+    {
+      "id": "rejected_reset_kills_hold",
+      "number": 74,
+      "title": "[P2][REAUDIT] Odrzucony prestiż przerywa ważny Hold to Hatch przed zatwierdzeniem resetu",
+      "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/74"
+    }
+  ],
+  "date": "2026-10-25",
+  "testedCommit": "ad6a2256f54665e1c7883a8879a7ef3f6e222c7e",
+  "verdict": "REQUIRES_FIXES",
+  "releaseCandidateReady": false,
+  "completeRequirementCoverageClaimed": false,
+  "reportedIssueCount": 4,
+  "mismatchProbeCount": 6,
+  "observations": [
+    {
+      "actual": false,
+      "evidence": {
+        "grants": [
+          {
+            "detail": "SIMULATION_INCOMPLETE",
+            "ok": false
+          }
+        ],
+        "ownershipChecks": 1,
+        "platformOwned": true,
+        "ready": true,
+        "serverNow": 1000000,
+        "settledThrough": 1000000,
+        "settlingTicks": 4
+      },
+      "expected": true,
+      "id": "owned_pro_after_offline",
+      "mismatch": true
+    },
+    {
+      "actual": 13732.00679132647,
+      "evidence": {
+        "expectedRCBTerm": "(5+10-4)^0.25",
+        "researchMaxRCBBase": 10,
+        "researchMaxRCBMult": 1
+      },
+      "expected": 25008.185426951717,
+      "id": "fv_max_rcb",
+      "mismatch": true
+    },
+    {
+      "actual": 0.5026054676849723,
+      "evidence": {
+        "expectedWalletAfter": "999999.74869726622",
+        "referenceBasePrice": 0.5026054676849723,
+        "result": "APPLIED",
+        "walletAfter": "999999.49739453231"
+      },
+      "expected": 0.25130273384248614,
+      "id": "research_discount",
+      "mismatch": true
+    },
+    {
+      "actual": 466.66887875775,
+      "evidence": {
+        "expectedWalletAfter": "999766.66556062107",
+        "referenceBasePrice": 466.66887875775,
+        "result": "APPLIED",
+        "walletAfter": "999533.33112124226"
+      },
+      "expected": 233.334439378875,
+      "id": "habitat_discount",
+      "mismatch": true
+    },
+    {
+      "actual": 544.5387296153486,
+      "evidence": {
+        "expectedWalletAfter": "999727.73063519236",
+        "referenceBasePrice": 544.5387296153486,
+        "result": "APPLIED",
+        "walletAfter": "999455.46127038461"
+      },
+      "expected": 272.2693648076743,
+      "id": "vehicle_discount",
+      "mismatch": true
+    },
+    {
+      "actual": false,
+      "evidence": {
+        "earnings": "1000000",
+        "prestigeCount": "0",
+        "result": {
+          "currentCommitRevision": "1",
+          "kind": "CommandResult",
+          "operationId": "rejected-prestige",
+          "protocolVersion": 1,
+          "requestId": "rejected-prestige",
+          "result": {
+            "errorCode": "PRESTIGE_EVENT_CHANGED",
+            "terminalStatus": "REJECTED"
+          },
+          "resultRevision": "1",
+          "serverObservedAt": 1000000,
+          "status": "REJECTED",
+          "streamId": "stream-1-g1-1"
+        },
+        "runtime": {
+          "expiresAtMs": 1002000,
+          "held": false,
+          "holdElapsed": 0,
+          "lastInputSeq": "2",
+          "streamId": "stream-1-g1-1"
+        }
+      },
+      "expected": true,
+      "id": "rejected_reset_kills_hold",
+      "mismatch": true
+    }
+  ],
+  "findingMapping": {
+    "71": [
+      "owned_pro_after_offline"
+    ],
+    "72": [
+      "fv_max_rcb"
+    ],
+    "73": [
+      "research_discount",
+      "habitat_discount",
+      "vehicle_discount"
+    ],
+    "74": [
+      "rejected_reset_kills_hold"
+    ]
+  },
+  "verificationLevel": "L_AND_STATIC_INSPECTION",
+  "baselineRunner": {
+    "status": "PASS_LOCAL_CHECKS",
+    "luauSuites": 37,
+    "luauAssertions": 80646,
+    "pythonReportingTests": 11,
+    "selectedMutationsKilled": 35,
+    "log": "build/audit-after-63-70-full.log"
+  },
+  "rojo": {
+    "status": "PASS_STATIC_BUILD",
+    "modules": 39,
+    "entrypoints": 2
+  },
+  "studioTested": false,
+  "realDataStoreTested": false,
+  "realPolicyServiceTested": false,
+  "realPurchasesTested": false,
+  "humanAcceptanceTested": false,
+  "sourceModified": false,
+  "existingTestsModified": false,
+  "protectedBalanceAndReferenceFilesByteIdentical": 14,
+  "historicalJsonFilesUnchangedNormalizedLF": 24,
+  "auditScript": {
+    "path": "docs/workflow/audit_after_63_70_20261025_repro.luau",
+    "sha256NormalizedLF": "d2f5eb0562767d937aee6bc017d916438ba036e64e1a66aba07efe59f0ad2f82"
+  },
+  "sourceManifest": [
+    {
+      "path": "src/client/AudioController.luau",
+      "sha256NormalizedLF": "5f38634c8a73012fbf9169fb76a6f1b0bb3d39b8f506128d3d6e4d0dcf214f8b"
+    },
+    {
+      "path": "src/client/Bootstrap.luau",
+      "sha256NormalizedLF": "84fe203737731783a227719bacb0670ec92a6744de83981ed9242c459bc19a01"
+    },
+    {
+      "path": "src/client/ClientStateStore.luau",
+      "sha256NormalizedLF": "cd9d63a9eee9ffa376ecc7fcc409cde703a4a25b10d6e640f7bdfbd4e1fe6725"
+    },
+    {
+      "path": "src/client/ClientTransport.luau",
+      "sha256NormalizedLF": "c5b9cdf3b9e7b67c2dd257b686363709b8cf234ab06bdefe154c7dd90967476a"
+    },
+    {
+      "path": "src/client/HUD.luau",
+      "sha256NormalizedLF": "7381ebf7874b0824835b9cecd29befc763d888d0ee03a48364aeb03f69af8946"
+    },
+    {
+      "path": "src/client/IntentControllers.luau",
+      "sha256NormalizedLF": "8685d88198192465f1088a57e3936ddc0233d410fbfb0cca5298a4e8788e96d7"
+    },
+    {
+      "path": "src/client/Main.client.luau",
+      "sha256NormalizedLF": "4af3c84abfa2a4b20b32884fcda99ecd7938c1c597dad1808989b48fc8b00931"
+    },
+    {
+      "path": "src/client/onboarding/TutorialController.luau",
+      "sha256NormalizedLF": "d204381f4b89bde05892b15249265cbfa76b5d4c69a17d37d882fecf5759fceb"
+    },
+    {
+      "path": "src/client/RoutePresentation.luau",
+      "sha256NormalizedLF": "d61369faeb0e3c948921c06c941eddd08e87a5a478f59d9d222028cd6186adb3"
+    },
+    {
+      "path": "src/server/ActionReferenceData.luau",
+      "sha256NormalizedLF": "3a9cd70ba56271bd4fd7b4ef6c540f81d43acc0997981360d1ad11c763c69b73"
+    },
+    {
+      "path": "src/server/Bootstrap.luau",
+      "sha256NormalizedLF": "b6689247964fe910dfa42e3a25878fa5eec2fe5f63a182cdc67619d49032f301"
+    },
+    {
+      "path": "src/server/CatalogRegistry/Data.luau",
+      "sha256NormalizedLF": "ec20e44ca2d26bf028c17f1e36415672a0b01f31bcf1c341ae7db902a1ac67f7"
+    },
+    {
+      "path": "src/server/CatalogRegistry/init.luau",
+      "sha256NormalizedLF": "0a435ba779c8411121e24a4f1a5d53544c2499ca8a1fdfaea52442e9b2907b66"
+    },
+    {
+      "path": "src/server/EffectsManager.luau",
+      "sha256NormalizedLF": "793329d6d18594f13395f2c3bba2d65348668d7ce9432e961c8b168cf0eaeecd"
+    },
+    {
+      "path": "src/server/FarmActions.luau",
+      "sha256NormalizedLF": "81c75d2df31568964b928e49283a1584d7ac1deb6143db71c1c71ee66e048f03"
+    },
+    {
+      "path": "src/server/FarmMath/fv_se.luau",
+      "sha256NormalizedLF": "80cb907c8a7ef85aab868ae9ce9fd0c3fd224b17ef7214bf570907216b9c4288"
+    },
+    {
+      "path": "src/server/FarmMath/hatching_rcb.luau",
+      "sha256NormalizedLF": "602ad5f049328fb10a0446dbac197c0519f1640b0bb1ee8f4779aea6c0c35590"
+    },
+    {
+      "path": "src/server/FarmMath/ihr.luau",
+      "sha256NormalizedLF": "346314f4264d96aa69244ab22ad29481c1cded2e342ba0849c23b4d0b1840ffd"
+    },
+    {
+      "path": "src/server/FarmMath/PopulationMath.luau",
+      "sha256NormalizedLF": "d69246b2db2cbca2a3a49f8133a8895489ca3901bf66373c32cabe4246e3f527"
+    },
+    {
+      "path": "src/server/FarmMath/production_research.luau",
+      "sha256NormalizedLF": "4641f2d9f833355b68222d1da1e27e0a761aea2a044b2fc728510a327012c848"
+    },
+    {
+      "path": "src/server/Main.server.luau",
+      "sha256NormalizedLF": "803c3f386a20d863a0a32f20a1234adede325bf9423af5335430d45a4bc2f581"
+    },
+    {
+      "path": "src/server/NetworkGateway.luau",
+      "sha256NormalizedLF": "812731c6d743c2cf5b41534e14585fc6b9419df60d6e5dc1fe68907a772ede9d"
+    },
+    {
+      "path": "src/server/onboarding/manager.luau",
+      "sha256NormalizedLF": "4115c5ee3e66665d2a35a774c6f86781b8eb2b73d2319cd7a0dd2543ce98c000"
+    },
+    {
+      "path": "src/server/PersistenceData.luau",
+      "sha256NormalizedLF": "9009b448dfae5311b69339b07e274688451d2dcf2c3d73501a9b743957afaa48"
+    },
+    {
+      "path": "src/server/pets/equipment.luau",
+      "sha256NormalizedLF": "bedd7dc2d34de16663000cf75a5a89cdca1843a02ec5e6a36d3530bf3af095e2"
+    },
+    {
+      "path": "src/server/pets/fusion.luau",
+      "sha256NormalizedLF": "80db419efe0dc516ea377f5b0987abef71cf49859730b1d2484d63442541a0da"
+    },
+    {
+      "path": "src/server/platform/products.luau",
+      "sha256NormalizedLF": "48708558c49d2dc07293469ed6c771c6bad7359284aa46994b75fe8f120fa6d5"
+    },
+    {
+      "path": "src/server/PlayerCoordinator.luau",
+      "sha256NormalizedLF": "2b89409cb2ea6cb4162240435767161e6908af88e287cf2cf985ce1e66c4b894"
+    },
+    {
+      "path": "src/server/ProfileSchema.luau",
+      "sha256NormalizedLF": "59bcc3aa7d43fea9d32068741f04131a3cca9821dd7dcd0bd78214e7342f1e93"
+    },
+    {
+      "path": "src/server/ProgressActions.luau",
+      "sha256NormalizedLF": "6315e6314351472dbd68be587009bc49c067d02d007c83a98ce0723404959f81"
+    },
+    {
+      "path": "src/server/rewards/calendar.luau",
+      "sha256NormalizedLF": "f0bb474ceeb8b0ab641f3130d6ace4db4aa6192b1b58502371feb4a9d06a4c46"
+    },
+    {
+      "path": "src/server/rewards/drones.luau",
+      "sha256NormalizedLF": "fceca438159e4aaf5a7c9d9cc70575505c4710fa721abb9e36f01adb6992daed"
+    },
+    {
+      "path": "src/server/rewards/offers.luau",
+      "sha256NormalizedLF": "499c25b2069c5f48ac27003a58880971950d233960af2af1836d4968212edbad"
+    },
+    {
+      "path": "src/server/rewards/trophies.luau",
+      "sha256NormalizedLF": "86f38c2652b8761c4cca6817baa386b6dae95e41456c2408dd823dc4d36a78b2"
+    },
+    {
+      "path": "src/server/RobloxDataStorePort.luau",
+      "sha256NormalizedLF": "0a85ea4bc3aa0c87a290c915f7cdfe42a0a84d3d0128d5a3f750d0360d8af902"
+    },
+    {
+      "path": "src/server/SessionRepository.luau",
+      "sha256NormalizedLF": "15098c50ea2ad62bea94956b10d048cf127be2a32922fafac07c067959431343"
+    },
+    {
+      "path": "src/server/TimelineSimulation.luau",
+      "sha256NormalizedLF": "056656842c9a51a7bc7294ed1875103a81e005854eba366226ba544a060965db"
+    },
+    {
+      "path": "src/server/ViewProjector.luau",
+      "sha256NormalizedLF": "c8618ab16838c352a8b92ba4f45c9b734022a8c4a8be736975493698ea74797c"
+    },
+    {
+      "path": "src/server/world/FarmPlotBuilder.luau",
+      "sha256NormalizedLF": "1412155d09a6e8b2fc69db0716121b6b5b49e21dd696800a77edc35c8c7ddb9a"
+    },
+    {
+      "path": "src/shared/NumericCodec.luau",
+      "sha256NormalizedLF": "f9c97ced4fe8e3a1c59f085b7fa8b153921f0716e34779958e11dc3b06261074"
+    },
+    {
+      "path": "src/shared/ProtocolSchemas.luau",
+      "sha256NormalizedLF": "240e43602d4fd59ecc41d3f286ef0c5d114ee495c367d89eb111f6316a081eac"
+    }
+  ],
+  "limitations": [
+    "Targeted integration and error-path audit, not all possible game states",
+    "Missing production workflows listed separately from reproduced bugs",
+    "No implementation, commit, push, cloud migration or history rewrite during audit"
+  ]
+}
