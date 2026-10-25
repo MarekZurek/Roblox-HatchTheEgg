@@ -15,13 +15,16 @@ W PowerShell: ./tools/bootstrap.ps1, następnie ./tools/test.ps1 -PythonExecutab
 
 REFERENCE_ONLY nie jest konfiguracją wydania. Bilans pozostaje odłożony. Issue nie jest automatycznym zleceniem realizacji lub publikacji gry. [Zakres kopii publicznej](PUBLIC_EXPORT.md).
 
-Poprawka [#56 — rzeczywiste operacje przycisków](docs/workflow/action_wiring_56.md) usuwa lokalne sukcesy i dodaje [testy oczekiwanego zachowania](tests/game_behavior/README.md). Pełne sprawdzenie wraz z siedmioma mutacjami: `./tools/test.ps1 -PythonExecutable python -MutationChecks`. Ograniczenia wydania nadal obowiązują: #59–61 i brak konfiguracji funkcji odłożonych. Wynik L nie oznacza gotowości całej gry.
+Poprawka [#56 — rzeczywiste operacje przycisków](docs/workflow/action_wiring_56.md) usuwa lokalne sukcesy i dodaje [testy oczekiwanego zachowania](tests/game_behavior/README.md). Pełne sprawdzenie wraz z siedmioma mutacjami: `./tools/test.ps1 -PythonExecutable python -MutationChecks`. Ograniczenia wydania nadal obowiązują: #60–61 i brak konfiguracji funkcji odłożonych. Wynik L nie oznacza gotowości całej gry.
 
 
 [Kalendarz #62 — pełne 28 dni](docs/workflow/calendar_rewards_62.md): usunięto blokadę gotówki i Shell Scripts. Serwer rozlicza procent aktualnego FV farmy domowej i dokładny trwały licznik. Testy pełnych cykli oraz stare/nowe mutacje są częścią wspólnego runnera. Historyczna blokada #62 została usunięta; pozostałe ustalenia audytu to #57–61. Bilans i dane referencyjne nadal bez zmian.
 
 
-[Awaria DataStore #57](docs/workflow/persistent_startup_57.md): produkcja wymaga trwałego storage, bez fallbacku do pamięci. Lokalny tryb wymaga Studio i jawnej flagi; płatności są w nim wyłączone. Testy obejmują rzeczywisty Main.server, start, wejście gracza, receipt, restart i zachowanie stanu po potwierdzonym retry. Pozostałe ustalenia audytu: #59–61; bilans nadal odłożony.
+[Awaria DataStore #57](docs/workflow/persistent_startup_57.md): produkcja wymaga trwałego storage, bez fallbacku do pamięci. Lokalny tryb wymaga Studio i jawnej flagi; płatności są w nim wyłączone. Testy obejmują rzeczywisty Main.server, start, wejście gracza, receipt, restart i zachowanie stanu po potwierdzonym retry. Pozostałe ustalenia audytu: #60–61; bilans nadal odłożony.
 
 
 [Polityka Pro #58](docs/workflow/pro_policy_58.md): +10 p.p. tylko przy aktualnej kwalifikacji konta; inne korzyści pozostają. 34 zestawy / 80 126 asercji L i 20 mutacji PASS. Bez testów Studio i rzeczywistych usług.
+
+
+[Reset grup #59](docs/workflow/reset_group_ids_59.md): licznik hatch:N zachowany przy zmianie jaja i prestiżu, bez ponownego użycia identyfikatorów.

@@ -242,7 +242,7 @@ local function applyUpgradeEgg(candidateProfile: any, op: any, deps: any?): any
 	candidateProfile.farm.hatcheryStock = "250"
 	candidateProfile.farm.runningCount = "0"
 	candidateProfile.farm.groups = {}
-	candidateProfile.farm.hatchGroupSequence = "0"
+	-- Preserve hatchGroupSequence: group IDs must remain unique across farm resets (docs/38). UpgradeEgg.
 	candidateProfile.farm.siloOwned = 1
 
 	-- Step 4: Storage Re-validation Callback
@@ -335,7 +335,7 @@ local function applyPrestige(candidateProfile: any, op: any, deps: any?): any
 	candidateProfile.farm.hatcheryStock = "250"
 	candidateProfile.farm.runningCount = "0"
 	candidateProfile.farm.groups = {}
-	candidateProfile.farm.hatchGroupSequence = "0"
+	-- Preserve hatchGroupSequence: group IDs must remain unique across farm resets (docs/38). Prestige.
 	candidateProfile.farm.siloOwned = 1
 
 	-- All other fields (GE, PE, epic, hyperloop, inventory, effects, timeline, rewards, piggy, entitlements, operations) preserved!

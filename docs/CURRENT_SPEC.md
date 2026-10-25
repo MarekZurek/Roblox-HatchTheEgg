@@ -159,3 +159,8 @@ Zadania `DOC-01..05`, `PRE-01..03`, `IMP-01..15`, `QA-01`, `NEXT-01..10`, `REL-0
 ## Polityka konta i bonus Pro — #58 (25.10.2026)
 
 [Dostawa #58](workflow/pro_policy_58.md): własność Pro pozostaje trwała, a +10 p.p. wymaga aktualnej zaufanej polityki. Brak/błąd odczytu wyłącza bonus, zachowując pozostałe korzyści. Zapisane pro_plus10_enabled jest wyłącznie historyczną kwalifikacją nadania; nie autoryzuje użycia. Podgląd i potwierdzenie zakupu uwzględniają dostępność. Testy L: 34 zestawy, 80 126 asercji, 20 wykrytych mutacji; bez Studio/chmury. Pozostałe #59–61; bilans i dane referencyjne bez zmian. Starsze listy otwartych ustaleń opisują poprzednie dostawy.
+
+
+## Identyfikatory grup po resecie — #59 (25.10.2026)
+
+[Dostawa #59](workflow/reset_group_ids_59.md): zmiana jaja i prestiż zachowują hatchGroupSequence, usuwając poprzednie grupy i rezerwacje. Regresje sprawdzają następne dokładne ID oraz brak wpływu starych dotarć na nową grupę, także powyżej 2^53 i po serializacji profilu. Bez zmian bilansu i danych referencyjnych. Starsze listy otwartych ustaleń opisują stan poprzednich dostaw; pozostałe #60–61.

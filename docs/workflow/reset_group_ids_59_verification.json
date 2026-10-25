@@ -1,0 +1,125 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "acd2ac1b3eb46484d552010a49337812a9d61c5a",
+  "status": "PASS_L_AND_STATIC_BUILD",
+  "suiteCount": 34,
+  "assertions": 80240,
+  "resetsAssertions": 1148,
+  "newRegressionAssertions": 114,
+  "regressionBeforeFix": "FAIL: UpgradeEgg retains high watermark: 0 != 1",
+  "mutations": [
+    {
+      "name": "local_fake_success",
+      "state": "KILLED"
+    },
+    {
+      "name": "missing_trophy_route",
+      "state": "KILLED"
+    },
+    {
+      "name": "calendar_claim_twice",
+      "state": "KILLED"
+    },
+    {
+      "name": "trophy_below_threshold",
+      "state": "KILLED"
+    },
+    {
+      "name": "fusion_free_materials",
+      "state": "KILLED"
+    },
+    {
+      "name": "shop_credit_instead_of_debit",
+      "state": "KILLED"
+    },
+    {
+      "name": "trophy_wrong_GE",
+      "state": "KILLED"
+    },
+    {
+      "name": "calendar_cash_percent_omitted",
+      "state": "KILLED"
+    },
+    {
+      "name": "calendar_shell_precision_lost",
+      "state": "KILLED"
+    },
+    {
+      "name": "calendar_prestige_base_lost",
+      "state": "KILLED"
+    },
+    {
+      "name": "startup_receipt_handler_missing",
+      "state": "KILLED"
+    },
+    {
+      "name": "local_payments_enabled",
+      "state": "KILLED"
+    },
+    {
+      "name": "rejected_receipt_acknowledged",
+      "state": "KILLED"
+    },
+    {
+      "name": "durable_receipt_replay_ignored",
+      "state": "KILLED"
+    },
+    {
+      "name": "confirmed_retry_snapshot_stale",
+      "state": "KILLED"
+    },
+    {
+      "name": "unknown_policy_allowed",
+      "state": "KILLED"
+    },
+    {
+      "name": "fusion_trusts_saved_pro_flag",
+      "state": "KILLED"
+    },
+    {
+      "name": "fulfillment_trusts_prepared_policy",
+      "state": "KILLED"
+    },
+    {
+      "name": "late_policy_response_overwrites_current",
+      "state": "KILLED"
+    },
+    {
+      "name": "sensitive_action_skips_policy_refresh",
+      "state": "KILLED"
+    },
+    {
+      "name": "egg_reset_reuses_group_ids",
+      "state": "KILLED"
+    },
+    {
+      "name": "prestige_reuses_group_ids",
+      "state": "KILLED"
+    }
+  ],
+  "mutationScope": "22 selected semantic mutations, not exhaustive coverage",
+  "rojoModules": 39,
+  "entrypoints": 2,
+  "studioTested": false,
+  "realDataStoreTested": false,
+  "realPurchasesTested": false,
+  "protectedFilesByteIdentical": 14,
+  "remainingAuditIssues": [
+    60,
+    61
+  ],
+  "files": [
+    {
+      "path": "src/server/ProgressActions.luau",
+      "sha256NormalizedLF": "7fff32cf3b2394ab641e46ddf15c305d5a660983203b8c3a83a800caead32529"
+    },
+    {
+      "path": "tests/resets/run.luau",
+      "sha256NormalizedLF": "71010cc2f449ce45c70182a2e9b93391a5faca9f844b1e14847418c8a2cd479c"
+    },
+    {
+      "path": "tests/game_behavior/mutation_check.py",
+      "sha256NormalizedLF": "d8d4d8e41602b6b63946e7cb7d65927890bcb1c280c871436e5b6a948ff30140"
+    }
+  ]
+}

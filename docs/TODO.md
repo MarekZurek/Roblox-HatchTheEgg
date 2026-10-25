@@ -132,7 +132,7 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 ## Bezpieczeństwo — 25.10.2026
 
 - [x] #51–53: zablokować wymuszanie ceny/wyniku inkubacji i wypłaty z nieistniejących dronów/ofert; dodać trwałe rejestry i regresję odbioru. [Zakres i ograniczenia](workflow/security_fixes_51_53.md). Nie zatwierdza bilansu ani całej gotowości wydania.
-- [ ] Pozostałe ustalenia audytu #59–61 pozostają do wykonania na osobne zlecenie.
+- [ ] Pozostałe ustalenia audytu #60–61 pozostają do wykonania na osobne zlecenie.
 
 - [x] #54–55: podłączyć aktualne jajo, SE/PE, pety i boosty do produkcji, HUD oraz zapisu/wznowienia. [Zakres i dowody](workflow/production_fixes_54_55.md). Bilans bez zmian.
 
@@ -143,3 +143,5 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 - [x] #57: wyłączyć fallback pamięci na produkcji; jawny lokalny tryb Studio bez płatności, bezpieczny start/receipt oraz regresje rzeczywistego Main i restartu. [Dostawa](workflow/persistent_startup_57.md).
 
 - [x] #58: bieżąca polityka konta dla +10 p.p., bezpieczny brak danych, niezależna własność Pro i informacja przed zakupem. [Dostawa](workflow/pro_policy_58.md).
+
+- [x] #59: zachować monotoniczny licznik grup przy obu resetach; regresje nowych ID i spóźnionych dotarć. [Dostawa](workflow/reset_group_ids_59.md).

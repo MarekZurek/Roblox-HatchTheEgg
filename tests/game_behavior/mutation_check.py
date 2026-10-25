@@ -58,6 +58,12 @@ MUTANTS=[
  ('sensitive_action_skips_policy_refresh','src/server/Main.server.luau',
   'refreshPolicy(player) -- outside the coordinator/UpdateAsync; concurrent requests coalesce',
   '-- Sensitive action uses a stale cache'),
+ ('egg_reset_reuses_group_ids','src/server/ProgressActions.luau',
+  '-- Preserve hatchGroupSequence: group IDs must remain unique across farm resets (docs/38). UpgradeEgg.',
+  'candidateProfile.farm.hatchGroupSequence = "0"'),
+ ('prestige_reuses_group_ids','src/server/ProgressActions.luau',
+  '-- Preserve hatchGroupSequence: group IDs must remain unique across farm resets (docs/38). Prestige.',
+  'candidateProfile.farm.hatchGroupSequence = "0"'),
 ]
 def main():
  base=ROOT/'build'/('behavior-mutations-'+uuid.uuid4().hex[:8]);base.mkdir(parents=True)
@@ -70,6 +76,7 @@ def main():
   shutil.copytree(ROOT/'tests/persistence_startup',target/'tests/persistence_startup')
   shutil.copytree(ROOT/'tests/support',target/'tests/support')
   shutil.copytree(ROOT/'tests/pro_policy',target/'tests/pro_policy')
+  shutil.copytree(ROOT/'tests/resets',target/'tests/resets')
   (target/'docs/reference_data').mkdir(parents=True);(target/'build').mkdir()
   for ref in ['infrastructure','research','rewards']:
    shutil.copy2(ROOT/f'docs/reference_data/{ref}.json',target/f'docs/reference_data/{ref}.json')
@@ -82,7 +89,7 @@ def main():
    old='if not Calendar.canClaimCalendarDay(draft,self.clock.utcNowMs()) then'
    assert text.count(old)==1
    server.write_text(text.replace(old,'if false then'),encoding='utf-8')
-  suite='pro_policy' if name in {'unknown_policy_allowed','fusion_trusts_saved_pro_flag','fulfillment_trusts_prepared_policy','late_policy_response_overwrites_current','sensitive_action_skips_policy_refresh'} else 'persistence_startup' if name in {'startup_receipt_handler_missing','local_payments_enabled','rejected_receipt_acknowledged','durable_receipt_replay_ignored','confirmed_retry_snapshot_stale'} else 'calendar_cycle' if name in {'calendar_cash_percent_omitted','calendar_shell_precision_lost','calendar_prestige_base_lost'} else 'game_behavior'
+  suite='resets' if name in {'egg_reset_reuses_group_ids','prestige_reuses_group_ids'} else 'pro_policy' if name in {'unknown_policy_allowed','fusion_trusts_saved_pro_flag','fulfillment_trusts_prepared_policy','late_policy_response_overwrites_current','sensitive_action_skips_policy_refresh'} else 'persistence_startup' if name in {'startup_receipt_handler_missing','local_payments_enabled','rejected_receipt_acknowledged','durable_receipt_replay_ignored','confirmed_retry_snapshot_stale'} else 'calendar_cycle' if name in {'calendar_cash_percent_omitted','calendar_shell_precision_lost','calendar_prestige_base_lost'} else 'game_behavior'
   run=subprocess.run([str(ROOT/'.tools/lune-0.11.1/lune.exe'),'run',f'tests/{suite}/run.luau'],cwd=target,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=120)
   output=run.stdout+run.stderr
   invalid=any(word in output for word in ['SyntaxError','Failed to resolve require','could not resolve','error parsing'])
@@ -90,7 +97,7 @@ def main():
   (target/'build/output.txt').write_text(output,encoding='utf-8')
   print(f'{name}: {state}',flush=True)
   results.append({'mutant':name,'state':state,'exitCode':run.returncode,'output':str((target/'build/output.txt').relative_to(ROOT))})
- report={'status':'PASS' if all(r['state']=='KILLED' for r in results) else 'FAIL','mutants':results,'scope':'Twenty selected semantic mutations; not exhaustive mutation coverage'}
+ report={'status':'PASS' if all(r['state']=='KILLED' for r in results) else 'FAIL','mutants':results,'scope':'Twenty-two selected semantic mutations; not exhaustive mutation coverage'}
  (ROOT/'build/game-behavior-mutations.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
  assert report['status']=='PASS',report
 if __name__=='__main__':main()

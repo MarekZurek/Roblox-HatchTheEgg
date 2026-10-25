@@ -179,7 +179,7 @@ do
 	eq(next(nextProf.farm.common), nil, "common research reset to empty table")
 	eq(nextProf.farm.hatcheryStock, "250", "hatchery stock reset to 250")
 	eq(nextProf.farm.runningCount, "0", "running count reset to 0")
-	eq(nextProf.farm.hatchGroupSequence, "0", "hatchGroupSequence reset to 0")
+	eq(nextProf.farm.hatchGroupSequence, p.farm.hatchGroupSequence, "hatchGroupSequence preserved")
 	eq(next(nextProf.farm.groups), nil, "groups reset to empty table")
 	eq(nextProf.farm.siloOwned, 1, "siloOwned reset to 1")
 
@@ -852,7 +852,68 @@ do
 end
 
 -- ============================================================================
--- Section 8: Save Results and Report
+-- Section 8: Reset identity lifetime (#59), including integers above binary64 precision.
+do
+	local Population = require("../../src/server/FarmMath/PopulationMath").new(Codec)
+	local Hatching = require("../../src/server/FarmMath/hatching_rcb").new(Codec, Population, Data, {mode="INTERNAL_TEST_ONLY"})
+	local function runtimeFarm(profile)
+		local farm=Data.copy(profile.farm)
+		farm.hatcheryStock=BigAmount.decode(farm.hatcheryStock)
+		for i,hab in farm.habitats do
+			hab.capacity=if i==1 then "100" else "0"
+			hab.fractionalIHR=Real64.decode(hab.fractionalIHR)
+		end
+		return farm
+	end
+	local function press(farm,seq)
+		return Hatching.input(farm,{streamId="reset-test",lastInputSeq="0",held=false,holdElapsed=0},
+			{kind="HatchPress",streamId="reset-test",inputSeq=seq},function()return "0" end,
+			function()return {routeVersion="reset-route",startInstantMs=1000000,travelDurationSeconds=1} end)
+	end
+	for _,case in {{"0","1","2"},{"123","124","125"},{"9007199254740992","9007199254740993","9007199254740994"}} do
+		for _,kind in {"UpgradeEgg","Prestige"} do
+			local p=createTestProfile()
+			p.permanent.SE=Real64.encode(1000000)
+			p.permanent.epic={soul_food=10}
+			p.accounting.currentFarmCash="500000"
+			p.farm.hatchGroupSequence=case[1]
+			local oldFarm,_,released,oldId=press(runtimeFarm(p),"1")
+			eq(released,"RELEASED",kind.." pre-reset release")
+			eq(oldId,"hatch:"..case[2],"exact previous group ID")
+			-- Re-encode the in-flight state into the durable profile before reset.
+			oldFarm.hatcheryStock=BigAmount.encode(oldFarm.hatcheryStock)
+			for _,hab in oldFarm.habitats do hab.capacity=nil;hab.fractionalIHR=Real64.encode(hab.fractionalIHR) end
+			p.farm=oldFarm
+			local outcome=if kind=="Prestige" then ProgressActions.applyPrestige(Data.copy(p),{kind=kind})
+				else ProgressActions.applyUpgradeEgg(Data.copy(p),{kind=kind,args={targetEggIndex=1}})
+			eq(outcome.terminalStatus,"APPLIED",kind.." applied")
+			eq(outcome.profile.farm.hatchGroupSequence,case[2],kind.." retains high watermark")
+			eq(next(outcome.profile.farm.groups),nil,"reset discards old in-flight groups")
+			eq(outcome.profile.farm.runningCount,"0","reset clears running chickens")
+			-- Persistence-format round trip must not round the ExactUInt or recreate old IDs.
+			local restored=serde.decode("json",serde.encode("json",outcome.profile))
+			ok(Schema.validate(restored,"player-reset-test"),"reset profile validates after JSON round trip")
+			local newFarm,_,newStatus,newId=press(runtimeFarm(restored),"2")
+			eq(newStatus,"RELEASED","post-reset release")
+			eq(newId,"hatch:"..case[3],"next exact group ID is never reused")
+			local stale,status=Hatching.arrive(newFarm,oldId,1002)
+			eq(status,"ALREADY_CLOSED_OR_UNKNOWN","stale arrival cannot target new group")
+			eq(stale.habitats[1].population,"0","stale arrival adds no population")
+			eq(stale.habitats[1].assignedInTransit,"1","new reservation survives stale arrival")
+			eq(stale.runningCount,"1","new running count survives stale arrival")
+			ok(stale.groups[newId]~=nil,"new group still exists")
+			local arrived,arrivalStatus=Hatching.arrive(stale,newId,1002)
+			eq(arrivalStatus,"ARRIVED","current group arrives")
+			eq(arrived.habitats[1].population,"1","current group counted once")
+			eq(arrived.hatchGroupSequence,case[3],"closing group keeps watermark")
+			local repeated,repeatStatus=Hatching.arrive(arrived,newId,1002)
+			eq(repeatStatus,"ALREADY_CLOSED_OR_UNKNOWN","duplicate arrival ignored")
+			eq(repeated.habitats[1].population,"1","duplicate arrival cannot add population")
+		end
+	end
+end
+
+-- Section 9: Save Results and Report
 -- ============================================================================
 fs.writeFile("build/resets-results.json", serde.encode("json", {
 	status = "PASS",
