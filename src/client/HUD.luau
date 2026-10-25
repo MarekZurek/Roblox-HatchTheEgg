@@ -173,8 +173,8 @@ local COMMON_RESEARCH_TIERS = table.freeze({
 
 local RESEARCH_DISPLAY_NAMES = table.freeze({
 	comfy_nests = "Wygodne Gniazda (+Tempo znoszenia)",
-	nutritional_sup = "Cukrowe Suplementy (+Wartość jaj)",
-	better_incubators = "Słodkie Inkubatory (+Wylęgarnia)",
+	nutritional_sup = "Suplementy Odżywcze (+Wartość jaj)",
+	better_incubators = "Lepsze Inkubatory (+Wylęgarnia)",
 	excitable_chickens = "Podekscytowane Kury (+Mnożnik biegu)",
 	hab_capacity1 = "Rozbudowa Kurników (+Pojemność)",
 	internal_hatchery1 = "Wewnętrzny Wylęg I (+Kurczaki/min)",
