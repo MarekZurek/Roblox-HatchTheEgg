@@ -29,6 +29,20 @@ MUTANTS=[
  ('calendar_prestige_base_lost','src/server/rewards/calendar.luau',
   'profile.accounting.currentFarmCash = BigAmount.encode(BigAmount.add(BigAmount.decode(profile.accounting.currentFarmCash or "0"),addCash))',
   'profile.accounting.currentFarmCash = profile.accounting.currentFarmCash'),
+ ('startup_receipt_handler_missing','src/server/Main.server.luau',
+  'MarketplaceService.ProcessReceipt = function(receipt) return receiptHandler(receipt) end',
+  '-- Startup receipt handler missing'),
+ ('local_payments_enabled','src/server/Bootstrap.luau',
+  'purchasesEnabled = storageMode ~= "STUDIO_MEMORY",','purchasesEnabled = true,'),
+ ('rejected_receipt_acknowledged','src/server/Bootstrap.luau',
+  'if res and (res.status == "APPLIED" or (res.status == "REPLAYED" and res.terminalStatus == "APPLIED")) then\n\t\tself:checkpointPlayer(pId)\n\t\treturn true, res\n\tend',
+  'if res and (res.status == "APPLIED" or res.status == "REPLAYED") then\n\t\tself:checkpointPlayer(pId)\n\t\treturn true, res\n\tend'),
+ ('durable_receipt_replay_ignored','src/server/Bootstrap.luau',
+  'res = admission -- a durable replay may not have an in-process entry after restart',
+  'res = coordinator.resultOf(op.operationId) -- ignores the saved record'),
+ ('confirmed_retry_snapshot_stale','src/server/PlayerCoordinator.luau',
+  'working=data.copy(h.snapshot) -- confirmed retry may have refreshed the durable snapshot',
+  'working=data.copy(candidate) -- stale state after a confirmed grant'),
 ]
 def main():
  base=ROOT/'build'/('behavior-mutations-'+uuid.uuid4().hex[:8]);base.mkdir(parents=True)
@@ -38,6 +52,7 @@ def main():
   shutil.copytree(ROOT/'src',target/'src')
   shutil.copytree(ROOT/'tests/game_behavior',target/'tests/game_behavior')
   shutil.copytree(ROOT/'tests/calendar_cycle',target/'tests/calendar_cycle')
+  shutil.copytree(ROOT/'tests/persistence_startup',target/'tests/persistence_startup')
   (target/'docs/reference_data').mkdir(parents=True);(target/'build').mkdir()
   for ref in ['infrastructure','research','rewards']:
    shutil.copy2(ROOT/f'docs/reference_data/{ref}.json',target/f'docs/reference_data/{ref}.json')
@@ -50,7 +65,7 @@ def main():
    old='if not Calendar.canClaimCalendarDay(draft,self.clock.utcNowMs()) then'
    assert text.count(old)==1
    server.write_text(text.replace(old,'if false then'),encoding='utf-8')
-  suite='calendar_cycle' if name in {'calendar_cash_percent_omitted','calendar_shell_precision_lost','calendar_prestige_base_lost'} else 'game_behavior'
+  suite='persistence_startup' if name in {'startup_receipt_handler_missing','local_payments_enabled','rejected_receipt_acknowledged','durable_receipt_replay_ignored','confirmed_retry_snapshot_stale'} else 'calendar_cycle' if name in {'calendar_cash_percent_omitted','calendar_shell_precision_lost','calendar_prestige_base_lost'} else 'game_behavior'
   run=subprocess.run([str(ROOT/'.tools/lune-0.11.1/lune.exe'),'run',f'tests/{suite}/run.luau'],cwd=target,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=120)
   output=run.stdout+run.stderr
   invalid=any(word in output for word in ['SyntaxError','Failed to resolve require','could not resolve','error parsing'])
@@ -58,7 +73,7 @@ def main():
   (target/'build/output.txt').write_text(output,encoding='utf-8')
   print(f'{name}: {state}',flush=True)
   results.append({'mutant':name,'state':state,'exitCode':run.returncode,'output':str((target/'build/output.txt').relative_to(ROOT))})
- report={'status':'PASS' if all(r['state']=='KILLED' for r in results) else 'FAIL','mutants':results,'scope':'Ten selected semantic mutations; not exhaustive mutation coverage'}
+ report={'status':'PASS' if all(r['state']=='KILLED' for r in results) else 'FAIL','mutants':results,'scope':'Fifteen selected semantic mutations; not exhaustive mutation coverage'}
  (ROOT/'build/game-behavior-mutations.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
  assert report['status']=='PASS',report
 if __name__=='__main__':main()

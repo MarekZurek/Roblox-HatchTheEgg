@@ -89,4 +89,17 @@ function Port.new(dataStore, getOptionsFactory, config)
 	})
 end
 
+-- Startup probe is read-only and uses the same retry/cache policy as player reads.
+-- A failed open/probe is not an empty player profile and never selects memory.
+function Port.open(dataStoreService, getOptionsFactory, config)
+	local ok, dataStore = pcall(function()
+		return dataStoreService:GetDataStore("HatchTheEgg_PlayerProfile_v1")
+	end)
+	if not ok or dataStore == nil then return nil, "DATASTORE_OPEN_FAILED" end
+	local port = Port.new(dataStore, getOptionsFactory, config)
+	local readable = port.read("__HatchTheEgg_StorageHealth_v1__")
+	if not readable then return nil, "DATASTORE_PROBE_FAILED" end
+	return port
+end
+
 return table.freeze(Port)

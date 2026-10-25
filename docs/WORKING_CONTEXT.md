@@ -109,3 +109,8 @@ Utworzono na GitHubie 8 zadań pełnego wdrożenia produkcyjnego `PROD-01–08` 
 ## Pełne nagrody kalendarza — #62 (25.10.2026)
 
 [Dostawa #62](workflow/calendar_rewards_62.md) zastępuje wcześniejsze ograniczenie pięciu dni z #56. Wzór gotówki był już w 11 §3: procent aktualnego Home Farm Value; typ 14 z 13 zapisuje się jako trwały ExactUInt permanent.shellScripts, bez nowej wymiany lub sklepu. Wszystkie 28 pozycji są rozliczane przez serwer, z ochroną dnia UTC/replay i księgowaniem earned/prestiżu. Testy obejmują dziesięć kompletnych cykli z niezależnym oracle oraz awarie. Wyłącznie L i statyczny build, bez Studio/chmury. Bilans 17–21 i referencyjne JSON-y bez zmian; pozostałe #57–61 i niedostępność funkcji bez konfiguracji pozostają aktualne. Dawna informacja o zatrzymaniu na dniu 4 opisuje stan poprzedniego commitu.
+
+
+## DataStore bez fallbacku produkcyjnego — #57 (25.10.2026)
+
+[Dostawa #57](workflow/persistent_startup_57.md): runtime domyślnie wymaga PERSISTENT i portu read/update. Awaria otwarcia/sondy zatrzymuje start; brak skutecznego pozyskania sesji odrzuca wejście gracza. Pamięć jest jawnym trybem STUDIO_MEMORY z rzeczywistym IsStudio i atrybutem UseLocalMemoryStore=true, bez płatności/passów. INTERNAL_TEST_ONLY pozostaje poza runtime Roblox. Main ma od początku bezpieczny handler receipt; nowy zakup nie jest potwierdzany bez trwałego sukcesu. Potwierdzony retry synchronizuje również snapshot, a sukces po restarcie jest odtwarzany bez drugiego grantu. Weryfikacja lokalna rzeczywistego entrypointu z kontrolowanymi usługami, bez Studio/chmury. Pozostałe #58–61 nie są domknięte; bilans i reference_data bez zmian. Wcześniejsze listy #57–61 opisują stan poprzednich dostaw.

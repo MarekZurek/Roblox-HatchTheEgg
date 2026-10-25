@@ -176,14 +176,20 @@ function Repository.new(deps)
 		if not preOk then return answer("NOT_ACCEPTED","INVALID_PLAN") end
 		if not preCandidate then return preResult end
 		h.busy=true;h.pending={id=op.operationId,argsKey=key}
+		local replayProfile
 		local saved,result=update(h,function(current)
+			replayProfile=nil
 			if h.blocked then return nil,answer("UNKNOWN","OPERATION_BLOCKED") end
 			local now=sample(h)
 			local allowed,code=valid(current,h.playerId)
 			if not allowed then h.blocked=true;return nil,answer("UNKNOWN",code) end
 			if not owned(current,h,now) then h.blocked=true;h.state="SESSION_LOST";return nil,answer("NOT_ACCEPTED","SESSION_LOST") end
 			local known=current.operations[op.operationId]
-			if known then return nil,replay(known,key) end
+			if known then
+				local replayed=replay(known,key)
+				if replayed.status=="REPLAYED" then replayProfile=data.copy(current) end
+				return nil,replayed
+			end
 			if now>=current.ownership.endsAtMs-20000 then return nil,answer("NOT_APPLIED","RENEW_REQUIRED") end
 			return candidate(current,op,fixed,key,validator,now)
 		end)
@@ -193,6 +199,11 @@ function Repository.new(deps)
 			if not record or record.argsKey~=key then h.blocked=true;return answer("UNKNOWN","UNCONFIRMED_COMMIT") end
 			h.snapshot=data.copy(saved);h.pending=nil
 			return result
+		end
+		-- An adapter retry can observe a committed operation and cancel its transform.
+		-- Adopt that validated, owned snapshot as well as its durable result.
+		if result.status=="REPLAYED" and replayProfile then
+			h.snapshot=replayProfile;h.endsAtMs=replayProfile.ownership.endsAtMs
 		end
 		if result.status~="UNKNOWN" then h.pending=nil end
 		return result

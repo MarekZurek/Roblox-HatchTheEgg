@@ -132,10 +132,12 @@ Zakres: [ADAPTATION_OPEN_DECISIONS](ADAPTATION_OPEN_DECISIONS.md).
 ## Bezpieczeństwo — 25.10.2026
 
 - [x] #51–53: zablokować wymuszanie ceny/wyniku inkubacji i wypłaty z nieistniejących dronów/ofert; dodać trwałe rejestry i regresję odbioru. [Zakres i ograniczenia](workflow/security_fixes_51_53.md). Nie zatwierdza bilansu ani całej gotowości wydania.
-- [ ] Pozostałe ustalenia audytu #57–61 pozostają do wykonania na osobne zlecenie.
+- [ ] Pozostałe ustalenia audytu #58–61 pozostają do wykonania na osobne zlecenie.
 
 - [x] #54–55: podłączyć aktualne jajo, SE/PE, pety i boosty do produkcji, HUD oraz zapisu/wznowienia. [Zakres i dowody](workflow/production_fixes_54_55.md). Bilans bez zmian.
 
 - [x] #56: usunąć fikcyjne sukcesy przycisków, podłączyć komendy i serwerowe odpowiedzi oraz dodać regresje zachowania. [Dostawa i ograniczenia](workflow/action_wiring_56.md).
 - [x] #62: resolver dni 4/10/15/18/22, księgowanie gotówki i dokładny licznik Shell Scripts; testy pełnych 28 dni. [Dostawa i ograniczenia](workflow/calendar_rewards_62.md).
 - [ ] Włączenie produkcyjnej fuzji/zakupu boostów wymaga osobnego zadania: podgląd/quote z kontraktu 28 oraz zatwierdzona konfiguracja. Obecne porty fixture'ów są INTERNAL_TEST_ONLY; bilansu nie wznowiono.
+
+- [x] #57: wyłączyć fallback pamięci na produkcji; jawny lokalny tryb Studio bez płatności, bezpieczny start/receipt oraz regresje rzeczywistego Main i restartu. [Dostawa](workflow/persistent_startup_57.md).

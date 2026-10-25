@@ -1,0 +1,129 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "528124fbc76fc7f8343854c5cd6fabd4692513c0",
+  "status": "PASS_L_AND_STATIC_BUILD",
+  "startupRegression": {
+    "actualMainEntrypoint": true,
+    "assertions": 154,
+    "realDataStoreTested": false,
+    "realPurchasesTested": false,
+    "status": "PASS_L",
+    "studioTested": false
+  },
+  "suiteCount": 33,
+  "assertions": 79919,
+  "mutations": [
+    {
+      "name": "local_fake_success",
+      "state": "KILLED"
+    },
+    {
+      "name": "missing_trophy_route",
+      "state": "KILLED"
+    },
+    {
+      "name": "calendar_claim_twice",
+      "state": "KILLED"
+    },
+    {
+      "name": "trophy_below_threshold",
+      "state": "KILLED"
+    },
+    {
+      "name": "fusion_free_materials",
+      "state": "KILLED"
+    },
+    {
+      "name": "shop_credit_instead_of_debit",
+      "state": "KILLED"
+    },
+    {
+      "name": "trophy_wrong_GE",
+      "state": "KILLED"
+    },
+    {
+      "name": "calendar_cash_percent_omitted",
+      "state": "KILLED"
+    },
+    {
+      "name": "calendar_shell_precision_lost",
+      "state": "KILLED"
+    },
+    {
+      "name": "calendar_prestige_base_lost",
+      "state": "KILLED"
+    },
+    {
+      "name": "startup_receipt_handler_missing",
+      "state": "KILLED"
+    },
+    {
+      "name": "local_payments_enabled",
+      "state": "KILLED"
+    },
+    {
+      "name": "rejected_receipt_acknowledged",
+      "state": "KILLED"
+    },
+    {
+      "name": "durable_receipt_replay_ignored",
+      "state": "KILLED"
+    },
+    {
+      "name": "confirmed_retry_snapshot_stale",
+      "state": "KILLED"
+    }
+  ],
+  "staticBuild": {
+    "modules": 39,
+    "entrypoints": 2
+  },
+  "protectedBalance": [
+    {
+      "path": "docs/17_pet_balance_draft.md",
+      "sha256": "681ea852e6db78738720855b99f8d38307543b982b0f7660e326006fffff6a29",
+      "unchangedBytes": true
+    },
+    {
+      "path": "docs/18_incubator_prices_and_acquisition_pacing.md",
+      "sha256": "2865cddf4da695711eb7a4e456fb733df188d6e89e9689d492c2eed4575fc2b1",
+      "unchangedBytes": true
+    },
+    {
+      "path": "docs/19_integrated_farm_progression_simulation.md",
+      "sha256": "60f918a879fdaf7a94aa2adf797e9de6489eb041364e9698003fd1dd14966356",
+      "unchangedBytes": true
+    },
+    {
+      "path": "docs/20_paying_player_balance_direction.md",
+      "sha256": "b8e61a36f3263ab8e765c85869f80f35ff21e3b7eb43513c742c18f40febdba6",
+      "unchangedBytes": true
+    },
+    {
+      "path": "docs/21_payer_progression_and_incubation.md",
+      "sha256": "48a2afe285d50281339079c757a74f6358fde695c236ad528a1f3a5fb8853de9",
+      "unchangedBytes": true
+    }
+  ],
+  "referenceDataUnchangedBytes": true,
+  "studioTested": false,
+  "realDataStoreTested": false,
+  "realPurchasesTested": false,
+  "releaseReadinessApproved": false,
+  "remainingAuditIssues": [
+    58,
+    59,
+    60,
+    61
+  ],
+  "sourceSha256NormalizedLF": {
+    "src/server/Main.server.luau": "7264b7fff39d87995c428cbaf552d949682cb7571333534b1ee4ac3a0c7d3b05",
+    "src/server/Bootstrap.luau": "1b42ab99a32d141a2b1b2588d0eca0535b77a909bf77bceb7f9eef8c7443ec8a",
+    "src/server/RobloxDataStorePort.luau": "0a85ea4bc3aa0c87a290c915f7cdfe42a0a84d3d0128d5a3f750d0360d8af902",
+    "src/server/SessionRepository.luau": "15098c50ea2ad62bea94956b10d048cf127be2a32922fafac07c067959431343",
+    "src/server/PlayerCoordinator.luau": "2b89409cb2ea6cb4162240435767161e6908af88e287cf2cf985ce1e66c4b894",
+    "tests/persistence_startup/run.luau": "217b01235f9a904f78ea9ab867bb9c050e2c92c2b62f855872a95f097a0aee60",
+    "tests/game_behavior/mutation_check.py": "e4fc7e035fff16fe55eb08d27779ad53dbcedfb49be7fbc0f4044e991755a417",
+    "tools/test.ps1": "54fd25f072ebf45de8a03b0a0fb545f307eefbb990a244329b4ecdb7d903adb0"
+  }
+}

@@ -2,7 +2,7 @@
 -- Main Server Entrypoint for HatchTheEgg (VIS-01, VIS-02, VIS-03, PROD-04).
 -- Automatically starts the authoritative server in Roblox Studio / Production:
 -- 1. Creates ReplicatedStorage/HatchTheEgg/Remotes (ClientToServer & ServerToClient RemoteEvents).
--- 2. Connects to Roblox DataStoreService with resilient retries (falling back to memory in Studio without API access).
+-- 2. Requires persistent storage; memory is an explicit Studio-only, payment-free mode.
 -- 3. Generates the 3D Farm Island world via FarmPlotBuilder.
 -- 4. Manages player sessions (PlayerAdded / PlayerRemoving) via ServerBootstrap.
 -- 5. Runs authoritative simulation ticks and replicates StateSnapshot / StateDelta views.
@@ -15,8 +15,13 @@ end
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local DataStoreService = game:GetService("DataStoreService")
 local MarketplaceService = game:GetService("MarketplaceService")
+-- Installed before any yielding startup work: an uninitialized server must never
+-- acknowledge receipts. Keep one platform callback and switch only its delegate.
+local receiptHandler = function(_receipt) return Enum.ProductPurchaseDecision.NotProcessedYet end
+MarketplaceService.ProcessReceipt = function(receipt) return receiptHandler(receipt) end
+local DataStoreService = game:GetService("DataStoreService")
+local RunService = game:GetService("RunService")
 
 local ServerBootstrap = require(script.Parent.Bootstrap)
 local FarmPlotBuilder = require(script.Parent.world.FarmPlotBuilder)
@@ -31,59 +36,47 @@ local function resolveNumericPlayerId(player)
 	return tostring(math.abs(tonumber(uid) or 1) + 1000)
 end
 
--- 1. Ensure ReplicatedStorage/HatchTheEgg/Remotes exists
+-- Explicit Studio-only local mode. A live server ignores this attribute.
+local studio = RunService:IsStudio()
+local studioMemory = studio and script:GetAttribute("UseLocalMemoryStore") == true
+local storageMode = if studioMemory then "STUDIO_MEMORY" else "PERSISTENT"
+local persistentStore, storageError
+if not studioMemory then persistentStore, storageError = RobloxDataStorePort.open(DataStoreService) end
+local storageMessage = "Zapis jest chwilowo niedostępny. Spróbuj ponownie później."
+if not studioMemory and not persistentStore then
+    warn("[HatchTheEgg Server] Persistent storage unavailable: "..tostring(storageError))
+    local function refusePlayer(player) player:Kick(storageMessage) end
+    Players.PlayerAdded:Connect(refusePlayer)
+    for _,player in Players:GetPlayers() do refusePlayer(player) end
+    return -- no world, sessions, remotes, economy or payment fulfillment
+end
+if studioMemory then warn("[HatchTheEgg Server] Explicit Studio memory mode: no persistence; platform purchases disabled.") end
+
+-- 1. Ensure ReplicatedStorage/HatchTheEgg/Remotes exists only after storage admission.
 local rootFolder = ReplicatedStorage:FindFirstChild("HatchTheEgg")
 if not rootFolder then
-	rootFolder = Instance.new("Folder")
-	rootFolder.Name = "HatchTheEgg"
-	rootFolder.Parent = ReplicatedStorage
+    rootFolder = Instance.new("Folder")
+    rootFolder.Name = "HatchTheEgg"
+    rootFolder.Parent = ReplicatedStorage
 end
-
 local remotesFolder = rootFolder:FindFirstChild("Remotes")
 if not remotesFolder then
-	remotesFolder = Instance.new("Folder")
-	remotesFolder.Name = "Remotes"
-	remotesFolder.Parent = rootFolder
+    remotesFolder = Instance.new("Folder")
+    remotesFolder.Name = "Remotes"
+    remotesFolder.Parent = rootFolder
 end
-
 local clientToServer = remotesFolder:FindFirstChild("ClientToServer")
 if not clientToServer then
-	clientToServer = Instance.new("RemoteEvent")
-	clientToServer.Name = "ClientToServer"
-	clientToServer.Parent = remotesFolder
+    clientToServer = Instance.new("RemoteEvent")
+    clientToServer.Name = "ClientToServer"
+    clientToServer.Parent = remotesFolder
 end
-
 local serverToClient = remotesFolder:FindFirstChild("ServerToClient")
 if not serverToClient then
-	serverToClient = Instance.new("RemoteEvent")
-	serverToClient.Name = "ServerToClient"
-	serverToClient.Parent = remotesFolder
+    serverToClient = Instance.new("RemoteEvent")
+    serverToClient.Name = "ServerToClient"
+    serverToClient.Parent = remotesFolder
 end
-
--- 2. Create Production DataStore Port with graceful Studio fallback
-local function createProductionStore()
-	local ok, dsInstance = pcall(function()
-		return DataStoreService:GetDataStore("HatchTheEgg_PlayerProfile_v1")
-	end)
-	if not ok or not dsInstance then
-		warn("[HatchTheEgg Server] DataStoreService unavailable, falling back to in-memory store.")
-		return nil
-	end
-
-	-- Connectivity probe: in Studio, GetAsync throws if "Enable Studio Access to API Services" is unchecked
-	local testOk, testErr = pcall(function()
-		return dsInstance:GetAsync("__HatchTheEgg_Studio_Connection_Check__")
-	end)
-	if not testOk then
-		warn("[HatchTheEgg Server] DataStore API access not enabled (" .. tostring(testErr) .. "). Falling back to in-memory store.")
-		return nil
-	end
-
-	print("[HatchTheEgg Server] Connected to Roblox DataStore: HatchTheEgg_PlayerProfile_v1")
-	return RobloxDataStorePort.new(dsInstance)
-end
-
-local persistentStore = createProductionStore()
 
 -- Synchronized server clock (monotonic with true UTC start baseline)
 local startUtc = DateTime.now().UnixTimestampMillis
@@ -113,6 +106,8 @@ for _,catalogId in {"pro_permit","buy_max","ge_pack_small","ge_pack_large"} do
 end
 local policyByPlayer={}
 local server = ServerBootstrap.new({
+    storageMode = storageMode,
+    isStudio = studio,
     platformProducts=configuredProducts,
     paidRandomAllowed=function(id)return policyByPlayer[tostring(id)] end,
 	clock = serverClock,
@@ -120,6 +115,7 @@ local server = ServerBootstrap.new({
 })
 
 local activePlayerObjects = {} -- [pId] = Player
+local joining, pendingBootstrap, refusedPlayers = {}, {}, {}
 
 local function syncWorldAndDelta(pId, playerObj)
 	local delta = server:createPlayerDelta(pId)
@@ -140,13 +136,25 @@ end
 -- 5. Player Lifecycle (PlayerAdded & PlayerRemoving)
 local function onPlayerAdded(player)
 	local pId = resolveNumericPlayerId(player)
-	activePlayerObjects[pId] = player
-
-	local joinRes, err = server:playerJoined(pId)
-	if not joinRes then
-		warn("[HatchTheEgg Server] Failed to acquire session for player " .. tostring(pId) .. ": " .. tostring(err))
-		return
-	end
+    if joining[pId] or server:getPlayer(pId) or refusedPlayers[pId]==player then return end
+    joining[pId] = true
+    local opened, joinRes, err = pcall(server.playerJoined, server, pId)
+    joining[pId] = nil
+    if not opened or not joinRes then
+        refusedPlayers[pId] = player
+        pendingBootstrap[pId] = nil
+        warn("[HatchTheEgg Server] Session unavailable: " .. tostring(if opened then err else joinRes))
+        player:Kick(storageMessage)
+        return
+    end
+    if player.Parent ~= Players then server:playerLeaving(pId); return end
+    activePlayerObjects[pId] = player
+    local boot = pendingBootstrap[pId]
+    pendingBootstrap[pId] = nil
+    if boot then
+        local response = server:dispatch(pId,boot)
+        if response then serverToClient:FireClient(player,response) end
+    end
 
 	task.spawn(function()
         local ok,policy=pcall(function() return game:GetService("PolicyService"):GetPolicyInfoForPlayerAsync(player) end)
@@ -167,7 +175,7 @@ local function onPlayerAdded(player)
 	end)
 
 	-- Asynchronously check and grant owned GamePasses (Pro Permit, Buy MAX)
-	task.spawn(function()
+    if server.purchasesEnabled then task.spawn(function()
         local passMapping={}
         for _,catalogId in {"pro_permit","buy_max"} do
             if configuredProducts[catalogId] then passMapping[configuredProducts[catalogId].platformId]=catalogId end
@@ -183,12 +191,14 @@ local function onPlayerAdded(player)
 		if player.Parent == Players then
 			syncWorldAndDelta(pId, player)
 		end
-	end)
+    end) end
 end
 
 local function onPlayerRemoving(player)
 	local pId = resolveNumericPlayerId(player)
-	activePlayerObjects[pId] = nil
+    activePlayerObjects[pId] = nil
+    pendingBootstrap[pId] = nil
+	if refusedPlayers[pId]==player then refusedPlayers[pId]=nil end
 	server:playerLeaving(pId)
 end
 
@@ -205,9 +215,14 @@ clientToServer.OnServerEvent:Connect(function(player, message)
 		return
 	end
 	local pId = resolveNumericPlayerId(player)
-	if not server:getPlayer(pId) then
-		onPlayerAdded(player)
-	end
+    if refusedPlayers[pId]==player then return end
+    if not server:getPlayer(pId) then
+        if (message.kind=="Bootstrap" or message.kind=="RefreshState") and server.protocol.validateClient(message) then
+            pendingBootstrap[pId]=message -- one bounded waiting handshake, not a command queue
+        end
+        if not joining[pId] then onPlayerAdded(player) end
+        return
+    end
 
 	-- PROD-06: 3D Diegetic Actors Intents (HitDrone and ClaimOffer)
 	if message.kind == "HitDrone" then
@@ -305,10 +320,11 @@ local function processReceipt(receiptInfo)
 	end
 end
 
-MarketplaceService.ProcessReceipt = processReceipt
+if server.purchasesEnabled then receiptHandler = processReceipt end
 
 -- In-game GamePass purchase completion
 MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, passId, wasPurchased)
+    if not server.purchasesEnabled then return end
 	if wasPurchased and player and player.Parent == Players then
 		local pId = resolveNumericPlayerId(player)
 		local catalogId = Products.resolveCatalogId(passId)

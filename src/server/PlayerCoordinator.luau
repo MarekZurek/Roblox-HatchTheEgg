@@ -175,6 +175,8 @@ function Coordinator.new(deps)
 		local result=repo.commit(h,op,{changes=changes,result=data.copy(outcome.result),terminalStatus=terminal,validate=outcome.validate})
 		if result.status=="APPLIED" then
 			working=data.copy(h.snapshot)
+		elseif result.status=="REPLAYED" and result.terminalStatus=="APPLIED" then
+			working=data.copy(h.snapshot) -- confirmed retry may have refreshed the durable snapshot
 		elseif result.status=="REJECTED" or result.status=="REPLAYED" then
 			-- A rejected purchase must not erase earlier uncheckpointed online production.
 			working=data.copy(candidate)

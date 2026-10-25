@@ -266,6 +266,17 @@ ServerBootstrap.__index = ServerBootstrap
 
 function ServerBootstrap.new(deps)
 	deps = deps or {}
+	local storageMode = deps.storageMode or (if isStudio then "PERSISTENT" else "INTERNAL_TEST_ONLY")
+	assert(storageMode == "PERSISTENT" or storageMode == "STUDIO_MEMORY" or storageMode == "INTERNAL_TEST_ONLY", "INVALID_STORAGE_MODE")
+	if storageMode == "PERSISTENT" then
+		assert(type(deps.store) == "table" and type(deps.store.read) == "function" and type(deps.store.update) == "function", "PERSISTENT_STORE_REQUIRED")
+	elseif storageMode == "STUDIO_MEMORY" then
+		assert(deps.isStudio == true, "STUDIO_MEMORY_REQUIRES_STUDIO")
+		if isStudio then assert(game:GetService("RunService"):IsStudio(), "STUDIO_MEMORY_REQUIRES_STUDIO") end
+		assert(deps.store == nil, "STUDIO_MEMORY_REJECTS_EXTERNAL_STORE")
+	else
+		assert(not isStudio, "INTERNAL_STORAGE_NOT_ALLOWED_IN_ROBLOX")
+	end
 
 	local codec = deps.codec or NumericCodec
 	local data = deps.data or PersistenceData
@@ -290,7 +301,7 @@ function ServerBootstrap.new(deps)
 	})
 
 	local clock = deps.clock or createDefaultClock(deps.initialNowMs or 1000000)
-	local store = deps.store or createMemoryStore(data)
+	local store = if storageMode == "PERSISTENT" then deps.store else deps.store or createMemoryStore(data)
 
 	local encodeJson = deps.encodeJson
 	if not encodeJson then
@@ -336,6 +347,8 @@ function ServerBootstrap.new(deps)
 	})
 
 	local self = setmetatable({
+		storageMode = storageMode,
+		purchasesEnabled = storageMode ~= "STUDIO_MEMORY",
 		codec = codec,
 		data = data,
 		schema = schema,
@@ -508,6 +521,9 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 	end
 
 	local function domainApply(candidateProfile, op)
+        if not self.purchasesEnabled and (op.kind=="PurchaseProduct" or op.kind=="PlatformPurchase" or op.kind=="ConfirmPurchase" or op.kind=="GrantEntitlement") then
+            return {profile=candidateProfile,terminalStatus="REJECTED",result={errorCode="LOCAL_PAYMENTS_DISABLED"},validate=function()return false,"LOCAL_PAYMENTS_DISABLED" end}
+        end
         local connected={ClaimDailyGift=true,ClaimTrophy=true,FusePets=true,BuyBoost=true,PurchaseProduct=true}
         if connected[op.kind] then
             local draft=self.data.copy(candidateProfile)
@@ -949,6 +965,7 @@ function ServerBootstrap:close()
 end
 
 function ServerBootstrap:applyPurchase(playerId, receiptInfo)
+	if not self.purchasesEnabled then return false, "LOCAL_PAYMENTS_DISABLED" end
 	local pId = tostring(playerId)
 	local playerSession = self.players[pId]
 	if not playerSession then
@@ -979,11 +996,15 @@ function ServerBootstrap:applyPurchase(playerId, receiptInfo)
 		},
 	}
 
-	coordinator.submit(op)
-	coordinator.drain()
-
-	local res = coordinator.resultOf(op.operationId)
-	if res and (res.status == "APPLIED" or res.status == "REPLAYED") then
+	local admission = coordinator.submit(op)
+	local res
+	if admission.status == "REPLAYED" or admission.status == "REJECTED" or admission.status == "NOT_ACCEPTED" then
+		res = admission -- a durable replay may not have an in-process entry after restart
+	else
+		coordinator.drain()
+		res = coordinator.resultOf(op.operationId)
+	end
+	if res and (res.status == "APPLIED" or (res.status == "REPLAYED" and res.terminalStatus == "APPLIED")) then
 		self:checkpointPlayer(pId)
 		return true, res
 	end
@@ -992,6 +1013,7 @@ function ServerBootstrap:applyPurchase(playerId, receiptInfo)
 end
 
 function ServerBootstrap:grantEntitlement(playerId, entitlementId, opts)
+	if not self.purchasesEnabled then return false, "LOCAL_PAYMENTS_DISABLED" end
 	local pId = tostring(playerId)
 	local playerSession = self.players[pId]
 	if not playerSession then
