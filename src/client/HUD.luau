@@ -6,8 +6,8 @@
 -- 6 framed icon buttons dock on the right, and total chicken counter at bottom-right).
 --
 -- Supported Full Modals (PROD-03):
--- 1. HabitatsModal: All 19 habitats (Coop to Chicken Universe), 4 parcel cards, capacity fill bars, prices.
--- 2. VehiclesModal: Up to 17 fleet slots, 12 vehicles (Trike to Hyperloop), live shipping comparison bar.
+-- 1. HabitatsModal: All 19 habitat types (Tier 1..Tier 19), 4 parcel cards, capacity fill bars, prices.
+-- 2. VehiclesModal: Up to 17 fleet slots, 12 vehicle types (Tier 1..Tier 12), live shipping comparison bar.
 -- 3. ResearchModal: Multi-tier modal with tabs for Tiers 1–13 (56 common) + dedicated Epic research tab (Złote Jaja).
 -- 4. PetsModal: Equipped slots (3/5), inventory grid, fusion section (chance indicator, guarantee counter, +10 p.p. Pro Permit bonus).
 -- 5. ShopModal: 3 tabs: Złote Jaja (GE packs 1..4), Wzmocnienia (Boosts for GE), Przepustki (Pro Permit, Buy MAX).
@@ -125,29 +125,64 @@ function HUD.formatRate(selfOrAmount, maybeAmountOrUnit, maybeUnit)
 end
 
 -- ============================================================================
+-- Hatch Status Helpers (#77)
+-- The blocked decision is presentation of the authoritative farm view only. Counts stay exact
+-- uint64 values: tonumber would round population/reservations above 2^53 and change the answer.
+-- ============================================================================
+
+HUD.HATCH_STATUS_FULL = "CAPACITY_FULL"
+HUD.HATCH_STATUS_STOCK = "NO_STOCK"
+HUD.HATCH_STATUS_FULL_TEXT = "Brak miejsca w kurnikach"
+HUD.HATCH_STATUS_STOCK_TEXT = "Brak jaj do wylęgu — zapas się odnawia."
+
+-- The hatchery stock is a BigAmount binary64 decimal, not an exact uint64 count, and hatching needs
+-- at least one whole egg: a fractional stock such as 0.5 is already blocked, exactly like the server
+-- rule. The removed ExactUInt == 0 helper wrongly reported 0.5 as non-empty; stock < 1 is the test.
+local function stockBelowOne(codec, text)
+	if type(text) ~= "string" then return false end
+	local ok, value = pcall(codec.BigAmount.decode, text)
+	if not ok then return false end
+	return value < 1
+end
+
+-- A built coop has vacancy while population + reservedInTransit < capacity (exact uint64 math).
+local function habitatHasVacancy(codec, habitat)
+	local U = codec.ExactUInt
+	local okCapacity, capacity = pcall(U.decode, habitat.capacity)
+	local okPopulation, population = pcall(U.decode, habitat.population or "0")
+	local okTransit, inTransit = pcall(U.decode, habitat.reservedInTransit or "0")
+	if not (okCapacity and okPopulation and okTransit) then return false end
+	if U.compare(population, capacity) >= 0 then return false end
+	return U.compare(inTransit, U.subtract(capacity, population)) < 0
+end
+
+-- ============================================================================
 -- Reference Catalogs & Display Data
 -- ============================================================================
 
+-- User-visible habitat type names (#78): index 0 => "Tier 1" ... index 18 => "Tier 19".
+-- Only presentation changes here: internal catalog names, IDs and prices stay untouched, and an
+-- empty slot stays empty ("Niezbudowany") instead of becoming "Tier 0".
 local HABITAT_DISPLAY_NAMES = table.freeze({
-	[0] = "Kurnik (Coop)",
-	[1] = "Chatka (Shack)",
-	[2] = "Super Chatka (Super Shack)",
-	[3] = "Niski Dom (Short House)",
-	[4] = "Standardowy (The Standard)",
-	[5] = "Długi Dom (Long House)",
-	[6] = "Piętrowy (Double Decker)",
-	[7] = "Magazyn (Warehouse)",
-	[8] = "Centrum Drobiu (Center)",
-	[9] = "Bunkier (Bunker)",
-	[10] = "Eggkea (Eggkea)",
-	[11] = "Kurnik 1000 (Hab 1000)",
-	[12] = "Hangar (Hangar)",
-	[13] = "Wieża (Tower)",
-	[14] = "Kurnik 10,000 (Hab 10,000)",
-	[15] = "Eggtopia (Eggtopia)",
-	[16] = "Monolit (Monolith)",
-	[17] = "Portal Planetarny (Planet Portal)",
-	[18] = "Uniwersum Kurczaków (Chicken Universe)",
+	[0] = "Tier 1",
+	[1] = "Tier 2",
+	[2] = "Tier 3",
+	[3] = "Tier 4",
+	[4] = "Tier 5",
+	[5] = "Tier 6",
+	[6] = "Tier 7",
+	[7] = "Tier 8",
+	[8] = "Tier 9",
+	[9] = "Tier 10",
+	[10] = "Tier 11",
+	[11] = "Tier 12",
+	[12] = "Tier 13",
+	[13] = "Tier 14",
+	[14] = "Tier 15",
+	[15] = "Tier 16",
+	[16] = "Tier 17",
+	[17] = "Tier 18",
+	[18] = "Tier 19",
 })
 
 local HABITAT_CAPACITIES = table.freeze({
@@ -157,19 +192,21 @@ local HABITAT_CAPACITIES = table.freeze({
 	[15] = 25000000, [16] = 50000000, [17] = 100000000, [18] = 600000000,
 })
 
+-- User-visible vehicle type names (#79): index 0 => "Tier 1" ... index 11 => "Tier 12".
+-- The tier describes the vehicle type, never the fleet slot; empty slots stay "Puste miejsce".
 local VEHICLE_DISPLAY_NAMES = table.freeze({
-	[0] = "Trójkołowiec (Trike)",
-	[1] = "Furgonetka (Transit Van)",
-	[2] = "Pickup (Pickup)",
-	[3] = "Ciężarówka 10ft (10 Foot)",
-	[4] = "Ciężarówka 24ft (24 Foot)",
-	[5] = "Ciągnik Siodłowy (Semi)",
-	[6] = "Podwójny Ciągnik (Double Semi)",
-	[7] = "Futurystyczny Ciągnik (Future Semi)",
-	[8] = "Mega Ciężarówka (Mega Semi)",
-	[9] = "Antygrawitacyjna (Hover Semi)",
-	[10] = "Transporter Kwantowy (Quantum)",
-	[11] = "Pociąg Hyperloop (Hyperloop Train)",
+	[0] = "Tier 1",
+	[1] = "Tier 2",
+	[2] = "Tier 3",
+	[3] = "Tier 4",
+	[4] = "Tier 5",
+	[5] = "Tier 6",
+	[6] = "Tier 7",
+	[7] = "Tier 8",
+	[8] = "Tier 9",
+	[9] = "Tier 10",
+	[10] = "Tier 11",
+	[11] = "Tier 12",
 })
 
 local VEHICLE_CAPACITIES = table.freeze({
@@ -731,6 +768,10 @@ function HUD.new(deps)
 		tutorialLabel = nil,
 		hatcheryStockLabel = nil,
 		hatcheryRefillLabel = nil,
+		hatchStatusFrame = nil,
+		hatchStatusLabel = nil,
+		hatchStatusActionBtn = nil,
+		hatchStatusReason = nil,
 		hatchButton = nil,
 		topBar = nil,
 		audioToggleButton = nil,
@@ -1148,7 +1189,69 @@ function HUD:_buildInterface()
 	}, hatcheryFrame)
 	addTextStroke(self.hatcheryRefillLabel, 2.2)
 
-	-- 6. Right-Side Framed Icon Buttons Dock (6 Buttons in PROD-03)
+	-- 6. Compact persistent hatch status (#77) beside the hatchery/stock HUD.
+	-- Visible only while the authoritative farm view says hatching is blocked: no built coop has
+	-- vacancy after population + reservedInTransit, or the hatchery stock is below one whole egg.
+	-- It is visible on every path (standing on the plate or the manual hatch button), is recomputed
+	-- only when the view changes, sends no intent, adds no remote and plays no sound or toast.
+	local hatchStatusFrame = createGuiElement("Frame", {
+		Name = "HatchStatusFrame",
+		Visible = false,
+		-- Compact mobile strip: 52px tall, bottom edge 2px above the hatchery HUD top (-128). The
+		-- width is resolved from the live root size so it never clips a narrow viewport and never
+		-- overlaps the 84px right dock; a wide view keeps it centred with a 400px cap.
+		Size = isRoblox and UDim2.new(0, 400, 0, 52) or nil,
+		Position = isRoblox and UDim2.new(0.5, 0, 1, -130) or nil,
+		AnchorPoint = isRoblox and Vector2.new(0.5, 1) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(122, 32, 32) or nil,
+		BackgroundTransparency = 0.08,
+	}, root)
+	addCornerAndStroke(hatchStatusFrame, 12, isRoblox and Color3.fromRGB(58, 16, 16) or nil, 2.6)
+	self.hatchStatusFrame = hatchStatusFrame
+
+	self.hatchStatusLabel = createGuiElement("TextLabel", {
+		Name = "HatchStatusLabel",
+		Size = isRoblox and UDim2.new(1, -16, 0, 44) or nil,
+		Position = isRoblox and UDim2.new(0, 8, 0.5, -22) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextWrapped = true,
+		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+		TextYAlignment = isRoblox and Enum.TextYAlignment.Center or nil,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 242, 242) or nil,
+		Text = "",
+	}, hatchStatusFrame)
+	addTextStroke(self.hatchStatusLabel, 2.2)
+	if isRoblox then
+		-- TextScaled with a cap keeps short messages readable without shrinking them to nothing.
+		local textCap = Instance.new("UITextSizeConstraint")
+		textCap.Name = "ReadableTextCap"
+		textCap.MaxTextSize = 20
+		textCap.Parent = self.hatchStatusLabel
+	end
+
+	self.hatchStatusActionBtn = createGuiElement("TextButton", {
+		Name = "HatchStatusActionBtn",
+		Visible = false,
+		Size = isRoblox and UDim2.new(0, 88, 0, 44) or nil,
+		Position = isRoblox and UDim2.new(1, -96, 0.5, -22) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(95, 235, 45) or nil,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "Kurniki",
+	}, hatchStatusFrame)
+	addCornerAndStroke(self.hatchStatusActionBtn, 8, isRoblox and Color3.fromRGB(22, 48, 12) or nil, 2)
+	if self.hatchStatusActionBtn.Activated then
+		self.hatchStatusActionBtn.Activated:Connect(function()
+			self:_playClick()
+			self:toggleHabitatsModal(true)
+		end)
+	end
+	self:_bindHatchStatusResponsive(root)
+
+	-- 7. Right-Side Framed Icon Buttons Dock (6 Buttons in PROD-03)
 	local rightDock = createGuiElement("Frame", {
 		Name = "RightDock",
 		Size = isRoblox and UDim2.new(0, 80, 0, 440) or nil,
@@ -1269,6 +1372,41 @@ local function applyModalMobileConstraints(modalFrame)
 	modalFrame.Destroying:Connect(function()connection:Disconnect()end)
 	resize()
 end
+-- Pure responsive geometry for the hatch status strip (#77), kept separate from the live layout so it
+-- can be checked without a viewport. Narrow (mobile) roots anchor the strip left and reserve the 84px
+-- right dock so its right edge stays <= width-96; wide roots centre it with a 400px cap.
+function HUD.hatchStatusGeometry(rootWidth)
+	local width = tonumber(rootWidth) or 0
+	if width <= 0 then width = 1280 end
+	if width < 600 then
+		return { centered = false, left = 16, width = math.min(400, math.max(0, width - 112)) }
+	end
+	return { centered = true, left = nil, width = math.min(400, math.max(0, width - 32)) }
+end
+
+-- Applies the responsive geometry from the live root size. Reuses the existing modal pattern: one
+-- AbsoluteSize signal, disconnected when the frame is destroyed, and no per-frame polling.
+function HUD:_bindHatchStatusResponsive(root)
+	local frame = self.hatchStatusFrame
+	if not isRoblox or root == nil or frame == nil then return end
+	local function resize()
+		local size = root.AbsoluteSize
+		local layout = HUD.hatchStatusGeometry(size and size.X or 0)
+		if layout.centered then
+			frame.AnchorPoint = Vector2.new(0.5, 1)
+			frame.Position = UDim2.new(0.5, 0, 1, -130)
+		else
+			frame.AnchorPoint = Vector2.new(0, 1)
+			frame.Position = UDim2.new(0, layout.left, 1, -130)
+		end
+		frame.Size = UDim2.new(0, layout.width, 0, 52)
+	end
+	local connection = root:GetPropertyChangedSignal("AbsoluteSize"):Connect(resize)
+	frame.Destroying:Connect(function() connection:Disconnect() end)
+	resize()
+end
+
+
 
 function HUD:_buildCloseButton(parent, onClose)
 	local closeBtn = createGuiElement("TextButton", {
@@ -1342,7 +1480,7 @@ function HUD:_buildHabitatsModal(root)
 			TextScaled = true,
 			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
 			TextColor3 = isRoblox and Color3.fromRGB(255, 245, 160) or nil,
-			Text = "Parcela #" .. tostring(slotId) .. ": Kurnik (Coop)",
+			Text = "Parcela #" .. tostring(slotId) .. ": Tier 1",
 		}, card)
 		addTextStroke(titleLabel, 1.8)
 
@@ -1368,7 +1506,7 @@ function HUD:_buildHabitatsModal(root)
 			TextScaled = true,
 			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
 			TextColor3 = isRoblox and Color3.fromRGB(160, 240, 140) or nil,
-			Text = "Następny: Chatka (Shack)",
+			Text = "Następny: Tier 2",
 		}, card)
 		addTextStroke(nextLabel, 1.5)
 
@@ -1488,7 +1626,7 @@ function HUD:_buildVehiclesModal(root)
 			TextScaled = true,
 			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
 			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-			Text = "Pojazd #" .. tostring(slotId) .. ": Trójkołowiec",
+			Text = "Slot #" .. tostring(slotId) .. ": Tier 1",
 		}, card)
 		addTextStroke(titleLabel, 1.6)
 
@@ -3103,6 +3241,74 @@ function HUD:updateStatus(newStatus)
 	if isRoblox and self.sessionBanner ~= nil then
 		self.sessionBanner.Visible = (self.sessionStatus ~= "READY")
 	end
+	-- An unready session never claims a blocked hatch state (#77).
+	if self.sessionStatus ~= "READY" then
+		self:_applyHatchStatus(nil)
+	end
+end
+
+-- ============================================================================
+-- Hatch Status (#77): blocked state derived from the authoritative farm view
+-- ============================================================================
+
+-- Returns the blocked reason (or nil).
+-- Capacity full wins over a low stock when both are true. Empty slots stay empty and are not
+-- treated as a built coop with space.
+function HUD:_resolveHatchBlockedReason(farm)
+	if type(farm) ~= "table" or farm.lifecycle ~= "ready" then return nil end
+	if type(farm.habitats) ~= "table" then return nil end
+
+	local hasVacancy = false
+	for _, habitat in ipairs(farm.habitats) do
+		if type(habitat) == "table" then
+			local index = habitat.habitatIndex
+			if type(index) == "number" and index >= 0 then
+				if habitatHasVacancy(self.codec, habitat) then hasVacancy = true end
+			end
+		end
+	end
+
+	-- No built habitat has vacancy after population + reservedInTransit: capacity is the blocker.
+	if not hasVacancy then return HUD.HATCH_STATUS_FULL end
+
+	local stock = farm.hatchery and farm.hatchery.stock
+	if stockBelowOne(self.codec, stock) then return HUD.HATCH_STATUS_STOCK end
+
+	return nil
+end
+
+function HUD:_applyHatchStatus(reason)
+	self.hatchStatusReason = reason
+	local frame = self.hatchStatusFrame
+	if frame == nil then return end
+
+	local text = ""
+	local actionVisible = false
+	if reason == HUD.HATCH_STATUS_FULL then
+		-- Main message only: the strip never appends a long hint or promises an upgrade.
+		text = HUD.HATCH_STATUS_FULL_TEXT
+		actionVisible = true
+		if isRoblox then frame.BackgroundColor3 = Color3.fromRGB(122, 32, 32) end
+	elseif reason == HUD.HATCH_STATUS_STOCK then
+		text = HUD.HATCH_STATUS_STOCK_TEXT
+		if isRoblox then frame.BackgroundColor3 = Color3.fromRGB(112, 74, 18) end
+	end
+
+	if self.hatchStatusLabel then
+		self.hatchStatusLabel.Text = text
+		-- While the CTA is shown the label reserves the 88px button plus margins; without a CTA it
+		-- expands to the full strip width.
+		if isRoblox then
+			self.hatchStatusLabel.Size = if actionVisible then UDim2.new(1, -112, 0, 44) else UDim2.new(1, -16, 0, 44)
+		end
+	end
+	if self.hatchStatusActionBtn then self.hatchStatusActionBtn.Visible = actionVisible end
+	frame.Visible = reason ~= nil
+end
+
+function HUD:_updateHatchStatus(farm)
+	local reason = self:_resolveHatchBlockedReason(farm)
+	self:_applyHatchStatus(reason)
 end
 
 -- Selection is explicit; stale/consumed/locked UIDs are never auto-replaced.
@@ -3160,6 +3366,8 @@ function HUD:update()
         local label=card:FindFirstChild("PetName")
         if label then label.Text=if pet then pet.speciesId.." T"..tostring(pet.tier).." "..pet.variant else "Puste miejsce" end
     end
+	-- 0. Compact hatch status from the authoritative farm view (#77); recomputed on view changes only.
+	self:_updateHatchStatus(farm)
 	self:updateStatus(self.stateStore:getStatus())
 
 	if farm == nil then
@@ -3927,6 +4135,11 @@ function HUD:getShippingText() return if self.shippingLabel then self.shippingLa
 function HUD:getHatcheryText() return if self.hatcheryStockLabel then self.hatcheryStockLabel.Text else "" end
 function HUD:getHatcheryRatio() return self.hatcheryRatio end
 function HUD:getHatcheryRefillText() return if self.hatcheryRefillLabel then self.hatcheryRefillLabel.Text else "" end
+function HUD:getHatchStatusText() return if self.hatchStatusLabel then self.hatchStatusLabel.Text else "" end
+function HUD:getHatchStatusReason() return self.hatchStatusReason end
+function HUD:getHatchStatusVisible() return if self.hatchStatusFrame then self.hatchStatusFrame.Visible else false end
+function HUD:getHatchStatusActionButton() return self.hatchStatusActionBtn end
+function HUD:getHatchStatusActionVisible() return if self.hatchStatusActionBtn then self.hatchStatusActionBtn.Visible else false end
 function HUD:getHabitatText(slotId)
 	local label = self.habitatLabels[slotId]
 	return if label then label.Text else ""

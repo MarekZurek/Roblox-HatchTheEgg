@@ -774,14 +774,14 @@ do
 		ok(upg ~= nil, "Card " .. tostring(slotId) .. " has UpgradeHabitatBtn")
 	end
 
-	-- Card 1: Coop
+	-- Card 1: Tier 1 (type 0)
 	local card1 = hud.habitatCards[1]
-	ok(string.find(card1:FindFirstChild("TitleLabel").Text, "Coop") ~= nil, "Card 1 displays Coop")
-	ok(string.find(card1:FindFirstChild("NextUpgradeLabel").Text, "Shack") ~= nil, "Card 1 next is Shack")
+	ok(string.find(card1:FindFirstChild("TitleLabel").Text, "Tier 1") ~= nil, "Card 1 displays Tier 1")
+	ok(string.find(card1:FindFirstChild("NextUpgradeLabel").Text, "Tier 2") ~= nil, "Card 1 next is Tier 2")
 
-	-- Card 4: Chicken Universe (max)
+	-- Card 4: Tier 19 (max)
 	local card4 = hud.habitatCards[4]
-	ok(string.find(card4:FindFirstChild("TitleLabel").Text, "Chicken Universe") ~= nil, "Card 4 displays Chicken Universe")
+	ok(string.find(card4:FindFirstChild("TitleLabel").Text, "Tier 19") ~= nil, "Card 4 displays Tier 19")
 	ok(string.find(card4:FindFirstChild("NextUpgradeLabel").Text, "Maksymalny") ~= nil, "Card 4 displays MAX")
 
 	-- Trigger upgrade button on slot 2
@@ -856,7 +856,7 @@ do
 
 	local slot1Card = container:FindFirstChild("VehicleSlotCard_1")
 	ok(slot1Card ~= nil, "VehicleSlotCard_1 exists")
-	ok(string.find(slot1Card:FindFirstChild("Title").Text, "Trójkołowiec") ~= nil, "Slot 1 shows Trike")
+	ok(string.find(slot1Card:FindFirstChild("Title").Text, "Tier 1") ~= nil, "Slot 1 shows Tier 1")
 	eq(slot1Card:FindFirstChild("BuyVehicleButton").Active, true, "Slot 1 buy button active")
 
 	-- Test 9.4: Trigger upgrade button on slot 1

@@ -1,6 +1,6 @@
 # Równoległy backlog HatchTheEgg
 
-24.10.2026. **P — mapa dostarczania.** Dokumenty i przygotowanie nie są kodem gry. W IMP-01–09 wykonano lokalnie warsztat, codec, katalog, DTO, repozytorium sesji, czyste moduły FarmMath/IHR/wylęgu, koordynator gracza oraz neutralną symulację czasu; pozostałe zgłoszenia implementacyjne pozostają planem: ich utworzenie nie zleca realizacji, chmury, zakupów lub publikacji. Bilans 17–21 pozostaje odłożony. Reguły pierwszej farmy: [31](31_research_hatching_rcb_and_new_account.md); typy/protokół: [27](27_numbers_time_and_player_state_contract.md), [28](28_modules_and_client_server_contract.md); plan odbioru: [29](29_first_farm_implementation_plan.md).
+26.10.2026. **P — historyczna mapa dostarczania; bieżący zakres i dowody w [WORKING_CONTEXT](WORKING_CONTEXT.md).** Dokumenty i przygotowanie nie są kodem gry. W IMP-01–09 wykonano lokalnie warsztat, codec, katalog, DTO, repozytorium sesji, czyste moduły FarmMath/IHR/wylęgu, koordynator gracza oraz neutralną symulację czasu; pozostałe zgłoszenia implementacyjne pozostają planem: ich utworzenie nie zleca realizacji, chmury, zakupów lub publikacji. Bilans 17–21 pozostaje odłożony. Reguły pierwszej farmy: [31](31_research_hatching_rcb_and_new_account.md); typy/protokół: [27](27_numbers_time_and_player_state_contract.md), [28](28_modules_and_client_server_contract.md); plan odbioru: [29](29_first_farm_implementation_plan.md).
 
 ## Zasady współpracy
 
@@ -73,6 +73,8 @@ To plan równoległości, nie automatyczna delegacja. Wydanie nadal wymaga wznow
 
 ## Odbiór i stan publikacji
 
-Opublikowano 49 zadań składowych oraz [plan nadrzędny #1](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/1). Numery, adresy i zależności zapisano w [rejestrze GitHub](workflow/github_task_registry.json). Zadania DOC-01..05, PRE-01..03, IMP-01..15, QA-01, NEXT-01..10, REL-01 oraz VIS-01..06 (#2–#42) zostały wykonane i zamknięte. Do realizacji utworzono 8 zadań pełnego wdrożenia produkcyjnego (PROD-01–08, #43–#50). Zadania odłożonego bilansu docs/17..21 pozostają w kwarantannie.
+Rejestr zawiera 55 zadań składowych: 46 oznaczonych jako zamknięte i 9 jako otwarte (licznik lokalnego rejestru, nie nowy audyt statusu wszystkich dawnych zgłoszeń). Dołączono otwarte zgłoszenia kosmetycznego strumienia [#75](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/75) i retencji [#76](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/76). Historycznie opublikowano 49 zadań składowych oraz [plan nadrzędny #1](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/1). Numery, adresy i zależności zapisano w [rejestrze GitHub](workflow/github_task_registry.json). Zadania DOC-01..05, PRE-01..03, IMP-01..15, QA-01, NEXT-01..10, REL-01 oraz VIS-01..06 (#2–#42) zostały wykonane i zamknięte. Do realizacji utworzono 8 zadań pełnego wdrożenia produkcyjnego (PROD-01–08, #43–#50). Zadania odłożonego bilansu docs/17..21 pozostają w kwarantannie.
 
 PRE-01–03 zamykają przygotowanie interfejsów, nie wyniki testów. Sprawdzenie narzędzi należy do IMP-01, trwałości do IMP-07, sceny i czasu ruchu do IMP-13/15. Utrzymanie replay w długim działaniu jest bramką wydania opisaną w 34; nie zastępuje go wewnętrzny limit rozmiaru.
+
+Bieżący zakres lokalny: [UI #77–80](workflow/ui_tasks_77_80_2026_10_26.md). Zgłoszenia dodano do rejestru; ich lokalne wykonanie nie oznacza opublikowania kodu ani zamknięcia na GitHub.

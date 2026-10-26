@@ -382,6 +382,39 @@ task.spawn(function()
 	end
 end)
 
+-- 8b. Server-authoritative hatch plate presence (approved plate adaptation).
+-- The real Character is sampled against the real plate part by the server; the client never
+-- sends plate input, no count/dt/claimed position is trusted and no extra remote is granted.
+local PLATE_SAMPLE_INTERVAL_SECONDS = 0.25
+local PLATE_STAND_MARGIN_STUDS = 1.5
+local PLATE_STAND_MARGIN_VERTICAL = 5.5
+local function plateHoldsCharacter(plate, character)
+	if plate == nil or character == nil then return false end
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	local root = character:FindFirstChild("HumanoidRootPart") or character.PrimaryPart
+	if humanoid == nil or root == nil or humanoid.Health <= 0 then return false end
+	-- Bounded box test in the plate's own frame: finite margins, never a claimed position.
+	local localPoint = plate.CFrame:PointToObjectSpace(root.Position)
+	local half = plate.Size * 0.5
+	return math.abs(localPoint.X) <= half.X + PLATE_STAND_MARGIN_STUDS
+		and math.abs(localPoint.Z) <= half.Z + PLATE_STAND_MARGIN_STUDS
+		and math.abs(localPoint.Y) <= half.Y + PLATE_STAND_MARGIN_VERTICAL
+end
+if type(worldBuilder.getPressurePlate) == "function" then
+	task.spawn(function()
+		while true do
+			task.wait(PLATE_SAMPLE_INTERVAL_SECONDS)
+			local plate = worldBuilder:getPressurePlate()
+			for pId, playerObj in pairs(activePlayerObjects) do
+				if playerObj.Parent == Players and server:getPlayer(pId) ~= nil then
+					local standing = plate ~= nil and plate.Parent ~= nil and plateHoldsCharacter(plate, playerObj.Character)
+					server:setPlatePresence(pId, standing)
+				end
+			end
+		end
+	end)
+end
+
 -- 8. Autosave loop (every 300s = 5 minutes)
 task.spawn(function()
 	while true do

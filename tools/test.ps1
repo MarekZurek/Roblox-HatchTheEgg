@@ -35,13 +35,19 @@ try {
     $taskSuite = 'client_performance'
     & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
     if ($LASTEXITCODE -ne 0) { throw 'Client performance regressions failed.' }
+    $taskSuite = 'plate_acceptance'
+    & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
+    if ($LASTEXITCODE -ne 0) { throw 'Independent plate acceptance failed.' }
+    $taskSuite = 'ui7780_acceptance'
+    & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
+    if ($LASTEXITCODE -ne 0) { throw 'UI #77-80 independent acceptance failed.' }
     $taskSuite = 'fresh_cash_purchases'
     & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
     if ($LASTEXITCODE -ne 0) { throw 'Fresh cash purchase regressions failed.' }
     $taskSuite = 'upgrade_previews'
     & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
     if ($LASTEXITCODE -ne 0) { throw 'Upgrade preview regressions failed.' }
-    foreach ($taskSuite in @('catalog', 'protocol', 'persistence', 'math', 'fv_se', 'ihr', 'hatching', 'coordinator', 'timeline', 'integration89', 'purchases', 'resets', 'effect_boundaries', 'pet_effects', 'fusion', 'drones', 'offers', 'claims', 'purchase_recovery', 'tutorial', 'gateway', 'client_state', 'presentation', 'ui', 'integration', 'acceptance', 'release_candidate', 'reward_security', 'production_context', 'game_behavior', 'calendar_cycle', 'persistence_startup', 'pro_policy', 'event_time', 'session_prestige_rcb', 'farm_gaps', 'entitlement_farm_regressions')) {
+    foreach ($taskSuite in @('catalog', 'protocol', 'persistence', 'math', 'fv_se', 'ihr', 'hatching', 'coordinator', 'timeline', 'integration89', 'purchases', 'resets', 'effect_boundaries', 'pet_effects', 'fusion', 'drones', 'offers', 'claims', 'purchase_recovery', 'tutorial', 'gateway', 'client_state', 'presentation', 'plate_hatching', 'plate_visuals', 'ui', 'ui_tasks_77_80', 'integration', 'acceptance', 'release_candidate', 'reward_security', 'production_context', 'game_behavior', 'calendar_cycle', 'persistence_startup', 'pro_policy', 'event_time', 'session_prestige_rcb', 'farm_gaps', 'entitlement_farm_regressions')) {
         & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
         if ($LASTEXITCODE -ne 0) { throw ('Tests failed: ' + $taskSuite) }
     }

@@ -1,6 +1,8 @@
 # Workflow HatchTheEgg — adaptacja GrowASnack + ECC
 
-24.10.2026. **Workflow pozostaje planem procesu (P); siedem lokalnych skills utworzono na wyraźne polecenie użytkownika.** Sam dokument nie stanowi automatycznego uruchomienia implementacji ani zgody na delegację/operacje zewnętrzne (dotychczas wykonane na osobne zlecenia moduły IMP-01–09 opisano w sekcjach na końcu dokumentu). Zatwierdzone reguły produktu pozostają R w [CURRENT_SPEC](../CURRENT_SPEC.md), [22](../22_gameplay_rules_for_approval.md), [25](../25_approved_product_structure.md) i [26](../26_approved_launch_scope_and_pro_availability.md).
+26.10.2026. **Workflow pozostaje planem procesu (P); siedem lokalnych skills utworzono na wyraźne polecenie użytkownika.** Sam dokument nie stanowi automatycznego uruchomienia implementacji ani zgody na delegację/operacje zewnętrzne (dotychczas wykonane na osobne zlecenia moduły IMP-01–09 opisano w sekcjach na końcu dokumentu). Zatwierdzone reguły produktu pozostają R w [CURRENT_SPEC](../CURRENT_SPEC.md), [22](../22_gameplay_rules_for_approval.md), [25](../25_approved_product_structure.md) i [26](../26_approved_launch_scope_and_pro_availability.md).
+
+Bieżąca dostawa: [UI #77–80](ui_tasks_77_80_2026_10_26.md) i wcześniejsza [płyta 30/s i strumień kur](plate_hatching_2026_10_26.md), lokalne dowody L i ograniczony smoke Studio, bez zatwierdzenia wydania. Delegacja Cline/AGY wynikała z osobnego zlecenia użytkownika.
 
 Połączono lokalny workflow `projekt źródłowy workflow` z istniejącymi materiałami [ECC](../ecc/README.md). Przenosimy użyteczne procedury, nie uprawnienia, infrastrukturę i mechaniki tamtej gry.
 

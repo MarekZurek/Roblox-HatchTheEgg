@@ -4,7 +4,7 @@
 -- - Bright Turquoise Ocean Water, Central Rainbow Hub Island, and Player Farm Plot,
 -- - Main Hatchery with physical floor Pressure Plate,
 -- - 4 Habitat Plots at canonical coordinates with reactive BillboardGuis & ProximityPrompts,
--- - Step-On Studded Buy Pads (Płytki do kupowania),
+-- - Step-On Studded Buy Pads for habitats & research (no vehicle pads: fleet panel only),
 -- - Red-and-White Silo Tower with SurfaceGui, Shipping Depot with vehicles, Research Lab Stall,
 -- - Non-colliding low-poly farm trees & clouds (CanCollide=false, CanTouch=false, CanQuery=false).
 --
@@ -74,15 +74,29 @@ FarmPlotBuilder.ROUTE_WAYPOINTS = table.freeze({
 	},
 })
 
+-- User-visible habitat type names (#78): index 0 => "Tier 1" ... index 18 => "Tier 19".
+-- Internal catalog names/IDs are unchanged; an empty slot stays "Wolna Parcela", never "Tier 0".
 local HABITAT_DISPLAY_NAMES = table.freeze({
 	[-1] = "Wolna Parcela",
-	[0] = "Kurnik (Coop)",
-	[1] = "Szopa (Shack)",
-})
-
-local VEHICLE_DISPLAY_NAMES = table.freeze({
-	[0] = "Trójkołowiec (Trike)",
-	[1] = "Furgonetka (Transit Van)",
+	[0] = "Tier 1",
+	[1] = "Tier 2",
+	[2] = "Tier 3",
+	[3] = "Tier 4",
+	[4] = "Tier 5",
+	[5] = "Tier 6",
+	[6] = "Tier 7",
+	[7] = "Tier 8",
+	[8] = "Tier 9",
+	[9] = "Tier 10",
+	[10] = "Tier 11",
+	[11] = "Tier 12",
+	[12] = "Tier 13",
+	[13] = "Tier 14",
+	[14] = "Tier 15",
+	[15] = "Tier 16",
+	[16] = "Tier 17",
+	[17] = "Tier 18",
+	[18] = "Tier 19",
 })
 
 local SUFFIXES = table.freeze({
@@ -105,6 +119,19 @@ local function formatCompact(value)
 		end
 	end
 	return tostring(n)
+end
+
+-- World pad labels for the next habitat tier (#78). Presentation only: the capacity still comes from
+-- the same catalog that purchase quotes use; no economy value is recomputed here. The line describes
+-- the target base capacity, so it is written without a "+" that would imply a delta.
+local function habitatCapacityText(catalog, typeIndex)
+	if catalog and type(catalog.getHabitat) == "function" then
+		local ok, row = pcall(catalog.getHabitat, typeIndex)
+		if ok and type(row) == "table" and type(row.capacity) == "number" then
+			return "Pojemność bazowa: " .. formatCompact(row.capacity)
+		end
+	end
+	return "Pojemność bazowa: —"
 end
 
 -- ============================================================================
@@ -868,7 +895,7 @@ function FarmPlotBuilder:build()
 	-- 7. Classic Red-and-White Silo Tower with SurfaceGui
 	self:_buildSiloTower(worldFolder)
 
-	-- 8. Shipping Depot, Fleet Parking & Step-On Vehicle Buy Pads
+	-- 8. Shipping Depot & Fleet Parking (vehicle purchases stay in the fleet panel, no buy pads)
 	self:_buildShippingDepot(worldFolder)
 
 	-- 9. Research Lab Stall & Step-On Research Buy Pads
@@ -1357,7 +1384,7 @@ function FarmPlotBuilder:_buildHabitats(worldFolder)
 			pos = plotInfo.padPos,
 			padColor = { 95, 235, 45 },
 			line1 = string.format("[Kurnik #%d]", slotId),
-			line2 = if initialType == -1 then "+Zbuduj Kurnik (250 miejsc)" else "+Ulepsz do Szopy (500 miejsc)",
+			line2 = if initialType == -1 then "+Zbuduj Tier 1 (250 miejsc)" else "+Ulepsz do Tier 2 (500 miejsc)",
 			line3 = if initialType == -1 then "$100" else "$500",
 			line1Color = isRoblox and Color3.fromRGB(255, 130, 245) or nil,
 		})
@@ -1641,31 +1668,6 @@ function FarmPlotBuilder:_buildShippingDepot(worldFolder)
 	self.deliveryTruckModel = truckModel
 	self.deliveryParcelModel = parcelPart
 	self.deliveryPrompt = parcelPrompt
-
-	-- Step-On Studded Buy Pads for Vehicles 1 & 2
-	local vPad1 = createBuyPad(depotModel, {
-		name = "BuyPad_Vehicle_1",
-		padType = "BuyVehicle",
-		slotId = 1,
-		pos = { x = 32, y = 0.35, z = 36 },
-		padColor = { 95, 235, 45 },
-		line1 = "[Pojazd #1 -> Van]",
-		line2 = "+Większy eksport jaj/min",
-		line3 = "$1.2K",
-	})
-	table.insert(self.buyPads, vPad1)
-
-	local vPad2 = createBuyPad(depotModel, {
-		name = "BuyPad_Vehicle_2",
-		padType = "BuyVehicle",
-		slotId = 2,
-		pos = { x = 32, y = 0.35, z = 46 },
-		padColor = { 95, 235, 45 },
-		line1 = "[Pojazd #2 -> Trike]",
-		line2 = "+Dodatkowy pojazd floty",
-		line3 = "$250",
-	})
-	table.insert(self.buyPads, vPad2)
 end
 
 function FarmPlotBuilder:_buildResearchStall(worldFolder)
@@ -1800,23 +1802,24 @@ function FarmPlotBuilder:updateFromFarmView(farmView, catalog)
 					hEntry.fullLabel.Text = if (capNum > 0 and popNum >= capNum) then "⚠️ PEŁNY! (FULL)" else ""
 				end
 
-				-- Update Habitat Step-On Buy Pad text
+				-- Update Habitat Step-On Buy Pad text (#78: current/next labels use the Tier names).
+				-- The price is the authoritative per-slot upgradePrice already supplied by the farm
+				-- view; the catalog is never re-queried for a price and no fallback $100/$500 is
+				-- fabricated. A missing nextHabitatId means no further upgrade exists (MAX).
 				local bp = hEntry.buyPad
 				if bp then
-					if hIdx == -1 then
-						bp.line1Label.Text = string.format("[Kurnik #%d -> Kurniczek]", slotId)
-						bp.line2Label.Text = "+250 Miejsc dla kurcząt"
-						local price = if catalog and catalog.habitatPrice then catalog.habitatPrice(0, 0) else 100
-						bp.line3Label.Text = "$" .. formatCompact(price)
-					elseif hIdx == 0 then
-						bp.line1Label.Text = string.format("[Kurnik #%d -> Szopa]", slotId)
-						bp.line2Label.Text = "+500 Miejsc dla kurcząt"
-						local price = if catalog and catalog.habitatPrice then catalog.habitatPrice(1, 0) else 500
-						bp.line3Label.Text = "$" .. formatCompact(price)
-					else
+					local nextIdx = hIdx + 1
+					if hIdx >= 18 or hab.nextHabitatId == nil then
 						bp.line1Label.Text = string.format("[Kurnik #%d • MAX]", slotId)
 						bp.line2Label.Text = "Maksymalny poziom!"
 						bp.line3Label.Text = "MAX"
+					else
+						local nextName = HABITAT_DISPLAY_NAMES[nextIdx] or ("Tier " .. tostring(nextIdx + 1))
+						bp.line1Label.Text = string.format("[Kurnik #%d -> %s]", slotId, nextName)
+						bp.line2Label.Text = habitatCapacityText(catalog, nextIdx)
+						bp.line3Label.Text = if type(hab.upgradePrice) == "string"
+							then "$" .. formatCompact(hab.upgradePrice)
+							else "…"
 					end
 				end
 			end

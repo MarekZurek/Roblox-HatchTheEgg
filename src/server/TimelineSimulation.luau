@@ -16,6 +16,10 @@ local EffectsManager = resolve(function()
 end, "./EffectsManager")
 local Equipment=resolve(function()return script.Parent.pets.equipment end,"./pets/equipment")
 local Timeline = {}
+-- Approved plate adaptation: the physical hatch pressure plate hatches at most this rate.
+-- The plate lane is advanced from server-observed presence only; the Epic hold lane keeps
+-- its research-driven rate and its client-owned start/refresh/stop lifecycle.
+Timeline.PLATE_HATCH_RATE = 30
 function Timeline.new(codec, production, hatching, ihr, data, options)
  assert(options and options.mode == "INTERNAL_TEST_ONLY", "Timeline/TEST_MODE_REQUIRED")
  local A,R,U=codec.BigAmount,codec.Real64,codec.ExactUInt
@@ -102,6 +106,14 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
   assert(cp.productionSeconds==limit,"Timeline/LIMIT_MISMATCH")
   assert(cp.done==(cp.remainingSeconds==0),"Timeline/DONE_MISMATCH")
   assert(cp.state.settledWallThrough==(if cp.done then cp.targetInstantMs else cp.startInstantMs),"Timeline/WALL_CURSOR_MISMATCH")
+  if cp.plate~=nil then
+   -- Server-observed plate lane: only a bounded presence window, never client-supplied state.
+   local p=cp.plate
+   assert(type(p)=="table" and type(p.sessionKey)=="string" and type(p.routes)=="table","Timeline/INVALID_PLATE_CONTEXT")
+   instant(p.sinceMs);instant(p.expiresAtMs);assert(p.sinceMs<=p.expiresAtMs,"Timeline/INVALID_PLATE_WINDOW")
+   assert(type(p.runtime)=="table" and type(p.runtime.held)=="boolean","Timeline/INVALID_PLATE_RUNTIME")
+   assert(cp.mode=="ONLINE","Timeline/INVALID_PLATE_MODE")
+  end
  end
  local function draw(cp)
   -- Frozen local PRNG cursor: two uint32 words cover the full ExactUInt selection domain.
@@ -120,6 +132,16 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
   for _=1,maxPhases do
    if cp.done then break end
    local dt=if cp.phase=="AFTER_PRODUCTION" then cp.stepDt else math.min(cp.remainingSeconds,0.3)
+   if cp.phase=="BETWEEN_STEPS" and cp.mode=="ONLINE" and cp.plate then
+    -- A presence transition splits production too: newly running chickens cannot
+    -- boost income for the part of a step before their observed entry.
+    local startMs=R.add(cp.startInstantMs,cp.elapsedSeconds*1000)
+    for _,boundaryMs in {cp.plate.sinceMs,cp.plate.expiresAtMs} do
+     if boundaryMs>startMs and boundaryMs<R.add(startMs,dt*1000) then
+      dt=R.divide(R.subtract(boundaryMs,startMs),1000)
+     end
+    end
+   end
    local elapsed=R.add(cp.elapsedSeconds,dt)
    assert(elapsed>cp.elapsedSeconds,"Timeline/TIME_STALL")
    local stepEndMs=R.add(cp.startInstantMs,elapsed*1000)
@@ -135,6 +157,23 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
      hold.runtime=nextRuntime
     end
     if holdDt<dt or stepEndMs>=hold.expiresAtMs then hold.runtime.held=false;hold.runtime.holdElapsed=0 end
+   end
+   if cp.mode=="ONLINE" and cp.plate then
+    local plate=cp.plate
+    -- Count only inside the observed presence window: from the observed entry to the last
+    -- observation plus its bounded lease. Gaps never backfill, so a stalled host cannot catch up.
+    local windowStart=math.max(R.add(cp.startInstantMs,cp.elapsedSeconds*1000),plate.sinceMs)
+    local windowEnd=math.min(stepEndMs,plate.expiresAtMs)
+    local plateDt=math.max(0,math.min(dt,(windowEnd-windowStart)/1000))
+    if plateDt>0 then
+     local nextRuntime
+     f,nextRuntime=hatching.holdStep(f,plate.runtime,plateDt,Timeline.PLATE_HATCH_RATE,function()return draw(cp)end,function(slot)
+      local route=data.copy(plate.routes[slot]);route.startInstantMs=math.floor(windowStart+0.5);return route
+     end)
+     plate.runtime=nextRuntime
+    end
+    -- Clipping the left edge at a new entry must not cancel later steps in this interval.
+    if stepEndMs>=plate.expiresAtMs then plate.runtime.held=false;plate.runtime.holdElapsed=0 end
    end
    cp.state.accounting.lastBaseEarnings=A.add(cp.state.accounting.prestigeSessionArchivedCash,cp.state.accounting.currentFarmCash)
    local mults=EffectsManager.calculateMultipliers(cp.state.effects,f,stepEndMs,cp.config.liveEvents,{boostBoostMult=pets.boostBoostMult})

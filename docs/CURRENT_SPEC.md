@@ -1,8 +1,12 @@
 # Bieżąca specyfikacja i status ustaleń
 
-Stan porządkowania: **24.10.2026**. Zakres: farma domowa HatchTheEgg z petami w Roblox; zrealizowano lokalne moduły IMP-01–09 (poziom L), bez integracji Studio/chmury i pełnej pętli gry. To indeks obowiązujących ustaleń, nie nowy bilans.
+Stan: **26.10.2026**. Zakres: farma domowa HatchTheEgg z petami w Roblox; kod farmy i UI ma lokalne dowody L oraz ograniczone próby Studio opisane w [WORKING_CONTEXT](WORKING_CONTEXT.md). Implementacje płyty 30/s i [UI #77–80](workflow/ui_tasks_77_80_2026_10_26.md) sprawdzone lokalnie (zakres i ograniczenia w raportach); brak pełnego odbioru chmury i wydania. To indeks obowiązujących ustaleń, nie nowy bilans.
 
 ## Jak czytać statusy
+
+**UI #77–80 — zlecenie 26.10.2026:** typy kurników i pojazdów mają nazwy Tier 1, Tier 2 itd. według indeksu typu +1; identyfikatory domeny i zapisu pozostają bez zmian. Usunąć płytki pojazdów przed stacją, zachowując panel floty. Wdrożenie feedbacku wylęgu obejmuje brak miejsca z rezerwacjami oraz oddzielny brak zapasu, bez spamu. [Projekt i bieżące dowody](workflow/ui_tasks_77_80_2026_10_26.md). Nie zmienia bilansu, cen ani reguł wylęgu.
+
+**Nowa decyzja użytkownika — 26.10.2026 (R):** stanie na płycie wylęgu ma wypuszczać do 30 kurczaków/s, przy niezmienionym zapasie i jego odnowieniu oraz ograniczeniu miejscami. To odrębna adaptacja płyty, nie zmiana pojedynczego press ani Epic Hold-to-Hatch poza płytą. Serwer potwierdza obecność i rozlicza rezerwacje, RCB i dotarcia; fizyczne modele klienta są ograniczoną reprezentacją ruchu. [Zakres i bieżące dowody](workflow/plate_hatching_2026_10_26.md). Nie otwiera odłożonego bilansu 17–21. Zatwierdzenie zachowania nie stanowi odbioru implementacji.
 
 | Status | Znaczenie |
 |---|---|

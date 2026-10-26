@@ -117,7 +117,13 @@ function ClientBootstrap.new(deps)
 		onPurchaseProduct = deps.onPurchaseProduct,
         promptPurchase = deps.promptPurchase,
 		_localHatchSerial = 0,
-		_lastInTransitCounts = { 0, 0, 0, 0 },
+		_transitStreamId = nil,
+		_transitCounts = { 0, 0, 0, 0 },
+		_transitCredit = { 0, 0, 0, 0 },
+		_transitTotal = 0,
+		_transitSpawnAccumulator = 0,
+		_transitLastFrameMs = nil,
+		_transitSerial = 0,
 		_unsubs = {},
 	}, ClientBootstrap)
 
@@ -168,29 +174,9 @@ function ClientBootstrap:_setupEventBindings()
 	-- Synchronize HUD and presentation whenever state changes
 	local unsubState = self.stateStore:on("stateChanged", function(changeType, payload)
 		-- HUD subscribes to the store itself, including when used standalone.
-		-- Sync in-transit chickens to RoutePresentation
-		local farm = self.stateStore:getPresentationFarm()
-        self:_syncIssuedDrones(self.stateStore:getServerObservedAt())
-		if farm and farm.habitats and self.routePresentation then
-			local nowMs = self.stateStore:getServerObservedAt() or 1000000
-			for slotId = 1, 4 do
-				local hab = farm.habitats[slotId]
-				local inTransit = 0
-				if hab and hab.reservedInTransit then
-					inTransit = self.codec.ExactUInt.toSafeNumber(self.codec.ExactUInt.decode(hab.reservedInTransit))
-				end
-				local lastCount = self._lastInTransitCounts[slotId] or 0
-				if inTransit > lastCount then
-					local diff = inTransit - lastCount
-					self._localHatchSerial += 1
-					local gId = "hatch-state-" .. tostring(slotId) .. "-" .. tostring(self._localHatchSerial)
-					local route = self.routePresentation:getRouteForSlot(slotId)
-					local dur = (route and route.travelDuration) or 2.0
-					self.routePresentation:spawnGroup(gId, diff, slotId, nowMs, dur)
-				end
-				self._lastInTransitCounts[slotId] = inTransit
-			end
-		end
+		-- Sync in-transit chickens to the representative cosmetic stream
+		self:_syncIssuedDrones(self.stateStore:getServerObservedAt())
+		self:_syncTransitStream()
 	end)
 	table.insert(self._unsubs, unsubState)
 
@@ -449,10 +435,122 @@ function ClientBootstrap:getOrdinaryOffers()
  local farm=self.stateStore:getPresentationFarm();return (farm and farm.progress and farm.progress.ordinaryOffers) or {}
 end
 
+-- The server says how many chickens are in transit per coop; this client only decides how
+-- many of them to draw. The stream never sends arrivals and never grants population, so a
+-- constant authoritative in-transit count still produces a smooth visual flow.
+function ClientBootstrap:_syncTransitStream()
+	local counts, total = { 0, 0, 0, 0 }, 0
+	local streamId = self.stateStore:getStreamId()
+	if self.stateStore:isReady() then
+		local farm = self.stateStore:getPresentationFarm()
+		if farm and farm.habitats then
+			for slotId = 1, 4 do
+				local hab = farm.habitats[slotId]
+				if hab and hab.reservedInTransit then
+					counts[slotId] = math.max(0, self.codec.ExactUInt.toSafeNumber(self.codec.ExactUInt.decode(hab.reservedInTransit)))
+				end
+				total += counts[slotId]
+			end
+		end
+	end
+
+	if streamId ~= self._transitStreamId then
+		-- A new view stream never inherits old visuals, counters or accumulated spawn credit.
+		self._transitStreamId = streamId
+		self._transitCounts = counts
+		self._transitTotal = total
+		self._transitCredit = { 0, 0, 0, 0 }
+		self._transitSpawnAccumulator = 0
+		self._transitLastFrameMs = nil
+		if self.routePresentation then self.routePresentation:clearStreamGroups() end
+		return
+	end
+
+	self._transitCounts = counts
+	self._transitTotal = total
+	if total == 0 and self.routePresentation then
+		-- Authoritative in-transit counts vanished: stop the stream and clear its visuals.
+		self.routePresentation:clearStreamGroups()
+		self._transitCredit = { 0, 0, 0, 0 }
+		self._transitSpawnAccumulator = 0
+	end
+end
+
+-- Proportional, deterministic choice over the coops that actually have chickens in transit,
+-- so several destinations are represented fairly instead of one coop dominating.
+function ClientBootstrap:_pickTransitSlot()
+	local counts = self._transitCounts
+	local total = self._transitTotal or 0
+	if counts == nil or total <= 0 then return nil end
+	local credit = self._transitCredit
+	if credit == nil then
+		credit = { 0, 0, 0, 0 }
+		self._transitCredit = credit
+	end
+	local best, bestValue = nil, -math.huge
+	for slotId = 1, 4 do
+		if (counts[slotId] or 0) > 0 then
+			credit[slotId] = (credit[slotId] or 0) + (counts[slotId] / total)
+			if credit[slotId] > bestValue then
+				best, bestValue = slotId, credit[slotId]
+			end
+		end
+	end
+	if best == nil then return nil end
+	credit[best] -= 1
+	return best
+end
+
+-- Representative visuals while authoritative counts say chickens are in transit. The rate is
+-- capped per second and the presentation layer caps live models globally.
+function ClientBootstrap:_updateTransitStream(nowMs)
+	local presentation = self.routePresentation
+	if presentation == nil or nowMs == nil or not self.stateStore:isReady() then return end
+	if (self._transitTotal or 0) <= 0 then return end
+	local lastMs = self._transitLastFrameMs
+	self._transitLastFrameMs = nowMs
+	if lastMs == nil or nowMs <= lastMs then return end
+	-- Bounded catch-up: a long frame may not release an unbounded burst of visuals.
+	local dtSeconds = math.min(0.5, (nowMs - lastMs) / 1000)
+	local rate = presentation.maxSpawnsPerSecond or 8
+	local maxActive = presentation.maxActiveVisuals or 32
+	local pending = (self._transitSpawnAccumulator or 0) + dtSeconds * rate
+	while pending >= 1 do
+		pending -= 1
+		if presentation:getActiveVisualCount() >= maxActive then
+			-- Missed cosmetic emissions are discarded; a full pool must not build debt.
+			pending = 0
+			break
+		end
+		local slotId = self:_pickTransitSlot()
+		if slotId == nil then pending = 0; break end
+		self._transitSerial += 1
+		local route = presentation:getRouteForSlot(slotId)
+		local duration = (route and route.travelDuration) or 2.0
+		presentation:spawnStreamGroup(
+			"hatch-stream-" .. tostring(slotId) .. "-" .. tostring(self._transitSerial),
+			1,
+			slotId,
+			nowMs,
+			duration
+		)
+	end
+	self._transitSpawnAccumulator = pending
+end
+
+function ClientBootstrap:getTransitStreamState()
+	return {
+		streamId = self._transitStreamId,
+		total = self._transitTotal or 0,
+		counts = table.clone(self._transitCounts or { 0, 0, 0, 0 }),
+	}
+end
+
 function ClientBootstrap:update(nowMs)
  self:_syncIssuedDrones(nowMs)
  if self.intentControllers and self.intentControllers.hatch then self.intentControllers.hatch:update(nowMs) end
 	if self.routePresentation then
+		self:_updateTransitStream(nowMs)
 		self.routePresentation:update(nowMs)
 	end
 	if self.hud then

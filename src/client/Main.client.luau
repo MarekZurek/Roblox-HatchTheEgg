@@ -4,7 +4,8 @@
 -- 1. Connects ClientBootstrap to ReplicatedStorage/HatchTheEgg/Remotes.
 -- 2. Mounts the Studs HUD in PlayerGui and wires TutorialController.
 -- 3. Connects 3D Physical Pressure Plate, Studded Step-On Buy Pads, and ProximityPrompts
---    to authoritative client intents (HatchPress, BuyHabitat, BuyVehicle, BuyResearch).
+--    to authoritative client intents (plate observation, BuyHabitat, BuyResearch). Vehicle
+--    purchases happen only through the existing fleet panel, never through a world pad (#80).
 -- 4. Drives 60 FPS 3D Chicken route interpolation and flying Drones.
 
 local isRoblox = (typeof(game) == "Instance")
@@ -464,7 +465,7 @@ end)
 local rewardPromptWorld, rewardPrompts, lastOfferAvailability=nil,{},nil
 local buyPads, worldConnections = {}, {}
 local lastPadCheckAt = -math.huge
-local lastHatchStepAt = 0
+local plateWasStanding = false
 local padCooldowns = {} -- [Instance] = os.clock()
 -- Reward actors are driven exclusively by server-issued private view records.
 
@@ -539,27 +540,30 @@ RunService.RenderStepped:Connect(function(dt)
 		return
 	end
 
-	-- 1. Check Red Hatchery Pressure Plate
+	-- 1. Red Hatchery Pressure Plate: local visual/audio feedback only.
+	-- The plate intent and its rate are observed by the server from the real character and the
+	-- real plate part, so this client sends no plate input and no periodic HatchPress at all.
 	local hatchery = worldFolder:FindFirstChild("Hatchery")
 	local pressurePlate = hatchery and hatchery:FindFirstChild("HatchPressurePlate")
 	if pressurePlate then
 		local standing = isCharacterTouchingPart(character, pressurePlate)
 		if standing then
 			pressurePlate.Color = Color3.fromRGB(255, 135, 145)
-			if nowClock - lastHatchStepAt >= 0.28 then
-				lastHatchStepAt = nowClock
+			if not plateWasStanding then
+				plateWasStanding = true
 				if audio then
 					audio:playSFX("cluck")
 				end
-				client:hatchPress()
 			end
 		else
+			plateWasStanding = false
 			pressurePlate.Color = Color3.fromRGB(255, 58, 75)
 		end
 	end
 
-	-- 2. Check All Studded Step-On Buy Pads (Habitats, Vehicles, Research)
+	-- 2. Check All Studded Step-On Buy Pads (Habitats, Research)
 	-- Buy pads need proximity sampling, not a full world scan per rendered frame.
+	-- There are no vehicle buy pads in the world: this loop can never trigger BuyVehicle.
 	if nowClock - lastPadCheckAt < 0.1 then return end
 	lastPadCheckAt = nowClock
 	for desc in buyPads do
@@ -573,9 +577,6 @@ RunService.RenderStepped:Connect(function(dt)
 					if padKind == "BuyHabitat" then
 						local slotId = desc:GetAttribute("SlotId") or 1
 						upgradeHabitatSlot(slotId)
-					elseif padKind == "BuyVehicle" then
-						local slotId = desc:GetAttribute("SlotId") or 1
-						upgradeVehicleSlot(slotId)
 					elseif padKind == "BuyResearch" then
 						local rId = desc:GetAttribute("ResearchId")
 						if rId then

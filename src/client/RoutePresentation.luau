@@ -12,6 +12,12 @@
 local SCENE_VERSION = "CANONICAL_V1"
 local ROUTE_VERSION = 1
 local DEFAULT_SPEED = 25.0 -- studs per second
+-- Representative visuals are cosmetic and must stay bounded: at most this many live models
+-- and at most this many model spawns per second across every group, plus a bounded window of
+-- retained completed group ids.
+local DEFAULT_MAX_ACTIVE_VISUALS = 32
+local DEFAULT_MAX_VISUAL_SPAWNS_PER_SECOND = 8
+local DEFAULT_MAX_COMPLETED_HISTORY = 64
 
 local isRoblox = (typeof(Instance) == "table" and type(Instance.new) == "function")
 
@@ -549,17 +555,72 @@ function RoutePresentation.new(deps)
 		baseSpeed = baseSpeed,
 		routes = routes,
 		maxVisualsPerGroup = d.maxVisualsPerGroup or 5,
+		maxActiveVisuals = d.maxActiveVisuals or DEFAULT_MAX_ACTIVE_VISUALS,
+		maxSpawnsPerSecond = d.maxSpawnsPerSecond or DEFAULT_MAX_VISUAL_SPAWNS_PER_SECOND,
+		maxCompletedHistory = d.maxCompletedHistory or DEFAULT_MAX_COMPLETED_HISTORY,
 		modelFactory = d.modelFactory,
 		chickenTemplate = d.chickenTemplate,
 		container = d.container or d.modelsContainer,
 		clientStateStore = d.clientStateStore,
 		_activeGroups = {},
 		_completedGroups = {},
+		_completedOrder = {},
+		_activeVisualCount = 0,
+		_spawnBudget = nil,
+		_spawnBudgetMs = nil,
 		_activeDrones = {},
 		_listeners = {},
 	}, RoutePresentation)
 
 	return self
+end
+
+-- ============================================================================
+-- Representative Visual Budget (global model cap, spawn-rate cap, bounded history)
+-- ============================================================================
+
+-- Never keep more than maxActiveVisuals live models and never create more than
+-- maxSpawnsPerSecond models per second, counted over every group. The budget only limits
+-- cosmetic models: group lifecycle, reservations and authoritative state stay untouched.
+function RoutePresentation:_consumeVisualBudget(wanted: number, nowMs: number)
+	local modelBudget = math.max(0, self.maxActiveVisuals - self._activeVisualCount)
+	if self._spawnBudgetMs == nil then
+		self._spawnBudgetMs = nowMs
+		self._spawnBudget = self.maxSpawnsPerSecond
+	else
+		local elapsedSeconds = math.max(0, (nowMs - self._spawnBudgetMs) / 1000)
+		if elapsedSeconds > 0 then
+			self._spawnBudget = math.min(
+				self.maxSpawnsPerSecond,
+				(self._spawnBudget or 0) + elapsedSeconds * self.maxSpawnsPerSecond
+			)
+			self._spawnBudgetMs = nowMs
+		end
+	end
+	local granted = math.min(wanted, modelBudget, math.floor(self._spawnBudget or 0))
+	self._spawnBudget = math.max(0, (self._spawnBudget or 0) - granted)
+	return granted
+end
+
+-- Completed ids are retained only inside a bounded recent-history window.
+function RoutePresentation:_markCompleted(groupId: any)
+	if self._completedGroups[groupId] == true then return end
+	self._completedGroups[groupId] = true
+	table.insert(self._completedOrder, groupId)
+	while #self._completedOrder > self.maxCompletedHistory do
+		local oldest = table.remove(self._completedOrder, 1)
+		if oldest ~= nil then
+			self._completedGroups[oldest] = nil
+		end
+	end
+end
+
+function RoutePresentation:_forgetCompletion(groupId: any)
+	self._completedGroups[groupId] = nil
+	local index = table.find(self._completedOrder, groupId)
+	if index ~= nil then
+		table.remove(self._completedOrder, index)
+	end
 end
 
 -- ============================================================================
@@ -601,6 +662,9 @@ function RoutePresentation:spawnGroup(groupId: any, count: any, targetSlotId: nu
 	local startPos = route.waypoints[1]
 	local nextPos = route.waypoints[2] or startPos
 	local visualCount = math.clamp(numCount, 1, self.maxVisualsPerGroup)
+	-- The global representative-visual budget may reduce (even to zero) the models of this
+	-- group; the group itself still exists so lifecycle, tests and callers stay compatible.
+	visualCount = self:_consumeVisualBudget(visualCount, startInstantMs)
 	local models = {}
 
 	for i = 1, visualCount do
@@ -628,9 +692,55 @@ function RoutePresentation:spawnGroup(groupId: any, count: any, targetSlotId: nu
 		isDestroyed = false,
 	}
 
+	self._activeVisualCount += #models
 	self._activeGroups[groupId] = group
 	self:_emit("groupSpawned", groupId, group)
 	return group
+end
+
+-- ============================================================================
+-- Representative Cosmetic Stream
+-- ============================================================================
+
+-- A stream group visualises an authoritative in-transit count. It is cosmetic: it never
+-- sends arrivals, never grants population and is cleared as a unit when the stream ends.
+function RoutePresentation:spawnStreamGroup(groupId: any, count: any, targetSlotId: number, startInstantMs: number, travelDurationSeconds: number?)
+	local group = self:spawnGroup(groupId, count, targetSlotId, startInstantMs, travelDurationSeconds)
+	if group ~= nil then
+		group.isStreamGroup = true
+	end
+	return group
+end
+
+function RoutePresentation:clearStreamGroups()
+	local ids = {}
+	for groupId, group in self._activeGroups do
+		if group.isStreamGroup == true then
+			table.insert(ids, groupId)
+		end
+	end
+	local removed = 0
+	for _, groupId in ipairs(ids) do
+		if self:removeGroup(groupId) then removed += 1 end
+		self:_forgetCompletion(groupId)
+	end
+	return removed
+end
+
+function RoutePresentation:getStreamGroupCount()
+	local count = 0
+	for _, group in self._activeGroups do
+		if group.isStreamGroup == true then count += 1 end
+	end
+	return count
+end
+
+function RoutePresentation:getActiveVisualCount()
+	return self._activeVisualCount
+end
+
+function RoutePresentation:getCompletedHistoryCount()
+	return #self._completedOrder
 end
 
 function RoutePresentation:update(nowMs: number)
@@ -677,8 +787,9 @@ function RoutePresentation:update(nowMs: number)
 		for _, model in ipairs(group.models) do
 			destroyModel(model)
 		end
+		self._activeVisualCount = math.max(0, self._activeVisualCount - #group.models)
 		group.isDestroyed = true
-		self._completedGroups[group.groupId] = true
+		self:_markCompleted(group.groupId)
 		self._activeGroups[group.groupId] = nil
 
 		self:_emit("chickensArrived", group.groupId, group.targetSlotId, group.count)
@@ -966,6 +1077,7 @@ function RoutePresentation:removeGroup(groupId: any)
 		for _, model in ipairs(group.models) do
 			destroyModel(model)
 		end
+		self._activeVisualCount = math.max(0, self._activeVisualCount - #group.models)
 		group.isDestroyed = true
 		self._activeGroups[groupId] = nil
 		return true
@@ -981,6 +1093,7 @@ function RoutePresentation:clearAllGroups()
 		group.isDestroyed = true
 	end
 	self._activeGroups = {}
+	self._activeVisualCount = 0
 	for _, d in pairs(self._activeDrones) do
 		destroyModel(d.model)
 	end
@@ -1035,6 +1148,10 @@ function RoutePresentation:destroy()
 	self:clearAllGroups()
 	self._listeners = {}
 	self._completedGroups = {}
+	self._completedOrder = {}
+	self._activeVisualCount = 0
+	self._spawnBudget = nil
+	self._spawnBudgetMs = nil
 end
 
 return table.freeze(RoutePresentation)

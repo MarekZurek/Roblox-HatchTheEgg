@@ -263,6 +263,20 @@ local function validIntent(value, allowed)
 end
 local CLAIM_FIELDS={operationId=true,requestId=true}
 local HATCH_FIELDS={operationId=true,requestId=true,eggType=true,kind=true,protocolVersion=true}
+-- VIS-01 plate adaptation: the physical hatch pressure plate is a server-observed intent.
+-- One observation keeps the plate counted for at most this bounded lease, so an exit, a
+-- disconnect, a reset or a stalled host can never keep hatching or catch up an unbounded pause.
+local PLATE_PRESENCE_LEASE_MS = 1000
+
+local function clearPlatePresence(playerSession)
+	local presence=playerSession and playerSession.platePresence
+	if presence==nil then return end
+	presence.held=false
+	presence.sinceMs=0
+	presence.expiresAtMs=0
+	presence.holdElapsed=0
+end
+
 local ServerBootstrap = {}
 ServerBootstrap.__index = ServerBootstrap
 
@@ -415,8 +429,83 @@ function ServerBootstrap:_reconcileReset(playerSession)
     if playerSession.confirmedResetIdentity ~= identity then
         playerSession.hatchingRuntime.held = false
         playerSession.hatchingRuntime.holdElapsed = 0
+        -- A reset stops plate counting too: the observed presence must be re-established.
+        clearPlatePresence(playerSession)
         playerSession.confirmedResetIdentity = identity
     end
+end
+
+-- The plate lane is rebuilt from the newest server observation on every advance, including a
+-- resumed checkpoint. An unobserved or expired window closes the lane instead of replaying it.
+function ServerBootstrap:_plateLane(playerSession, profile, cp)
+	if cp == nil or cp.mode ~= "ONLINE" then return end
+	local presence = playerSession.platePresence
+	if presence == nil or not presence.held or presence.streamId ~= playerSession.hatchingRuntime.streamId
+		or presence.expiresAtMs <= cp.startInstantMs then
+		cp.plate = nil
+		return
+	end
+	local routes = {}
+	for slot = 1, 4 do routes[slot] = self:_getRoute(slot) end
+	cp.plate = {
+		runtime = {
+			streamId = presence.streamId,
+			lastInputSeq = "0",
+			held = true,
+			holdElapsed = presence.holdElapsed,
+		},
+		sinceMs = presence.sinceMs,
+		expiresAtMs = presence.expiresAtMs,
+		sessionKey = profile.ownership.generation .. ":" .. presence.streamId,
+		routes = routes,
+	}
+end
+
+-- Trusted host observation of the real 3D hatch pressure plate. Only the server samples the
+-- player's actual Character against the actual plate part; a client count, dt or claimed
+-- position can never create plate intent and no extra remote is granted for it.
+function ServerBootstrap:setPlatePresence(playerId, present, observedAtMs)
+	local pId = tostring(playerId)
+	local playerSession = self.players[pId]
+	if not playerSession then return false, "PLAYER_NOT_CONNECTED" end
+	assert(type(present) == "boolean", "INVALID_PRESENCE")
+	local nowMs = if observedAtMs == nil then self.clock.utcNowMs() else observedAtMs
+	assert(type(nowMs) == "number" and nowMs >= 0 and nowMs <= 9007199254740991 and nowMs % 1 == 0, "INVALID_OBSERVATION_TIME")
+
+	local presence = playerSession.platePresence
+	if presence == nil then return false, "PLATE_PRESENCE_UNAVAILABLE" end
+	if nowMs < presence.lastObservedMs then return false, "STALE_OBSERVATION" end
+
+	local pData = self.gateway:getPlayerState(pId)
+	local streamId = (pData and pData.streamId) or presence.streamId
+	if presence.streamId ~= streamId then
+		-- Reconnect or a new view stream: an old observation never continues on the new one.
+		presence.streamId = streamId
+		presence.held = false
+		presence.sinceMs = 0
+		presence.expiresAtMs = 0
+		presence.holdElapsed = 0
+	end
+
+	if present then
+		if not presence.held or presence.expiresAtMs <= nowMs then
+			-- A fresh observed entry restarts the plate counter; a stalled gap never backfills.
+			presence.sinceMs = nowMs
+			presence.holdElapsed = 0
+		end
+		presence.held = true
+		presence.expiresAtMs = nowMs + PLATE_PRESENCE_LEASE_MS
+	else
+		clearPlatePresence(playerSession)
+	end
+	presence.lastObservedMs = nowMs
+	return true
+end
+
+function ServerBootstrap:getPlatePresence(playerId)
+	local playerSession = self.players[tostring(playerId)]
+	if not playerSession then return nil end
+	return self.data.copy(playerSession.platePresence)
 end
 
 function ServerBootstrap:_simulationAdvance(playerSession, profile, request)
@@ -425,6 +514,12 @@ function ServerBootstrap:_simulationAdvance(playerSession, profile, request)
 		return { profile = profile, complete = true }
 	end
     local active=self.gateway:getPlayerState(playerSession.playerId)
+    if not active or playerSession.platePresence.streamId~=active.streamId then
+        -- A rotated view stream invalidates the old physical observation immediately,
+        -- even when the next host sample has not run yet. Keep a fresh sample intact.
+        clearPlatePresence(playerSession)
+        if active then playerSession.platePresence.streamId=active.streamId end
+    end
     if active and active.streamId~=playerSession.hatchingRuntime.streamId then
         playerSession.hatchingRuntime.streamId=active.streamId;playerSession.hatchingRuntime.lastInputSeq="0"
         playerSession.hatchingRuntime.held=false;playerSession.hatchingRuntime.holdElapsed=0;playerSession.hatchingRuntime.expiresAtMs=0
@@ -509,9 +604,18 @@ function ServerBootstrap:_simulationAdvance(playerSession, profile, request)
         cp = self.timeline.begin(mem, targetMs, simConfig)
 	end
 
+	self:_plateLane(playerSession, profile, cp)
+
 	if cp.mode=="AWAY" then playerSession.hatchingRuntime.held=false;playerSession.hatchingRuntime.holdElapsed=0 end
 	cp = self.timeline.advance(cp, budget)
     if cp.hold and cp.hold.sessionKey==profile.ownership.generation..":"..playerSession.hatchingRuntime.streamId then playerSession.hatchingRuntime=self.data.copy(cp.hold.runtime) end
+    local plateLane=cp.plate
+    if plateLane~=nil and plateLane.sessionKey==profile.ownership.generation..":"..playerSession.platePresence.streamId then
+        playerSession.platePresence.holdElapsed=plateLane.runtime.holdElapsed
+    else
+        -- A closed lane (exit, expiry, reset or stream change) restarts the plate counter empty.
+        playerSession.platePresence.holdElapsed=0
+    end
 
 	local checkpointWire = if cp.done then nil else self.timeline.encodeCheckpoint(cp)
 	local nextProfile = memoryToWire(profile, cp.state, checkpointWire, self.codec, self.data)
@@ -554,6 +658,16 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 			streamId = "stream-" .. pId .. "-1",
 			lastInputSeq = "0",
 			held = false,
+			holdElapsed = 0,
+		},
+		-- Server-observed plate presence. Populated only by setPlatePresence from the trusted
+		-- host sampler; no client message can write it and no extra remote is granted for it.
+		platePresence = {
+			streamId = "stream-" .. pId .. "-1",
+			held = false,
+			sinceMs = 0,
+			expiresAtMs = 0,
+			lastObservedMs = 0,
 			holdElapsed = 0,
 		},
 	}
@@ -919,6 +1033,7 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 	local pData = self.gateway:getPlayerState(pId)
 	if pData and pData.streamId then
 		playerSession.hatchingRuntime.streamId = pData.streamId
+		playerSession.platePresence.streamId = pData.streamId
 	end
 
 	self.players[pId] = playerSession
@@ -938,6 +1053,9 @@ function ServerBootstrap:playerLeaving(playerId)
 	if not playerSession then
 		return false, "PLAYER_NOT_FOUND"
 	end
+
+	-- A disconnect stops plate counting before the final checkpoint can advance it.
+	clearPlatePresence(playerSession)
 
 	local coordinator = playerSession.coordinator
 

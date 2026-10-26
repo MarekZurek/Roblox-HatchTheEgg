@@ -1,6 +1,6 @@
 # HatchTheEgg — dokumentacja
 
-Stan: 24.10.2026. Dokumentacja, planowanie oraz lokalnie wykonane i zweryfikowane L moduły IMP-01–09 (bez uruchomionej pętli farmy w Studio i chmury). Bilans progresji, inkubatorów, petów i produktów pozostaje odłożony.
+Stan: 26.10.2026. Kod farmy i UI ma lokalne testy Lune/Rojo oraz ograniczone próby Studio opisane w [WORKING_CONTEXT](WORKING_CONTEXT.md). Bieżący zakres: [UI #77–80](workflow/ui_tasks_77_80_2026_10_26.md) i wcześniejsza [płyta 30/s](workflow/plate_hatching_2026_10_26.md), sprawdzone lokalnie; zakres QA i ograniczenia w raportach. To nie odbiór chmury ani całego wydania. Bilans 17–21 pozostaje odłożony.
 
 ## Punkty startowe
 
