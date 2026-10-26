@@ -85,37 +85,6 @@ local VEHICLE_DISPLAY_NAMES = table.freeze({
 	[1] = "Furgonetka (Transit Van)",
 })
 
-local RESEARCH_PADS_CONFIG = table.freeze({
-	{
-		id = "comfy_nests",
-		title = "[Wygodne Gniazda]",
-		effectText = "+25% Szybkość znoszenia",
-		pos = { x = -18, y = 0.35, z = 36 },
-		padColor = { 95, 235, 45 },
-	},
-	{
-		id = "nutritional_sup",
-		title = "[Odżywcze Suplementy]",
-		effectText = "+25% Wartość jajek",
-		pos = { x = -28, y = 0.35, z = 36 },
-		padColor = { 95, 235, 45 },
-	},
-	{
-		id = "better_incubators",
-		title = "[Lepsze Inkubatory]",
-		effectText = "+Tempo wylęgarni",
-		pos = { x = -38, y = 0.35, z = 36 },
-		padColor = { 250, 220, 35 },
-	},
-	{
-		id = "internal_hatchery1",
-		title = "[Wewnętrzny Wylęg]",
-		effectText = "+2 Kurczaki / min / kurnik",
-		pos = { x = -48, y = 0.35, z = 36 },
-		padColor = { 250, 220, 35 },
-	},
-})
-
 local SUFFIXES = table.freeze({
 	{ 1e12, "T" },
 	{ 1e9, "B" },
@@ -1760,21 +1729,6 @@ function FarmPlotBuilder:_buildResearchStall(worldFolder)
 			StrokeThickness = 2.8,
 		})
 	end
-
-	-- Step-On Studded Research Buy Pads in front of the stall (Screenshot 1!)
-	for _, rCfg in ipairs(RESEARCH_PADS_CONFIG) do
-		local rPad = createBuyPad(stallModel, {
-			name = "BuyPad_Research_" .. rCfg.id,
-			padType = "BuyResearch",
-			researchId = rCfg.id,
-			pos = rCfg.pos,
-			padColor = rCfg.padColor,
-			line1 = rCfg.title,
-			line2 = rCfg.effectText,
-			line3 = "$5",
-		})
-		table.insert(self.buyPads, rPad)
-	end
 end
 
 function FarmPlotBuilder:_buildFarmDecorations(worldFolder)
@@ -1863,31 +1817,6 @@ function FarmPlotBuilder:updateFromFarmView(farmView, catalog)
 						bp.line1Label.Text = string.format("[Kurnik #%d • MAX]", slotId)
 						bp.line2Label.Text = "Maksymalny poziom!"
 						bp.line3Label.Text = "MAX"
-					end
-				end
-			end
-		end
-	end
-
-	-- 2. Update Research Step-On Buy Pads
-	if type(farmView.common) == "table" then
-		local byId = {}
-		for _, item in ipairs(farmView.common) do
-			byId[item.researchId] = item
-		end
-		for _, pad in ipairs(self.buyPads) do
-			if pad.padType == "BuyResearch" and pad.researchId then
-				local rState = byId[pad.researchId]
-				if rState then
-					local lvl = rState.level or 0
-					pad.line1Label.Text = string.format("[%s Poz. %d]", pad.researchId, lvl)
-					if rState.blockedReason == "MAX_LEVEL" then
-						pad.line3Label.Text = "MAX"
-					elseif catalog and type(catalog.researchPrice) == "function" then
-						local okP, p = pcall(function() return catalog.researchPrice(pad.researchId, lvl) end)
-						if okP and p then
-							pad.line3Label.Text = "$" .. formatCompact(p)
-						end
 					end
 				end
 			end

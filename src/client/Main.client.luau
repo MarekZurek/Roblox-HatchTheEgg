@@ -397,7 +397,7 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt, playerWhoTrigger
 		if hud then
 			hud:toggleHabitatsModal(true)
 		end
-	elseif pName == "ResearchProximityPrompt" then
+	elseif pName == "ResearchProximityPrompt" or pName == "ResearchPrompt" or prompt.ObjectText == "Laboratorium Badawcze" then
 		if hud then
 			hud:toggleResearchModal(true)
 			for _, rId in ipairs({
