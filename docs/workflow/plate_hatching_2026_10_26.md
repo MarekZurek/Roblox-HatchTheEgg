@@ -1,5 +1,7 @@
 # Płyta 30/s i strumień wizualnych kur — 26.10.2026
 
+**Aktualizacja publikacji — 26.10.2026:** kod opublikowano na main w [6006f2b](https://github.com/MarekZurek/Roblox-HatchTheEgg/commit/6006f2b613f8000ae28fa6fc007010572efb34e2); #75–76 zamknięto jako completed po potwierdzonym pushu. Opisy lokalnego stanu poniżej dokumentują wcześniejszy etap testów. Bez publikacji Roblox lub odbioru chmury.
+
 ## Zatwierdzony zakres
 
 Użytkownik wybrał **30 kurczaków/s podczas stania na płycie**, dopóki wystarcza zapasu i miejsca. Zapas, refill, ceny, badania i reszta bilansu bez zmian. To nowa, jawnie zatwierdzona adaptacja płyty; nie zmienia zwykłego pojedynczego naciśnięcia ani Epic Hold-to-Hatch poza płytą. Fizyczną obecność musi potwierdzać serwer.
@@ -62,7 +64,7 @@ To krótkie próbki, nie dowód wzrostu FPS ani skalowania serwera. Odczyt liczn
 
 Smoke na końcowej logice: po zejściu liczba zatrzymała się na 146 w osobnej próbie; jeden zwykły press dał 147 i ACCEPTED. Zakup badania za naturalnie zarobioną gotówkę dał APPLIED; identyczny operationId/packet dał REPLAYED i poziom pozostał 1. Pierwszy assertion smoke błędnie oczekiwał APPLIED również dla replay; odczyt OperationStatus potwierdził REPLAYED, poprawna kontrola przeszła bez zmiany kodu zakupów. Po własnym Play wykonano Stop, usunięto transient probe; Studio zwrócono w Edit, lokalny atrybut pamięci pozostaje true.
 
-Nie wykonano chmury, realnych płatności platformowych, publikacji ani nowego commitu/pusha. #75–76 pozostają otwarte do opublikowania poprawki. Bilans docs/17–21 i dane referencyjne bez zmian.
+Nie wykonano chmury, realnych płatności platformowych, publikacji ani nowego commitu/pusha. #75–76 zamknięto następnie po publikacji kodu 6006f2b na GitHub. Bilans docs/17–21 i dane referencyjne bez zmian.
 
 ## Wersja sprawdzonych plików
 

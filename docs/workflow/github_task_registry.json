@@ -642,7 +642,7 @@
             "number": 75,
             "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/75",
             "title": "Wizualne kurczaki zanikają przy stałej liczbie kur w drodze",
-            "state": "open",
+            "state": "closed",
             "dependencies": []
         },
         {
@@ -650,7 +650,7 @@
             "number": 76,
             "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/76",
             "title": "RoutePresentation przechowuje bez limitu identyfikatory zakończonych grup kurczaków",
-            "state": "open",
+            "state": "closed",
             "dependencies": []
         },
         {
@@ -658,7 +658,7 @@
             "number": 77,
             "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/77",
             "title": "Zaprojektować feedback o braku miejsca w kurnikach podczas wylęgu",
-            "state": "open",
+            "state": "closed",
             "dependencies": []
         },
         {
@@ -666,7 +666,7 @@
             "number": 78,
             "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/78",
             "title": "Zastąpić nazwy własne kurników jednolitym formatem „Tier X”",
-            "state": "open",
+            "state": "closed",
             "dependencies": []
         },
         {
@@ -674,7 +674,7 @@
             "number": 79,
             "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/79",
             "title": "Zastąpić nazwy własne pojazdów jednolitym formatem „Tier X”",
-            "state": "open",
+            "state": "closed",
             "dependencies": []
         },
         {
@@ -682,7 +682,7 @@
             "number": 80,
             "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/80",
             "title": "Usunąć płytki ulepszania przed stacją pojazdów",
-            "state": "open",
+            "state": "closed",
             "dependencies": []
         }
     ],
