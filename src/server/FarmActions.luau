@@ -494,6 +494,10 @@ function FarmActions.apply(candidateProfile, op, options)
 		candidateProfile.farm.cash = BigAmount.encode(remaining)
 		-- CRITICAL INVARIANT: candidateProfile.accounting.currentFarmCash is NOT DECREASED!
 
+		-- Preserve empty slot identities in a dense, serializable profile array.
+		for i=1,slotId-1 do
+			if not candidateProfile.farm.vehicles[i] then candidateProfile.farm.vehicles[i]={typeIndex=-1} end
+		end
 		if not candidateProfile.farm.vehicles[slotId] then
 			candidateProfile.farm.vehicles[slotId] = { typeIndex = typeIndex }
 		else

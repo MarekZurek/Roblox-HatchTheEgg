@@ -88,7 +88,7 @@ local function calculateProfileFarmValue(
 	local vehicleTypes = {}
 	if farm.vehicles then
 		for i, v in farm.vehicles do
-			table.insert(vehicleTypes, v.typeIndex)
+			if type(v.typeIndex)=="number" and v.typeIndex>=0 then table.insert(vehicleTypes, v.typeIndex) end
 		end
 	end
 	local shippingPerSec = productionMath.shippingPerSecond(farm.common or {}, vehicleTypes)

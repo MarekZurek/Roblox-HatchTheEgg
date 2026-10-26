@@ -90,6 +90,7 @@ local Calendar=if isStudio then require(script.Parent.rewards.calendar) else req
 local ActionReference=if isStudio then require(script.Parent.ActionReferenceData) else require("./ActionReferenceData")
 local ProgressActions=if isStudio then require(script.Parent.ProgressActions) else require("./ProgressActions")
 local Products=if isStudio then require(script.Parent.platform.products) else require("./platform/products")
+local FarmActions=if isStudio then require(script.Parent.FarmActions) else require("./FarmActions")
 local ViewProjector = {}
 ViewProjector.__index = ViewProjector
 ViewProjector.ALL_COMMON_RESEARCH_IDS = ALL_COMMON_RESEARCH_IDS
@@ -171,12 +172,21 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
 		if h and h.typeIndex ~= nil and h.typeIndex >= 0 then
 			habObj.habitatIndex = h.typeIndex
 		end
+		local nextIndex = (habObj.habitatIndex or -1) + 1
+		local nextId = FarmActions.HABITAT_INDEX_TO_NAME[nextIndex]
+		if nextId then
+			-- Same authoritative price path as purchase quotes; no cached quote is issued.
+			local preview = FarmActions.createQuote(profile,catalog,
+				{kind="BuyHabitat",args={slotId=slotId,habitatId=nextId}},
+				"view-habitat",profile.meta.revision,"view-habitat-"..slotId,serverObservedAt,self.configRevision)
+			habObj.nextHabitatId,habObj.upgradePrice = nextId,preview.cashCost
+		end
 		table.insert(habitatsList, habObj)
 	end
 	local totalPopNum = codec.ExactUInt.toSafeNumber(totalPopExact)
 
 	-- Fleet: up to 4 vehicles
-	local fleetVehicles = {}
+	local fleetVehicles, fleetUpgrades = {}, {}
 	local shippingPerMinute = 0
 	local fleetLimit = farm.fleetLimit or 4
 	for slotId = 1, fleetLimit do
@@ -185,6 +195,16 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
 			table.insert(fleetVehicles, { slotId = slotId, vehicleIndex = v.typeIndex })
 			local baseCap = catalog.getVehicle(v.typeIndex).capacity
 			shippingPerMinute = codec.BigAmount.add(shippingPerMinute, codec.BigAmount.multiply(baseCap, r.vehicleCapacityMult))
+		end
+		local nextIndex = if v then v.typeIndex+1 else 0
+		local nextId=FarmActions.VEHICLE_INDEX_TO_NAME[nextIndex]
+		if nextId then
+			local preview=FarmActions.createQuote(profile,catalog,
+				{kind="BuyVehicle",args={slotId=slotId,vehicleId=nextId}},
+				"view-vehicle",profile.meta.revision,"view-vehicle-"..slotId,serverObservedAt,self.configRevision)
+			local upgrade={slotId=slotId,nextVehicleId=nextId,price=preview.cashCost,available=preview.available}
+			if preview.blockedReason then upgrade.blockedReason=preview.blockedReason end
+			table.insert(fleetUpgrades,upgrade)
 		end
 	end
 
@@ -222,6 +242,20 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
 				level = currentLevel,
 				available = can,
 			}
+			local row = catalog.getCommon(id)
+			local current = catalog.researchEffects(id,currentLevel)
+			local following = if currentLevel < row.maxLevel then catalog.researchEffects(id,currentLevel+1) else nil
+			local keys,seen = {},{}
+			for key in current do seen[key]=true;table.insert(keys,key) end
+			for key in following or {} do if not seen[key] then table.insert(keys,key) end end
+			table.sort(keys)
+			entry.effects = {}
+			for _,key in keys do
+				local neutral = if key:find("Mult",1,true) and key~="onscreenChickenMultMax" then 1 else 0
+				local effect = {stat=key,current=codec.BigAmount.encode(current[key] or neutral)}
+				if following then effect.next=codec.BigAmount.encode(following[key] or neutral) end
+				table.insert(entry.effects,effect)
+			end
 			if not can and reason ~= nil then
 				entry.blockedReason = reason
 			end
@@ -245,6 +279,8 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
 		hatchery = hatchery,
 		fleet = {
 			vehicles = fleetVehicles,
+			slotLimit = fleetLimit,
+			upgrades = fleetUpgrades,
 			shippingPerMinute = codec.BigAmount.encode(shippingPerMinute),
 		},
 		producedEggsPerSecond = codec.BigAmount.encode(producedEggsPerSecondNum),

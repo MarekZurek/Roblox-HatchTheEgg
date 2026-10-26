@@ -91,7 +91,7 @@ local function upgradeHabitatSlot(slotId)
 		-- Pick first empty or upgradeable slot
 		for s = 1, 4 do
 			local h = farm.habitats[s]
-			if h and (h.habitatIndex == nil or h.habitatIndex < 1) then
+			if h and h.nextHabitatId then
 				targetSlot = s
 				break
 			end
@@ -99,8 +99,8 @@ local function upgradeHabitatSlot(slotId)
 	end
 
 	local hab = farm.habitats[targetSlot]
-	local currentIdx = hab and hab.habitatIndex
-	local nextHabitatId = if currentIdx == nil then "COOP" else "SHACK"
+	local nextHabitatId = hab and hab.nextHabitatId
+	if not nextHabitatId then return end
 	local reqId, err = client:buyHabitat(targetSlot, nextHabitatId)
 	if not reqId and err == "MISSING_QUOTE" then
 		pendingQuotedPurchase = function()
@@ -116,13 +116,11 @@ local function upgradeVehicleSlot(slotId)
 	if not farm or not farm.fleet then return end
 
 	local targetSlot = slotId or 1
-	local currentIdx = nil
-	for _, v in ipairs(farm.fleet.vehicles or {}) do
-		if v.slotId == targetSlot then
-			currentIdx = v.vehicleIndex
-		end
+	local nextVehicleId
+	for _, upgrade in farm.fleet.upgrades or {} do
+		if upgrade.slotId==targetSlot then nextVehicleId=upgrade.nextVehicleId end
 	end
-	local nextVehicleId = if currentIdx == nil then "TRIKE" else "TRANSIT VAN"
+	if not nextVehicleId then return end
 	local reqId, err = client:buyVehicle(targetSlot, nextVehicleId)
 	if not reqId and err == "MISSING_QUOTE" then
 		pendingQuotedPurchase = function()

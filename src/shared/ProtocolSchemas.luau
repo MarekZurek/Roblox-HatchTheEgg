@@ -18,6 +18,7 @@ local function integer(minimum, maximum)
 end
 local index = integer(0, 65535)
 local slot = integer(1, 4)
+local vehicleSlot = integer(1, 17)
 local instant = integer(0, 9007199254740991)
 local function id(value)
 	if type(value) ~= "string" or #value < 1 or #value > 96 or not string.match(value, "^[A-Za-z0-9_:.%- ]+$") then fail() end
@@ -100,12 +101,12 @@ function ProtocolSchemas.new(codec)
 	local targetSchemas = {
 		BuyResearch = record({ researchId = id, mode = literal("single") }),
 		BuyHabitat = record({ slotId = slot, habitatId = id }),
-		BuyVehicle = record({ slotId = slot, vehicleId = id }),
+		BuyVehicle = record({ slotId = vehicleSlot, vehicleId = id }),
 	}
 	local mutationSchemas = {
 		BuyResearch = record({ researchId = id, mode = literal("single"), quoteId = id }),
 		BuyHabitat = record({ slotId = slot, habitatId = id, quoteId = id }),
-		BuyVehicle = record({ slotId = slot, vehicleId = id, quoteId = id }),
+		BuyVehicle = record({ slotId = vehicleSlot, vehicleId = id, quoteId = id }),
 		UpgradeEgg = record({ targetEggIndex = index }),
         Prestige = record({}),
         ClaimDailyGift = record({}),
@@ -132,22 +133,24 @@ function ProtocolSchemas.new(codec)
 	client.HatchPress = record({ protocolVersion = literal(1), requestId = id, kind = literal("HatchPress"), streamId = id, inputSeq = exact })
 	client.HatchInput = record({ protocolVersion = literal(1), requestId = id, kind = literal("HatchInput"), streamId = id, inputSeq = exact, state = enum({ start = true, refresh = true, stop = true }) })
 
-	local habitat = record({ slotId = slot, population = exact, reservedInTransit = exact, capacity = exact }, { habitatIndex = index })
+	local habitat = record({ slotId = slot, population = exact, reservedInTransit = exact, capacity = exact }, { habitatIndex = index, nextHabitatId = id, upgradePrice = amount })
 	local visibleHabitat = record({ slotId = slot }, { habitatIndex = index })
-	local vehicle = record({ slotId = slot, vehicleIndex = index })
+	local vehicle = record({ slotId = vehicleSlot, vehicleIndex = index })
 	local boolean = function(v) if type(v) ~= "boolean" then fail() end end
-	local research = record({ researchId = id, level = index, available = boolean }, { blockedReason = id })
+	local researchEffect = record({ stat = id, current = amount }, { next = amount })
+	local research = record({ researchId = id, level = index, available = boolean }, { blockedReason = id, effects = array(researchEffect, 17, "stat") })
 	local habitats = array(habitat, 4, "slotId")
 	local fourHabitats = function(value) habitats(value); if #value ~= 4 then fail() end end
 	local ownFields = {
 		lifecycle = lifecycle, eggIndex = index, cash = amount,
 		habitats = fourHabitats,
 		hatchery = record({ stock = amount, capacity = amount, refillPerSecond = amount }),
-		fleet = record({ vehicles = array(vehicle, 4, "slotId"), shippingPerMinute = amount }),
+		fleet = record({ vehicles = array(vehicle, 17, "slotId"), shippingPerMinute = amount }, {
+			slotLimit=integer(4,17),upgrades=array(record({slotId=vehicleSlot,nextVehicleId=id,price=amount,available=boolean},{blockedReason=id}),17,"slotId")}),
 		producedEggsPerSecond = amount, soldEggsPerSecond = amount, cashIncomePerSecond = amount,
 		common = array(research, 56, "researchId"),
 	}
-	local publicFields = { eggIndex = index, population = exact, habitats = array(visibleHabitat, 4, "slotId"), vehicles = array(vehicle, 4, "slotId") }
+	local publicFields = { eggIndex = index, population = exact, habitats = array(visibleHabitat, 4, "slotId"), vehicles = array(vehicle, 17, "slotId") }
 	local progress = record({GE=exact,SE=amount,PE=exact,numDailyGiftsCollected=instant,lastCalendarDayUtc=integer(-1,9007199254740991),
         pets=array(record({uid=id,speciesId=id,tier=integer(1,65535),variant=id,locked=boolean,equipped=boolean}),32),
         equipped=array(id,5), trophies=array(id,95)}, {issuedDrones=array(record({id=id,elite=boolean,createdAtMs=instant,expiresAtMs=instant}),4096),ordinaryOffers=array(record({id=id,rewardType=id,amount=amount}),2),proPermit=boolean,proBonusAvailable=boolean,paidRandomPolicy=enum({unknown=true,allowed=true,restricted=true}),shellScripts=exact,calendar=array(record({day=integer(1,28),available=boolean,rewardType=id,amount=amount}),28)})
@@ -198,7 +201,7 @@ function ProtocolSchemas.new(codec)
 				Prestige = record({terminalStatus=literal("APPLIED"),actionKind=literal("Prestige"),gainedSoulEggs=numeric(codec.Real64),newSoulEggs=amount,prestigeCount=exact}),
 				BuyResearch = record({ terminalStatus = literal("APPLIED"), actionKind = literal("BuyResearch"), researchId = id, level = index }),
 				BuyHabitat = record({ terminalStatus = literal("APPLIED"), actionKind = literal("BuyHabitat"), slotId = slot, habitatId = id }),
-				BuyVehicle = record({ terminalStatus = literal("APPLIED"), actionKind = literal("BuyVehicle"), slotId = slot, vehicleId = id }),
+				BuyVehicle = record({ terminalStatus = literal("APPLIED"), actionKind = literal("BuyVehicle"), slotId = vehicleSlot, vehicleId = id }),
 			}
             local connected = {ClaimDailyGift=true,ClaimTrophy=true,FusePets=true,EquipPet=true,UnequipPet=true,TogglePetLock=true,BuyBoost=true,PurchaseProduct=true}
             if connected[value.actionKind] then

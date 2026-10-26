@@ -81,6 +81,8 @@ local function makeTestSnapshot(overrides)
 						{ slotId = 1, vehicleIndex = 0 },
 					},
 					shippingPerMinute = (o.fleet and o.fleet.shippingPerMinute) or "60000",
+					slotLimit=4,
+					upgrades={{slotId=1,nextVehicleId="TRANSIT VAN",price="100",available=true}},
 				},
 				producedEggsPerSecond = o.producedEggsPerSecond or "1500",
 				soldEggsPerSecond = o.soldEggsPerSecond or "1200",
@@ -762,7 +764,7 @@ do
 
 	-- Verify parcel cards 1..4
 	for slotId = 1, 4 do
-		local card = habModal:FindFirstChild("HabitatCard_" .. tostring(slotId))
+		local card = hud.habitatCards[slotId]
 		ok(card ~= nil, "Habitat card " .. tostring(slotId) .. " exists")
 		local title = card:FindFirstChild("TitleLabel")
 		ok(title ~= nil, "Card " .. tostring(slotId) .. " has TitleLabel")
@@ -773,17 +775,17 @@ do
 	end
 
 	-- Card 1: Coop
-	local card1 = habModal:FindFirstChild("HabitatCard_1")
+	local card1 = hud.habitatCards[1]
 	ok(string.find(card1:FindFirstChild("TitleLabel").Text, "Coop") ~= nil, "Card 1 displays Coop")
 	ok(string.find(card1:FindFirstChild("NextUpgradeLabel").Text, "Shack") ~= nil, "Card 1 next is Shack")
 
 	-- Card 4: Chicken Universe (max)
-	local card4 = habModal:FindFirstChild("HabitatCard_4")
+	local card4 = hud.habitatCards[4]
 	ok(string.find(card4:FindFirstChild("TitleLabel").Text, "Chicken Universe") ~= nil, "Card 4 displays Chicken Universe")
 	ok(string.find(card4:FindFirstChild("NextUpgradeLabel").Text, "Maksymalny") ~= nil, "Card 4 displays MAX")
 
 	-- Trigger upgrade button on slot 2
-	local upgBtn2 = habModal:FindFirstChild("HabitatCard_2"):FindFirstChild("UpgradeHabitatBtn")
+	local upgBtn2 = hud.habitatCards[2]:FindFirstChild("UpgradeHabitatBtn")
 	upgBtn2.Activated:Fire()
 	eq(clickedSlot, 2, "UpgradeHabitatBtn slot 2 invoked onQuickBuyHabitat")
 

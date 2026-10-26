@@ -73,6 +73,33 @@ function HUD.formatCompact(selfOrValue, maybeValue)
 	return formatCompact(val)
 end
 
+local RESEARCH_EFFECT_LABELS = {
+	eggLayingRateMult="Tempo znoszenia", eggValueMult="Wartość jaj",
+	hatcheryRefillRateMult="Odnawianie wylęgu", habCapacityMult="Pojemność kurników",
+	vehicleCapacityMult="Pojemność transportu", vehicleCapacityMultHover="Pojemność poduszkowców",
+	portalCapacityMult="Pojemność portali", hyperloopCarCapacityMult="Pojemność wagonów",
+	vehicleSpeedMult="Prędkość pojazdów", vehicleRoundTripTimeMult="Czas kursu",
+	vehicleLoadingTimeMult="Czas załadunku", hatcheryCapacity="Zapas wylęgu",
+	internalHatcheryRate="Kurczaki/min/kurnik", maxFleetSize="Miejsca floty",
+	onscreenChickenMult="Przyrost RCB",
+	onscreenChickenMultMax="Limit RCB", hyperloopMaxTrainLength="Dodatkowe wagony",
+}
+local function researchEffectText(research,fallback)
+	local lines={}
+	for _,effect in research.effects or {} do
+		local function value(text)
+			local n=tonumber(text) or 0
+			local percent=effect.stat:find("Mult",1,true)~=nil and effect.stat~="onscreenChickenMultMax"
+			if percent then n=(n-1)*100 end
+			if math.abs(n)<1e-9 then n=0 end
+			return (if n>=0 then "+" else "")..formatCompact(n)..(if percent then "%" else "")
+		end
+		local label=RESEARCH_EFFECT_LABELS[effect.stat] or effect.stat
+		table.insert(lines,label..": "..value(effect.current)..(if effect.next then " → "..value(effect.next) else " (MAX)"))
+	end
+	return if #lines>0 then table.concat(lines,"\n") else fallback
+end
+
 function HUD.formatCash(selfOrAmount, maybeAmount)
 	local amount = if type(selfOrAmount) == "table" and selfOrAmount.formatCash == HUD.formatCash then maybeAmount else selfOrAmount
 	return "$" .. formatCompact(amount)
@@ -481,7 +508,7 @@ local UDim2 = if isRoblox and typeof(UDim2) == "table" then UDim2 else {
 local UDim = if isRoblox and typeof(UDim) == "table" then UDim else {
 	new = function(s, o) return { Scale = s, Offset = o } end,
 }
-local Enum = if isRoblox and typeof(Enum) == "table" then Enum else {
+local Enum = if isRoblox then Enum else {
 	Font = { FredokaOne = "FredokaOne" },
 	TextXAlignment = { Left = "Left", Right = "Right", Center = "Center" },
 	ZIndexBehavior = { Sibling = "Sibling" },
@@ -977,6 +1004,14 @@ function HUD:_buildInterface()
 		Text = "$0",
 	}, bottomLeft)
 	addTextStroke(self.cashLabel, 3.4)
+	self.goldenEggsLabel=createGuiElement("TextLabel",{
+		Name="GoldenEggsLabel",Size=if isRoblox then UDim2.new(.3,0,0,32) else nil,
+		Position=if isRoblox then UDim2.new(0,16,0,104) else nil,BackgroundTransparency=1,
+		Font=if isRoblox then Enum.Font.FredokaOne else nil,TextScaled=true,
+		TextXAlignment=if isRoblox then Enum.TextXAlignment.Left else nil,
+		TextColor3=if isRoblox then Color3.fromRGB(255,220,75) else nil,Text="Złote jaja: —",
+	},root)
+	addTextStroke(self.goldenEggsLabel,2)
 
 	-- 4. Left-Side Green Studded Quick-Action Buttons (hidden by default per docs/ui/ui_design_specification.md to preserve clean view and mobile touch thumbstick zone)
 	local leftQuickCluster = createGuiElement("Frame", {
@@ -1201,15 +1236,38 @@ function HUD:_buildInterface()
 	self:_buildHatchAnimationOverlay(root)
 end
 
+function HUD.modalLayout(width,height,designWidth)
+	local w=math.min(1600,width*(if width<700 then .94 else .7))
+	local h=math.min(1100,height*(if height<500 then .9 else .7))
+	return w,h,math.min(1,w/math.max(540,designWidth or 540))
+end
+
 local function applyModalMobileConstraints(modalFrame)
 	if not isRoblox or not modalFrame then return end
-	pcall(function()
-		local constraint = Instance.new("UISizeConstraint")
-		constraint.Name = "MobileSizeConstraint"
-		constraint.MaxSize = Vector2.new(640, 560)
-		constraint.MinSize = Vector2.new(280, 240)
-		constraint.Parent = modalFrame
-	end)
+	-- These three panels have scrollable content and can grow independently.
+	-- Keep the other existing dialogs at their current design sizes.
+	if modalFrame.Name~="ShopFrame" and modalFrame.Name~="HabitatsFrame" and modalFrame.Name~="VehiclesFrame" then
+		local constraint=Instance.new("UISizeConstraint")
+		constraint.Name="MobileSizeConstraint";constraint.MaxSize=Vector2.new(640,560)
+		constraint.MinSize=Vector2.new(280,240);constraint.Parent=modalFrame
+		return
+	end
+	local parent=modalFrame.Parent
+	local designWidth=modalFrame.Size.X.Offset
+	local scale=Instance.new("UIScale")
+	scale.Name="ResponsiveScale";scale.Parent=modalFrame
+	modalFrame.AnchorPoint=Vector2.new(.5,.5)
+	modalFrame.Position=UDim2.fromScale(.5,.5)
+	local function resize()
+		local size=parent.AbsoluteSize
+		if size.X<=0 or size.Y<=0 then return end
+		local w,h,s=HUD.modalLayout(size.X,size.Y,designWidth)
+		scale.Scale=s
+		modalFrame.Size=UDim2.fromOffset(w/s,h/s)
+	end
+	local connection=parent:GetPropertyChangedSignal("AbsoluteSize"):Connect(resize)
+	modalFrame.Destroying:Connect(function()connection:Disconnect()end)
+	resize()
 end
 
 function HUD:_buildCloseButton(parent, onClose)
@@ -1260,14 +1318,19 @@ function HUD:_buildHabitatsModal(root)
 	self:_buildCloseButton(habitatsFrame, function()
 		self.habitatsModal.Visible = false
 	end)
+	local habitatsScroll=createGuiElement("ScrollingFrame",{
+		Name="HabitatSlotsContainer",Size=if isRoblox then UDim2.new(1,-24,1,-60) else nil,
+		Position=if isRoblox then UDim2.fromOffset(12,48) else nil,BackgroundTransparency=1,
+		CanvasSize=if isRoblox then UDim2.fromOffset(0,320) else nil,ScrollBarThickness=6,
+	},habitatsFrame)
 
 	for slotId = 1, 4 do
 		local card = createGuiElement("Frame", {
 			Name = "HabitatCard_" .. tostring(slotId),
-			Size = isRoblox and UDim2.new(1, -24, 0, 72) or nil,
-			Position = isRoblox and UDim2.new(0, 12, 0, 48 + (slotId - 1) * 80) or nil,
+			Size = isRoblox and UDim2.new(1, -6, 0, 72) or nil,
+			Position = isRoblox and UDim2.new(0, 0, 0, (slotId - 1) * 80) or nil,
 			BackgroundColor3 = isRoblox and Color3.fromRGB(112, 64, 36) or nil,
-		}, habitatsFrame)
+		}, habitatsScroll)
 		addCornerAndStroke(card, 8, isRoblox and Color3.fromRGB(42, 22, 12) or nil, 2)
 
 		local titleLabel = createGuiElement("TextLabel", {
@@ -1396,12 +1459,15 @@ function HUD:_buildVehiclesModal(root)
 	addCornerAndStroke(statusBadge, 4, isRoblox and Color3.fromRGB(15, 60, 25) or nil, 1.5)
 
 	-- Fleet Slots Container (displays slots 1..17)
-	local slotsScroll = createGuiElement("Frame", {
+	local slotsScroll = createGuiElement("ScrollingFrame", {
 		Name = "FleetSlotsContainer",
-		Size = isRoblox and UDim2.new(1, -28, 0, 340) or nil,
+		Size = isRoblox and UDim2.new(1, -28, 1, -122) or nil,
 		Position = isRoblox and UDim2.new(0, 14, 0, 110) or nil,
 		BackgroundTransparency = 1,
+		CanvasSize=if isRoblox then UDim2.fromOffset(0,4*56) else nil,
+		ScrollBarThickness=6,
 	}, vFrame)
+	self.fleetSlotsScroll=slotsScroll
 
 	for slotId = 1, 17 do
 		local card = createGuiElement("Frame", {
@@ -1535,7 +1601,7 @@ function HUD:_buildResearchModal(root)
 		TextSize = 12,
 		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
 		TextColor3 = isRoblox and Color3.fromRGB(215, 195, 180) or nil,
-		Text = "Kupuj ulepszenia technologiczne, aby przyspieszyć farmę!",
+		Text = "Efekt badania: obecnie → kolejny poziom",
 	}, headerBar)
 
 	self:_buildCloseButton(shopFrame, function()
@@ -1595,7 +1661,7 @@ function HUD:_buildResearchModal(root)
 	-- Research List container (ScrollingFrame)
 	local listContainer = createGuiElement("ScrollingFrame", {
 		Name = "ResearchListContainer",
-		Size = isRoblox and UDim2.new(1, -24, 0, 350) or nil,
+		Size = isRoblox and UDim2.new(1, -24, 1, -150) or nil,
 		Position = isRoblox and UDim2.new(0, 12, 0, 138) or nil,
 		BackgroundTransparency = 1,
 		ScrollBarThickness = isRoblox and 5 or nil,
@@ -3080,6 +3146,7 @@ function HUD:update()
     self.fusionMaterialUids=self.fusionMaterialUids or {}
     local farm=(self.stateStore.getPresentationFarm or self.stateStore.getFarm)(self.stateStore)
     local progress=farm and farm.progress
+	if self.goldenEggsLabel then self.goldenEggsLabel.Text="Złote jaja: "..(if progress then formatCompact(progress.GE) else "—") end
     if self.fusionProPermitBadge and progress then
         self.fusionProPermitBadge.Text=if progress.proBonusAvailable then "Pro +10 p.p.: aktywne" elseif progress.paidRandomPolicy=="unknown" then "Pro +10 p.p.: polityka nieznana" elseif not progress.proPermit then "Pro +10 p.p.: wymaga Pro" else "Pro +10 p.p.: niedostępne dla konta" end
     self._visiblePets=if progress then progress.pets else {}
@@ -3153,8 +3220,8 @@ function HUD:update()
 				-- Update Habitat card title & next upgrade label
 				local card = self.habitatCards[slotId]
 				if card then
-					local currentIdx = hab.habitatIndex or 0
-					local currentName = HABITAT_DISPLAY_NAMES[currentIdx] or ("Kurnik " .. tostring(currentIdx))
+					local currentIdx = hab.habitatIndex or -1
+					local currentName = HABITAT_DISPLAY_NAMES[currentIdx] or "Niezbudowany"
 					local titleLabel = card:FindFirstChild("TitleLabel")
 					if titleLabel then
 						titleLabel.Text = string.format("Parcela #%d: %s", slotId, currentName)
@@ -3164,6 +3231,11 @@ function HUD:update()
 					local nextLabel = card:FindFirstChild("NextUpgradeLabel")
 					if nextLabel then
 						nextLabel.Text = if nextIdx <= 18 then ("Następny: " .. nextName) else "Maksymalny Kurnik"
+					end
+					local button=self.habitatUpgBtns[slotId]
+					if button then
+						button.Text=if currentIdx>=18 then "MAX" elseif hab.upgradePrice then HUD.formatCash(hab.upgradePrice) else "…"
+						button.Active=currentIdx<18 and hab.nextHabitatId~=nil and hab.upgradePrice~=nil
 					end
 				end
 			end
@@ -3216,29 +3288,34 @@ function HUD:_updateVehiclesModal(farm)
 
 	-- Update vehicle slot cards
 	local vehiclesList = (farm.fleet and farm.fleet.vehicles) or {}
-	local currentFleetSlots = #vehiclesList
-	if currentFleetSlots == 0 then currentFleetSlots = 1 end
+	local slotLimit=math.max(4,(farm.fleet and farm.fleet.slotLimit) or 4)
+	if isRoblox and self.fleetSlotsScroll then self.fleetSlotsScroll.CanvasSize=UDim2.fromOffset(0,slotLimit*56) end
+	local bySlot,upgrades={},{}
+	for _,v in vehiclesList do bySlot[v.slotId]=v end
+	for _,v in (farm.fleet and farm.fleet.upgrades) or {} do upgrades[v.slotId]=v end
 
 	for slotId = 1, 17 do
 		local slotData = self.vehicleCards[slotId]
 		if slotData then
-			local vEntry = vehiclesList[slotId]
-			local vIdx = vEntry and vEntry.vehicleIndex or 0
-			local isUnlocked = (slotId <= math.max(currentFleetSlots, 1))
+			local vEntry = bySlot[slotId]
+			local vIdx = vEntry and vEntry.vehicleIndex
+			local isUnlocked = slotId<=slotLimit
+			local upgrade=upgrades[slotId]
 
 			slotData.card.Visible = (slotId <= 4 or isUnlocked)
 
 			if isUnlocked then
-				local vName = VEHICLE_DISPLAY_NAMES[vIdx] or ("Pojazd #" .. tostring(vIdx))
-				local vCap = VEHICLE_CAPACITIES[vIdx] or 5000
+				local vName = if vIdx~=nil then VEHICLE_DISPLAY_NAMES[vIdx] or ("Pojazd #" .. vIdx) else "Puste miejsce"
+				local vCap = if vIdx~=nil then VEHICLE_CAPACITIES[vIdx] or 0 else 0
 				slotData.titleLabel.Text = string.format("Slot #%d: %s", slotId, vName)
 				slotData.capLabel.Text = string.format("Wydajność: %s jaj/min", formatCompact(vCap))
-				slotData.upgBtn.Text = "ULEPSZ"
-				slotData.upgBtn.Active = true
+				slotData.upgBtn.Text = if upgrade then HUD.formatCash(upgrade.price) elseif vIdx==11 then "MAX" else "…"
+				slotData.priceLabel.Text = if upgrade then "Następny pojazd" elseif vIdx==11 then "" else "Dane z serwera"
+				slotData.upgBtn.Active = upgrade~=nil and upgrade.available
 				if isRoblox then slotData.upgBtn.BackgroundColor3 = Color3.fromRGB(95, 235, 45) end
 			else
 				slotData.titleLabel.Text = string.format("Slot #%d: Zablokowany", slotId)
-				slotData.capLabel.Text = "🔒 Wymaga badań floty"
+				slotData.capLabel.Text = "Dodatkowe miejsce floty"
 				slotData.priceLabel.Text = "-"
 				slotData.upgBtn.Text = "ZABLOK."
 				slotData.upgBtn.Active = false
@@ -3271,13 +3348,13 @@ function HUD:_updateResearchModal(farm)
 			self.researchTierLockBanner.Text = string.format("🔒 Tier %d zablokowany! Wymaga %d zakupionych badań (masz %d)", currentTier, requiredLevels, totalPurchasedLevels)
 			if isRoblox and self.shopListContainer then
 				self.shopListContainer.Position = UDim2.new(0, 12, 0, 138)
-				self.shopListContainer.Size = UDim2.new(1, -24, 0, 350)
+				self.shopListContainer.Size = UDim2.new(1, -24, 1, -150)
 			end
 		else
 			self.researchTierLockBanner.Visible = false
 			if isRoblox and self.shopListContainer then
 				self.shopListContainer.Position = UDim2.new(0, 12, 0, 110)
-				self.shopListContainer.Size = UDim2.new(1, -24, 0, 378)
+				self.shopListContainer.Size = UDim2.new(1, -24, 1, -122)
 			end
 		end
 	end
@@ -3296,7 +3373,7 @@ function HUD:_updateResearchModal(farm)
 			end
 		end
 		if isRoblox and self.shopListContainer then
-			self.shopListContainer.CanvasSize = UDim2.new(0, 0, 0, math.max(350, visibleIdx * 66 + 10))
+			self.shopListContainer.CanvasSize = UDim2.new(0, 0, 0, math.max(350, visibleIdx * 96 + 10))
 		end
 		if self.shopFrame and self.shopFrame.Visible then
 			self:requestQuotesForCurrentTier(false)
@@ -3327,6 +3404,7 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 	local iconEmoji = RESEARCH_ICONS[id] or "🔬"
 	local maxLvl = COMMON_RESEARCH_MAX_LEVELS[id] or 25
 	local curLvl = tonumber(research.level) or 0
+	cleanSubtitle=researchEffectText(research,cleanSubtitle)
 
 	if item == nil then
 		local orderIdx = displayOrder or 1
@@ -3334,8 +3412,8 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 		local card = createGuiElement("TextButton", {
 			Name = "ResearchCard_" .. id,
 			Visible = shouldBeVisible,
-			Size = isRoblox and UDim2.new(1, -6, 0, 60) or nil,
-			Position = isRoblox and UDim2.new(0, 0, 0, (orderIdx - 1) * 66) or nil,
+			Size = isRoblox and UDim2.new(1, -6, 0, 90) or nil,
+			Position = isRoblox and UDim2.new(0, 0, 0, (orderIdx - 1) * 96) or nil,
 			BackgroundColor3 = isRoblox and Color3.fromRGB(78, 52, 46) or nil,
 			Text = "",
 			AutoButtonColor = false,
@@ -3377,11 +3455,14 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 
 		local subtitleLabel = createGuiElement("TextLabel", {
 			Name = "Subtitle",
-			Size = isRoblox and UDim2.new(1, -205, 0, 13) or nil,
+			Size = isRoblox and UDim2.new(1, -205, 0, 40) or nil,
 			Position = isRoblox and UDim2.new(0, 58, 0, 24) or nil,
 			BackgroundTransparency = 1,
 			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
+			TextScaled = false,
+			TextSize = 12,
+			TextWrapped = true,
+			TextYAlignment = isRoblox and Enum.TextYAlignment.Top or nil,
 			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
 			TextColor3 = isRoblox and Color3.fromRGB(214, 190, 178) or nil,
 			Text = cleanSubtitle,
@@ -3390,7 +3471,7 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 		local levelLabel = createGuiElement("TextLabel", {
 			Name = "Level",
 			Size = isRoblox and UDim2.new(0, 95, 0, 13) or nil,
-			Position = isRoblox and UDim2.new(0, 58, 0, 40) or nil,
+			Position = isRoblox and UDim2.new(0, 58, 0, 70) or nil,
 			BackgroundTransparency = 1,
 			Font = isRoblox and Enum.Font.FredokaOne or nil,
 			TextScaled = true,
@@ -3404,7 +3485,7 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 		local progressTrack = createGuiElement("Frame", {
 			Name = "ProgressTrack",
 			Size = isRoblox and UDim2.new(1, -300, 0, 7) or nil,
-			Position = isRoblox and UDim2.new(0, 156, 0, 44) or nil,
+			Position = isRoblox and UDim2.new(0, 156, 0, 74) or nil,
 			BackgroundColor3 = isRoblox and Color3.fromRGB(43, 24, 16) or nil,
 		}, card)
 		addCornerAndStroke(progressTrack, 3, nil, 0)
@@ -3492,11 +3573,12 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 	if isTabVisible ~= nil then
 		item.card.Visible = isTabVisible
 		if isTabVisible and displayOrder then
-			item.card.Position = isRoblox and UDim2.new(0, 0, 0, (displayOrder - 1) * 66) or nil
+			item.card.Position = isRoblox and UDim2.new(0, 0, 0, (displayOrder - 1) * 96) or nil
 		end
 	end
 
 	item.level = curLvl
+	item.subtitleLabel.Text=cleanSubtitle
 	item.levelLabel.Text = string.format("★ POZ. %d/%d", curLvl, maxLvl)
 	if item.progressFill and isRoblox then
 		item.progressFill.Size = UDim2.new(math.clamp(curLvl / math.max(1, maxLvl), 0, 1), 0, 1, 0)
