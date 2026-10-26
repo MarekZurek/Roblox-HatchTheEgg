@@ -34,3 +34,7 @@ Kontrolowane ramki w Studio nie zastępują urządzenia fizycznego ani pełnego 
 ## Następne zadania zlecone przez użytkownika
 
 Po wdrożeniu panelu utworzono plany [#81 — sprawdzenie RCB i rzeczywistego dochodu](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/81) i [#82 — okna na StudUI Lite oraz ikony gvesster](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/82). To nie uruchamia ich realizacji. Plan82 uwzględnia brak gotowego darmowego Daily/mobile-fit oraz konieczność sprawdzenia archiwalnych licencji przed importem. Zaktualizowano hte-design-visuals: kierunek Roblox/stud, wspólne komponenty, docelowe źródła, bez nowych grafik AI bez zlecenia. quick_validate.py PASS (PyYAML wyłącznie tymczasowo w build; brak nowej zależności projektu).
+
+## Późniejsza publikacja Git — 26.10.2026
+
+Na kolejne wyraźne zlecenie użytkownika wykonano commit `98a29e18125a57fd01d512b478716fe4e232e611` i push na origin/main; zdalny SHA potwierdzony, drzewo po publikacji czyste. Commit obejmuje panel, testy, dokumentację i skill designu. Powyższe wpisy o stanie lokalnym opisują etap przed tą publikacją. Następnie użytkownik zlecił realizację #81–82, implementację Cline i QA AGY. Nie publikowano Roblox.

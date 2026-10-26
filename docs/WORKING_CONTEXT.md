@@ -2,9 +2,11 @@
 
 Cel: farma HatchTheEgg z petami w Roblox, zgodna z opisaną specyfikacją. Poniższy skrót przekazania jest aktualnym punktem startowym; starsze opisy etapów i listy otwartych zgłoszeń dalej w pliku są historyczne.
 
-## Najnowsza dostawa lokalna — górny panel
+## Najnowsza dostawa Git i bieżące zadania — 26.10.2026
 
-[Panel tempa](workflow/top_rates_panel_2026_10_26.md): Produkcja, Sprzedaż, Limit transportu w jaj/s; Cline implementacja, root integracja safe area, celowane QA AGY. Root938 asercji+8 kontroli integracji PASS, Rojo39+2, ograniczone native320×640/640×360/1200×700 PASS. Studio końcowo Edit, lokalna pamięć, tylko HUD zgodny ze źródłem; brak nowego commitu/pusha/publikacji i pełnego odbioru. Baza Git efa6df8; drzewo ma zmiany tej dostawy. Utworzono plany GH[#81](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/81) audytu rzeczywistego dochodu RCB i[#82](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/82) okien na StudUI Lite/gvesster. Nie rozpoczęto tych dwóch implementacji. Skill hte-design-visuals ma nowy kierunek Roblox i preferowane źródła; bez nowych grafik AI bez zlecenia.
+[Panel tempa](workflow/top_rates_panel_2026_10_26.md) oraz testy, dokumentacja i kierunek skilla designu są opublikowane w `98a29e18125a57fd01d512b478716fe4e232e611` na origin/main; zdalny SHA potwierdzony, drzewo po pushu czyste. Wcześniejszy raport zachowuje etap lokalny i jego dowody938+8/Rojo39+2/ograniczone Studio. Roblox niepublikowany.
+
+Użytkownik następnie zlecił realizację [#81](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/81) (rzeczywisty dochód RCB) oraz [#82](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/82) (okna StudUI Lite/gvesster), implementacja Cline i QA AGY. [#81: wynik i ograniczenia](workflow/rcb_income_81_2026_10_26.md): 212 asercji testu + native serwer i QA AGY (`aa52b0d4`) scoped PASS, bez potwierdzonego błędu naliczania. [#82: StudUI Lite i wgrane ikony](workflow/asset_ui_82_2026_10_26.md): wgrano 14 zatwierdzonych PNG na konto `theZuraz` (`11647593962`) przez MCP w Studio, powiązano 15 kluczy w `UiAssets.luau` (4 opcjonalne `id=""`), naprawiono zapis atrybutów na natywnych instancjach Roblox w `StudUi.luau`, zsynchronizowano 43 skrypty i zweryfikowano wszystkie 8 okien w Studio (`320x640`, `640x360`, `1200x700`, `Edit`, `UseLocalMemoryStore=true`). Pełny runner: **49 zestawów / 82 727 asercji Luau PASS** (w tym `ui_assets` 240 i `rcb_income` 212), **11 testów Python PASS**, statyczny build Rojo **41 modułów + 2 entrypointy PASS_STATIC_BUILD**, QA AGY (`8029d5b2`) scoped PASS. Bez zmian bilansu 17–21, danych referencyjnych i publikacji Roblox.
 
 ## Przekazanie do nowego chatu — 26.10.2026
 

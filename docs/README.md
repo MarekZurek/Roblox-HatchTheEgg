@@ -1,8 +1,8 @@
 # HatchTheEgg — dokumentacja
 
-Stan: 26.10.2026. Kod farmy i UI ma lokalne testy Lune/Rojo oraz ograniczone próby Studio opisane w [WORKING_CONTEXT](WORKING_CONTEXT.md). Bieżący zakres: [UI #77–80](workflow/ui_tasks_77_80_2026_10_26.md) i wcześniejsza [płyta 30/s](workflow/plate_hatching_2026_10_26.md), sprawdzone lokalnie; zakres QA i ograniczenia w raportach. To nie odbiór chmury ani całego wydania. Bilans 17–21 pozostaje odłożony.
+Stan:26.10.2026. Zrealizowano i zweryfikowano [#81 — dochód RCB](workflow/rcb_income_81_2026_10_26.md) oraz [#82 — okna StudUI Lite i ikony gvesster](workflow/asset_ui_82_2026_10_26.md) (49 zestawów / 82 727 asercji Luau PASS, 11 Python PASS, Rojo 41+2 PASS_STATIC_BUILD, weryfikacja w Studio i celowane QA AGY PASS); szczegóły i ograniczenia w [WORKING_CONTEXT](WORKING_CONTEXT.md). Lokalny test nie oznacza odbioru chmury ani wydania. Bilans 17–21 pozostaje odłożony.
 
-Kod płyty i UI opublikowano w [6006f2b](https://github.com/MarekZurek/Roblox-HatchTheEgg/commit/6006f2b613f8000ae28fa6fc007010572efb34e2); #75–80 zamknięto jako completed. Nie publikowano Roblox.
+Kod wcześniejszej płyty/UI opublikowano w6006f2b; #75–80 zamknięto. Nie publikowano Roblox.
 
 ## Punkty startowe
 

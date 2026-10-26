@@ -3,8 +3,8 @@
 ## Bieżące zadanie
 
 - [x] [Górny panel tempa](workflow/top_rates_panel_2026_10_26.md): trzy opisane wartości w jaj/s, skalowanie i safe area; lokalne testy i ograniczone Studio PASS, Cline/AGY; bez nowego commitu/pusha.
-- [ ] [#81](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/81): sprawdzić rzeczywisty wpływ aktywnego RCB na gotówkę (plan, bez potwierdzonego błędu).
-- [ ] [#82](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/82): wdrożyć spójne okna Shop/Daily/uzgodnione pozostałe na StudUI Lite i ikonach gvesster; najpierw licencje i prototyp.
+- [x] [#81](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/81): sprawdzono rzeczywisty wpływ aktywnego RCB na gotówkę ([raport](workflow/rcb_income_81_2026_10_26.md), 212 asercji PASS + native Studio + QA AGY PASS; brak błędu runtime).
+- [x] [#82](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/82): wdrożono spójne 8 okien na StudUI Lite i 14 wgranych ikonach gvesster ([raport](workflow/asset_ui_82_2026_10_26.md), 240 asercji PASS + native Studio 320×640/640×360/1200×700 + QA AGY PASS).
 
 - [x] [UI #77–80](workflow/ui_tasks_77_80_2026_10_26.md): feedback braku miejsca/zapasu, nazwy Tier kurników i pojazdów, usunięcie płytek pojazdów; implementacja Cline, celowane QA AGY PASS, root runner i ograniczony smoke Studio PASS; kod opublikowano w 6006f2b, #77–80 zamknięte.
 

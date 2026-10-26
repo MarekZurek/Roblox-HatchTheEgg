@@ -21,6 +21,29 @@
 local HUD = {}
 HUD.__index = HUD
 
+-- Shared stud-style window family (#82). Same dual Studio/Lune resolution as the client
+-- Bootstrap, so the module is required from the instance tree in Roblox and by path in Lune.
+local isStudioRuntime = (typeof(script) == "Instance")
+local function resolveModule(studioGetter, lunePath)
+	if isStudioRuntime then
+		local ok, mod = pcall(studioGetter)
+		if ok and mod then
+			return if typeof(mod) == "Instance" then require(mod) else mod
+		end
+	end
+	return require(lunePath)
+end
+
+local StudUi = resolveModule(function()
+	return script.Parent.ui.StudUi
+end, "./ui/StudUi")
+
+-- One integration surface for uploaded image ids (root owns the ids; see src/client/ui/UiAssets).
+local UiAssets = resolveModule(function()
+	return script.Parent.ui.UiAssets
+end, "./ui/UiAssets")
+
+
 -- ============================================================================
 -- Presentation-Only Numeric Formatting
 -- ============================================================================
@@ -596,6 +619,7 @@ local UDim = if isRoblox and typeof(UDim) == "table" then UDim else {
 local Enum = if isRoblox then Enum else {
 	Font = { FredokaOne = "FredokaOne" },
 	TextXAlignment = { Left = "Left", Right = "Right", Center = "Center" },
+	TextYAlignment = { Top = "Top", Center = "Center", Bottom = "Bottom" },
 	ZIndexBehavior = { Sibling = "Sibling" },
 	ApplyStrokeMode = { Border = "Border" },
 }
@@ -744,6 +768,70 @@ local function addTextStroke(label, thickness, color)
 	stroke.Color = color or Color3.fromRGB(18, 10, 6)
 	stroke.Thickness = thickness or 2.5
 	stroke.Parent = label
+end
+
+-- One decoration pass per instance, at build time only (#82). The shared stud-style family uses
+-- corners, thick borders, a vertical gradient for depth, an optional restrained tiled stud
+-- overlay and optional pressed feedback. Roblox-only: the Lune mock keeps exactly the element set
+-- the existing UI suites assert (no extra children, no per-update styling).
+local function decorateGuiElement(inst, spec)
+	if not isRoblox or typeof(inst) ~= "Instance" or type(spec) ~= "table" then return end
+
+	local radius = spec.radius
+	if radius ~= nil or spec.stroke ~= nil then
+		local strokeColor = spec.stroke and Color3.fromRGB(spec.stroke[1], spec.stroke[2], spec.stroke[3]) or nil
+		addCornerAndStroke(inst, radius or 8, strokeColor, spec.thickness)
+	end
+
+	if type(spec.gradient) == "table" and spec.gradient.top and spec.gradient.bottom then
+		local top = spec.gradient.top
+		local bottom = spec.gradient.bottom
+		local gradient = Instance.new("UIGradient")
+		gradient.Name = "Depth"
+		gradient.Rotation = 90
+		gradient.Color = ColorSequence.new(
+			Color3.fromRGB(top[1], top[2], top[3]),
+			Color3.fromRGB(bottom[1], bottom[2], bottom[3]))
+		gradient.Parent = inst
+	end
+
+	if type(spec.studId) == "string" and spec.studId ~= "" then
+		local tile = StudUi.TOKENS.stud.tile
+		local stud = Instance.new("ImageLabel")
+		stud.Name = "StudTexture"
+		stud.Size = UDim2.new(1, 0, 1, 0)
+		stud.BackgroundTransparency = 1
+		stud.Image = spec.studId
+		stud.ImageTransparency = spec.studTransparency or StudUi.TOKENS.stud.transparency
+		stud.ScaleType = Enum.ScaleType.Tile
+		stud.TileSize = UDim2.new(0, tile, 0, tile)
+		stud.ZIndex = inst.ZIndex
+		stud.Parent = inst
+	end
+
+	if type(spec.textStroke) == "number" and spec.textStroke > 0 then
+		addTextStroke(inst, spec.textStroke)
+	end
+
+	if type(spec.maxTextSize) == "number" and spec.maxTextSize > 0 then
+		local cap = Instance.new("UITextSizeConstraint")
+		cap.Name = "ReadableTextCap"
+		cap.MaxTextSize = spec.maxTextSize
+		cap.Parent = inst
+	end
+
+	if spec.pressScale == true and inst.MouseButton1Down ~= nil and inst.MouseButton1Up ~= nil then
+		local press = Instance.new("UIScale")
+		press.Name = "PressScale"
+		press.Scale = 1
+		press.Parent = inst
+		inst.MouseButton1Down:Connect(function()
+			press.Scale = 0.96
+		end)
+		inst.MouseButton1Up:Connect(function()
+			press.Scale = 1
+		end)
+	end
 end
 
 local function promptMarketplacePurchase(productId, onPurchaseProductCallback)
@@ -907,6 +995,21 @@ function HUD.new(deps)
 
 		_unsubs = {},
 	}, HUD)
+
+	-- Shared stud-style window family (#82). Created once; every migrated window reuses it so the
+	-- frame/border/header/button/tab look is identical and decoration happens once per instance.
+	self.ui = StudUi.new({
+		create = createGuiElement,
+		decorate = decorateGuiElement,
+		isRoblox = isRoblox,
+		Color3 = Color3,
+		UDim2 = UDim2,
+		UDim = UDim,
+		Vector2 = if isRoblox then Vector2 else nil,
+		Enum = Enum,
+		assets = if UiAssets and type(UiAssets.images) == "table" then UiAssets.images else {},
+		manifestVersion = if UiAssets then UiAssets.manifestVersion else 0,
+	})
 
 	self:_buildInterface()
 	self:_setupSubscriptions()
@@ -1392,13 +1495,15 @@ function HUD:_buildInterface()
 		BackgroundTransparency = 1,
 	}, root)
 
+	-- Emoji removed from the dock menu as agreed (#82): the label text alone stays meaningful and
+	-- the genuine gvesster/StudUI icons (UiAssets) are the only imagery the migrated windows draw.
 	local dockButtonsSpec = {
-		{ name = "ResearchMenuButton", text = "🔬\nBadania", bg = Color3.fromRGB(32, 68, 140), action = function() self:toggleResearchModal() end },
-		{ name = "HabitatsMenuButton", text = "🏠\nKurniki", bg = Color3.fromRGB(160, 80, 40), action = function() self:toggleHabitatsModal() end },
-		{ name = "VehiclesMenuButton", text = "🚚\nFlota", bg = Color3.fromRGB(45, 175, 75), action = function() self:toggleVehiclesModal() end },
-		{ name = "PetsMenuButton", text = "🐾\nPety", bg = Color3.fromRGB(150, 60, 190), action = function() self:togglePetsModal() end },
-		{ name = "ShopMenuButton", text = "💎\nSklep", bg = Color3.fromRGB(225, 155, 30), action = function() self:toggleShopModal() end },
-		{ name = "CalendarMenuButton", text = "📅\nNagrody", bg = Color3.fromRGB(225, 75, 95), action = function() self:toggleCalendarModal() end },
+		{ name = "ResearchMenuButton", text = "Badania", bg = Color3.fromRGB(32, 68, 140), action = function() self:toggleResearchModal() end },
+		{ name = "HabitatsMenuButton", text = "Kurniki", bg = Color3.fromRGB(160, 80, 40), action = function() self:toggleHabitatsModal() end },
+		{ name = "VehiclesMenuButton", text = "Flota", bg = Color3.fromRGB(45, 175, 75), action = function() self:toggleVehiclesModal() end },
+		{ name = "PetsMenuButton", text = "Pety", bg = Color3.fromRGB(150, 60, 190), action = function() self:togglePetsModal() end },
+		{ name = "ShopMenuButton", text = "Sklep", bg = Color3.fromRGB(225, 155, 30), action = function() self:toggleShopModal() end },
+		{ name = "CalendarMenuButton", text = "Nagrody", bg = Color3.fromRGB(225, 75, 95), action = function() self:toggleCalendarModal() end },
 	}
 
 	for i, dSpec in ipairs(dockButtonsSpec) do
@@ -1472,38 +1577,18 @@ function HUD:_buildInterface()
 	self:_buildHatchAnimationOverlay(root)
 end
 
+-- Legacy contract kept for the existing UI suites: the desktop budget for a window is ~70% of the
+-- viewport (94% on a phone). The shared family now resolves the actual on-screen size through
+-- StudUi.windowFit, which never globally shrinks the text and instead reflows the content.
 function HUD.modalLayout(width,height,designWidth)
-	local w=math.min(1600,width*(if width<700 then .94 else .7))
-	local h=math.min(1100,height*(if height<500 then .9 else .7))
-	return w,h,math.min(1,w/math.max(540,designWidth or 540))
+	return StudUi.modalSize(width,height,designWidth)
 end
 
-local function applyModalMobileConstraints(modalFrame)
-	if not isRoblox or not modalFrame then return end
-	-- These three panels have scrollable content and can grow independently.
-	-- Keep the other existing dialogs at their current design sizes.
-	if modalFrame.Name~="ShopFrame" and modalFrame.Name~="HabitatsFrame" and modalFrame.Name~="VehiclesFrame" then
-		local constraint=Instance.new("UISizeConstraint")
-		constraint.Name="MobileSizeConstraint";constraint.MaxSize=Vector2.new(640,560)
-		constraint.MinSize=Vector2.new(280,240);constraint.Parent=modalFrame
-		return
-	end
-	local parent=modalFrame.Parent
-	local designWidth=modalFrame.Size.X.Offset
-	local scale=Instance.new("UIScale")
-	scale.Name="ResponsiveScale";scale.Parent=modalFrame
-	modalFrame.AnchorPoint=Vector2.new(.5,.5)
-	modalFrame.Position=UDim2.fromScale(.5,.5)
-	local function resize()
-		local size=parent.AbsoluteSize
-		if size.X<=0 or size.Y<=0 then return end
-		local w,h,s=HUD.modalLayout(size.X,size.Y,designWidth)
-		scale.Scale=s
-		modalFrame.Size=UDim2.fromOffset(w/s,h/s)
-	end
-	local connection=parent:GetPropertyChangedSignal("AbsoluteSize"):Connect(resize)
-	modalFrame.Destroying:Connect(function()connection:Disconnect()end)
-	resize()
+-- Applies the shared window fit and an optional reflow hook. One AbsoluteSize connection per
+-- window, disconnected when the frame is destroyed; no per-frame work, no decoration rebuild.
+function HUD:_fitWindow(frame, designWidth, designHeight, onLayout)
+	if frame == nil or self.ui == nil then return end
+	self.ui:applyWindowResponsive(frame, self.guiRoot, designWidth, designHeight, onLayout)
 end
 -- Pure responsive geometry for the hatch status strip (#77), kept separate from the live layout so it
 -- can be checked without a viewport. Narrow (mobile) roots anchor the strip left and reserve the 84px
@@ -1638,103 +1723,61 @@ function HUD:_buildCloseButton(parent, onClose)
 end
 
 function HUD:_buildHabitatsModal(root)
-	local habitatsFrame = createGuiElement("Frame", {
-		Name = "HabitatsFrame",
-		Visible = false,
-		Size = isRoblox and UDim2.new(0, 460, 0, 380) or nil,
-		Position = isRoblox and UDim2.new(0.5, -230, 0.5, -190) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(78, 42, 24) or nil,
-	}, root)
-	addCornerAndStroke(habitatsFrame, 14, isRoblox and Color3.fromRGB(255, 205, 95) or nil, 3.2)
-	applyModalMobileConstraints(habitatsFrame)
+	-- Shared stud-style window (#82): thick border, coloured header, 44px close button.
+	local win = self.ui:window({
+		parent = root, name = "HabitatsFrame", family = "habitats",
+		title = "TWOJE KURNIKI (PARCELE 1-4)",
+		designWidth = 460, designHeight = 430,
+	})
+	local habitatsFrame = win.frame
 	self.habitatsModal = habitatsFrame
-
-	createGuiElement("TextLabel", {
-		Name = "ModalHeader",
-		Size = isRoblox and UDim2.new(1, -50, 0, 36) or nil,
-		Position = isRoblox and UDim2.new(0, 12, 0, 8) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 235, 115) or nil,
-		Text = "🏠 TWOJE KURNIKI (PARCELE 1-4)",
-	}, habitatsFrame)
-
-	self:_buildCloseButton(habitatsFrame, function()
-		self.habitatsModal.Visible = false
+	self:_fitWindow(habitatsFrame, win.designWidth, win.designHeight)
+	self.ui:closeButton(habitatsFrame, function()
+		habitatsFrame.Visible = false
 	end)
-	local habitatsScroll=createGuiElement("ScrollingFrame",{
-		Name="HabitatSlotsContainer",Size=if isRoblox then UDim2.new(1,-24,1,-60) else nil,
-		Position=if isRoblox then UDim2.fromOffset(12,48) else nil,BackgroundTransparency=1,
-		CanvasSize=if isRoblox then UDim2.fromOffset(0,320) else nil,ScrollBarThickness=6,
-	},habitatsFrame)
+
+	-- Long list scrolls instead of shrinking the text; the canvas is the exact content height.
+	local habitatsScroll = self.ui:scroll(habitatsFrame, {
+		name = "HabitatSlotsContainer",
+		size = { 1, -24, 1, -84 }, position = { 0, 12, 0, 72 },
+		canvasHeight = 4 * 80 + 4, scrollBarColor = { 255, 205, 95 },
+	})
 
 	for slotId = 1, 4 do
-		local card = createGuiElement("Frame", {
-			Name = "HabitatCard_" .. tostring(slotId),
-			Size = isRoblox and UDim2.new(1, -6, 0, 72) or nil,
-			Position = isRoblox and UDim2.new(0, 0, 0, (slotId - 1) * 80) or nil,
-			BackgroundColor3 = isRoblox and Color3.fromRGB(112, 64, 36) or nil,
-		}, habitatsScroll)
-		addCornerAndStroke(card, 8, isRoblox and Color3.fromRGB(42, 22, 12) or nil, 2)
+		local card = self.ui:card(habitatsScroll, {
+			name = "HabitatCard_" .. tostring(slotId), family = "habitats",
+			fill = { 112, 64, 36 }, top = { 150, 90, 50 }, border = { 42, 22, 12 },
+			size = { 1, -6, 0, 72 }, position = { 0, 0, 0, (slotId - 1) * 80 },
+		})
 
-		local titleLabel = createGuiElement("TextLabel", {
-			Name = "TitleLabel",
-			Size = isRoblox and UDim2.new(0.68, 0, 0, 24) or nil,
-			Position = isRoblox and UDim2.new(0.03, 0, 0, 6) or nil,
-			BackgroundTransparency = 1,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 245, 160) or nil,
-			Text = "Parcela #" .. tostring(slotId) .. ": Tier 1",
-		}, card)
-		addTextStroke(titleLabel, 1.8)
+		local titleLabel = self.ui:label(card, {
+			name = "TitleLabel", size = { 0.68, 0, 0, 24 }, position = { 0.03, 0, 0, 6 },
+			text = "Parcela #" .. tostring(slotId) .. ": Tier 1",
+			color = { 255, 245, 160 }, align = "Left", textStroke = 1.8, maxTextSize = 20,
+		})
 
-		local popLabel = createGuiElement("TextLabel", {
-			Name = "PopulationLabel",
-			Size = isRoblox and UDim2.new(0.68, 0, 0, 20) or nil,
-			Position = isRoblox and UDim2.new(0.03, 0, 0, 30) or nil,
-			BackgroundTransparency = 1,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-			Text = "0 / 250",
-		}, card)
-		addTextStroke(popLabel, 1.8)
+		local popLabel = self.ui:label(card, {
+			name = "PopulationLabel", size = { 0.68, 0, 0, 20 }, position = { 0.03, 0, 0, 30 },
+			text = "0 / 250", color = { 255, 255, 255 }, align = "Left",
+			textStroke = 1.8, maxTextSize = 18,
+		})
 
-		local nextLabel = createGuiElement("TextLabel", {
-			Name = "NextUpgradeLabel",
-			Size = isRoblox and UDim2.new(0.68, 0, 0, 18) or nil,
-			Position = isRoblox and UDim2.new(0.03, 0, 0, 50) or nil,
-			BackgroundTransparency = 1,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-			TextColor3 = isRoblox and Color3.fromRGB(160, 240, 140) or nil,
-			Text = "Następny: Tier 2",
-		}, card)
-		addTextStroke(nextLabel, 1.5)
+		local nextLabel = self.ui:label(card, {
+			name = "NextUpgradeLabel", size = { 0.68, 0, 0, 18 }, position = { 0.03, 0, 0, 50 },
+			text = "Następny: Tier 2", color = { 160, 240, 140 }, align = "Left",
+			textStroke = 1.5, maxTextSize = 16,
+		})
 
-		local upgBtn = createGuiElement("TextButton", {
-			Name = "UpgradeHabitatBtn",
-			Size = isRoblox and UDim2.new(0.26, 0, 0.72, 0) or nil,
-			Position = isRoblox and UDim2.new(0.71, 0, 0.14, 0) or nil,
-			BackgroundColor3 = isRoblox and Color3.fromRGB(95, 235, 45) or nil,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-			Text = "ULEPSZ",
-		}, card)
-		addCornerAndStroke(upgBtn, 6, isRoblox and Color3.fromRGB(22, 48, 12) or nil, 2)
-		if upgBtn.Activated then
-			upgBtn.Activated:Connect(function()
+		-- Tactile action button: >= 44px touch target with pressed/disabled states.
+		local upgBtn = self.ui:button(card, {
+			name = "UpgradeHabitatBtn", text = "ULEPSZ", tone = "primary",
+			size = { 0.26, 0, 0, 44 }, position = { 0.71, 0, 0, 14 },
+			onClick = function()
 				if type(self.onQuickBuyHabitat) == "function" then
 					self.onQuickBuyHabitat(slotId)
 				end
-			end)
-		end
+			end,
+		})
 
 		self.habitatCards[slotId] = card
 		self.habitatLabels[slotId] = popLabel
@@ -1743,143 +1786,84 @@ function HUD:_buildHabitatsModal(root)
 end
 
 function HUD:_buildVehiclesModal(root)
-	local vFrame = createGuiElement("Frame", {
-		Name = "VehiclesFrame",
-		Visible = false,
-		Size = isRoblox and UDim2.new(0, 500, 0, 460) or nil,
-		Position = isRoblox and UDim2.new(0.5, -250, 0.5, -230) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(48, 62, 38) or nil,
-	}, root)
-	addCornerAndStroke(vFrame, 14, isRoblox and Color3.fromRGB(115, 245, 125) or nil, 3.2)
-	applyModalMobileConstraints(vFrame)
+	-- Shared stud-style window (#82): same family, header and close button as every other window.
+	local win = self.ui:window({
+		parent = root, name = "VehiclesFrame", family = "fleet",
+		title = "FLOTA TRANSPORTOWA (DO 17 POJAZDÓW)",
+		designWidth = 500, designHeight = 520,
+	})
+	local vFrame = win.frame
 	self.vehiclesModal = vFrame
-
-	createGuiElement("TextLabel", {
-		Name = "VehiclesHeader",
-		Size = isRoblox and UDim2.new(1, -50, 0, 36) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 0, 8) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(180, 255, 150) or nil,
-		Text = "🚚 FLOTA TRANSPORTOWA (DO 17 POJAZDÓW)",
-	}, vFrame)
-
-	self:_buildCloseButton(vFrame, function()
-		self.vehiclesModal.Visible = false
+	self:_fitWindow(vFrame, win.designWidth, win.designHeight)
+	self.ui:closeButton(vFrame, function()
+		vFrame.Visible = false
 	end)
 
 	-- Comparison gauge
-	local gaugeFrame = createGuiElement("Frame", {
-		Name = "ComparisonGaugeFrame",
-		Size = isRoblox and UDim2.new(1, -28, 0, 58) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 0, 46) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(32, 44, 26) or nil,
-	}, vFrame)
-	addCornerAndStroke(gaugeFrame, 8, isRoblox and Color3.fromRGB(20, 28, 16) or nil, 2)
+	local gaugeFrame = self.ui:card(vFrame, {
+		name = "ComparisonGaugeFrame", family = "fleet",
+		fill = { 32, 44, 26 }, top = { 54, 74, 44 }, border = { 20, 28, 16 },
+		size = { 1, -28, 0, 58 }, position = { 0, 14, 0, 70 },
+	})
 	self.shippingComparisonBar = gaugeFrame
 
-	self.shippingComparisonStatusLabel = createGuiElement("TextLabel", {
-		Name = "ComparisonStatusLabel",
-		Size = isRoblox and UDim2.new(1, -12, 0, 24) or nil,
-		Position = isRoblox and UDim2.new(0, 6, 0, 4) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-		Text = "Spedycja: 0/min vs Produkcja: 0/min",
-	}, gaugeFrame)
-	addTextStroke(self.shippingComparisonStatusLabel, 1.8)
+	self.shippingComparisonStatusLabel = self.ui:label(gaugeFrame, {
+		name = "ComparisonStatusLabel", size = { 1, -12, 0, 24 }, position = { 0, 6, 0, 4 },
+		text = "Spedycja: 0/min vs Produkcja: 0/min", color = { 255, 255, 255 },
+		align = "Left", textStroke = 1.8, maxTextSize = 20,
+	})
 
-	local statusBadge = createGuiElement("TextLabel", {
-		Name = "StatusBadge",
-		Size = isRoblox and UDim2.new(1, -12, 0, 22) or nil,
-		Position = isRoblox and UDim2.new(0, 6, 0, 30) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(50, 180, 70) or nil,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-		Text = "Spedycja wystarczająca",
-	}, gaugeFrame)
-	addCornerAndStroke(statusBadge, 4, isRoblox and Color3.fromRGB(15, 60, 25) or nil, 1.5)
+	-- Status pill: keeps the TextLabel contract the comparison getter reads.
+	local statusBadge = self.ui:pill(gaugeFrame, {
+		name = "StatusBadge", size = { 1, -12, 0, 22 }, position = { 0, 6, 0, 30 },
+		text = "Spedycja wystarczająca", tone = "primary", align = "Left",
+		maxTextSize = 18, radius = 6,
+	})
 
-	-- Fleet Slots Container (displays slots 1..17)
-	local slotsScroll = createGuiElement("ScrollingFrame", {
-		Name = "FleetSlotsContainer",
-		Size = isRoblox and UDim2.new(1, -28, 1, -122) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 0, 110) or nil,
-		BackgroundTransparency = 1,
-		CanvasSize=if isRoblox then UDim2.fromOffset(0,4*56) else nil,
-		ScrollBarThickness=6,
-	}, vFrame)
+	-- Fleet Slots Container (displays slots 1..17). The list scrolls; the canvas is grown by the
+	-- update pass from the authoritative slot limit instead of a fixed 4-row canvas.
+	local slotsScroll = self.ui:scroll(vFrame, {
+		name = "FleetSlotsContainer",
+		size = { 1, -28, 1, -146 }, position = { 0, 14, 0, 134 },
+		canvasHeight = 4 * 56, scrollBarColor = { 115, 245, 125 },
+	})
 	self.fleetSlotsScroll=slotsScroll
 
 	for slotId = 1, 17 do
-		local card = createGuiElement("Frame", {
-			Name = "VehicleSlotCard_" .. tostring(slotId),
-			Visible = (slotId <= 4), -- default first 4 visible, updated dynamically
-			Size = isRoblox and UDim2.new(1, 0, 0, 48) or nil,
-			Position = isRoblox and UDim2.new(0, 0, 0, (slotId - 1) * 52) or nil,
-			BackgroundColor3 = isRoblox and Color3.fromRGB(65, 85, 52) or nil,
-		}, slotsScroll)
-		addCornerAndStroke(card, 6, isRoblox and Color3.fromRGB(28, 38, 22) or nil, 1.8)
+		local card = self.ui:card(slotsScroll, {
+			name = "VehicleSlotCard_" .. tostring(slotId), family = "fleet",
+			fill = { 65, 85, 52 }, top = { 96, 122, 76 }, border = { 28, 38, 22 },
+			visible = (slotId <= 4), -- default first 4 visible, updated dynamically
+			size = { 1, 0, 0, 48 }, position = { 0, 0, 0, (slotId - 1) * 52 },
+		})
 
-		local titleLabel = createGuiElement("TextLabel", {
-			Name = "Title",
-			Size = isRoblox and UDim2.new(0.48, 0, 0.5, 0) or nil,
-			Position = isRoblox and UDim2.new(0.02, 0, 0.05, 0) or nil,
-			BackgroundTransparency = 1,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-			Text = "Slot #" .. tostring(slotId) .. ": Tier 1",
-		}, card)
-		addTextStroke(titleLabel, 1.6)
+		local titleLabel = self.ui:label(card, {
+			name = "Title", size = { 0.48, 0, 0.5, 0 }, position = { 0.02, 0, 0.05, 0 },
+			text = "Slot #" .. tostring(slotId) .. ": Tier 1", color = { 255, 255, 255 },
+			align = "Left", textStroke = 1.6, maxTextSize = 17,
+		})
 
-		local capLabel = createGuiElement("TextLabel", {
-			Name = "Capacity",
-			Size = isRoblox and UDim2.new(0.48, 0, 0.45, 0) or nil,
-			Position = isRoblox and UDim2.new(0.02, 0, 0.5, 0) or nil,
-			BackgroundTransparency = 1,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-			TextColor3 = isRoblox and Color3.fromRGB(165, 255, 140) or nil,
-			Text = "Wydajność: 5K jaj/min",
-		}, card)
-		addTextStroke(capLabel, 1.5)
+		local capLabel = self.ui:label(card, {
+			name = "Capacity", size = { 0.48, 0, 0.45, 0 }, position = { 0.02, 0, 0.5, 0 },
+			text = "Wydajność: 5K jaj/min", color = { 165, 255, 140 },
+			align = "Left", textStroke = 1.5, maxTextSize = 15,
+		})
 
-		local priceLabel = createGuiElement("TextLabel", {
-			Name = "Price",
-			Size = isRoblox and UDim2.new(0.24, 0, 0.9, 0) or nil,
-			Position = isRoblox and UDim2.new(0.51, 0, 0.05, 0) or nil,
-			BackgroundTransparency = 1,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 235, 95) or nil,
-			Text = "$544.5",
-		}, card)
-		addTextStroke(priceLabel, 1.6)
+		local priceLabel = self.ui:label(card, {
+			name = "Price", size = { 0.24, 0, 0.9, 0 }, position = { 0.51, 0, 0.05, 0 },
+			text = "$544.5", color = { 255, 235, 95 },
+			align = "Center", textStroke = 1.6, maxTextSize = 17,
+		})
 
-		local upgBtn = createGuiElement("TextButton", {
-			Name = "BuyVehicleButton",
-			Size = isRoblox and UDim2.new(0.22, 0, 0.76, 0) or nil,
-			Position = isRoblox and UDim2.new(0.76, 0, 0.12, 0) or nil,
-			BackgroundColor3 = isRoblox and Color3.fromRGB(95, 235, 45) or nil,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-			Text = "ULEPSZ",
-		}, card)
-		addCornerAndStroke(upgBtn, 6, isRoblox and Color3.fromRGB(22, 48, 12) or nil, 1.8)
-		if upgBtn.Activated then
-			upgBtn.Activated:Connect(function()
+		local upgBtn = self.ui:button(card, {
+			name = "BuyVehicleButton", text = "ULEPSZ", tone = "primary",
+			size = { 0.22, 0, 0, 44 }, position = { 0.76, 0, 0, 2 },
+			onClick = function()
 				if type(self.onQuickBuyVehicle) == "function" then
 					self.onQuickBuyVehicle(slotId)
 				end
-			end)
-		end
+			end,
+		})
 
 		self.vehicleCards[slotId] = {
 			card = card,
@@ -1892,416 +1876,319 @@ function HUD:_buildVehiclesModal(root)
 end
 
 function HUD:_buildResearchModal(root)
-	local shopFrame = createGuiElement("Frame", {
-		Name = "ShopFrame",
-		Visible = false,
-		Size = isRoblox and UDim2.new(0, 540, 0, 500) or nil,
-		Position = isRoblox and UDim2.new(0.5, -270, 0.5, -250) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(62, 39, 35) or nil,
-	}, root)
-	addCornerAndStroke(shopFrame, 16, isRoblox and Color3.fromRGB(43, 24, 16) or nil, 3.5)
-	applyModalMobileConstraints(shopFrame)
+	-- Shared stud-style window (#82). The title/subtitle keep their existing wording and the
+	-- "obecnie → kolejny poziom" hint; only the decorative emoji becomes a genuine image slot.
+	local win = self.ui:window({
+		parent = root, name = "ShopFrame", family = "research",
+		title = "BADANIA I TECHNOLOGIA",
+		subtitle = "Efekt badania: obecnie → kolejny poziom",
+		designWidth = 540, designHeight = 520,
+	})
+	local shopFrame = win.frame
 	self.shopFrame = shopFrame
-
-	-- Top Header Bar (Tycoon 3D styling)
-	local headerBar = createGuiElement("Frame", {
-		Name = "HeaderBar",
-		Size = isRoblox and UDim2.new(1, -24, 0, 52) or nil,
-		Position = isRoblox and UDim2.new(0, 12, 0, 10) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(78, 52, 46) or nil,
-	}, shopFrame)
-	addCornerAndStroke(headerBar, 12, isRoblox and Color3.fromRGB(43, 24, 16) or nil, 2)
-
-	local headerIcon = createGuiElement("TextLabel", {
-		Name = "HeaderIcon",
-		Size = isRoblox and UDim2.new(0, 38, 0, 38) or nil,
-		Position = isRoblox and UDim2.new(0, 7, 0, 7) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(245, 158, 11) or nil,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextSize = 22,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-		Text = "🔬",
-	}, headerBar)
-	addCornerAndStroke(headerIcon, 10, isRoblox and Color3.fromRGB(180, 83, 9) or nil, 1.5)
-
-	createGuiElement("TextLabel", {
-		Name = "ShopTitle",
-		Size = isRoblox and UDim2.new(1, -115, 0, 22) or nil,
-		Position = isRoblox and UDim2.new(0, 52, 0, 6) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 235, 150) or nil,
-		Text = "BADANIA I TECHNOLOGIA",
-	}, headerBar)
-
-	createGuiElement("TextLabel", {
-		Name = "ShopSubtitle",
-		Size = isRoblox and UDim2.new(1, -115, 0, 16) or nil,
-		Position = isRoblox and UDim2.new(0, 52, 0, 28) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = false,
-		TextSize = 12,
-		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-		TextColor3 = isRoblox and Color3.fromRGB(215, 195, 180) or nil,
-		Text = "Efekt badania: obecnie → kolejny poziom",
-	}, headerBar)
-
-	self:_buildCloseButton(shopFrame, function()
-		self.shopFrame.Visible = false
+	self.researchWindow = win
+	self:_fitWindow(shopFrame, win.designWidth, win.designHeight, function(fit)
+		self:_reflowResearchList(fit.width)
+	end)
+	self.ui:closeButton(shopFrame, function()
+		shopFrame.Visible = false
 	end)
 
-	-- Tier Selector Bar: T1..T13 + EPICKIE in a comfortable horizontal ScrollingFrame
-	local tabsRow = createGuiElement("ScrollingFrame", {
-		Name = "TierTabsRow",
-		Size = isRoblox and UDim2.new(1, -24, 0, 36) or nil,
-		Position = isRoblox and UDim2.new(0, 12, 0, 68) or nil,
-		BackgroundTransparency = 1,
-		ScrollBarThickness = isRoblox and 3 or nil,
-		ScrollBarImageColor3 = isRoblox and Color3.fromRGB(245, 158, 11) or nil,
-		BorderSizePixel = 0,
-		CanvasSize = isRoblox and UDim2.new(0, 940, 0, 0) or nil,
-	}, shopFrame)
+	-- Tier Selector Bar: T1..T13 + EPICKIE in a comfortable horizontal ScrollingFrame.
+	-- Exactly the 14 tab buttons live here (the existing suite counts this row's children).
+	local tabsRow = self.ui:scroll(shopFrame, {
+		name = "TierTabsRow",
+		size = { 1, -24, 0, 44 }, position = { 0, 12, 0, 70 },
+		canvasHeight = 0, scrollBarThickness = 3, scrollBarColor = { 245, 158, 11 },
+	})
+	if isRoblox then tabsRow.CanvasSize = UDim2.new(0, 940, 0, 0) end
 
 	local tabNames = { "T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12", "T13", "EPICKIE" }
 	local tabOffset = 0
 	for idx, tabName in ipairs(tabNames) do
 		local tabWidth = if idx == 14 then 92 else 56
-		local tabBtn = createGuiElement("TextButton", {
-			Name = "TierTab_" .. tabName,
-			Size = isRoblox and UDim2.new(0, tabWidth, 0, 32) or nil,
-			Position = isRoblox and UDim2.new(0, tabOffset, 0, 0) or nil,
-			BackgroundColor3 = isRoblox and (if idx == 1 then Color3.fromRGB(245, 158, 11) else Color3.fromRGB(51, 30, 23)) or nil,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextColor3 = isRoblox and (if idx == 1 then Color3.fromRGB(69, 26, 3) else Color3.fromRGB(215, 204, 200)) or nil,
-			Text = tabName,
-		}, tabsRow)
-		addCornerAndStroke(tabBtn, 8, isRoblox and (if idx == 1 then Color3.fromRGB(180, 83, 9) else Color3.fromRGB(35, 18, 12)) or nil, if idx == 1 then 2 else 1.2)
-		if tabBtn.Activated then
-			tabBtn.Activated:Connect(function()
+		local tabBtn = self.ui:tabButton(tabsRow, {
+			name = "TierTab_" .. tabName, text = tabName,
+			size = { 0, tabWidth }, position = { 0, tabOffset, 0, 0 },
+			height = 44, active = (idx == 1),
+			onClick = function()
 				self:selectResearchTier(idx)
-			end)
-		end
+			end,
+		})
 		self.researchTabButtons[idx] = tabBtn
 		tabOffset += tabWidth + 6
 	end
 
-	-- Lock Banner
-	self.researchTierLockBanner = createGuiElement("TextLabel", {
-		Name = "TierLockBanner",
-		Visible = false,
-		Size = isRoblox and UDim2.new(1, -24, 0, 24) or nil,
-		Position = isRoblox and UDim2.new(0, 12, 0, 108) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(127, 29, 29) or nil,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(254, 202, 202) or nil,
-		Text = "🔒 Tier zablokowany! Wymaga więcej zakupionych badań",
-	}, shopFrame)
-	addCornerAndStroke(self.researchTierLockBanner, 6, isRoblox and Color3.fromRGB(69, 10, 10) or nil, 1.5)
+	-- Lock Banner (themed pill; the update pass keeps its text and visibility contract)
+	self.researchTierLockBanner = self.ui:pill(shopFrame, {
+		name = "TierLockBanner", visible = false,
+		size = { 1, -24, 0, 26 }, position = { 0, 12, 0, 120 },
+		text = "Tier zablokowany! Wymaga więcej zakupionych badań",
+		tone = "locked", align = "Center", maxTextSize = 18, radius = 6,
+	})
 
-	-- Research List container (ScrollingFrame)
-	local listContainer = createGuiElement("ScrollingFrame", {
-		Name = "ResearchListContainer",
-		Size = isRoblox and UDim2.new(1, -24, 1, -150) or nil,
-		Position = isRoblox and UDim2.new(0, 12, 0, 138) or nil,
-		BackgroundTransparency = 1,
-		ScrollBarThickness = isRoblox and 5 or nil,
-		ScrollBarImageColor3 = isRoblox and Color3.fromRGB(245, 158, 11) or nil,
-		BorderSizePixel = 0,
-		CanvasSize = isRoblox and UDim2.new(0, 0, 0, 500) or nil,
-	}, shopFrame)
+	-- Research List container (ScrollingFrame). Positions are shared with the update pass so the
+	-- list moves under the banner instead of overlapping it.
+	local listContainer = self.ui:scroll(shopFrame, {
+		name = "ResearchListContainer",
+		size = { 1, -24, 1, 160 }, position = { 0, 12, 0, 152 },
+		canvasHeight = 500, scrollBarThickness = 6, scrollBarColor = { 245, 158, 11 },
+	})
 	self.shopListContainer = listContainer
+	self._researchCardLayout = StudUi.listCardLayout(win.designWidth - 24)
+	self:_reflowResearchList(win.designWidth)
+end
+
+-- Reflows the research list for the resolved window width (#82): a roomy row keeps the
+-- side-by-side layout, a phone stacks the price button under the text so neither the name nor the
+-- price becomes unreadable. Only sizes/positions of existing instances change; nothing is created,
+-- decorated or restyled per frame.
+function HUD:_reflowResearchList(windowWidth)
+	local width = tonumber(windowWidth) or 0
+	if width <= 0 then return end
+	local layout = StudUi.listCardLayout(width - 24)
+	self._researchCardLayout = layout
+
+	local highestOrder = 0
+	for _, item in pairs(self.shopResearch or {}) do
+		if item.card ~= nil and item.displayOrder ~= nil then
+			highestOrder = math.max(highestOrder, item.displayOrder)
+			self:_layoutResearchCard(item, layout)
+		end
+	end
+	if isRoblox and self.shopListContainer ~= nil and highestOrder > 0 then
+		self.shopListContainer.CanvasSize = UDim2.new(0, 0, 0, math.max(350, highestOrder * layout.rowSpacing + 10))
+	end
+end
+
+-- Applies the current research row layout to one card and its known children.
+function HUD:_layoutResearchCard(item, layout)
+	local card = item and item.card
+	if card == nil or layout == nil then return end
+	card.Size = UDim2.new(1, -6, 0, layout.cardHeight)
+	if item.displayOrder ~= nil then
+		card.Position = UDim2.new(0, 0, 0, (item.displayOrder - 1) * layout.rowSpacing)
+	end
+
+	local compact = layout.compact == true
+	local textWidth = if compact then -70 else -205
+	if item.nameLabel ~= nil then
+		item.nameLabel.Size = UDim2.new(1, textWidth, 0, 18)
+		item.nameLabel.Position = UDim2.new(0, 58, 0, 6)
+	end
+	if item.subtitleLabel ~= nil then
+		item.subtitleLabel.Size = UDim2.new(1, textWidth, 0, if compact then 36 else 40)
+		item.subtitleLabel.Position = UDim2.new(0, 58, 0, if compact then 26 else 24)
+	end
+	if item.levelLabel ~= nil then
+		if compact then
+			item.levelLabel.Size = UDim2.new(1, textWidth, 0, 13)
+		else
+			item.levelLabel.Size = UDim2.new(0, 95, 0, 13)
+		end
+		item.levelLabel.Position = UDim2.new(0, 58, 0, if compact then 62 else 70)
+	end
+	if item.progressTrack ~= nil then
+		if compact then
+			item.progressTrack.Size = UDim2.new(1, textWidth, 0, 7)
+			item.progressTrack.Position = UDim2.new(0, 58, 0, 76)
+		else
+			item.progressTrack.Size = UDim2.new(1, -300, 0, 7)
+			item.progressTrack.Position = UDim2.new(0, 156, 0, 74)
+		end
+	end
+	if item.buyButton ~= nil then
+		if compact then
+			item.buyButton.Size = UDim2.new(1, -16, 0, 44)
+			item.buyButton.Position = UDim2.new(0, 8, 0, layout.cardHeight - 52)
+		else
+			item.buyButton.Size = UDim2.new(0, 130, 0, 44)
+			item.buyButton.Position = UDim2.new(1, -138, 0, 7)
+		end
+	end
 end
 
 function HUD:_buildPetsModal(root)
-	local pFrame = createGuiElement("Frame", {
-		Name = "PetsFrame",
-		Visible = false,
-		Size = isRoblox and UDim2.new(0, 520, 0, 490) or nil,
-		Position = isRoblox and UDim2.new(0.5, -260, 0.5, -245) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(65, 30, 60) or nil,
-	}, root)
-	addCornerAndStroke(pFrame, 14, isRoblox and Color3.fromRGB(245, 145, 255) or nil, 3.2)
-	applyModalMobileConstraints(pFrame)
+	-- Shared stud-style window (#82): identical frame/header/close family as the other windows.
+	local win = self.ui:window({
+		parent = root, name = "PetsFrame", family = "pets",
+		title = "MOJE PETY I EWOLUCJA FUZYJNA",
+		designWidth = 520, designHeight = 540,
+	})
+	local pFrame = win.frame
 	self.petsModal = pFrame
-
-	createGuiElement("TextLabel", {
-		Name = "PetsHeader",
-		Size = isRoblox and UDim2.new(1, -50, 0, 36) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 0, 8) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 195, 255) or nil,
-		Text = "🐾 MOJE PETY I EWOLUCJA FUZYJNA",
-	}, pFrame)
-
-	self:_buildCloseButton(pFrame, function()
-		self.petsModal.Visible = false
+	self:_fitWindow(pFrame, win.designWidth, win.designHeight)
+	self.ui:closeButton(pFrame, function()
+		pFrame.Visible = false
 	end)
 
 	-- Equipped slots (3 base, 5 with Pro Permit)
-	local eqFrame = createGuiElement("Frame", {
-		Name = "EquippedSlotsFrame",
-		Size = isRoblox and UDim2.new(1, -28, 0, 62) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 0, 48) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(45, 20, 42) or nil,
-	}, pFrame)
-	addCornerAndStroke(eqFrame, 8, isRoblox and Color3.fromRGB(25, 10, 24) or nil, 2)
+	local eqFrame = self.ui:card(pFrame, {
+		name = "EquippedSlotsFrame", family = "pets",
+		fill = { 45, 20, 42 }, top = { 72, 34, 68 }, border = { 25, 10, 24 },
+		size = { 1, -28, 0, 62 }, position = { 0, 14, 0, 72 },
+	})
 
 	for slotId = 1, 5 do
-		local slotBtn = createGuiElement("TextButton", {
-			Name = "EquippedSlot_" .. tostring(slotId),
-			Size = isRoblox and UDim2.new(0.18, 0, 0.82, 0) or nil,
-			Position = isRoblox and UDim2.new(0.015 + (slotId - 1) * 0.198, 0, 0.09, 0) or nil,
-			BackgroundColor3 = isRoblox and (if slotId <= 3 then Color3.fromRGB(90, 42, 85) else Color3.fromRGB(60, 30, 58)) or nil,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-			Text = if slotId <= 3 then "+ Slot #" .. tostring(slotId) else "🔒 Pro Permit",
-		}, eqFrame)
-		addCornerAndStroke(slotBtn, 6, isRoblox and Color3.fromRGB(30, 12, 28) or nil, 1.5)
-		if slotBtn.Activated then
-			slotBtn.Activated:Connect(function()
+		-- The locked Pro slots keep the same wording without the decorative emoji glyph.
+		local slotBtn = self.ui:button(eqFrame, {
+			name = "EquippedSlot_" .. tostring(slotId),
+			text = if slotId <= 3 then "+ Slot #" .. tostring(slotId) else "Pro Permit",
+			tone = if slotId <= 3 then "neutral" else "disabled",
+			size = { 0.18, 0, 0, 44 }, position = { 0.015 + (slotId - 1) * 0.198, 0, 0, 9 },
+			textStroke = 1.5, maxTextSize = 16,
+			onClick = function()
 				if type(self.onUnequipPet) == "function" then
 					self.onUnequipPet(slotId)
 				end
-			end)
-		end
+			end,
+		})
 		self.equippedPetSlots[slotId] = slotBtn
 	end
 
-	-- Inventory Section
-	local invFrame = createGuiElement("Frame", {
-		Name = "InventoryFrame",
-		Size = isRoblox and UDim2.new(1, -28, 0, 230) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 0, 118) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(48, 22, 45) or nil,
-	}, pFrame)
-	addCornerAndStroke(invFrame, 8, isRoblox and Color3.fromRGB(28, 12, 26) or nil, 2)
+	-- Inventory Section: a scrolling list so long inventories never shrink the text.
+	local invFrame = self.ui:scroll(pFrame, {
+		name = "InventoryFrame", family = "pets",
+		fill = { 48, 22, 45 },
+		size = { 1, -28, 1, -172 }, position = { 0, 14, 0, 142 },
+		canvasHeight = 4 * 48 + 40, scrollBarColor = { 245, 145, 255 },
+	})
 
-	createGuiElement("TextLabel", {
-		Name = "InvTitle",
-		Size = isRoblox and UDim2.new(1, -12, 0, 22) or nil,
-		Position = isRoblox and UDim2.new(0, 8, 0, 4) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 235, 145) or nil,
-		Text = "Inwentarz Petów (Kliknij by założyć / zablokować):",
-	}, invFrame)
+	self.ui:label(invFrame, {
+		name = "InvTitle", size = { 1, -12, 0, 22 }, position = { 0, 8, 0, 4 },
+		text = "Inwentarz Petów (Kliknij by założyć / zablokować):",
+		color = { 255, 235, 145 }, align = "Left", textStroke = 1.8, maxTextSize = 18,
+	})
 
 	-- Sample default inventory entries
 	for pIdx = 1, 4 do
-		local pCard = createGuiElement("Frame", {
-			Name = "PetCard_" .. tostring(pIdx),
-			Size = isRoblox and UDim2.new(1, -16, 0, 44) or nil,
-			Position = isRoblox and UDim2.new(0, 8, 0, 28 + (pIdx - 1) * 48) or nil,
-			BackgroundColor3 = isRoblox and Color3.fromRGB(80, 36, 75) or nil,
-		}, invFrame)
-		addCornerAndStroke(pCard, 6, isRoblox and Color3.fromRGB(36, 16, 34) or nil, 1.5)
+		local pCard = self.ui:card(invFrame, {
+			name = "PetCard_" .. tostring(pIdx), family = "pets",
+			fill = { 80, 36, 75 }, top = { 112, 54, 104 }, border = { 36, 16, 34 },
+			size = { 1, -16, 0, 44 }, position = { 0, 8, 0, 28 + (pIdx - 1) * 48 },
+		})
 
-		local nameLbl = createGuiElement("TextButton", {
-			Name = "PetName",
-			Size = isRoblox and UDim2.new(0.55, 0, 1, 0) or nil,
-			Position = isRoblox and UDim2.new(0.02, 0, 0, 0) or nil,
-			BackgroundTransparency = 1,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-			Text = if pIdx == 1 then "🐶 Piesek Farmerski (T1 Normalny)" elseif pIdx == 2 then "🐓 Robo-Kogut (T1 Złoty)" else "🐶 Piesek (T1 Normalny)",
-		}, pCard)
-		addTextStroke(nameLbl, 1.6)
-        if nameLbl.Activated then nameLbl.Activated:Connect(function()
-            local pet=self._visiblePets and self._visiblePets[pIdx]
-            if not pet or pet.locked or pet.equipped then return end
-            if not self.fusionBaseUid or self.fusionBaseUid==pet.uid then self:selectFusionBase(pet.uid) else self:toggleFusionMaterial(pet.uid) end
-            if self.fusionChanceLabel then self.fusionChanceLabel.Text="Baza: "..tostring(self.fusionBaseUid).." | materiały: "..tostring(#self.fusionMaterialUids) end
-        end) end
+		local nameLbl = self.ui:button(pCard, {
+			name = "PetName",
+			text = if pIdx == 1 then "Piesek Farmerski (T1 Normalny)" elseif pIdx == 2 then "Robo-Kogut (T1 Złoty)" else "Piesek (T1 Normalny)",
+			tone = "neutral", size = { 0.55, 0, 0, 40 }, position = { 0.02, 0, 0, 2 },
+			textStroke = 1.6, maxTextSize = 16,
+		})
+		if nameLbl.Activated then nameLbl.Activated:Connect(function()
+			local pet=self._visiblePets and self._visiblePets[pIdx]
+			if not pet or pet.locked or pet.equipped then return end
+			if not self.fusionBaseUid or self.fusionBaseUid==pet.uid then self:selectFusionBase(pet.uid) else self:toggleFusionMaterial(pet.uid) end
+			if self.fusionChanceLabel then self.fusionChanceLabel.Text="Baza: "..tostring(self.fusionBaseUid).." | materiały: "..tostring(#self.fusionMaterialUids) end
+		end) end
 
-		local equipBtn = createGuiElement("TextButton", {
-			Name = "EquipBtn",
-			Size = isRoblox and UDim2.new(0.20, 0, 0.76, 0) or nil,
-			Position = isRoblox and UDim2.new(0.58, 0, 0.12, 0) or nil,
-			BackgroundColor3 = isRoblox and Color3.fromRGB(95, 235, 45) or nil,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-			Text = "ZAŁÓŻ",
-		}, pCard)
-		addCornerAndStroke(equipBtn, 4, isRoblox and Color3.fromRGB(20, 50, 15) or nil, 1.5)
-		if equipBtn.Activated then
-			equipBtn.Activated:Connect(function()
+		local equipBtn = self.ui:button(pCard, {
+			name = "EquipBtn", text = "ZAŁÓŻ", tone = "primary",
+			size = { 0.20, 0, 0, 40 }, position = { 0.58, 0, 0, 2 },
+			textStroke = 1.5, maxTextSize = 16,
+			onClick = function()
 				if type(self.onEquipPet) == "function" then
 					local pet=self._visiblePets and self._visiblePets[pIdx]
-                    if pet then self.onEquipPet(pet.uid,1) end
+					if pet then self.onEquipPet(pet.uid,1) end
 				end
-			end)
-		end
+			end,
+		})
 
-		local lockBtn = createGuiElement("TextButton", {
-			Name = "LockBtn",
-			Size = isRoblox and UDim2.new(0.18, 0, 0.76, 0) or nil,
-			Position = isRoblox and UDim2.new(0.80, 0, 0.12, 0) or nil,
-			BackgroundColor3 = isRoblox and Color3.fromRGB(180, 140, 40) or nil,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-			Text = "🔓 ODBL.",
-		}, pCard)
-		addCornerAndStroke(lockBtn, 4, isRoblox and Color3.fromRGB(40, 30, 10) or nil, 1.5)
-		if lockBtn.Activated then
-			lockBtn.Activated:Connect(function()
+		local lockBtn = self.ui:button(pCard, {
+			name = "LockBtn", text = "ODBL.", tone = "gold",
+			size = { 0.18, 0, 0, 40 }, position = { 0.80, 0, 0, 2 },
+			textStroke = 1.5, maxTextSize = 16,
+			onClick = function()
 				if type(self.onTogglePetLock) == "function" then
 					local pet=self._visiblePets and self._visiblePets[pIdx]
-                    if pet then self.onTogglePetLock(pet.uid) end
+					if pet then self.onTogglePetLock(pet.uid) end
 				end
-			end)
-		end
+			end,
+		})
 
 		self.petInventoryCards[pIdx] = pCard
 	end
 
 	-- Fusion Section
-	local fusFrame = createGuiElement("Frame", {
-		Name = "FusionFrame",
-		Size = isRoblox and UDim2.new(1, -28, 0, 120) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 0, 356) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(42, 18, 40) or nil,
-	}, pFrame)
-	addCornerAndStroke(fusFrame, 8, isRoblox and Color3.fromRGB(22, 10, 20) or nil, 2)
+	local fusFrame = self.ui:card(pFrame, {
+		name = "FusionFrame", family = "pets",
+		fill = { 42, 18, 40 }, top = { 68, 32, 66 }, border = { 22, 10, 20 },
+		size = { 1, -28, 0, 120 }, position = { 0, 14, 0, 406 },
+	})
 
-	self.fusionChanceLabel = createGuiElement("TextLabel", {
-		Name = "FusionChanceLabel",
-		Size = isRoblox and UDim2.new(0.68, 0, 0, 24) or nil,
-		Position = isRoblox and UDim2.new(0.02, 0, 0, 6) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 235, 120) or nil,
-		Text = "Wybierz bazę, potem materiały (kliknij nazwę peta)",
-	}, fusFrame)
-	addTextStroke(self.fusionChanceLabel, 1.8)
+	self.fusionChanceLabel = self.ui:label(fusFrame, {
+		name = "FusionChanceLabel", size = { 0.68, 0, 0, 24 }, position = { 0.02, 0, 0, 6 },
+		text = "Wybierz bazę, potem materiały (kliknij nazwę peta)",
+		color = { 255, 235, 120 }, align = "Left", textStroke = 1.8, maxTextSize = 18,
+	})
 
-	self.fusionGuaranteeLabel = createGuiElement("TextLabel", {
-		Name = "FusionGuaranteeLabel",
-		Size = isRoblox and UDim2.new(0.68, 0, 0, 22) or nil,
-		Position = isRoblox and UDim2.new(0.02, 0, 0, 32) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-		TextColor3 = isRoblox and Color3.fromRGB(150, 245, 160) or nil,
-		Text = "Receptura i gwarancja wymagają konfiguracji serwera",
-	}, fusFrame)
-	addTextStroke(self.fusionGuaranteeLabel, 1.8)
+	self.fusionGuaranteeLabel = self.ui:label(fusFrame, {
+		name = "FusionGuaranteeLabel", size = { 0.68, 0, 0, 22 }, position = { 0.02, 0, 0, 32 },
+		text = "Receptura i gwarancja wymagają konfiguracji serwera",
+		color = { 150, 245, 160 }, align = "Left", textStroke = 1.8, maxTextSize = 16,
+	})
 
-	self.fusionProPermitBadge = createGuiElement("TextLabel", {
-		Name = "ProPermitBonusBadge",
-		Size = isRoblox and UDim2.new(0.68, 0, 0, 20) or nil,
-		Position = isRoblox and UDim2.new(0.02, 0, 0, 56) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 175, 240) or nil,
-		Text = "Bonus Pro zależy od uprawnień konta",
-	}, fusFrame)
+	self.fusionProPermitBadge = self.ui:label(fusFrame, {
+		name = "ProPermitBonusBadge", size = { 0.68, 0, 0, 20 }, position = { 0.02, 0, 0, 56 },
+		text = "Bonus Pro zależy od uprawnień konta",
+		color = { 255, 175, 240 }, align = "Left", textStroke = 1.6, maxTextSize = 15,
+	})
 	addTextStroke(self.fusionProPermitBadge, 1.6)
 
-	self.fusePetsButton = createGuiElement("TextButton", {
-		Name = "FusePetsButton",
-		Size = isRoblox and UDim2.new(0.28, 0, 0.72, 0) or nil,
-		Position = isRoblox and UDim2.new(0.70, 0, 0.14, 0) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(160, 60, 200) or nil,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-		Text = "POŁĄCZ\nPETY",
-	}, fusFrame)
-	addCornerAndStroke(self.fusePetsButton, 8, isRoblox and Color3.fromRGB(50, 15, 65) or nil, 2)
-	addTextStroke(self.fusePetsButton, 2.0)
-	if self.fusePetsButton.Activated then
-		self.fusePetsButton.Activated:Connect(function()
+	self.fusePetsButton = self.ui:button(fusFrame, {
+		name = "FusePetsButton", text = "POŁĄCZ PETY", tone = "boost",
+		size = { 0.28, 0, 0, 48 }, position = { 0.70, 0, 0, 14 },
+		textStroke = 2.0, maxTextSize = 18,
+		onClick = function()
 			if type(self.onFusePets) == "function" then
 				if self.fusionBaseUid and #self.fusionMaterialUids>0 then
-                    self.onFusePets(self.fusionBaseUid,table.clone(self.fusionMaterialUids))
-                else self:onActionResult({status="NOT_ACCEPTED",errorCode="SELECT_FUSION_INPUTS"}) end
+					self.onFusePets(self.fusionBaseUid,table.clone(self.fusionMaterialUids))
+				else self:onActionResult({status="NOT_ACCEPTED",errorCode="SELECT_FUSION_INPUTS"}) end
 			end
-		end)
-	end
+		end,
+	})
 end
 
 function HUD:_buildShopModal(root)
-	local sFrame = createGuiElement("Frame", {
-		Name = "ShopModalFrame",
-		Visible = false,
-		Size = isRoblox and UDim2.new(0, 520, 0, 480) or nil,
-		Position = isRoblox and UDim2.new(0.5, -260, 0.5, -240) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(56, 32, 48) or nil,
-	}, root)
-	addCornerAndStroke(sFrame, 14, isRoblox and Color3.fromRGB(255, 215, 65) or nil, 3.2)
-	applyModalMobileConstraints(sFrame)
+	-- Shared stud-style window (#82): gold shop family, same frame/header/close family.
+	local win = self.ui:window({
+		parent = root, name = "ShopModalFrame", family = "shop",
+		title = "SKLEP ZŁOTYCH JAJ I PRZEPUSTEK",
+		designWidth = 520, designHeight = 520,
+	})
+	local sFrame = win.frame
 	self.shopModal = sFrame
-
-	createGuiElement("TextLabel", {
-		Name = "ShopModalHeader",
-		Size = isRoblox and UDim2.new(1, -50, 0, 36) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 0, 8) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 235, 115) or nil,
-		Text = "💎 SKLEP ZŁOTYCH JAJ I PRZEPUSTEK",
-	}, sFrame)
-
-	self:_buildCloseButton(sFrame, function()
-		self.shopModal.Visible = false
+	self:_fitWindow(sFrame, win.designWidth, win.designHeight)
+	self.ui:closeButton(sFrame, function()
+		sFrame.Visible = false
 	end)
 
-	-- Tabs row: 1. Złote Jaja, 2. Wzmocnienia (Boosts), 3. Przepustki
-	local tabsRow = createGuiElement("Frame", {
-		Name = "ShopTabsRow",
-		Size = isRoblox and UDim2.new(1, -28, 0, 36) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 0, 46) or nil,
-		BackgroundTransparency = 1,
-	}, sFrame)
+	-- Tabs row: 1. Złote Jaja, 2. Wzmocnienia (Boosts), 3. Przepustki. 44px touch targets.
+	local tabsRow = self.ui:card(sFrame, {
+		name = "ShopTabsRow", family = "shop",
+		fill = { 56, 32, 48 }, border = { 32, 16, 28 },
+		size = { 1, -28, 0, 44 }, position = { 0, 14, 0, 70 },
+	})
 
 	local sTabNames = { "Złote Jaja", "Wzmocnienia", "Przepustki" }
+	local sTabIcons = { "tab.ge", "tab.boosts", "tab.passes" }
 	for idx, sName in ipairs(sTabNames) do
-		local tabBtn = createGuiElement("TextButton", {
-			Name = "ShopTab_" .. tostring(idx),
-			Size = isRoblox and UDim2.new(0.32, 0, 1, 0) or nil,
-			Position = isRoblox and UDim2.new((idx - 1) * 0.34, 0, 0, 0) or nil,
-			BackgroundColor3 = isRoblox and (if idx == 1 then Color3.fromRGB(255, 215, 65) else Color3.fromRGB(42, 22, 34)) or nil,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextColor3 = isRoblox and (if idx == 1 then Color3.fromRGB(24, 12, 10) else Color3.fromRGB(255, 255, 255)) or nil,
-			Text = sName,
-		}, tabsRow)
-		addCornerAndStroke(tabBtn, 6, isRoblox and Color3.fromRGB(20, 12, 18) or nil, 1.8)
-		if tabBtn.Activated then
-			tabBtn.Activated:Connect(function()
+		local tabBtn = self.ui:tabButton(tabsRow, {
+			name = "ShopTab_" .. tostring(idx), text = sName,
+			size = { 0.32, 0, 0, 44 }, position = { (idx - 1) * 0.34, 0, 0, 0 },
+			height = 44, active = (idx == 1), iconKey = sTabIcons[idx],
+			onClick = function()
 				self:selectShopTab(idx)
-			end)
-		end
+			end,
+		})
 		self.shopModalTabButtons[idx] = tabBtn
 	end
 
-	-- Content Container
-	local content = createGuiElement("Frame", {
-		Name = "ShopContentContainer",
-		Size = isRoblox and UDim2.new(1, -28, 0, 380) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 0, 88) or nil,
-		BackgroundTransparency = 1,
-	}, sFrame)
+	-- Content Container: a scroll area so long product lists never shrink their text.
+	local content = self.ui:scroll(sFrame, {
+		name = "ShopContentContainer",
+		size = { 1, -28, 1, -134 }, position = { 0, 14, 0, 124 },
+		canvasHeight = 3 * 82 + 8, scrollBarColor = { 255, 215, 65 },
+	})
 
 	-- Build static product cards for tab 1 (GE), tab 2 (Boosts), tab 3 (Passes)
 	self:_buildShopProducts(content)
@@ -2309,12 +2196,11 @@ end
 
 function HUD:_buildShopProducts(container)
 	-- Tab 1: GE Packs
-	local tab1Frame = createGuiElement("Frame", {
-		Name = "Tab1_GEPacks",
-		Visible = true,
-		Size = isRoblox and UDim2.new(1, 0, 1, 0) or nil,
-		BackgroundTransparency = 1,
-	}, container)
+	local tab1Frame = self.ui:card(container, {
+		name = "Tab1_GEPacks", family = "shop",
+		fill = { 56, 32, 48 }, border = { 32, 16, 28 },
+		visible = true, size = { 1, 0, 0, 3 * 82 + 8 }, position = { 0, 0, 0, 0 },
+	})
 
 	local geProducts = {
 		{ id = "ge_pack_small", title = "Paczka Złotych Jaj (1,000 GE)", desc = "Zastrzyk Złotych Jaj na epickie badania i boosty", btnText = "KUP" },
@@ -2323,380 +2209,243 @@ function HUD:_buildShopProducts(container)
 	}
 
 	for i, prod in ipairs(geProducts) do
-		local card = createGuiElement("Frame", {
-			Name = "ShopCard_" .. prod.id,
-			Size = isRoblox and UDim2.new(1, 0, 0, 74) or nil,
-			Position = isRoblox and UDim2.new(0, 0, 0, (i - 1) * 82) or nil,
-			BackgroundColor3 = isRoblox and Color3.fromRGB(78, 44, 66) or nil,
-		}, tab1Frame)
-		addCornerAndStroke(card, 8, isRoblox and Color3.fromRGB(36, 18, 30) or nil, 1.8)
+		local card = self.ui:card(tab1Frame, {
+			name = "ShopCard_" .. prod.id, family = "shop",
+			fill = { 78, 44, 66 }, top = { 110, 62, 92 }, border = { 36, 18, 30 },
+			size = { 1, 0, 0, 74 }, position = { 0, 0, 0, (i - 1) * 82 },
+		})
 
-		local title = createGuiElement("TextLabel", {
-			Name = "Title",
-			Size = isRoblox and UDim2.new(0.70, 0, 0, 24) or nil,
-			Position = isRoblox and UDim2.new(0.03, 0, 0, 8) or nil,
-			BackgroundTransparency = 1,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 235, 95) or nil,
-			Text = prod.title,
-		}, card)
-		addTextStroke(title, 1.8)
+		local title = self.ui:label(card, {
+			name = "Title", size = { 0.70, 0, 0, 24 }, position = { 0.03, 0, 0, 8 },
+			text = prod.title, color = { 255, 235, 95 }, align = "Left",
+			textStroke = 1.8, maxTextSize = 18,
+		})
 
-		local desc = createGuiElement("TextLabel", {
-			Name = "Desc",
-			Size = isRoblox and UDim2.new(0.70, 0, 0, 32) or nil,
-			Position = isRoblox and UDim2.new(0.03, 0, 0, 34) or nil,
-			BackgroundTransparency = 1,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-			TextColor3 = isRoblox and Color3.fromRGB(240, 240, 240) or nil,
-			Text = prod.desc,
-		}, card)
-
-		local buyBtn = createGuiElement("TextButton", {
-			Name = "BuyProductButton",
-			Size = isRoblox and UDim2.new(0.24, 0, 0.72, 0) or nil,
-			Position = isRoblox and UDim2.new(0.73, 0, 0.14, 0) or nil,
-			BackgroundColor3 = isRoblox and Color3.fromRGB(95, 235, 45) or nil,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-			Text = prod.btnText,
-		}, card)
-		addCornerAndStroke(buyBtn, 6, isRoblox and Color3.fromRGB(20, 50, 15) or nil, 1.8)
-		if buyBtn.Activated then
-			buyBtn.Activated:Connect(function()
+		local desc = self.ui:label(card, {
+			name = "Desc", size = { 0.70, 0, 0, 32 }, position = { 0.03, 0, 0, 34 },
+			text = prod.desc, color = { 240, 240, 240 }, align = "Left",
+			textStroke = 1.6, maxTextSize = 15,
+		})
+		local buyBtn = self.ui:button(card, {
+			name = "BuyProductButton", text = prod.btnText, tone = "primary",
+			size = { 0.24, 0, 0, 44 }, position = { 0.73, 0, 0, 15 },
+			onClick = function()
 				promptMarketplacePurchase(prod.id, self.onPurchaseProduct)
-			end)
-		end
+			end,
+		})
 		self.shopProductCards[prod.id] = card
 	end
 
-	-- Tab 2: Boosts
-	local tab2Frame = createGuiElement("Frame", {
-		Name = "Tab2_Boosts",
-		Visible = false,
-		Size = isRoblox and UDim2.new(1, 0, 1, 0) or nil,
-		BackgroundTransparency = 1,
-	}, container)
+	-- Tab 2: Boosts (scrolling list, 44px buy buttons)
+	local tab2Frame = self.ui:card(container, {
+		name = "Tab2_Boosts", family = "shop",
+		fill = { 56, 32, 48 }, border = { 32, 16, 28 },
+		visible = false, size = { 1, 0, 0, #BOOSTS_CATALOG * 50 + 8 }, position = { 0, 0, 0, 0 },
+	})
 
 	for i, bSpec in ipairs(BOOSTS_CATALOG) do
-		local card = createGuiElement("Frame", {
-			Name = "BoostCard_" .. bSpec.id,
-			Size = isRoblox and UDim2.new(1, 0, 0, 42) or nil,
-			Position = isRoblox and UDim2.new(0, 0, 0, (i - 1) * 46) or nil,
-			BackgroundColor3 = isRoblox and Color3.fromRGB(68, 38, 58) or nil,
-		}, tab2Frame)
-		addCornerAndStroke(card, 6, isRoblox and Color3.fromRGB(32, 16, 28) or nil, 1.5)
+		local card = self.ui:card(tab2Frame, {
+			name = "BoostCard_" .. bSpec.id, family = "shop",
+			fill = { 68, 38, 58 }, top = { 98, 56, 84 }, border = { 32, 16, 28 },
+			size = { 1, 0, 0, 46 }, position = { 0, 0, 0, (i - 1) * 50 },
+		})
 
-		local title = createGuiElement("TextLabel", {
-			Name = "Title",
-			Size = isRoblox and UDim2.new(0.55, 0, 1, 0) or nil,
-			Position = isRoblox and UDim2.new(0.02, 0, 0, 0) or nil,
-			BackgroundTransparency = 1,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-			Text = bSpec.name .. " (" .. bSpec.effect .. ")",
-		}, card)
-		addTextStroke(title, 1.5)
+		local title = self.ui:label(card, {
+			name = "Title", size = { 0.55, 0, 0, 46 }, position = { 0.02, 0, 0, 0 },
+			text = bSpec.name .. " (" .. bSpec.effect .. ")", color = { 255, 255, 255 },
+			align = "Left", textStroke = 1.5, maxTextSize = 16,
+		})
 
-		local priceLbl = createGuiElement("TextLabel", {
-			Name = "Price",
-			Size = isRoblox and UDim2.new(0.20, 0, 1, 0) or nil,
-			Position = isRoblox and UDim2.new(0.58, 0, 0, 0) or nil,
-			BackgroundTransparency = 1,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 215, 65) or nil,
-			Text = tostring(bSpec.priceGE) .. " GE",
-		}, card)
-		addTextStroke(priceLbl, 1.5)
+		local priceLbl = self.ui:label(card, {
+			name = "Price", size = { 0.20, 0, 0, 46 }, position = { 0.58, 0, 0, 0 },
+			text = tostring(bSpec.priceGE) .. " GE", color = { 255, 215, 65 },
+			align = "Center", textStroke = 1.5, maxTextSize = 16,
+		})
 
-		local buyBtn = createGuiElement("TextButton", {
-			Name = "BuyBoostButton",
-			Size = isRoblox and UDim2.new(0.18, 0, 0.76, 0) or nil,
-			Position = isRoblox and UDim2.new(0.80, 0, 0.12, 0) or nil,
-			BackgroundColor3 = isRoblox and Color3.fromRGB(95, 235, 45) or nil,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-			Text = "KUP",
-		}, card)
-		addCornerAndStroke(buyBtn, 4, isRoblox and Color3.fromRGB(20, 50, 15) or nil, 1.5)
-		if buyBtn.Activated then
-			buyBtn.Activated:Connect(function()
+		local buyBtn = self.ui:button(card, {
+			name = "BuyBoostButton", text = "KUP", tone = "primary",
+			size = { 0.18, 0, 0, 44 }, position = { 0.80, 0, 0, 1 },
+			textStroke = 1.5, maxTextSize = 16,
+			onClick = function()
 				if type(self.onBuyBoost) == "function" then
 					self.onBuyBoost(bSpec.id)
 				end
-			end)
-		end
+			end,
+		})
 		self.shopProductCards[bSpec.id] = card
 	end
 
-	-- Tab 3: GamePasses
-	local tab3Frame = createGuiElement("Frame", {
-		Name = "Tab3_GamePasses",
-		Visible = false,
-		Size = isRoblox and UDim2.new(1, 0, 1, 0) or nil,
-		BackgroundTransparency = 1,
-	}, container)
+	-- Tab 3: GamePasses (scrolling list)
+	local tab3Frame = self.ui:card(container, {
+		name = "Tab3_GamePasses", family = "shop",
+		fill = { 56, 32, 48 }, border = { 32, 16, 28 },
+		visible = false, size = { 1, 0, 0, 2 * 120 + 8 }, position = { 0, 0, 0, 0 },
+	})
 
 	local passes = { SHOP_PRODUCTS_CATALOG.pro_permit, SHOP_PRODUCTS_CATALOG.buy_max }
 	for i, pass in ipairs(passes) do
-		local card = createGuiElement("Frame", {
-			Name = "PassCard_" .. pass.id,
-			Size = isRoblox and UDim2.new(1, 0, 0, 110) or nil,
-			Position = isRoblox and UDim2.new(0, 0, 0, (i - 1) * 120) or nil,
-			BackgroundColor3 = isRoblox and Color3.fromRGB(78, 44, 66) or nil,
-		}, tab3Frame)
-		addCornerAndStroke(card, 8, isRoblox and Color3.fromRGB(36, 18, 30) or nil, 1.8)
+		local card = self.ui:card(tab3Frame, {
+			name = "PassCard_" .. pass.id, family = "shop",
+			fill = { 78, 44, 66 }, top = { 110, 62, 92 }, border = { 36, 18, 30 },
+			size = { 1, 0, 0, 110 }, position = { 0, 0, 0, (i - 1) * 120 },
+		})
 
-		local title = createGuiElement("TextLabel", {
-			Name = "Title",
-			Size = isRoblox and UDim2.new(0.70, 0, 0, 24) or nil,
-			Position = isRoblox and UDim2.new(0.03, 0, 0, 6) or nil,
-			BackgroundTransparency = 1,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 235, 95) or nil,
-			Text = pass.name,
-		}, card)
-		addTextStroke(title, 1.8)
+		local title = self.ui:label(card, {
+			name = "Title", size = { 0.70, 0, 0, 24 }, position = { 0.03, 0, 0, 6 },
+			text = pass.name, color = { 255, 235, 95 }, align = "Left",
+			textStroke = 1.8, maxTextSize = 18,
+		})
 
-		local desc = createGuiElement("TextLabel", {
-			Name = "Desc",
-			Size = isRoblox and UDim2.new(0.70, 0, 0, 42) or nil,
-			Position = isRoblox and UDim2.new(0.03, 0, 0, 30) or nil,
-			BackgroundTransparency = 1,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-			TextColor3 = isRoblox and Color3.fromRGB(240, 240, 240) or nil,
-			Text = pass.desc,
-		}, card)
+		local desc = self.ui:label(card, {
+			name = "Desc", size = { 0.70, 0, 0, 42 }, position = { 0.03, 0, 0, 30 },
+			text = pass.desc, color = { 240, 240, 240 }, align = "Left",
+			textStroke = 1.6, maxTextSize = 15,
+		})
 
 		if pass.notice then
-			local noticeLbl = createGuiElement("TextLabel", {
-				Name = "Notice",
-				Size = isRoblox and UDim2.new(0.70, 0, 0, 28) or nil,
-				Position = isRoblox and UDim2.new(0.03, 0, 0, 74) or nil,
-				BackgroundTransparency = 1,
-				Font = isRoblox and Enum.Font.FredokaOne or nil,
-				TextScaled = true,
-				TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-				TextColor3 = isRoblox and Color3.fromRGB(255, 175, 140) or nil,
-				Text = pass.notice,
-			}, card)
+			local noticeLbl = self.ui:label(card, {
+				name = "Notice", size = { 0.70, 0, 0, 28 }, position = { 0.03, 0, 0, 74 },
+				text = pass.notice, color = { 255, 175, 140 }, align = "Left",
+				textStroke = 1.5, maxTextSize = 15,
+			})
 		end
 
-		local buyBtn = createGuiElement("TextButton", {
-			Name = "BuyPassButton",
-			Size = isRoblox and UDim2.new(0.24, 0, 0.44, 0) or nil,
-			Position = isRoblox and UDim2.new(0.73, 0, 0.28, 0) or nil,
-			BackgroundColor3 = isRoblox and Color3.fromRGB(95, 235, 45) or nil,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-			Text = "ODBLOKUJ",
-		}, card)
-		addCornerAndStroke(buyBtn, 6, isRoblox and Color3.fromRGB(20, 50, 15) or nil, 1.8)
-		if buyBtn.Activated then
-			buyBtn.Activated:Connect(function()
+		local buyBtn = self.ui:button(card, {
+			name = "BuyPassButton", text = "ODBLOKUJ", tone = "primary",
+			size = { 0.24, 0, 0, 44 }, position = { 0.73, 0, 0, 30 },
+			onClick = function()
 				promptMarketplacePurchase(pass.id, self.onPurchaseProduct)
-			end)
-		end
+			end,
+		})
 		self.shopProductCards[pass.id] = card
 	end
 end
 
 function HUD:_buildCalendarModal(root)
-	local cFrame = createGuiElement("Frame", {
-		Name = "CalendarFrame",
-		Visible = false,
-		Size = isRoblox and UDim2.new(0, 560, 0, 500) or nil,
-		Position = isRoblox and UDim2.new(0.5, -280, 0.5, -250) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(48, 32, 58) or nil,
-	}, root)
-	addCornerAndStroke(cFrame, 14, isRoblox and Color3.fromRGB(255, 175, 75) or nil, 3.2)
-	applyModalMobileConstraints(cFrame)
+	-- Shared stud-style window (#82): Daily + Trophies live in one themed window with two tabs.
+	local win = self.ui:window({
+		parent = root, name = "CalendarFrame", family = "calendar",
+		title = "KALENDARZ NAGRÓD I TROFEA",
+		designWidth = 560, designHeight = 560,
+	})
+	local cFrame = win.frame
 	self.calendarModal = cFrame
-
-	createGuiElement("TextLabel", {
-		Name = "CalendarHeader",
-		Size = isRoblox and UDim2.new(1, -50, 0, 36) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 0, 8) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 215, 115) or nil,
-		Text = "📅 KALENDARZ NAGRÓD I TROFEA",
-	}, cFrame)
-
-	self:_buildCloseButton(cFrame, function()
-		self.calendarModal.Visible = false
+	self.calendarWindow = win
+	self:_fitWindow(cFrame, win.designWidth, win.designHeight, function(fit)
+		self._calendarGridWidth = fit.width
+	end)
+	self.ui:closeButton(cFrame, function()
+		cFrame.Visible = false
 	end)
 
 	-- Tabs: 1. Kalendarz 28 Dni, 2. Trofea Jaj
-	local tabsRow = createGuiElement("Frame", {
-		Name = "CalendarTabsRow",
-		Size = isRoblox and UDim2.new(1, -28, 0, 34) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 0, 46) or nil,
-		BackgroundTransparency = 1,
-	}, cFrame)
+	local tabsRow = self.ui:card(cFrame, {
+		name = "CalendarTabsRow", family = "calendar",
+		fill = { 48, 32, 58 }, border = { 24, 14, 30 },
+		size = { 1, -28, 0, 44 }, position = { 0, 14, 0, 70 },
+	})
 
 	local cTabNames = { "Kalendarz 28 Dni", "Trofea Jaj" }
+	local cTabIcons = { "window.calendar", "tab.trophies" }
 	for idx, cName in ipairs(cTabNames) do
-		local tabBtn = createGuiElement("TextButton", {
-			Name = "CalendarTab_" .. tostring(idx),
-			Size = isRoblox and UDim2.new(0.48, 0, 1, 0) or nil,
-			Position = isRoblox and UDim2.new((idx - 1) * 0.52, 0, 0, 0) or nil,
-			BackgroundColor3 = isRoblox and (if idx == 1 then Color3.fromRGB(255, 175, 75) else Color3.fromRGB(36, 22, 44)) or nil,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextColor3 = isRoblox and (if idx == 1 then Color3.fromRGB(24, 12, 10) else Color3.fromRGB(255, 255, 255)) or nil,
-			Text = cName,
-		}, tabsRow)
-		addCornerAndStroke(tabBtn, 6, isRoblox and Color3.fromRGB(20, 12, 24) or nil, 1.8)
-		if tabBtn.Activated then
-			tabBtn.Activated:Connect(function()
+		local tabBtn = self.ui:tabButton(tabsRow, {
+			name = "CalendarTab_" .. tostring(idx), text = cName,
+			size = { 0.48, 0, 0, 44 }, position = { (idx - 1) * 0.52, 0, 0, 0 },
+			height = 44, active = (idx == 1), iconKey = cTabIcons[idx],
+			onClick = function()
 				self:selectCalendarTab(idx)
-			end)
-		end
+			end,
+		})
 		self.calendarTabButtons[idx] = tabBtn
 	end
 
-	-- Tab 1: 28-day Calendar Grid
-	local calContent = createGuiElement("Frame", {
-		Name = "CalendarContent_Tab1",
-		Visible = true,
-		Size = isRoblox and UDim2.new(1, -28, 0, 330) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 0, 88) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(36, 22, 44) or nil,
-	}, cFrame)
-	addCornerAndStroke(calContent, 8, isRoblox and Color3.fromRGB(20, 12, 24) or nil, 2)
+	-- Tab 1: 28-day Calendar Grid. A scrolling grid that reflows its columns on a phone (7 wide,
+	-- fewer on a narrow window) while the day cells stay direct children of this container.
+	local calContent = self.ui:scroll(cFrame, {
+		name = "CalendarContent_Tab1", family = "calendar",
+		fill = { 36, 22, 44 }, visible = true,
+		size = { 1, -28, 1, -156 }, position = { 0, 14, 0, 124 },
+		canvasHeight = 4 * 56 + 12, scrollBarColor = { 255, 175, 75 },
+	})
+	self.calendarGridScroll = calContent
 
-	-- 7 columns x 4 rows
 	for day = 1, 28 do
-		local col = (day - 1) % 7
-		local row = math.floor((day - 1) / 7)
-		local reward = {label="Dane z serwera",icon="🎁"}
+		local dayCell = self.ui:card(calContent, {
+			name = "DayCell_" .. tostring(day), family = "calendar",
+			fill = if day == 1 then { 225, 160, 45 } else { 56, 36, 68 },
+			border = { 24, 14, 28 }, radius = 6,
+			size = { 0.13, 0, 0, 52 }, position = { 0.015, 0, 0, 0 },
+		})
 
-		local dayCell = createGuiElement("Frame", {
-			Name = "DayCell_" .. tostring(day),
-			Size = isRoblox and UDim2.new(0.13, 0, 0.22, 0) or nil,
-			Position = isRoblox and UDim2.new(0.015 + col * 0.14, 0, 0.03 + row * 0.24, 0) or nil,
-			BackgroundColor3 = isRoblox and (if day == 1 then Color3.fromRGB(225, 160, 45) else Color3.fromRGB(56, 36, 68)) or nil,
-		}, calContent)
-		addCornerAndStroke(dayCell, 4, isRoblox and Color3.fromRGB(24, 14, 28) or nil, 1.2)
+		local dayNum = self.ui:label(dayCell, {
+			name = "DayNumber", size = { 1, 0, 0.35, 0 }, position = { 0, 0, 0, 2 },
+			text = "D" .. tostring(day), color = { 255, 235, 120 },
+			textStroke = 1.6, maxTextSize = 18,
+		})
 
-		local dayNum = createGuiElement("TextLabel", {
-			Name = "DayNumber",
-			Size = isRoblox and UDim2.new(1, 0, 0.35, 0) or nil,
-			Position = isRoblox and UDim2.new(0, 0, 0.05, 0) or nil,
-			BackgroundTransparency = 1,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 235, 120) or nil,
-			Text = "D" .. tostring(day),
-		}, dayCell)
-
-		local dayRew = createGuiElement("TextLabel", {
-			Name = "RewardText",
-			Size = isRoblox and UDim2.new(1, 0, 0.55, 0) or nil,
-			Position = isRoblox and UDim2.new(0, 0, 0.40, 0) or nil,
-			BackgroundTransparency = 1,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-			Text = reward.icon .. "\n" .. reward.label,
-		}, dayCell)
+		local dayRew = self.ui:label(dayCell, {
+			name = "RewardText", size = { 1, -4, 0.6, 0 }, position = { 0, 2, 0.38, 0 },
+			text = "Dane z serwera", color = { 255, 255, 255 },
+			textStroke = 1.4, maxTextSize = 14,
+		})
 
 		self.calendarDayCells[day] = dayCell
 	end
 
-	-- Claim Daily Gift Button
-	self.claimDailyGiftButton = createGuiElement("TextButton", {
-		Name = "ClaimDailyGiftButton",
-		Size = isRoblox and UDim2.new(1, -28, 0, 48) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 1, -58) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(95, 235, 45) or nil,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-		Text = "🎁 ODBIERZ DZISIEJSZĄ NAGRODĘ",
-	}, cFrame)
-	addCornerAndStroke(self.claimDailyGiftButton, 8, isRoblox and Color3.fromRGB(20, 50, 15) or nil, 2.2)
-	addTextStroke(self.claimDailyGiftButton, 2.0)
-	if self.claimDailyGiftButton.Activated then
-		self.claimDailyGiftButton.Activated:Connect(function()
+	-- Reflow the day cells for the resolved width (columns collapse instead of tiny text).
+	self.ui:applyGridReflow(calContent, self.calendarDayCells, {
+		padding = 6, minCellWidth = 64, maxColumns = 7, cellHeight = 52, gap = 4,
+	})
+
+	-- Claim Daily Gift Button (>= 44px, primary tone; the wording keeps its meaning without the
+	-- decorative emoji, which is replaced by a real gift image only once root binds one).
+	self.claimDailyGiftButton = self.ui:button(cFrame, {
+		name = "ClaimDailyGiftButton", text = "ODBIERZ DZISIEJSZĄ NAGRODĘ", tone = "primary",
+		size = { 1, -28, 0, 48 }, position = { 0, 14, 1, -60 },
+		textStroke = 2.0, maxTextSize = 20,
+		onClick = function()
 			if type(self.onClaimDailyGift) == "function" then
 				self.onClaimDailyGift()
 			end
-		end)
-	end
+		end,
+	})
 
-	-- Tab 2: Trophies List
-	local trophContent = createGuiElement("ScrollingFrame", {
-		Name = "TrophiesContent_Tab2",
-		CanvasSize = if isRoblox then UDim2.new(0,0,0,19*60+12) else nil,
-		ScrollBarThickness = 8,
-		Visible = false,
-		Size = isRoblox and UDim2.new(1, -28, 0, 380) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 0, 88) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(36, 22, 44) or nil,
-	}, cFrame)
-	addCornerAndStroke(trophContent, 8, isRoblox and Color3.fromRGB(20, 12, 24) or nil, 2)
+	-- Tab 2: Trophies List (scrolling, every catalogue egg reachable)
+	local trophContent = self.ui:scroll(cFrame, {
+		name = "TrophiesContent_Tab2", family = "calendar",
+		fill = { 36, 22, 44 }, visible = false,
+		size = { 1, -28, 1, -156 }, position = { 0, 14, 0, 124 },
+		canvasHeight = 19 * 60 + 12, scrollBarThickness = 8, scrollBarColor = { 255, 175, 75 },
+	})
 
 	-- Every trophy in the authoritative catalogue is reachable.
 	for eIdx = 0, 18 do
 		local egg = EGGS_DATA[eIdx] or { name = "Jajo " .. tostring(eIdx) }
-		local card = createGuiElement("Frame", {
-			Name = "TrophyCard_Egg_" .. tostring(eIdx),
-			Size = isRoblox and UDim2.new(1, -12, 0, 54) or nil,
-			Position = isRoblox and UDim2.new(0, 6, 0, 6 + eIdx * 60) or nil,
-			BackgroundColor3 = isRoblox and Color3.fromRGB(56, 36, 68) or nil,
-		}, trophContent)
-		addCornerAndStroke(card, 6, isRoblox and Color3.fromRGB(28, 16, 34) or nil, 1.5)
+		local card = self.ui:card(trophContent, {
+			name = "TrophyCard_Egg_" .. tostring(eIdx), family = "calendar",
+			fill = { 56, 36, 68 }, top = { 84, 56, 100 }, border = { 28, 16, 34 },
+			size = { 1, -12, 0, 54 }, position = { 0, 6, 0, 6 + eIdx * 60 },
+		})
 
-		local eName = createGuiElement("TextLabel", {
-			Name = "EggTitle",
-			Size = isRoblox and UDim2.new(0.35, 0, 1, 0) or nil,
-			Position = isRoblox and UDim2.new(0.02, 0, 0, 0) or nil,
-			BackgroundTransparency = 1,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 235, 120) or nil,
-			Text = egg.name,
-		}, card)
-		addTextStroke(eName, 1.6)
+		local eName = self.ui:label(card, {
+			name = "EggTitle", size = { 0.35, 0, 1, 0 }, position = { 0.02, 0, 0, 0 },
+			text = egg.name, color = { 255, 235, 120 }, align = "Left",
+			textStroke = 1.6, maxTextSize = 17,
+		})
 
 		-- 5 Trophy Cups: Bronze, Silver, Gold, Platinum, Diamond
 		for tIdx, tInfo in ipairs(TROPHY_POPULATION_TIERS) do
-			local cupBtn = createGuiElement("TextButton", {
-				Name = "CupBtn_" .. tostring(tIdx),
-				Size = isRoblox and UDim2.new(0.11, 0, 0.76, 0) or nil,
-				Position = isRoblox and UDim2.new(0.38 + (tIdx - 1) * 0.12, 0, 0.12, 0) or nil,
-				BackgroundColor3 = isRoblox and Color3.fromRGB(78, 48, 92) or nil,
-				Font = isRoblox and Enum.Font.FredokaOne or nil,
-				TextScaled = true,
-				TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-				Text = tInfo.icon .. "\n" .. tInfo.name,
-			}, card)
-			addCornerAndStroke(cupBtn, 4, isRoblox and Color3.fromRGB(30, 15, 36) or nil, 1.2)
-			if cupBtn.Activated then
-				cupBtn.Activated:Connect(function()
+			local cupBtn = self.ui:button(card, {
+				name = "CupBtn_" .. tostring(tIdx),
+				text = tInfo.name, tone = "neutral",
+				size = { 0.11, 0, 0, 44 }, position = { 0.38 + (tIdx - 1) * 0.12, 0, 0, 5 },
+				textStroke = 1.2, maxTextSize = 12,
+				onClick = function()
 					if type(self.onClaimTrophy) == "function" then
 						self.onClaimTrophy(eIdx, tIdx)
 					end
-				end)
-			end
+				end,
+			})
 		end
 
 		self.trophyCards[eIdx] = card
@@ -2704,237 +2453,146 @@ function HUD:_buildCalendarModal(root)
 end
 
 function HUD:_buildEggUpgradeModal(root)
-	local eggModal = createGuiElement("Frame", {
-		Name = "EggUpgradeModal",
-		Visible = false,
-		Size = isRoblox and UDim2.new(0, 440, 0, 390) or nil,
-		Position = isRoblox and UDim2.new(0.5, -220, 0.5, -195) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(68, 36, 22) or nil,
-	}, root)
-	addCornerAndStroke(eggModal, 14, isRoblox and Color3.fromRGB(255, 215, 65) or nil, 3.2)
-	applyModalMobileConstraints(eggModal)
+	-- Shared stud-style window (#82): egg family; the existing label wording stays (minus the
+	-- decorative glyphs) so every getter and the reset flow keep working unchanged.
+	local win = self.ui:window({
+		parent = root, name = "EggUpgradeModal", family = "egg",
+		title = "STACJA BADAWCZA JAJ",
+		designWidth = 440, designHeight = 400,
+	})
+	local eggModal = win.frame
 	self.eggUpgradeModal = eggModal
-
-	createGuiElement("TextLabel", {
-		Name = "EggUpgradeTitle",
-		Size = isRoblox and UDim2.new(1, -60, 0, 36) or nil,
-		Position = isRoblox and UDim2.new(0, 16, 0, 10) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 225, 75) or nil,
-		Text = "✨ STACJA BADAWCZA JAJ",
-	}, eggModal)
-
-	self:_buildCloseButton(eggModal, function()
-		self.eggUpgradeModal.Visible = false
+	self:_fitWindow(eggModal, win.designWidth, win.designHeight)
+	self.ui:closeButton(eggModal, function()
+		eggModal.Visible = false
 	end)
 
-	self.eggUpgradeCurrentLabel = createGuiElement("TextLabel", {
-		Name = "CurrentEggLabel",
-		Size = isRoblox and UDim2.new(1, -32, 0, 26) or nil,
-		Position = isRoblox and UDim2.new(0, 16, 0, 52) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-		Text = "🥚 Aktualne: Jajo Jadalne (Edible)",
-	}, eggModal)
+	self.eggUpgradeCurrentLabel = self.ui:label(eggModal, {
+		name = "CurrentEggLabel", size = { 1, -32, 0, 26 }, position = { 0, 16, 0, 74 },
+		text = "Aktualne: Jajo Jadalne (Edible)", color = { 255, 255, 255 },
+		textStroke = 1.8, maxTextSize = 18,
+	})
 
-	self.eggUpgradeNextLabel = createGuiElement("TextLabel", {
-		Name = "NextEggLabel",
-		Size = isRoblox and UDim2.new(1, -32, 0, 26) or nil,
-		Position = isRoblox and UDim2.new(0, 16, 0, 82) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(115, 245, 115) or nil,
-		Text = "✨ Następne: Jajo Superfood",
-	}, eggModal)
+	self.eggUpgradeNextLabel = self.ui:label(eggModal, {
+		name = "NextEggLabel", size = { 1, -32, 0, 26 }, position = { 0, 16, 0, 104 },
+		text = "Następne: Jajo Superfood", color = { 115, 245, 115 },
+		textStroke = 1.8, maxTextSize = 18,
+	})
 
-	self.eggUpgradeMultLabel = createGuiElement("TextLabel", {
-		Name = "MultiplierLabel",
-		Size = isRoblox and UDim2.new(1, -32, 0, 24) or nil,
-		Position = isRoblox and UDim2.new(0, 16, 0, 112) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 215, 100) or nil,
-		Text = "📈 Mnożnik Wartości: 5.0x",
-	}, eggModal)
+	self.eggUpgradeMultLabel = self.ui:label(eggModal, {
+		name = "MultiplierLabel", size = { 1, -32, 0, 24 }, position = { 0, 16, 0, 134 },
+		text = "Mnożnik Wartości: 5.0x", color = { 255, 215, 100 },
+		textStroke = 1.8, maxTextSize = 17,
+	})
 
-	self.eggUpgradeCurrentFvLabel = createGuiElement("TextLabel", {
-		Name = "CurrentFvLabel",
-		Size = isRoblox and UDim2.new(1, -32, 0, 24) or nil,
-		Position = isRoblox and UDim2.new(0, 16, 0, 142) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(135, 225, 255) or nil,
-		Text = "💰 Twoje Farm Value: $0",
-	}, eggModal)
+	self.eggUpgradeCurrentFvLabel = self.ui:label(eggModal, {
+		name = "CurrentFvLabel", size = { 1, -32, 0, 24 }, position = { 0, 16, 0, 164 },
+		text = "Twoje Farm Value: $0", color = { 135, 225, 255 },
+		textStroke = 1.8, maxTextSize = 17,
+	})
 
-	self.eggUpgradeReqFvLabel = createGuiElement("TextLabel", {
-		Name = "RequiredFvLabel",
-		Size = isRoblox and UDim2.new(1, -32, 0, 24) or nil,
-		Position = isRoblox and UDim2.new(0, 16, 0, 170) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 185, 115) or nil,
-		Text = "🎯 Wymagane Farm Value: $68.0M",
-	}, eggModal)
+	self.eggUpgradeReqFvLabel = self.ui:label(eggModal, {
+		name = "RequiredFvLabel", size = { 1, -32, 0, 24 }, position = { 0, 16, 0, 192 },
+		text = "Wymagane Farm Value: $68.0M", color = { 255, 185, 115 },
+		textStroke = 1.8, maxTextSize = 17,
+	})
 
-	self.eggUpgradeWarningLabel = createGuiElement("TextLabel", {
-		Name = "WarningLabel",
-		Size = isRoblox and UDim2.new(1, -32, 0, 50) or nil,
-		Position = isRoblox and UDim2.new(0, 16, 0, 202) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 200, 180) or nil,
-		Text = "⚠️ Awans zresetuje bieżącą gotówkę, kurniki i pojazdy.\nPety, Złote Jaja i badania Epickie zostaną zachowane!",
-	}, eggModal)
+	-- Reset warning: a themed pill so the destructive note is unmistakable and readable.
+	self.eggUpgradeWarningLabel = self.ui:pill(eggModal, {
+		name = "WarningLabel", size = { 1, -32, 0, 52 }, position = { 0, 16, 0, 224 },
+		text = "Awans zresetuje bieżącą gotówkę, kurniki i pojazdy.\nPety, Złote Jaja i badania Epickie zostaną zachowane!",
+		tone = "locked", align = "Center", wrapped = true,
+		maxTextSize = 15, radius = 8, transparency = 0.15,
+	})
 
-	local upgEggBtn = createGuiElement("TextButton", {
-		Name = "UpgradeEggButton",
-		Size = isRoblox and UDim2.new(1, -40, 0, 52) or nil,
-		Position = isRoblox and UDim2.new(0, 20, 0, 260) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(95, 235, 55) or nil,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-		Text = "AWANSUJ NASTĘPNE JAJO",
-	}, eggModal)
-	addCornerAndStroke(upgEggBtn, 10, isRoblox and Color3.fromRGB(24, 60, 14) or nil, 2.5)
-	self.eggUpgradeBtn = upgEggBtn
-
-	if upgEggBtn.Activated then
-		upgEggBtn.Activated:Connect(function()
+	local upgEggBtn = self.ui:button(eggModal, {
+		name = "UpgradeEggButton", text = "AWANSUJ NASTĘPNE JAJO", tone = "primary",
+		size = { 1, -40, 0, 52 }, position = { 0, 20, 0, 292 },
+		textStroke = 2.4, maxTextSize = 20,
+		onClick = function()
 			local farm = self.stateStore and self.stateStore:getFarm()
 			local curEggIdx = (farm and farm.eggIndex) or 0
 			local nextEggIdx = curEggIdx + 1
 			if nextEggIdx <= 18 and type(self.onUpgradeEggRequested) == "function" then
 				self.onUpgradeEggRequested(nextEggIdx)
 			end
-		end)
-	end
+		end,
+	})
+	self.eggUpgradeBtn = upgEggBtn
 end
 
 function HUD:_buildPetHatchModal(root)
-	local hFrame = createGuiElement("Frame", {
-		Name = "PetHatchModal",
-		Visible = false,
-		Size = isRoblox and UDim2.new(0, 480, 0, 420) or nil,
-		Position = isRoblox and UDim2.new(0.5, -240, 0.5, -210) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(55, 25, 55) or nil,
-	}, root)
-	addCornerAndStroke(hFrame, 14, isRoblox and Color3.fromRGB(255, 215, 65) or nil, 3.2)
-	applyModalMobileConstraints(hFrame)
+	-- Shared stud-style window (#82): incubation uses the same frame/header/close family.
+	local win = self.ui:window({
+		parent = root, name = "PetHatchModal", family = "hatch",
+		title = "INKUBACJA & WYKLUWANIE JAJ",
+		designWidth = 480, designHeight = 460,
+	})
+	local hFrame = win.frame
 	self.petHatchModal = hFrame
-
-	createGuiElement("TextLabel", {
-		Name = "PetHatchHeader",
-		Size = isRoblox and UDim2.new(1, -50, 0, 36) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 0, 10) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 235, 110) or nil,
-		Text = "🐣 INKUBACJA & WYKLUWANIE JAJ",
-	}, hFrame)
-
-	self:_buildCloseButton(hFrame, function()
-		self.petHatchModal.Visible = false
+	self:_fitWindow(hFrame, win.designWidth, win.designHeight)
+	self.ui:closeButton(hFrame, function()
+		hFrame.Visible = false
 	end)
 
 	-- Subtitle info
-	createGuiElement("TextLabel", {
-		Name = "PetHatchSubtitle",
-		Size = isRoblox and UDim2.new(1, -28, 0, 24) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 0, 46) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(240, 240, 240) or nil,
-		Text = "Inkubuj jajo i odkryj nowego zwierzaka ze specjalnym bonusem!",
-	}, hFrame)
+	self.ui:label(hFrame, {
+		name = "PetHatchSubtitle", size = { 1, -28, 0, 24 }, position = { 0, 14, 0, 70 },
+		text = "Inkubuj jajo i odkryj nowego zwierzaka ze specjalnym bonusem!",
+		color = { 240, 240, 240 }, align = "Left", textStroke = 1.6, maxTextSize = 16,
+	})
 
 	-- Central Egg Preview Card
-	local card = createGuiElement("Frame", {
-		Name = "EggPreviewCard",
-		Size = isRoblox and UDim2.new(1, -28, 0, 240) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 0, 78) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(38, 16, 38) or nil,
-	}, hFrame)
-	addCornerAndStroke(card, 10, isRoblox and Color3.fromRGB(255, 215, 65) or nil, 2)
+	local card = self.ui:card(hFrame, {
+		name = "EggPreviewCard", family = "hatch",
+		fill = { 38, 16, 38 }, top = { 66, 30, 64 }, border = { 255, 215, 65 },
+		size = { 1, -28, 0, 250 }, position = { 0, 14, 0, 100 },
+	})
 
-	-- Egg Icon / Graphic
-	createGuiElement("TextLabel", {
-		Name = "EggGraphicLabel",
-		Size = isRoblox and UDim2.new(0, 90, 0, 90) or nil,
-		Position = isRoblox and UDim2.new(0.5, -45, 0, 12) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		Text = "🥚",
-	}, card)
+	-- Egg icon slot: a genuine cracked-egg image once bound, otherwise the text name below
+	-- carries the meaning and no placeholder is drawn.
+	local eggSlot, eggImage = self.ui:iconSlot(card, {
+		key = "window.hatch", size = 90, position = { 0.5, -45, 0, 12 },
+		background = { 38, 16, 38 }, border = { 255, 215, 65 }, transparency = 0,
+	})
+	if eggSlot == nil then
+		self.ui:label(card, {
+			name = "EggGraphicLabel", size = { 0, 90, 0, 90 }, position = { 0.5, -45, 0, 12 },
+			text = "Jajo", color = { 255, 235, 110 }, textStroke = 1.6, maxTextSize = 22,
+		})
+	end
 
-	createGuiElement("TextLabel", {
-		Name = "EggNameLabel",
-		Size = isRoblox and UDim2.new(1, -20, 0, 26) or nil,
-		Position = isRoblox and UDim2.new(0, 10, 0, 106) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 235, 110) or nil,
-		Text = "Standardowe Jajo Peta",
-	}, card)
+	self.ui:label(card, {
+		name = "EggNameLabel", size = { 1, -20, 0, 26 }, position = { 0, 10, 0, 112 },
+		text = "Standardowe Jajo Peta", color = { 255, 235, 110 },
+		textStroke = 1.8, maxTextSize = 18,
+	})
 
 	-- Chances breakdown label
-	createGuiElement("TextLabel", {
-		Name = "EggChancesLabel",
-		Size = isRoblox and UDim2.new(1, -20, 0, 40) or nil,
-		Position = isRoblox and UDim2.new(0, 10, 0, 134) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(220, 220, 240) or nil,
-		Text = "✨ Szanse:\nCommon (60%) • Rare (25%) • Epic (12%) • Legendary (3%)",
-	}, card)
+	self.ui:label(card, {
+		name = "EggChancesLabel", size = { 1, -20, 0, 46 }, position = { 0, 10, 0, 142 },
+		text = "Szanse:\nCommon (60%) • Rare (25%) • Epic (12%) • Legendary (3%)",
+		color = { 220, 220, 240 }, wrapped = true, textStroke = 1.4, maxTextSize = 15,
+	})
 
 	-- Cost label
-	createGuiElement("TextLabel", {
-		Name = "EggCostLabel",
-		Size = isRoblox and UDim2.new(1, -20, 0, 24) or nil,
-		Position = isRoblox and UDim2.new(0, 10, 0, 180) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 215, 65) or nil,
-		Text = "Koszt: 100 Złotych Jaj (GE)",
-	}, card)
+	self.ui:label(card, {
+		name = "EggCostLabel", size = { 1, -20, 0, 24 }, position = { 0, 10, 0, 198 },
+		text = "Koszt: 100 Złotych Jaj (GE)", color = { 255, 215, 65 },
+		textStroke = 1.6, maxTextSize = 17,
+	})
 
 	-- Hatch Button
-	local hatchBtn = createGuiElement("TextButton", {
-		Name = "HatchButton",
-		Size = isRoblox and UDim2.new(1, -28, 0, 52) or nil,
-		Position = isRoblox and UDim2.new(0, 14, 0, 336) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(60, 200, 75) or nil,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-		Text = "🐣 WYSIADUJ / INKUBUJ (100 GE)",
-	}, hFrame)
-	addCornerAndStroke(hatchBtn, 10, isRoblox and Color3.fromRGB(30, 120, 45) or nil, 2.5)
-
-	if hatchBtn.Activated then
-		hatchBtn.Activated:Connect(function()
+	local hatchBtn = self.ui:button(hFrame, {
+		name = "HatchButton", text = "WYSIADUJ / INKUBUJ (100 GE)", tone = "primary",
+		size = { 1, -28, 0, 52 }, position = { 0, 14, 1, -66 },
+		textStroke = 2.4, maxTextSize = 20,
+		onClick = function()
 			if type(self.onHatchPetEgg) == "function" then
 				self.onHatchPetEgg("standard_egg")
 			end
-		end)
-	end
+		end,
+	})
 	self.hatchEggButton = hatchBtn
 end
 
@@ -2988,18 +2646,14 @@ function HUD:_buildHatchAnimationOverlay(root)
 	addCornerAndStroke(revealCard, 14, isRoblox and Color3.fromRGB(255, 215, 65) or nil, 3.5)
 	self.petRevealCard = revealCard
 
-	createGuiElement("TextLabel", {
-		Name = "RevealTitle",
-		Size = isRoblox and UDim2.new(1, -20, 0, 36) or nil,
-		Position = isRoblox and UDim2.new(0, 10, 0, 12) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 235, 110) or nil,
-		Text = "🎉 WYKLUŁEŚ NOWEGO PETA!",
-		ZIndex = 54,
-	}, revealCard)
+	self.ui:heading(revealCard, {
+		name = "RevealTitle", size = { 1, -20, 0, 36 }, position = { 0, 10, 0, 12 },
+		text = "WYKLUŁEŚ NOWEGO PETA!", color = { 255, 235, 110 },
+		zIndex = 54, textStroke = 2.4, maxTextSize = 22,
+	})
 
+	-- The pet species glyph stays a text label: it is content (which pet), driven by the reveal
+	-- data, and its text is part of the verified HUD surface.
 	local iconLabel = createGuiElement("TextLabel", {
 		Name = "PetIcon",
 		Size = isRoblox and UDim2.new(0, 120, 0, 120) or nil,
@@ -3012,86 +2666,47 @@ function HUD:_buildHatchAnimationOverlay(root)
 	}, revealCard)
 	self.revealPetIcon = iconLabel
 
-	local nameLabel = createGuiElement("TextLabel", {
-		Name = "PetName",
-		Size = isRoblox and UDim2.new(1, -20, 0, 32) or nil,
-		Position = isRoblox and UDim2.new(0, 10, 0, 176) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-		Text = "Farmer Dog",
-		ZIndex = 54,
-	}, revealCard)
+	local nameLabel = self.ui:label(revealCard, {
+		name = "PetName", size = { 1, -20, 0, 32 }, position = { 0, 10, 0, 176 },
+		text = "Farmer Dog", color = { 255, 255, 255 },
+		zIndex = 54, textStroke = 2.0, maxTextSize = 20,
+	})
 	self.revealPetName = nameLabel
 
-	local rarityLabel = createGuiElement("TextLabel", {
-		Name = "PetRarity",
-		Size = isRoblox and UDim2.new(1, -20, 0, 26) or nil,
-		Position = isRoblox and UDim2.new(0, 10, 0, 210) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 215, 65) or nil,
-		Text = "Legendary",
-		ZIndex = 54,
-	}, revealCard)
+	local rarityLabel = self.ui:label(revealCard, {
+		name = "PetRarity", size = { 1, -20, 0, 26 }, position = { 0, 10, 0, 210 },
+		text = "Legendary", color = { 255, 215, 65 },
+		zIndex = 54, textStroke = 2.0, maxTextSize = 18,
+	})
 	self.revealPetRarity = rarityLabel
 
-	local statLabel = createGuiElement("TextLabel", {
-		Name = "PetStat",
-		Size = isRoblox and UDim2.new(1, -20, 0, 28) or nil,
-		Position = isRoblox and UDim2.new(0, 10, 0, 240) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(120, 255, 140) or nil,
-		Text = "+50% Wartość Jaj",
-		ZIndex = 54,
-	}, revealCard)
+	local statLabel = self.ui:label(revealCard, {
+		name = "PetStat", size = { 1, -20, 0, 28 }, position = { 0, 10, 0, 240 },
+		text = "+50% Wartość Jaj", color = { 120, 255, 140 },
+		zIndex = 54, textStroke = 2.0, maxTextSize = 18,
+	})
 	self.revealPetStat = statLabel
 
-	-- Action buttons: Equip, Lock, Confirm
-	local equipBtn = createGuiElement("TextButton", {
-		Name = "EquipNowBtn",
-		Size = isRoblox and UDim2.new(0.46, 0, 0, 46) or nil,
-		Position = isRoblox and UDim2.new(0.03, 0, 0, 284) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(45, 175, 75) or nil,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-		Text = "🐾 Załóż Peta",
-		ZIndex = 54,
-	}, revealCard)
-	addCornerAndStroke(equipBtn, 8, isRoblox and Color3.fromRGB(20, 90, 35) or nil, 2)
+	-- Action buttons: Equip, Lock, Confirm (shared tactile buttons, >= 44px)
+	local equipBtn = self.ui:button(revealCard, {
+		name = "EquipNowBtn", text = "Załóż Peta", tone = "primary",
+		size = { 0.46, 0, 0, 46 }, position = { 0.03, 0, 0, 284 },
+		zIndex = 54, textStroke = 2.0, maxTextSize = 17,
+	})
 	self.revealEquipBtn = equipBtn
 
-	local lockBtn = createGuiElement("TextButton", {
-		Name = "LockBtn",
-		Size = isRoblox and UDim2.new(0.46, 0, 0, 46) or nil,
-		Position = isRoblox and UDim2.new(0.51, 0, 0, 284) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(175, 115, 45) or nil,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-		Text = "🔒 Zablokuj",
-		ZIndex = 54,
-	}, revealCard)
-	addCornerAndStroke(lockBtn, 8, isRoblox and Color3.fromRGB(90, 55, 20) or nil, 2)
+	local lockBtn = self.ui:button(revealCard, {
+		name = "LockBtn", text = "Zablokuj", tone = "gold",
+		size = { 0.46, 0, 0, 46 }, position = { 0.51, 0, 0, 284 },
+		zIndex = 54, textStroke = 2.0, maxTextSize = 17,
+	})
 	self.revealLockBtn = lockBtn
 
-	local confirmBtn = createGuiElement("TextButton", {
-		Name = "ConfirmBtn",
-		Size = isRoblox and UDim2.new(0.94, 0, 0, 48) or nil,
-		Position = isRoblox and UDim2.new(0.03, 0, 0, 342) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(150, 60, 160) or nil,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-		Text = "✅ Zatwierdź / Zamknij",
-		ZIndex = 54,
-	}, revealCard)
-	addCornerAndStroke(confirmBtn, 8, isRoblox and Color3.fromRGB(75, 25, 80) or nil, 2)
+	local confirmBtn = self.ui:button(revealCard, {
+		name = "ConfirmBtn", text = "Zatwierdź / Zamknij", tone = "boost",
+		size = { 0.94, 0, 0, 48 }, position = { 0.03, 0, 0, 342 },
+		zIndex = 54, textStroke = 2.0, maxTextSize = 17,
+	})
 	self.revealConfirmBtn = confirmBtn
 end
 
@@ -4381,6 +3996,16 @@ function HUD:getCalendarModal() return self.calendarModal end
 function HUD:getEggUpgradeModal() return self.eggUpgradeModal end
 function HUD:getPetHatchModal() return self.petHatchModal end
 function HUD:getHatchAnimationOverlay() return self.hatchAnimationOverlay end
+
+-- Read-only #82 diagnostic: which window/menu image keys are still awaiting an uploaded id.
+-- Reports the shared StudUi binding state plus the module-level upload flag. It never invents an
+-- id, so a reviewer can see exactly which bindings root still has to fill in UiAssets.
+function HUD:getAssetStatus()
+	local status = if self.ui and type(self.ui.assetStatus) == "function" then self.ui:assetStatus() else {}
+	status.uploadPending = (type(UiAssets) == "table" and UiAssets.uploadPending == true)
+		or (tonumber(status.pending) or 0) > 0
+	return status
+end
 
 function HUD:getShippingComparisonStatus()
 	local badge = self.shippingComparisonBar and self.shippingComparisonBar:FindFirstChild("StatusBadge")

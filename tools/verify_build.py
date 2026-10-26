@@ -42,7 +42,7 @@ def main():
                  "ViewProjector", "NetworkGateway", "Bootstrap"):
         assert private + name in modules, name
     for name in ("ClientTransport", "ClientStateStore", "RoutePresentation",
-                 "IntentControllers", "HUD", "onboarding/TutorialController", "AudioController", "Bootstrap"):
+                 "IntentControllers", "HUD", "ui/StudUi", "ui/UiAssets", "onboarding/TutorialController", "AudioController", "Bootstrap"):
         assert client + name in modules, name
     expected_scripts = {
         private + "Main",
