@@ -464,9 +464,33 @@ end)
 -- ============================================================================
 
 local rewardPromptWorld, rewardPrompts, lastOfferAvailability=nil,{},nil
+local buyPads, worldConnections = {}, {}
+local lastPadCheckAt = -math.huge
 local lastHatchStepAt = 0
 local padCooldowns = {} -- [Instance] = os.clock()
 -- Reward actors are driven exclusively by server-issued private view records.
+
+local function bindInteractionWorld(world)
+	for _, connection in worldConnections do connection:Disconnect() end
+	worldConnections = {}
+	buyPads, rewardPrompts, padCooldowns = {}, {}, {}
+	rewardPromptWorld, lastOfferAvailability = world, nil
+	if not world then return end
+	local function added(item)
+		-- Read attributes at use time: they may replicate after the instance.
+		if item:IsA("BasePart") and item.Name == "TouchPlate" then buyPads[item] = true end
+		if (item:IsA("ProximityPrompt") and (item.Name == "DeliveryPrompt" or item.Name == "ParcelPrompt" or item.Name == "ClaimOfferPrompt" or item.ActionText == "Otwórz Paczkę"))
+			or (item:IsA("BillboardGui") and item.Name == "ParcelBillboard") then
+			rewardPrompts[item] = true
+			lastOfferAvailability = nil
+		end
+	end
+	table.insert(worldConnections, world.DescendantAdded:Connect(added))
+	table.insert(worldConnections, world.DescendantRemoving:Connect(function(item)
+		buyPads[item], rewardPrompts[item], padCooldowns[item] = nil, nil, nil
+	end))
+	for _, item in world:GetDescendants() do added(item) end
+end
 
 local function isCharacterTouchingPart(character, part)
 	if not character or not part or not part:IsA("BasePart") then
@@ -504,16 +528,9 @@ RunService.RenderStepped:Connect(function(dt)
     -- No local reward IDs or fallback schedules. Empty/unconfigured channels stay inactive.
     local offerAvailable=#client:getOrdinaryOffers()>0
     local rewardWorld=Workspace:FindFirstChild("HatchTheEggWorld")
-    if rewardWorld~=rewardPromptWorld then
-        rewardPromptWorld=rewardWorld;rewardPrompts={};lastOfferAvailability=nil
-        if rewardWorld then
-            for _,item in rewardWorld:GetDescendants() do
-                if (item:IsA("ProximityPrompt") and (item.Name=="DeliveryPrompt" or item.Name=="ParcelPrompt" or item.Name=="ClaimOfferPrompt" or item.ActionText=="Otwórz Paczkę")) or (item:IsA("BillboardGui") and item.Name=="ParcelBillboard") then table.insert(rewardPrompts,item) end
-            end
-        end
-    end
+    if rewardWorld~=rewardPromptWorld then bindInteractionWorld(rewardWorld) end
     if lastOfferAvailability~=offerAvailable then
-        client:syncDeliveryWidgets(rewardPrompts)
+        for widget in rewardPrompts do widget.Enabled=offerAvailable end
         lastOfferAvailability=offerAvailable
     end
 
@@ -544,8 +561,11 @@ RunService.RenderStepped:Connect(function(dt)
 	end
 
 	-- 2. Check All Studded Step-On Buy Pads (Habitats, Vehicles, Research)
-	for _, desc in ipairs(worldFolder:GetDescendants()) do
-		if desc.Name == "TouchPlate" and desc:IsA("BasePart") then
+	-- Buy pads need proximity sampling, not a full world scan per rendered frame.
+	if nowClock - lastPadCheckAt < 0.1 then return end
+	lastPadCheckAt = nowClock
+	for desc in buyPads do
+		if desc:IsDescendantOf(worldFolder) then
 			local padKind = desc:GetAttribute("PadKind")
 			if padKind then
 				local touching = isCharacterTouchingPart(character, desc)

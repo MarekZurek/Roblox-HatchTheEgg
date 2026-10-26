@@ -24,6 +24,13 @@ local function deepCopy(t)
 	return copy
 end
 
+local function freezeTree(t)
+	for _, value in t do
+		if type(value) == "table" then freezeTree(value) end
+	end
+	return table.freeze(t)
+end
+
 local ClientStateStore = {}
 ClientStateStore.__index = ClientStateStore
 ClientStateStore.LIFECYCLE = LIFECYCLE
@@ -110,6 +117,16 @@ function ClientStateStore:getFarm()
 	return if self.farm ~= nil then deepCopy(self.farm) else nil
 end
 
+-- Shared presentation snapshot: copy only once per accepted view change.
+-- Keep getFarm() as the defensive, independently mutable public copy API.
+function ClientStateStore:getPresentationFarm()
+	if self.farm == nil then return nil end
+	if self._presentationFarm == nil then
+		self._presentationFarm = freezeTree(deepCopy(self.farm))
+	end
+	return self._presentationFarm
+end
+
 function ClientStateStore:getState()
 	return {
 		status = self.status,
@@ -138,6 +155,7 @@ function ClientStateStore:applySnapshot(snapshot)
 	self.serverObservedAt = snapshot.serverObservedAt
 	self.audience = snapshot.view.audience
 	self.farm = deepCopy(snapshot.view.farm)
+	self._presentationFarm = nil
 
 	local prevStatus = self.status
 	if self.farm.lifecycle == "sessionLost" then
@@ -199,6 +217,7 @@ function ClientStateStore:applyDelta(delta)
 	-- ProtocolSchemas section replacement: replace whole indicated sections in farm
 	local farmChanges = delta.changes and delta.changes.farm
 	if farmChanges ~= nil and self.farm ~= nil then
+		self._presentationFarm = nil
 		for sectionKey, sectionValue in farmChanges do
 			self.farm[sectionKey] = deepCopy(sectionValue)
 		end

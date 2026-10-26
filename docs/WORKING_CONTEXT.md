@@ -15,6 +15,12 @@ Cel: farma HatchTheEgg z petami w Roblox, zgodna z opisaną specyfikacją. Poni�
 - **Granice pozostają:** odłożony bilans `docs/17–21` bez zmian i bez wznowienia; dane referencyjne nie są automatycznie zatwierdzoną konfiguracją premiery. Odbiór S/D/H i pozostała integracja premiery nadal wymagają osobnych dowodów. Nie ponawiać dawnych audytów mechanik bez związku z nowym zadaniem.
 - Przy rozpoczęciu tego zadania drzewo Git było czyste. Dawne dziewięć nieśledzonych plików audytu jest już śledzone w `5035b4c`; poprzednie ostrzeżenie, że nadal są nieśledzone, jest nieaktualne. Nie usuwać ich ani nie przepisywać historii w ramach optymalizacji kontekstu.
 
+## Optymalizacja klienta — zmiany lokalne 26.10.2026
+
+Na bazie `3284b5b` wdrożono na zlecenie użytkownika HUD na zdarzenia, niemutowalny cache widoku farmy i indeks płytek. [Raport wdrożenia i pomiary](workflow/client_performance_2026_10_26.md): 39 zestawów / 80 861 asercji Luau oraz 11 testów Python PASS; Rojo 39 modułów + 2 entrypointy. Trzy krótkie próbki Studio: przed około 58,1/55,0/52,4 FPS, po około 60 FPS; bez gwarancji stałego zysku. Cztery źródła klienta zsynchronizowano z otwartą instancją; własny Play zakończono w Edit, UseLocalMemoryStore=true. Zmiany są lokalne, bez commitu/push/publikacji i bez zapisu pliku place. Pełny odbiór S/D/H nadal niewykonany. Początkowy [raport diagnozy](workflow/performance_investigation_2026_10_26.md) zachowuje wcześniejsze pomiary.
+
+**Błąd ujawniony podczas optymalizacji naprawiono następnie lokalnie na osobne zlecenie:** [zakup za świeży dochód](workflow/fresh_cash_purchase_fix_2026_10_26.md). PlayerCoordinator przekazuje validatorowi stan po symulacji, przed zakupem, z kontrolą bazowych pól na aktualnym rekordzie. Dochód, wydatek, korzyść i kursor czasu nadal mają jeden atomowy commit; replay/fencing pozostają aktywne. 308 nowych asercji, wybrane mutacje 6/6 wykryte; pełny runner 40 zestawów / 81 171 asercji Luau i 11 testów Python PASS, Rojo 39 modułów + 2 entrypointy. Studio: zakup z rewizji 0 przed autosave APPLIED, dwa duplikaty REPLAYED, poziom i rewizja pozostają 1. Tylko PlayerCoordinator dosynchronizowano do Studio; końcowo Edit, UseLocalMemoryStore=true. Zmiany nadal lokalne; niezależnego review i rzeczywistego DataStore nie wykonano, wydanie niezatwierdzone. Historyczny raport optymalizacji zachowuje wcześniejszy błąd jako wynik tamtego testu. Bilans i dane referencyjne bez zmian.
+
 ## Wcześniejsze decyzje i historia dostaw
 
 ## Czytać na początku

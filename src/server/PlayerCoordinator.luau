@@ -72,6 +72,29 @@ function Coordinator.new(deps)
 		end
 		queue={}
 	end
+	local function settledValidator(base,settled,validate)
+		-- The validator needs the state BEFORE the action, but AFTER simulation.
+		-- Rebase only the server's pending simulation fields onto each fresh storage
+		-- callback input. Never add earnings to an already rebased/retried value.
+		local changes=patches(base,settled)
+		if #changes==0 then return validate end
+		local expected={}
+		for i,change in changes do
+			local value=base[change.path[1]][change.path[2]]
+			expected[i]=if value~=nil then data.fingerprint(value) else false
+		end
+		return function(fresh,now)
+			for i,change in changes do
+				local value=fresh[change.path[1]][change.path[2]]
+				local actual=if value~=nil then data.fingerprint(value) else false
+				if actual~=expected[i] then return false,"SIMULATION_BASE_CHANGED" end
+			end
+			for _,change in changes do
+				fresh[change.path[1]][change.path[2]]=data.copy(change.value)
+			end
+			return validate(fresh,now)
+		end
+	end
 	guard=function()
 		if blocked or h.blocked or h.state~="READY" then return "OPERATION_BLOCKED" end
 		local ok,now,elapsed=pcall(function()return deps.clock.utcNowMs(),deps.clock.elapsedNowSeconds() end)
@@ -172,8 +195,13 @@ function Coordinator.new(deps)
 			assert(data.fingerprint(final)==data.fingerprint(candidate),"REJECTED_CHANGES")
 			changes={}
 		end
-		local result=repo.commit(h,op,{changes=changes,result=data.copy(outcome.result),terminalStatus=terminal,validate=outcome.validate})
-		if result.status=="APPLIED" then
+		local validator=settledValidator(h.snapshot,candidate,outcome.validate)
+		local result=repo.commit(h,op,{changes=changes,result=data.copy(outcome.result),terminalStatus=terminal,validate=validator})
+		if (result.errorCode or (result.result and result.result.errorCode))=="SIMULATION_BASE_CHANGED" then
+			-- A same-revision storage change cannot be combined with our pending
+			-- simulation safely. Require recovery instead of checkpointing stale work.
+			freezeWork("SIMULATION_BASE_CHANGED")
+		elseif result.status=="APPLIED" then
 			working=data.copy(h.snapshot)
 		elseif result.status=="REPLAYED" and result.terminalStatus=="APPLIED" then
 			working=data.copy(h.snapshot) -- confirmed retry may have refreshed the durable snapshot

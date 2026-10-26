@@ -167,12 +167,9 @@ end
 function ClientBootstrap:_setupEventBindings()
 	-- Synchronize HUD and presentation whenever state changes
 	local unsubState = self.stateStore:on("stateChanged", function(changeType, payload)
-		if self.hud then
-			self.hud:update()
-		end
-
+		-- HUD subscribes to the store itself, including when used standalone.
 		-- Sync in-transit chickens to RoutePresentation
-		local farm = self.stateStore:getFarm()
+		local farm = self.stateStore:getPresentationFarm()
         self:_syncIssuedDrones(self.stateStore:getServerObservedAt())
 		if farm and farm.habitats and self.routePresentation then
 			local nowMs = self.stateStore:getServerObservedAt() or 1000000
@@ -428,7 +425,7 @@ function ClientBootstrap:hatchPetEgg(eggType, callback)
 end
 
 function ClientBootstrap:_syncIssuedDrones(nowMs)
- local farm=self.stateStore:getFarm();local progress=if self.stateStore:isReady() then farm and farm.progress else nil
+ local farm=self.stateStore:getPresentationFarm();local progress=if self.stateStore:isReady() then farm and farm.progress else nil
  local current={};self._issuedDroneIds=self._issuedDroneIds or {}
  for _,spawn in (progress and progress.issuedDrones) or {} do
   if nowMs and nowMs<spawn.expiresAtMs then
@@ -449,7 +446,7 @@ function ClientBootstrap:syncDeliveryWidgets(widgets)
 end
 function ClientBootstrap:getOrdinaryOffers()
  if not self.stateStore:isReady() then return {} end
- local farm=self.stateStore:getFarm();return (farm and farm.progress and farm.progress.ordinaryOffers) or {}
+ local farm=self.stateStore:getPresentationFarm();return (farm and farm.progress and farm.progress.ordinaryOffers) or {}
 end
 
 function ClientBootstrap:update(nowMs)
@@ -459,7 +456,7 @@ function ClientBootstrap:update(nowMs)
 		self.routePresentation:update(nowMs)
 	end
 	if self.hud then
-		self.hud:update()
+		self.hud:tick(nowMs)
 	end
 end
 ClientBootstrap.tick = ClientBootstrap.update

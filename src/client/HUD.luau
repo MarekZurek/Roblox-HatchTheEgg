@@ -2880,6 +2880,7 @@ function HUD:requestQuotesForCurrentTier(force)
 	self._lastTierQuoteReqTime = now
 
 	local serverObservedAt = if self.stateStore then self.stateStore:getServerObservedAt() else nil
+	if serverObservedAt and self._quoteNowMs then serverObservedAt = math.max(serverObservedAt, self._quoteNowMs) end
 	local currentRevision = if self.stateStore then self.stateStore:getCommitRevision() else nil
 
 	for rId, rTier in pairs(COMMON_RESEARCH_TIERS) do
@@ -3077,7 +3078,7 @@ function HUD:onActionResult(response)
 end
 function HUD:update()
     self.fusionMaterialUids=self.fusionMaterialUids or {}
-    local farm=self.stateStore:getFarm()
+    local farm=(self.stateStore.getPresentationFarm or self.stateStore.getFarm)(self.stateStore)
     local progress=farm and farm.progress
     if self.fusionProPermitBadge and progress then
         self.fusionProPermitBadge.Text=if progress.proBonusAvailable then "Pro +10 p.p.: aktywne" elseif progress.paidRandomPolicy=="unknown" then "Pro +10 p.p.: polityka nieznana" elseif not progress.proPermit then "Pro +10 p.p.: wymaga Pro" else "Pro +10 p.p.: niedostępne dla konta" end
@@ -3094,7 +3095,6 @@ function HUD:update()
     end
 	self:updateStatus(self.stateStore:getStatus())
 
-	local farm = self.stateStore:getFarm()
 	if farm == nil then
 		return
 	end
@@ -3182,6 +3182,14 @@ function HUD:update()
 
 	-- 6. Egg Upgrade Modal Refresh
 	self:_updateEggUpgradeModal(farm)
+end
+
+-- Time-dependent quote maintenance stays live without repainting the HUD.
+function HUD:tick(nowMs)
+	self._quoteNowMs = nowMs
+	if self.shopFrame and self.shopFrame.Visible then
+		self:requestQuotesForCurrentTier(false)
+	end
 end
 
 function HUD:_updateVehiclesModal(farm)

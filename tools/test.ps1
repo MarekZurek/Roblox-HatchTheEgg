@@ -32,6 +32,12 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Static mapping verification failed.' }
     & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run tests/numeric/run.luau
     if ($LASTEXITCODE -ne 0) { throw 'Numeric tests failed.' }
+    $taskSuite = 'client_performance'
+    & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
+    if ($LASTEXITCODE -ne 0) { throw 'Client performance regressions failed.' }
+    $taskSuite = 'fresh_cash_purchases'
+    & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
+    if ($LASTEXITCODE -ne 0) { throw 'Fresh cash purchase regressions failed.' }
     foreach ($taskSuite in @('catalog', 'protocol', 'persistence', 'math', 'fv_se', 'ihr', 'hatching', 'coordinator', 'timeline', 'integration89', 'purchases', 'resets', 'effect_boundaries', 'pet_effects', 'fusion', 'drones', 'offers', 'claims', 'purchase_recovery', 'tutorial', 'gateway', 'client_state', 'presentation', 'ui', 'integration', 'acceptance', 'release_candidate', 'reward_security', 'production_context', 'game_behavior', 'calendar_cycle', 'persistence_startup', 'pro_policy', 'event_time', 'session_prestige_rcb', 'farm_gaps', 'entitlement_farm_regressions')) {
         & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
         if ($LASTEXITCODE -ne 0) { throw ('Tests failed: ' + $taskSuite) }
@@ -39,6 +45,8 @@ try {
     if ($MutationChecks) {
         & $PythonExecutable tests/game_behavior/mutation_check.py
         if ($LASTEXITCODE -ne 0) { throw 'Behavior mutation checks failed.' }
+        & $PythonExecutable tests/fresh_cash_purchases/mutation_check.py
+        if ($LASTEXITCODE -ne 0) { throw 'Fresh cash mutation checks failed.' }
     }
     & $PythonExecutable tests/release_reporting/test_reporting.py
     if ($LASTEXITCODE -ne 0) { throw 'Release evidence regression tests failed.' }

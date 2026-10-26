@@ -321,7 +321,7 @@ end
 -- ============================================================================
 -- Section 4: Integration with PlayerCoordinator (atomic commit, replay, error)
 -- ============================================================================
-local function createCoordinatorHarness()
+local function createCoordinatorHarness(startCash)
 	local t = { records = {}, now = 1000000, elapsed = 0, serial = 0, updates = 0, reads = 0 }
 	local store = {}
 	function store.read(key)
@@ -352,7 +352,7 @@ local function createCoordinatorHarness()
 	t.handle = acquired.handle
 
 	-- Seed initial funds & population on player:1
-	t.handle.snapshot.farm.cash = C.BigAmount.encode(500000)
+	t.handle.snapshot.farm.cash = startCash or C.BigAmount.encode(500000)
 	t.handle.snapshot.accounting.currentFarmCash = C.BigAmount.encode(123456)
 	t.handle.snapshot.farm.habitats[1].population = "100"
 	t.records["player:1"] = Data.copy(t.handle.snapshot)
@@ -477,31 +477,30 @@ do
 	eq(durableHab.accounting.currentFarmCash, C.BigAmount.encode(123456), "currentFarmCash invariant preserved")
 
 	-- 4.6 Insufficient cash rejection inside coordinator
-	-- Drain the player's cash to 0
-	h.records["player:1"].farm.cash = "0"
-	h.handle.snapshot.farm.cash = "0"
-	local actorSnapshots = actor.snapshots()
-	if actorSnapshots.working then
-		actorSnapshots.working.farm.cash = "0"
-	end
+	-- A consistent zero-cash fixture, not an out-of-band edit of the durable
+	-- handle while the actor still owns its prior working balance. snapshots()
+	-- returns copies; editing one never changes the live actor's working state.
+	local poor = createCoordinatorHarness("0")
+	poor.ready()
+	local poorActor = poor.actor
 
 	local opBroke = {
 		protocolVersion = 1,
 		requestId = "req-c4",
 		kind = "BuyVehicle",
 		operationId = "op-veh-broke",
-		expectedRevision = "3",
+		expectedRevision = "0",
 		args = { slotId = 2, vehicleId = "TRIKE", quoteId = "q-v-broke" },
 	}
-	eq(actor.submit(opBroke).status, "PENDING")
-	local drainBroke = h.drain()
+	eq(poorActor.submit(opBroke).status, "PENDING")
+	local drainBroke = poor.drain()
 	eq(drainBroke.results[1].status, "REJECTED")
-	eq(drainBroke.results[1].errorCode, "INSUFFICIENT_CASH")
+	eq(drainBroke.results[1].errorCode, nil, "Domain rejection reason is in the terminal result")
 	eq(drainBroke.results[1].result.errorCode, "INSUFFICIENT_CASH")
-	eq(drainBroke.results[1].resultRevision, "4")
+	eq(drainBroke.results[1].resultRevision, "1")
 
 	-- Replaying the rejected operation returns REPLAYED with terminalStatus REJECTED
-	local replayBroke = actor.submit(opBroke)
+	local replayBroke = poorActor.submit(opBroke)
 	eq(replayBroke.status, "REPLAYED")
 	eq(replayBroke.terminalStatus, "REJECTED")
 	eq(replayBroke.result.errorCode, "INSUFFICIENT_CASH")
