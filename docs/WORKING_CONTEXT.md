@@ -1,6 +1,21 @@
-# Bieżący kontekst — 24.10.2026
+# Bieżący kontekst — 26.10.2026
 
-Cel: farma HatchTheEgg z petami w Roblox, zgodna z opisaną specyfikacją. Aktualny zakres wykonania i ograniczenia podano w najnowszych wpisach IMP poniżej; wcześniejsze etapy dokumentacyjne są historyczne.
+Cel: farma HatchTheEgg z petami w Roblox, zgodna z opisaną specyfikacją. Poniższy skrót przekazania jest aktualnym punktem startowym; starsze opisy etapów i listy otwartych zgłoszeń dalej w pliku są historyczne.
+
+## Przekazanie do nowego chatu — 26.10.2026
+
+- Projekt: `HatchTheEgg`; repozytorium [MarekZurek/Roblox-HatchTheEgg](https://github.com/MarekZurek/Roblox-HatchTheEgg), gałąź `main`. Stan kodu przy przygotowaniu tego wpisu: `0b755423ff74224b2ff58494145f27a18db4dbe2`, potwierdzony również na zdalnym `main`. Nowy chat powinien najpierw sprawdzić aktualne `git status` i log, zamiast zakładać, że ten SHA nadal jest najnowszy.
+- #71–74 naprawiono, opublikowano i zamknięto w `b7d8ca88d37b8a3402d1cc26a35973f0af5a9773`: nadanie potwierdzonych passów po offline/UNKNOWN, maksimum RCB badań w FV, zniżki Epic i zakończenie hold dopiero po zatwierdzonym resecie. [Opis i dowody](workflow/entitlement_farm_fixes_71_74.md).
+- Dowody dla dostawy #71–74: 38 zestawów / 80 838 asercji Luau (192 nowe), 11 testów raportowania Python, 41/41 wybranych mutacji wykrytych. Są przypisane do tamtej dostawy; nie stanowią ponownej weryfikacji późniejszych zmian HUD/sceny ani pełnego odbioru Studio/chmury.
+- Później opublikowano `5035b4c`: poprawki klikalności, odświeżania wycen i stanów zakupu badań w HUD. Ten sam commit zawiera konfigurację oświetlenia. `0b75542` usuwa stare pola zakupowe 3D przed laboratorium i aktualizuje powiązane wywołanie klienta. Nie cofać tych zmian przy synchronizacji starszego buildu.
+- **Oświetlenie jest gotowe i opublikowane.** W [default.project.json](../default.project.json), bezpośrednio pod usługą `Lighting`: `LightingStyle = Soft`, `PrioritizeLightingQuality = false`, `GlobalShadows = true`. To współczesne ustawienia odpowiadające Voxel; nie dodawać runtime zapisu do przestarzałego `Lighting.Technology`. [Mapowanie Roblox](https://devforum.roblox.com/t/3401512).
+- Otwarty lokalny plik Studio: `HatchTheEgg.rbxlx`. Przy tym przekazaniu Studio było w **Edit**, `PlaceId=0`; odczytano powyższe trzy ustawienia Lighting oraz `ServerScriptService.HatchTheEgg.Main.UseLocalMemoryStore=true`. Stan procesu może się zmienić — sprawdzić połączenie i tryb przed działaniem. Sam ten odczyt nie dowodzi zgodności wszystkich źródeł otwartej sceny z najnowszym HEAD.
+- **Test lokalny:** `UseLocalMemoryStore=true` to jawny tryb Studio bez trwałego postępu i bez zakupów. Po Stop dane testu znikają. Domyślny build nie ustawia tego atrybutu: po ponownym otwarciu wygenerowanego pliku sprawdzić go przed Play i włączyć na zlecenie testów lokalnych. Nie włączać produkcyjnego fallbacku do pamięci. Lokalny nieopublikowany place bez tego trybu wcześniej zwrócił `DATASTORE_OPEN_FAILED` i prawidłowo odmówił wejścia.
+- W tym zadaniu ponownie wykonano Rojo build i `tools/verify_build.py`: **PASS_STATIC_BUILD**, 39 modułów i 2 entrypointy. Plik lokalny: `build/HatchTheEgg.rbxlx`; build jest ignorowany przez Git. Nie uruchamiano ponownie całego runnera ani Play; wynik nie zatwierdza wydania.
+- **Granice pozostają:** odłożony bilans `docs/17–21` bez zmian i bez wznowienia; dane referencyjne nie są automatycznie zatwierdzoną konfiguracją premiery. Odbiór S/D/H i pozostała integracja premiery nadal wymagają osobnych dowodów. Nie ponawiać dawnych audytów mechanik bez związku z nowym zadaniem.
+- Przy rozpoczęciu tego zadania drzewo Git było czyste. Dawne dziewięć nieśledzonych plików audytu jest już śledzone w `5035b4c`; poprzednie ostrzeżenie, że nadal są nieśledzone, jest nieaktualne. Nie usuwać ich ani nie przepisywać historii w ramach optymalizacji kontekstu.
+
+## Wcześniejsze decyzje i historia dostaw
 
 ## Czytać na początku
 
