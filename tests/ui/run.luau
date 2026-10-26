@@ -446,9 +446,9 @@ do
 	-- Verify HUD elements updated
 	eq(hud:getSessionStatus(), "READY", "Status is READY after snapshot")
 	eq(hud:getCashText(), "$5.42M", "Cash formatted as $5.42M")
-	eq(hud:getProducedEggsText(), "24.5K/s", "Produced eggs 24.5K/s")
-	eq(hud:getSoldEggsText(), "20K/s", "Sold eggs 20K/s")
-	eq(hud:getShippingText(), "1.2M/min", "Shipping 1.2M/min")
+	eq(hud:getProducedEggsText(), "24.5K jaj/s", "Produced eggs 24.5K jaj/s")
+	eq(hud:getSoldEggsText(), "20K jaj/s", "Sold eggs 20K jaj/s")
+	eq(hud:getShippingText(), "20K jaj/s", "Transport limit 1.2M/min -> 20K jaj/s")
 
 	-- Hatchery
 	eq(hud:getHatcheryText(), "250 / 500", "Hatchery stock / capacity")
@@ -499,7 +499,7 @@ do
 	eq(hud:getHabitatText(1), "350 / 500", "Habitat 1 population updated to 350 / 500")
 	eq(hud:getHabitatRatio(1), 0.7, "Habitat 1 ratio updated to 0.7")
 	-- Other elements unchanged
-	eq(hud:getProducedEggsText(), "24.5K/s", "Produced eggs preserved")
+	eq(hud:getProducedEggsText(), "24.5K jaj/s", "Produced eggs preserved")
 
 	hud:destroy()
 end

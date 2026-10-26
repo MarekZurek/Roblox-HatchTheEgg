@@ -125,6 +125,54 @@ function HUD.formatRate(selfOrAmount, maybeAmountOrUnit, maybeUnit)
 end
 
 -- ============================================================================
+-- Top Rates Panel Formatting
+-- The three former bare top numbers become one named panel: Produkcja, Sprzedaż and
+-- Limit transportu. Every value is a rate in Polish "jaj/s".
+-- Production and sales are already per-second values of the authoritative view. Transport is the
+-- fleet CAPACITY (jaj/min -> jaj/s), never the current sales amount or cash, and the conversion goes
+-- through the same BigAmount codec as the view: 5000/min renders as "83.33 jaj/s", not "5000/s".
+-- Formatting is presentation-only, the input farm view is only read and never mutated, and a missing
+-- authoritative field yields no text at all instead of an invented rate.
+-- ============================================================================
+
+HUD.RATES_HEADINGS = table.freeze({ "Produkcja", "Sprzedaż", "Limit transportu" })
+HUD.RATES_CAPTION = "Transport określa maksymalną sprzedaż"
+HUD.RATES_UNIT = " jaj/s"
+
+local function rateText(amount)
+	if amount == nil then return nil end
+	return formatCompact(amount) .. HUD.RATES_UNIT
+end
+
+function HUD.formatEggRate(selfOrAmount, maybeAmount)
+	local amount = if type(selfOrAmount) == "table" and selfOrAmount.formatEggRate == HUD.formatEggRate then maybeAmount else selfOrAmount
+	return rateText(amount)
+end
+
+-- Pure jaj/min -> jaj/s capacity conversion through the authoritative codec. Returns nil when the
+-- field or codec is absent (or the encoded decimal is rejected) so no fictional rate is displayed.
+function HUD.transportRatePerSecond(codec, shippingPerMinute)
+	if codec == nil or type(codec.BigAmount) ~= "table" or shippingPerMinute == nil then
+		return nil
+	end
+	local ok, perSecond = pcall(function()
+		return codec.BigAmount.divide(codec.BigAmount.decode(shippingPerMinute), 60)
+	end)
+	if not ok then return nil end
+	return perSecond
+end
+
+function HUD.formatTransportRate(selfOrCodec, maybeCodecOrPerMinute, maybePerMinute)
+	local codec, shippingPerMinute
+	if type(selfOrCodec) == "table" and selfOrCodec.formatTransportRate == HUD.formatTransportRate then
+		codec, shippingPerMinute = maybeCodecOrPerMinute, maybePerMinute
+	else
+		codec, shippingPerMinute = selfOrCodec, maybeCodecOrPerMinute
+	end
+	return rateText(HUD.transportRatePerSecond(codec, shippingPerMinute))
+end
+
+-- ============================================================================
 -- Hatch Status Helpers (#77)
 -- The blocked decision is presentation of the authoritative farm view only. Counts stay exact
 -- uint64 values: tonumber would round population/reservations above 2^53 and change the answer.
@@ -775,6 +823,17 @@ function HUD.new(deps)
 		hatchButton = nil,
 		topBar = nil,
 		audioToggleButton = nil,
+		-- Top rates panel: one named panel with three equal cells; the legacy value labels are
+		-- kept (producedEggsLabel/soldEggsLabel/shippingLabel) and each cell adds a visible heading.
+		ratesPanel = nil,
+		ratesCells = {},
+		ratesHeadingLabels = {},
+		ratesValueLabels = {},
+		ratesHeadingCaps = {},
+		ratesValueCaps = {},
+		ratesCaptionLabel = nil,
+		ratesCaptionCap = nil,
+		_topHeaderInset = 6,
 
 		-- Right Dock Menu Buttons
 		researchToggleBtn = nil,
@@ -886,22 +945,28 @@ function HUD:_buildInterface()
 	}, self.sessionBanner)
 	addTextStroke(self.sessionStatusLabel, 2)
 
-	-- 2. Top-Center "Dom" Button & Rate Status Cluster
+	-- 2. Top Header: "Dom" button, the three named rate metrics and the tutorial hint
+	local headerLayout = HUD.ratesPanelGeometry(0)
 	local topBar = createGuiElement("Frame", {
 		Name = "TopBar",
-		Size = isRoblox and UDim2.new(0, 480, 0, 96) or nil,
-		Position = isRoblox and UDim2.new(0.5, -240, 0, 6) or nil,
+		Size = isRoblox and UDim2.new(0, headerLayout.width, 0, headerLayout.height) or nil,
+		Position = isRoblox and UDim2.new(0, headerLayout.left, 0, 6) or nil,
 		BackgroundTransparency = 1,
 	}, root)
 	self.topBar = topBar
 
-	-- Safe Area / Inset Adaptation for Mobile Notches & Dynamic Island
+	-- Safe Area / Inset Adaptation for Mobile Notches & Dynamic Island. The inset is applied by the
+	-- responsive binding below, together with the live header geometry.
 	if isRoblox then
 		pcall(function()
+			-- ScreenGui already applies the top inset when IgnoreGuiInset is false.
+			-- Frame-based preview roots inherit that setting from their ScreenGui.
+			local screenGui = if root:IsA("ScreenGui") then root else root:FindFirstAncestorWhichIsA("ScreenGui")
+			if screenGui == nil or not screenGui.IgnoreGuiInset then return end
 			local GuiService = game:GetService("GuiService")
 			local insetTopLeft, _ = GuiService:GetGuiInset()
 			if insetTopLeft and insetTopLeft.Y > 0 then
-				topBar.Position = UDim2.new(0.5, -240, 0, math.max(6, insetTopLeft.Y + 2))
+				self._topHeaderInset = math.max(6, insetTopLeft.Y + 2)
 			end
 		end)
 	end
@@ -964,53 +1029,121 @@ function HUD:_buildInterface()
 		end)
 	end
 
-	self.producedEggsLabel = createGuiElement("TextLabel", {
-		Name = "ProducedEggsLabel",
-		Size = isRoblox and UDim2.new(0.33, -4, 0, 26) or nil,
-		Position = isRoblox and UDim2.new(0, 0, 0, 48) or nil,
+	-- One clear top panel with three named metric fields. The former bare numbers stay as the
+	-- value labels (producedEggsLabel/soldEggsLabel/shippingLabel and their getters) and each cell adds
+	-- a separate visible heading; every value is a rate in Polish "jaj/s".
+	local ratesSpecs = {
+		{ name = "ProducedEggsLabel", heading = HUD.RATES_HEADINGS[1], key = "producedEggsLabel", rgb = { 255, 165, 245 } },
+		{ name = "SoldEggsLabel", heading = HUD.RATES_HEADINGS[2], key = "soldEggsLabel", rgb = { 255, 235, 75 } },
+		{ name = "ShippingLabel", heading = HUD.RATES_HEADINGS[3], key = "shippingLabel", rgb = { 115, 255, 135 } },
+	}
+	local ratesPanel = createGuiElement("Frame", {
+		Name = "RatesPanel",
+		Size = isRoblox and UDim2.new(1, -8, 0, headerLayout.panelHeight) or nil,
+		Position = isRoblox and UDim2.new(0, 4, 0, 48) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(45, 25, 15) or nil,
+		BackgroundTransparency = 0.25,
+	}, topBar)
+	addCornerAndStroke(ratesPanel, 10, isRoblox and Color3.fromRGB(255, 215, 65) or nil, 2)
+	self.ratesPanel = ratesPanel
+
+	for index, spec in ipairs(ratesSpecs) do
+		local cell = createGuiElement("Frame", {
+			Name = "RatesCell" .. tostring(index),
+			Size = isRoblox and UDim2.new(1 / 3, -4, 1, 0) or nil,
+			Position = isRoblox and UDim2.new((index - 1) / 3, 2, 0, 0) or nil,
+			BackgroundTransparency = 1,
+		}, ratesPanel)
+		self.ratesCells[index] = cell
+
+		local heading = createGuiElement("TextLabel", {
+			Name = "RatesHeading",
+			Size = isRoblox and UDim2.new(1, 0, 0, headerLayout.headingHeight) or nil,
+			Position = isRoblox and UDim2.new(0, 0, 0, 1) or nil,
+			BackgroundTransparency = 1,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextScaled = true,
+			TextWrapped = true,
+			TextColor3 = isRoblox and Color3.fromRGB(255, 240, 200) or nil,
+			Text = spec.heading,
+		}, cell)
+		addTextStroke(heading, 1.8)
+		self.ratesHeadingLabels[index] = heading
+		if isRoblox then
+			local headingCap = Instance.new("UITextSizeConstraint")
+			headingCap.Name = "ReadableTextCap"
+			headingCap.MaxTextSize = headerLayout.headingMax
+			headingCap.Parent = heading
+			self.ratesHeadingCaps[index] = headingCap
+		end
+
+		local value = createGuiElement("TextLabel", {
+			Name = spec.name,
+			Size = isRoblox and UDim2.new(1, 0, 0, headerLayout.valueHeight) or nil,
+			Position = isRoblox and UDim2.new(0, 0, 0, 1 + headerLayout.headingHeight) or nil,
+			BackgroundTransparency = 1,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextScaled = true,
+			TextColor3 = isRoblox and Color3.fromRGB(spec.rgb[1], spec.rgb[2], spec.rgb[3]) or nil,
+			Text = "0" .. HUD.RATES_UNIT,
+		}, cell)
+		addTextStroke(value, 2.2)
+		if isRoblox then
+			local valueCap = Instance.new("UITextSizeConstraint")
+			valueCap.Name = "ReadableTextCap"
+			valueCap.MaxTextSize = headerLayout.valueMax
+			valueCap.Parent = value
+			self.ratesValueCaps[index] = valueCap
+		end
+		self.ratesValueLabels[index] = value
+		self[spec.key] = value
+	end
+
+	-- Short explanatory caption, shown only when a cell is wide enough to keep it on one line so it
+	-- can never collide with the right dock on a narrow phone.
+	self.ratesCaptionLabel = createGuiElement("TextLabel", {
+		Name = "RatesCaptionLabel",
+		Visible = headerLayout.captionVisible,
+		Size = isRoblox and UDim2.new(0, headerLayout.captionWidth, 0, 12) or nil,
+		Position = isRoblox and UDim2.new(0, 8, 0, 48 + headerLayout.panelHeight) or nil,
 		BackgroundTransparency = 1,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 165, 245) or nil,
-		Text = "0/s",
+		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+		TextColor3 = isRoblox and Color3.fromRGB(235, 220, 190) or nil,
+		Text = HUD.RATES_CAPTION,
 	}, topBar)
-	addTextStroke(self.producedEggsLabel, 2.2)
+	addTextStroke(self.ratesCaptionLabel, 1.6)
+	if isRoblox then
+		local captionCap = Instance.new("UITextSizeConstraint")
+		captionCap.Name = "ReadableTextCap"
+		captionCap.MaxTextSize = headerLayout.captionMax
+		captionCap.Parent = self.ratesCaptionLabel
+		self.ratesCaptionCap = captionCap
+	end
 
-	self.soldEggsLabel = createGuiElement("TextLabel", {
-		Name = "SoldEggsLabel",
-		Size = isRoblox and UDim2.new(0.34, -4, 0, 26) or nil,
-		Position = isRoblox and UDim2.new(0.33, 0, 0, 48) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 235, 75) or nil,
-		Text = "0/s",
-	}, topBar)
-	addTextStroke(self.soldEggsLabel, 2.2)
-
-	self.shippingLabel = createGuiElement("TextLabel", {
-		Name = "ShippingLabel",
-		Size = isRoblox and UDim2.new(0.33, -4, 0, 26) or nil,
-		Position = isRoblox and UDim2.new(0.67, 0, 0, 48) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(115, 255, 135) or nil,
-		Text = "0/min",
-	}, topBar)
-	addTextStroke(self.shippingLabel, 2.2)
-
+	-- The tutorial hint shares the first header row with the Dom button, so it can never slide under
+	-- the rates panel, the sound toggle or the right dock and never leaves the viewport.
 	self.tutorialLabel = createGuiElement("TextLabel", {
 		Name = "TutorialBannerLabel",
-		Size = isRoblox and UDim2.new(1, 0, 0, 20) or nil,
-		Position = isRoblox and UDim2.new(0, 0, 0, 78) or nil,
+		Size = isRoblox and UDim2.new(1, -60, 0, 40) or nil,
+		Position = isRoblox and UDim2.new(0, 52, 0, 3) or nil,
 		BackgroundTransparency = 1,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
+		TextWrapped = true,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 250, 210) or nil,
 		Text = "🎯 Cel: Kliknij koszyk 'Jajka' na dole lub stań na czerwonym przycisku!",
 	}, topBar)
 	addTextStroke(self.tutorialLabel, 2.0)
+	if isRoblox then
+		local tutorialCap = Instance.new("UITextSizeConstraint")
+		tutorialCap.Name = "ReadableTextCap"
+		tutorialCap.MaxTextSize = 15
+		tutorialCap.Parent = self.tutorialLabel
+	end
+
+	self:_bindTopHeaderResponsive(root)
 
 	-- 3. Bottom-Left Cash & Rebirth Display
 	local bottomLeft = createGuiElement("Frame", {
@@ -1406,7 +1539,81 @@ function HUD:_bindHatchStatusResponsive(root)
 	resize()
 end
 
+-- Pure responsive geometry for the top header and the rates panel, kept separate from the live
+-- layout so it can be checked without a viewport. The header is centred up to 480px and always keeps
+-- a 92px right gutter, so neither the 48px sound toggle (width-64, y 10..58) nor the right dock
+-- (width-92, top edge height/2-220) can ever be covered; its bottom stays at root y 98..102, above
+-- the GoldenEgg counter at y 104. Three equal cells; the headings wrap and the explanatory caption
+-- appears only when a cell is wide enough to keep the note on one line.
+function HUD.ratesPanelGeometry(rootWidth)
+	local width = tonumber(rootWidth) or 0
+	if width <= 0 then width = 1280 end
 
+	local rightGutter = 92
+	local headerWidth = math.clamp(width - 6 - rightGutter, 168, 480)
+	local left = math.clamp((width - headerWidth) * 0.5, 6, math.max(6, width - rightGutter - headerWidth))
+
+	local panelWidth = headerWidth - 8
+	local cellWidth = panelWidth / 3
+	local wrapsHeadings = cellWidth < 120
+	local captionVisible = not wrapsHeadings
+	local panelHeight = if wrapsHeadings then 44 else 36
+
+	return {
+		left = left,
+		width = headerWidth,
+		height = 48 + panelHeight + (if captionVisible then 12 else 0),
+		panelHeight = panelHeight,
+		panelWidth = panelWidth,
+		cellWidth = cellWidth,
+		headingHeight = if wrapsHeadings then 24 else 14,
+		valueHeight = if wrapsHeadings then 20 else 22,
+		headingMax = math.clamp(cellWidth * 0.17, 10, 15),
+		valueMax = math.clamp(cellWidth * 0.20, 15, if wrapsHeadings then 20 else 24),
+		captionVisible = captionVisible,
+		captionWidth = math.min(panelWidth - 16, width - rightGutter - left - 8),
+		captionMax = math.clamp(cellWidth * 0.12, 10, 13),
+	}
+end
+
+-- Applies the responsive header geometry from the live root size. Reuses the existing modal pattern:
+-- one AbsoluteSize signal, disconnected when the header is destroyed, and no per-frame polling.
+function HUD:_bindTopHeaderResponsive(root)
+	local header = self.topBar
+	if not isRoblox or root == nil or header == nil then return end
+	local topInset = self._topHeaderInset or 6
+	local function resize()
+		local size = root.AbsoluteSize
+		local layout = HUD.ratesPanelGeometry(size and size.X or 0)
+		header.Position = UDim2.new(0, layout.left, 0, topInset)
+		header.Size = UDim2.new(0, layout.width, 0, layout.height)
+		if self.ratesPanel ~= nil then
+			self.ratesPanel.Size = UDim2.new(1, -8, 0, layout.panelHeight)
+		end
+		for index, cap in self.ratesHeadingCaps or {} do
+			cap.MaxTextSize = layout.headingMax
+			local cell = self.ratesCells and self.ratesCells[index]
+			local heading = cell and cell:FindFirstChild("RatesHeading")
+			if heading ~= nil then heading.Size = UDim2.new(1, 0, 0, layout.headingHeight) end
+		end
+		for index, cap in self.ratesValueCaps or {} do
+			cap.MaxTextSize = layout.valueMax
+			local value = self.ratesValueLabels and self.ratesValueLabels[index]
+			if value ~= nil then
+				value.Size = UDim2.new(1, 0, 0, layout.valueHeight)
+				value.Position = UDim2.new(0, 0, 0, 1 + layout.headingHeight)
+			end
+		end
+		if self.ratesCaptionLabel ~= nil then
+			self.ratesCaptionLabel.Visible = layout.captionVisible
+			self.ratesCaptionLabel.Size = UDim2.new(0, layout.captionWidth, 0, 12)
+			if self.ratesCaptionCap ~= nil then self.ratesCaptionCap.MaxTextSize = layout.captionMax end
+		end
+	end
+	local connection = root:GetPropertyChangedSignal("AbsoluteSize"):Connect(resize)
+	header.Destroying:Connect(function() connection:Disconnect() end)
+	resize()
+end
 
 function HUD:_buildCloseButton(parent, onClose)
 	local closeBtn = createGuiElement("TextButton", {
@@ -3374,19 +3581,25 @@ function HUD:update()
 		return
 	end
 
-	-- 1. Balances & Global Rates
+	-- 1. Balances & Global Rates: one named top panel, every value a rate in jaj/s.
 	if self.cashLabel ~= nil then
 		self.cashLabel.Text = HUD.formatCash(farm.cash)
 	end
+	-- Production and sales are the per-second values of the authoritative view. A field the view does
+	-- not carry leaves the previous text alone instead of inventing a rate.
 	if self.producedEggsLabel ~= nil then
-		self.producedEggsLabel.Text = HUD.formatRate(farm.producedEggsPerSecond, "/s")
+		local producedText = HUD.formatEggRate(farm.producedEggsPerSecond)
+		if producedText ~= nil then self.producedEggsLabel.Text = producedText end
 	end
 	if self.soldEggsLabel ~= nil then
-		self.soldEggsLabel.Text = HUD.formatRate(farm.soldEggsPerSecond, "/s")
+		local soldText = HUD.formatEggRate(farm.soldEggsPerSecond)
+		if soldText ~= nil then self.soldEggsLabel.Text = soldText end
 	end
 	if self.shippingLabel ~= nil then
-		local fleetRate = (farm.fleet and farm.fleet.shippingPerMinute) or "0"
-		self.shippingLabel.Text = HUD.formatRate(fleetRate, "/min")
+		-- Transport is the fleet CAPACITY in jaj/s (shippingPerMinute / 60), never the current sales
+		-- amount or cash. The view is only read; no authoritative value is written or recomputed.
+		local transportText = HUD.formatTransportRate(self.codec, farm.fleet and farm.fleet.shippingPerMinute)
+		if transportText ~= nil then self.shippingLabel.Text = transportText end
 	end
 
 	-- 2. Hatchery Stock & Capacity
@@ -4132,6 +4345,18 @@ function HUD:getCashText() return if self.cashLabel then self.cashLabel.Text els
 function HUD:getProducedEggsText() return if self.producedEggsLabel then self.producedEggsLabel.Text else "" end
 function HUD:getSoldEggsText() return if self.soldEggsLabel then self.soldEggsLabel.Text else "" end
 function HUD:getShippingText() return if self.shippingLabel then self.shippingLabel.Text else "" end
+function HUD:getTopBar() return self.topBar end
+function HUD:getRatesPanel() return self.ratesPanel end
+function HUD:getRatesCell(index)
+	local cell = self.ratesCells and self.ratesCells[index]
+	return cell
+end
+function HUD:getRatesHeadingText(index)
+	local label = self.ratesHeadingLabels and self.ratesHeadingLabels[index]
+	return if label then label.Text else ""
+end
+function HUD:getRatesCaptionText() return if self.ratesCaptionLabel then self.ratesCaptionLabel.Text else "" end
+function HUD:getRatesCaptionVisible() return if self.ratesCaptionLabel then self.ratesCaptionLabel.Visible else false end
 function HUD:getHatcheryText() return if self.hatcheryStockLabel then self.hatcheryStockLabel.Text else "" end
 function HUD:getHatcheryRatio() return self.hatcheryRatio end
 function HUD:getHatcheryRefillText() return if self.hatcheryRefillLabel then self.hatcheryRefillLabel.Text else "" end

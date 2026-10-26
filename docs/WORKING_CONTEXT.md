@@ -2,6 +2,10 @@
 
 Cel: farma HatchTheEgg z petami w Roblox, zgodna z opisaną specyfikacją. Poniższy skrót przekazania jest aktualnym punktem startowym; starsze opisy etapów i listy otwartych zgłoszeń dalej w pliku są historyczne.
 
+## Najnowsza dostawa lokalna — górny panel
+
+[Panel tempa](workflow/top_rates_panel_2026_10_26.md): Produkcja, Sprzedaż, Limit transportu w jaj/s; Cline implementacja, root integracja safe area, celowane QA AGY. Root938 asercji+8 kontroli integracji PASS, Rojo39+2, ograniczone native320×640/640×360/1200×700 PASS. Studio końcowo Edit, lokalna pamięć, tylko HUD zgodny ze źródłem; brak nowego commitu/pusha/publikacji i pełnego odbioru. Baza Git efa6df8; drzewo ma zmiany tej dostawy. Utworzono plany GH[#81](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/81) audytu rzeczywistego dochodu RCB i[#82](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/82) okien na StudUI Lite/gvesster. Nie rozpoczęto tych dwóch implementacji. Skill hte-design-visuals ma nowy kierunek Roblox i preferowane źródła; bez nowych grafik AI bez zlecenia.
+
 ## Przekazanie do nowego chatu — 26.10.2026
 
 - Projekt: `HatchTheEgg`; repozytorium [MarekZurek/Roblox-HatchTheEgg](https://github.com/MarekZurek/Roblox-HatchTheEgg), gałąź `main`. Kod płyty 30/s, UI, testy i raporty opublikowano na `main` w `6006f2b613f8000ae28fa6fc007010572efb34e2`. Potwierdzono zdalne SHA, dodano komentarze dostawy i zamknięto #75–80 jako completed. Kolejny commit dokumentacji synchronizuje ten stan; nie publikowano Roblox. Nowy chat powinien najpierw sprawdzić aktualne `git status` i log, zamiast zakładać, że ten SHA nadal jest najnowszy.

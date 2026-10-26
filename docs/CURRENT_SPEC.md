@@ -2,6 +2,8 @@
 
 Stan: **26.10.2026**. Zakres: farma domowa HatchTheEgg z petami w Roblox; kod farmy i UI ma lokalne dowody L oraz ograniczone próby Studio opisane w [WORKING_CONTEXT](WORKING_CONTEXT.md). Implementacje płyty 30/s i [UI #77–80](workflow/ui_tasks_77_80_2026_10_26.md) sprawdzone lokalnie (zakres i ograniczenia w raportach); brak pełnego odbioru chmury i wydania. To indeks obowiązujących ustaleń, nie nowy bilans.
 
+**Panel tempa — decyzja26.10.2026 (R):** górne pola Produkcja/Sprzedaż/Limit transportu w jaj/s. Limit to istniejące shippingPerMinute/60, nie dochód. [Wdrożenie i dowody lokalne](workflow/top_rates_panel_2026_10_26.md). Preferowany kierunek kolejnych okien: styl Roblox/stud z StudUI Lite i ikonami gvesster; szczegóły w planie[#82](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/82) i skillu hte-design-visuals. Bez zmiany domeny, balansu ani zatwierdzenia wydania.
+
 ## Jak czytać statusy
 
 **UI #77–80 — zlecenie 26.10.2026:** typy kurników i pojazdów mają nazwy Tier 1, Tier 2 itd. według indeksu typu +1; identyfikatory domeny i zapisu pozostają bez zmian. Usunąć płytki pojazdów przed stacją, zachowując panel floty. Wdrożenie feedbacku wylęgu obejmuje brak miejsca z rezerwacjami oraz oddzielny brak zapasu, bez spamu. [Projekt i bieżące dowody](workflow/ui_tasks_77_80_2026_10_26.md). Nie zmienia bilansu, cen ani reguł wylęgu.

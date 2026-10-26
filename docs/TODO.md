@@ -2,6 +2,10 @@
 
 ## Bieżące zadanie
 
+- [x] [Górny panel tempa](workflow/top_rates_panel_2026_10_26.md): trzy opisane wartości w jaj/s, skalowanie i safe area; lokalne testy i ograniczone Studio PASS, Cline/AGY; bez nowego commitu/pusha.
+- [ ] [#81](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/81): sprawdzić rzeczywisty wpływ aktywnego RCB na gotówkę (plan, bez potwierdzonego błędu).
+- [ ] [#82](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/82): wdrożyć spójne okna Shop/Daily/uzgodnione pozostałe na StudUI Lite i ikonach gvesster; najpierw licencje i prototyp.
+
 - [x] [UI #77–80](workflow/ui_tasks_77_80_2026_10_26.md): feedback braku miejsca/zapasu, nazwy Tier kurników i pojazdów, usunięcie płytek pojazdów; implementacja Cline, celowane QA AGY PASS, root runner i ograniczony smoke Studio PASS; kod opublikowano w 6006f2b, #77–80 zamknięte.
 
 - [x] [Płyta 30/s i strumień kur](workflow/plate_hatching_2026_10_26.md): implementacja, regresje, celowane QA AGY i lokalna próba Studio wykonane; ograniczenia review w raporcie. Zgłoszenia #75–76 zamknięte po publikacji kodu 6006f2b na GitHub; Roblox niepublikowany.

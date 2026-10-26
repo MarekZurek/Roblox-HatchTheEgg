@@ -684,6 +684,22 @@
             "title": "Usunąć płytki ulepszania przed stacją pojazdów",
             "state": "closed",
             "dependencies": []
+        },
+        {
+            "id": "QA-RCB-INCOME",
+            "number": 81,
+            "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/81",
+            "title": "Sprawdzić, czy mnożnik wylęgu RCB zwiększa rzeczywisty dochód",
+            "state": "open",
+            "dependencies": []
+        },
+        {
+            "id": "UI-ASSET-WINDOWS",
+            "number": 82,
+            "url": "https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/82",
+            "title": "Przebudować okna sklepów i Daily na StudUI Lite z ikonami gvesster",
+            "state": "open",
+            "dependencies": []
         }
     ],
     "implementationAuthorizationScope": [
