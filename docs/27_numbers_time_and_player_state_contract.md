@@ -1,5 +1,7 @@
 # Kontrakt liczb, czasu i stanu gracza
 
+> **Aktualna decyzja użytkownika — 28.10.2026 (R):** RCB zależne od liczby biegnących kur zostało usunięte. Dochód korzysta ze stałego mnożnika wynikającego z badań, niezależnego od wylęgu i `runningCount`; działa on również w rozliczeniu away. Grupy kur, rezerwacje miejsc i dotarcia pozostają logiką populacji. Nazwy `activeRCB`/`onscreenChickenMult*` w kodzie i zapisach są historyczne. Aktualny kontrakt: [31 §3](31_research_hatching_rcb_and_new_account.md#3-stały-mnożnik-dochodu-i-przejścia-populacji). Starsze opisy aktywnego RCB w historii dostaw nie są bieżącym wymaganiem.
+
 > **Decyzja użytkownika 28.10.2026 (R): czasowy podwajacz dochodu i badanie `video_doubler_time` („Dłuższe Wzmocnienia”) zostały usunięte z gry.** Dawne terminy/poziomy w profilach są zachowane wyłącznie dla zgodności i nie dają efektu ani możliwości zakupu. Poniższe wcześniejsze zasady VD, jego darmowej aktywacji i odnawiania są historyczne. Osobny pass `double_cash` (2× Cash), boosty oraz zasady bonusowych prezentów pozostają poza tą zmianą. [Zakres i testy](workflow/remove_timed_doubler_2026_10_28.md).
 
 23.10.2026. **P — proponowany kontrakt techniczny przed implementacją.** Dokument konkretyzuje etap 0, ale nie wybiera biblioteki, nie tworzy kodu, konfiguracji produkcyjnej ani migracji. Reguły N/S/R odsyłają do [CURRENT_SPEC](CURRENT_SPEC.md); nowe nazwy pól, formaty i procedury poniżej mają status P. Nie zmieniają D01–D07, zakresu 25–26 ani odłożonego bilansu 17–21.
@@ -110,7 +112,7 @@ Poniższe sekcje są logicznym podziałem jednego spójnego agregatu gracza, nie
 |---|---|
 | meta | schemaVersion, numericCodecVersion, calculationVersion, configRevision, revision ExactUInt, identyfikator gracza. |
 | ownership | sessionToken/generation, właściciel, stan dzierżawy; weryfikacja podczas każdej mutacji, odnowienia i zwolnienia. |
-| farm | eggIndex, maxEggReached, cash BigAmount, cztery rekordy kurników: typ, population ExactUInt, fractionalIHR Real64, kury przypisane w drodze; pojazdy i długość każdego pociągu, silosOwned, Common, zapas/refill wylęgarni, autorytatywny stan RCB i wypuszczonych grup. |
+| farm | eggIndex, maxEggReached, cash BigAmount, cztery rekordy kurników: typ, population ExactUInt, fractionalIHR Real64, kury przypisane w drodze; pojazdy i długość każdego pociągu, silosOwned, Common, zapas/refill wylęgarni, autorytatywne liczniki kur w drodze i wypuszczone grupy; stały mnożnik dochodu wyliczany z badań. |
 | accounting | prestigeSessionArchivedCash, prestigeExtraEarnings, lastBaseEarnings, bieżące akumulatory dochodu i lastCashEarned, lifetime statystyki; każda wielkość ma własną rolę. |
 | permanent | Diamenty (Diamonds, 💎; w kodzie zachowany klucz GE i totalGESpent ExactUInt), SE Real64, PE ExactUInt lub suma źródeł, Epic (24 badania oczyszczone z odniesień kosmicznych na rzecz logistyki floty), odblokowanie Hyperloop, liczba prestiżów, trwałe flagi postępu. |
 | inventory | Sztuki boostów ExactUInt; pety po UID: gatunek, tier pochodzenia, wariant, lock; wyposażenie jako UID. Liczniki gwarancji po kluczu gatunek×tier×cel, nie po UID. Liczba miejsc pozostaje parametrem bilansu. |
@@ -137,7 +139,7 @@ Zwykła zmiana jaja archiwizuje właściwy składnik bieżącej farmy bez zerowa
 
 | Stan | Zmiana jaja | Prestiż |
 |---|---|---|
-| Jajo i infrastruktura | Docelowe jajo; odbudowa zgodnie z 02/13, bazowy kurnik i pojazd, populacja/RCB/Common/zapas według reguły resetu | Pierwsze jajo i odbudowa; zakres jak w 02/13 |
+| Jajo i infrastruktura | Docelowe jajo; odbudowa zgodnie z 02/13, bazowy kurnik i pojazd, populacja/kury w drodze/Common/zapas według reguły resetu | Pierwsze jajo i odbudowa; zakres jak w 02/13 |
 | Portfel i księgowanie sesji | Portfel startowy, należne archiwizowanie przychodu, zachowana historia sesji i bonusy przychodowe | Najpierw naliczenie SE, potem portfel startowy i reset właściwych akumulatorów sesji |
 | GE, SE/PE, Epic, trwałe odblokowania | Zachowane | Zachowane, z nowymi SE i zwiększonym licznikiem prestiżu |
 | Pety, lock, wyposażenie, gwarancje | Zachowane; efekty zależą od docelowego jaja | Zachowane |

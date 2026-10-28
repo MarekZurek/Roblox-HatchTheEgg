@@ -152,12 +152,6 @@ local function v3(x, y, z)
 	return { x = x, y = y, z = z, X = x, Y = y, Z = z }
 end
 
-local function cf(x, y, z)
-	if isRoblox then
-		return CFrame.new(x, y, z)
-	end
-	return { x = x, y = y, z = z }
-end
 
 local function makePart(props, parent, isDecorative)
 	if not isRoblox then

@@ -1,5 +1,7 @@
 # Badania — dane źródłowe i zasady
 
+> **Aktualna decyzja użytkownika — 28.10.2026 (R):** RCB zależne od liczby biegnących kur zostało usunięte. Dochód korzysta ze stałego mnożnika wynikającego z badań, niezależnego od wylęgu i `runningCount`; działa on również w rozliczeniu away. Grupy kur, rezerwacje miejsc i dotarcia pozostają logiką populacji. Nazwy `activeRCB`/`onscreenChickenMult*` w kodzie i zapisach są historyczne. Aktualny kontrakt: [31 §3](31_research_hatching_rcb_and_new_account.md#3-stały-mnożnik-dochodu-i-przejścia-populacji). Starsze opisy aktywnego RCB w historii dostaw nie są bieżącym wymaganiem.
+
 > **Decyzja użytkownika 28.10.2026 (R): czasowy podwajacz dochodu i badanie `video_doubler_time` („Dłuższe Wzmocnienia”) zostały usunięte z gry.** Dawne terminy/poziomy w profilach są zachowane wyłącznie dla zgodności i nie dają efektu ani możliwości zakupu. Poniższe wcześniejsze zasady VD, jego darmowej aktywacji i odnawiania są historyczne. Osobny pass `double_cash` (2× Cash), boosty oraz zasady bonusowych prezentów pozostają poza tą zmianą. [Zakres i testy](workflow/remove_timed_doubler_2026_10_28.md).
 
 **Status: S/N — dane konfiguracji referencyjnej i wykonane odczyty ResearchEngine.** Źródło: dokumentacja referencyjna. Znaczenie statusów: [bieżąca specyfikacja](CURRENT_SPEC.md). Dane dotyczą konfiguracji referencyjnej, nie listy automatycznie zatwierdzonej dla Roblox.
@@ -172,7 +174,7 @@ Graviton Coupling (`micro_coupling`) zwiększa długość pociągu Hyperloop, ni
 
 `videoDoublerHours` w tabeli jest wkładem badania: baza GDR 2 h +0.5 h/poziom, do 8 h. `siloSeconds` także jest dodatkiem do bazy, nie pełną długością silosu. Puste próbki Epic Internal Incubators/Silo Quality nie uzasadniają usunięcia tych mechanik; pełne złożenie IHR/away opisuje [10](10_verified_simulation_and_server_config.md).
 
-Badania `afx_mission_time` oraz `afx_mission_capacity` w HatchTheEgg zostały w pełni zaadaptowane do logistyki i transportu farmy (Szybkość Kursu Floty oraz Logistyka i Magazyn Floty), eliminując zbędne odniesienia do lotów rakietowych i ekspedycji kosmicznych z gry referencyjnej.
+Badania `afx_mission_time` oraz `afx_mission_capacity` mają prezentacyjne nazwy logistyki floty, ale ich efekty nie są wdrożone. Zakup jest zablokowany zarówno w HUD, jak i na serwerze; sama zmiana nazwy nie oznacza adaptacji mechaniki. Dotyczy to też nieobsługiwanych hold_to_research, epic_silo_quality i warp_shift. [Polityka i regresje](workflow/remaining_fixes_2026_10_28.md).
 
 ## 4. Propozycja interfejsu Roblox
 

@@ -157,10 +157,6 @@ function NetworkGateway:_nextQuoteSerial()
 	return self.quoteSerial
 end
 
-function NetworkGateway:_nextStreamSerial()
-	self.streamSerial += 1
-	return self.streamSerial
-end
 
 function NetworkGateway:_initHandlers()
 	local handlers = {}

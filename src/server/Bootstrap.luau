@@ -16,6 +16,10 @@ local function resolve(studioGetter, lunePath)
 	return require(lunePath)
 end
 
+local Availability = resolve(function()
+ return game:GetService("ReplicatedStorage").HatchTheEgg.Shared.FeatureAvailability
+end, "../shared/FeatureAvailability")
+
 local NumericCodec = resolve(function()
 	return game:GetService("ReplicatedStorage").HatchTheEgg.Shared.NumericCodec
 end, "../shared/NumericCodec")
@@ -774,6 +778,8 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
                 end)
                 if not okCatalog or not row or type(researchId) ~= "string" then
                     code = "UNSUPPORTED_RESEARCH"
+                elseif not Availability.isEpicAvailable(canonicalId) then
+                    code = "FEATURE_UNAVAILABLE"
                 else
                     draft.permanent.epic = draft.permanent.epic or {}
                     local curLvl = draft.permanent.epic[canonicalId] or draft.permanent.epic[researchId] or 0

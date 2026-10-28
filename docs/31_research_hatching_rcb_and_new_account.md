@@ -1,6 +1,8 @@
-# Progi badań, ręczny wylęg, RCB i nowe konto
+# Progi badań, ręczny wylęg, stały mnożnik dochodu i nowe konto
 
-24.10.2026. Uzupełnienie [30 — F01](30_first_farm_manifest_and_technical_choices.md) na podstawie dostępnych materiałów referencyjnych. **N/S — reguły i wartości referencyjne; P — ich planowane mapowanie w Roblox.** Nie tworzy konfiguracji wydania, nie zatwierdza liczb jako R i nie rozpoczyna implementacji. Obowiązują [CURRENT_SPEC](CURRENT_SPEC.md), [27](27_numbers_time_and_player_state_contract.md), [28](28_modules_and_client_server_contract.md) oraz granica bilansu 17–21.
+> **Aktualna decyzja użytkownika — 28.10.2026 (R):** RCB zależne od liczby biegnących kur zostało usunięte. Dochód korzysta ze stałego mnożnika wynikającego z badań, niezależnego od wylęgu i `runningCount`; działa on również w rozliczeniu away. Grupy kur, rezerwacje miejsc i dotarcia pozostają logiką populacji. Nazwy `activeRCB`/`onscreenChickenMult*` w kodzie i zapisach są historyczne. Aktualny kontrakt: [31 §3](31_research_hatching_rcb_and_new_account.md#3-stały-mnożnik-dochodu-i-przejścia-populacji). Starsze opisy aktywnego RCB w historii dostaw nie są bieżącym wymaganiem.
+
+Historia 24.10.2026. Uzupełnienie [30 — F01](30_first_farm_manifest_and_technical_choices.md) na podstawie dostępnych materiałów referencyjnych. **N/S — reguły i wartości referencyjne; P — ich planowane mapowanie w Roblox.** Nie tworzy konfiguracji wydania, nie zatwierdza liczb jako R i nie rozpoczyna implementacji. Obowiązują [CURRENT_SPEC](CURRENT_SPEC.md), [27](27_numbers_time_and_player_state_contract.md), [28](28_modules_and_client_server_contract.md) oraz granica bilansu 17–21.
 
 ## 1. Punkty i progi Common — U01 rozstrzygnięte
 
@@ -32,7 +34,26 @@ Hold to Hatch dostarcza odrębne tempo powtórzeń: przy zerowym badaniu i bez i
 
 Wejście na przycisk 3D lub naciśnięcie kontrolki może zgłosić pojedynczy press, a dalsza obecność/przytrzymanie wyłącznie intencję hold. Warunki interakcji i limity antyspamowe ustala serwer. Nie definiujemy teraz nowego tempa balansowego lub liczbowego cooldownu. Input nie jest trwałym zakupem z osobnym operationId na każdą kurę; wynikowy stan i checkpointy nadal spełniają 27–28. Po reconnect nie odgrywa się starego bufora wejścia.
 
-## 3. Aktywne RCB i przejścia populacji — rdzeń U03 rozstrzygnięty
+## 3. Stały mnożnik dochodu i przejścia populacji
+
+**R — użytkownik potwierdził 28.10.2026, że aktywne RCB zostało usunięte.** Wylęg i liczba biegnących kur nie zwiększają bezpośrednio mnożnika dochodu. Dodatkowe kury zwiększają produkcję po dotarciu i zasiedleniu kurnika; liczba kosmetycznych modeli klienta nie jest wejściem ekonomii.
+
+Aktualne zachowanie `FarmMath/production_research.activeRCB` w24de421:
+
+```text
+c = productionContext(common, eggIndex=0, permanent).rcbGrowthBase
+K = productionContext(common, eggIndex=0, permanent).rcbCap
+mnożnikDochodu = K, jeżeli c > 1 lub K > 5; w przeciwnym razie 1
+```
+
+To zapis obecnego kodu, bez nowej kalibracji wartości badań. `runningText` nie wpływa na wynik. Przy kontrolowanym `excitable_chickens=25` wynik wynosi5 dla0,10 i60 kur w drodze. Stały mnożnik jest używany w HUD, produkcji online i away; sama obecność gracza na płycie nie dodaje osobnego bonusu. Parametry badań i ich zapis zachowują dawne identyfikatory `onscreenChickenMult`/`onscreenChickenMultMax`; nie wymagają migracji lub kasowania poziomów.
+
+Rezerwacje, zużycie zapasu, autorytatywne grupy, dotarcia i populacja pozostają aktywne. Usunięcie RCB nie oznacza natychmiastowego zaliczania kur na podstawie animacji ani usuwania `runningCount` ze stanu. Pole może nadal służyć prezentacji i logice przejść populacji.
+
+<details>
+<summary>Dawny wzór RCB — wyłącznie historia referencji</summary>
+
+### Historyczna reguła referencyjna RCB — wycofana z rozgrywki
 
 Nie używać wzoru maksymalnego RCB z FV jako aktywnego bonusu dochodu. Dla jawnych wejść:
 
@@ -46,6 +67,9 @@ Nie używać wzoru maksymalnego RCB z FV jako aktywnego bonusu dochodu. Dla jawn
 `RCB = q*M, gdy q>1; w przeciwnym razie RCB=q`.
 
 Mnożnika M nie stosuje się bezwarunkowo do neutralnego q=1. Dla c=1, K=5, M=2 wynik nadal wynosi 1. Dla c=1.1, n=10, K=5, M=2 wynik wynosi około 5.1874849202; dla n=30 limit daje 10. Nie podwajać niezależnie tego samego źródła bonusu. Siedem Common z 30 nie zawiera badań współczynnika RCB, więc w neutralnym fragmencie przy poziomach pozostałych badań 0 samo bieganie nie podnosi c ponad 1. To ograniczenie zestawu testowego, nie usunięcie RCB z gry.
+
+
+</details>
 
 ### Cel i moment zaliczenia kury
 
@@ -79,11 +103,11 @@ Techniczne meta/ownership/operation IDs generuje nowy system, nie kopiuje się i
 
 **Status dla Roblox: P oparty na S/N, nie nowe zatwierdzenie bilansu.** Profil TEST_ONLY z 30 celowo miał zero silosów i limit floty 1; pozostaje osobnym testem brzegowym i nie jest już kandydatem do opisu referencyjnego nowego konta. Test nowego konta powinien otrzymać osobny manifest wejść oparty na tabeli, z jawnym zatwierdzeniem konfiguracji przed wydaniem.
 
-## 5. Weryfikacja i granice
+## 5. Historyczna weryfikacja referencji i granice — 24.10.2026
 
 Wykorzystano zachowane zestawy granic progów, 144 przykłady RCB z kontrolowanymi c/K/M/n oraz materiał opisujący inicjalizację, odczyt poziomów i przejścia kur. Sprawdzono ponownie wartości i interpretację danych, **bez uruchamiania symulacji progresji lub testów gry**. Materiały techniczne pochodzenia pozostają poza projektem; dokument publikuje wyłącznie reguły użytkowe, bez prywatnych ścieżek i narzędzi.
 
-Przyszłe kryteria odbioru: suma Common bez Epic/kosztu; próg−1/próg/próg+1; press przy zapasie 0/0.999/1; brak miejsca; brak bezpłatnego hold przy rate=0; ścisła równość okresu; RCB przy q=1 i przy limicie; wybrany przedział wolnego miejsca; podwójne dotarcie; nowy profil vs ponowne wczytanie. To specyfikacja, **NIE URUCHOMIONO** w HatchTheEgg.
+Przyszłe kryteria odbioru: suma Common bez Epic/kosztu; próg−1/próg/próg+1; press przy zapasie 0/0.999/1; brak miejsca; brak bezpłatnego hold przy rate=0; ścisła równość okresu; stały mnożnik niezależny od liczby kur w drodze oraz zachowanie nabytych badań; wybrany przedział wolnego miejsca; podwójne dotarcie; nowy profil vs ponowne wczytanie. To specyfikacja, **NIE URUCHOMIONO** w HatchTheEgg.
 
 Zamknięto referencyjną semantykę U01/U02 oraz matematyczny i stanowy rdzeń U03 i start podstawowej farmy U04. Do realizacji pozostają: mapowanie trasy/dotarcia w scenie, adaptery U05/U06 i właściwe testy. Nie oznacza to gotowości wykonanej implementacji lub przyjęcia konfiguracji wydania.
 
@@ -92,6 +116,6 @@ Zamknięto referencyjną semantykę U01/U02 oraz matematyczny i stanowy rdzeń U
 [35](35_pre03_routes_and_arrivals.md) wybiera projekt P: geometryczny termin oznacza gotowość, a dotarcie stosuje się w fazie po produkcji na końcu obejmującego go kroku, przed refill/IHR. Nie powstaje dodatkowy krok i nie przeliczamy wcześniej wypłaconej produkcji. To doprecyzowanie proponowanej integracji, nie nowy dowód domenowy; geometria/prędkość i test S nadal należą do IMP-13/15.
 
 
-## Realizacja aktywnego RCB — #65
+## Historia: realizacja dawnego aktywnego RCB — #65
 
-[Dostawa #63–65](workflow/session_prestige_rcb_63_65.md) podłącza wzór §3 do rzeczywistego runningCount w produkcji i HUD. c składa istniejące onscreenChickenMult Common/Epic, K to 5 plus istniejące onscreenChickenMultMax, M pozostaje 1 wobec braku odrębnego źródła w aktualnym katalogu. Nie jest to RCB dla FV ani nowy bonus. Dotarcie po produkcji oraz zamknięcie grup przed away zachowują kolejność. Weryfikacja L, bez zmian danych i bilansu.
+Poniższy opis dotyczy dawnej dostawy, zastąpionej decyzją powyżej. [Dostawa #63–65](workflow/session_prestige_rcb_63_65.md) podłączała historyczny wzór RCB do rzeczywistego runningCount w produkcji i HUD. c składa istniejące onscreenChickenMult Common/Epic, K to 5 plus istniejące onscreenChickenMultMax, M pozostaje 1 wobec braku odrębnego źródła w aktualnym katalogu. Nie jest to RCB dla FV ani nowy bonus. Dotarcie po produkcji oraz zamknięcie grup przed away zachowują kolejność. Weryfikacja L, bez zmian danych i bilansu.

@@ -801,6 +801,7 @@ do
 			return {
 				eggIndex = 0,
 				cash = "1000",
+				homeFV = "5000000", -- authoritative eligible preview; wallet is not FV
 				habitats = { { slotId = 1, population = "250", capacity = "250" } },
 				fleet = { shippingPerMinute = "5000", vehicles = {} },
 				common = {},

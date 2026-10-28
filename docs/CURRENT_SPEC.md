@@ -1,4 +1,7 @@
 # Bieżąca specyfikacja i status ustaleń
+**Naprawy po review24de421 — 28.10.2026:** serwer blokuje nieobsługiwane zakupy Epic i oferty WKRÓTCE, podgląd prestiżu uwzględnia event, a potwierdzone martwe helpery i duplikaty zostały usunięte. [Zakres, regresje i ograniczenia](workflow/remaining_fixes_2026_10_28.md). Dowody tej dostawy to lokalne testy L i statyczny build; publikacja kodu GitHub nie oznacza publikacji Roblox ani odbioru Studio. #92/#93 pozostają poza tą naprawą.
+
+> **Aktualna decyzja użytkownika — 28.10.2026 (R):** RCB zależne od liczby biegnących kur zostało usunięte. Dochód korzysta ze stałego mnożnika wynikającego z badań, niezależnego od wylęgu i `runningCount`; działa on również w rozliczeniu away. Grupy kur, rezerwacje miejsc i dotarcia pozostają logiką populacji. Nazwy `activeRCB`/`onscreenChickenMult*` w kodzie i zapisach są historyczne. Aktualny kontrakt: [31 §3](31_research_hatching_rcb_and_new_account.md#3-stały-mnożnik-dochodu-i-przejścia-populacji). Starsze opisy aktywnego RCB w historii dostaw nie są bieżącym wymaganiem.
 
 > **Decyzja użytkownika 28.10.2026 (R): czasowy podwajacz dochodu i badanie `video_doubler_time` („Dłuższe Wzmocnienia”) zostały usunięte z gry.** Dawne terminy/poziomy w profilach są zachowane wyłącznie dla zgodności i nie dają efektu ani możliwości zakupu. Poniższe wcześniejsze zasady VD, jego darmowej aktywacji i odnawiania są historyczne. Osobny pass `double_cash` (2× Cash), boosty oraz zasady bonusowych prezentów pozostają poza tą zmianą. [Zakres i testy](workflow/remove_timed_doubler_2026_10_28.md).
 
@@ -10,7 +13,7 @@ Stan: **28.10.2026**. Zakres: farma domowa HatchTheEgg z petami w Roblox; kod fa
 
 **UI #77–80 — zlecenie 26.10.2026:** typy kurników i pojazdów mają nazwy Tier 1, Tier 2 itd. według indeksu typu +1; identyfikatory domeny i zapisu pozostają bez zmian. Usunąć płytki pojazdów przed stacją, zachowując panel floty. Wdrożenie feedbacku wylęgu obejmuje brak miejsca z rezerwacjami oraz oddzielny brak zapasu, bez spamu. [Projekt i bieżące dowody](workflow/ui_tasks_77_80_2026_10_26.md). Nie zmienia bilansu, cen ani reguł wylęgu.
 
-**Nowa decyzja użytkownika — 26.10.2026 (R):** stanie na płycie wylęgu ma wypuszczać do 30 kurczaków/s, przy niezmienionym zapasie i jego odnowieniu oraz ograniczeniu miejscami. To odrębna adaptacja płyty, nie zmiana pojedynczego press ani Epic Hold-to-Hatch poza płytą. Serwer potwierdza obecność i rozlicza rezerwacje, RCB i dotarcia; fizyczne modele klienta są ograniczoną reprezentacją ruchu. [Zakres i bieżące dowody](workflow/plate_hatching_2026_10_26.md). Nie otwiera odłożonego bilansu 17–21. Zatwierdzenie zachowania nie stanowi odbioru implementacji.
+**Nowa decyzja użytkownika — 26.10.2026 (R):** stanie na płycie wylęgu ma wypuszczać do 30 kurczaków/s, przy niezmienionym zapasie i jego odnowieniu oraz ograniczeniu miejscami. To odrębna adaptacja płyty, nie zmiana pojedynczego press ani Epic Hold-to-Hatch poza płytą. Serwer potwierdza obecność i rozlicza rezerwacje i dotarcia; fizyczne modele klienta są ograniczoną reprezentacją ruchu. [Zakres i bieżące dowody](workflow/plate_hatching_2026_10_26.md). Nie otwiera odłożonego bilansu 17–21. Zatwierdzenie zachowania nie stanowi odbioru implementacji.
 
 | Status | Znaczenie |
 |---|---|
@@ -96,7 +99,7 @@ Dokumentacyjny manifest F01 przygotowano w [30](30_first_farm_manifest_and_techn
 
 ## Uzupełnienie pierwszej farmy — 24.10.2026
 
-[31](31_research_hatching_rcb_and_new_account.md) rozstrzyga N/S: punkty Common=sum(poziomów), inkluzywne progi; press=jedna próba, refill 3/s odrębny od holdRate=0 bez Epic; aktywne RCB q=min(c^n,K), mnożnik M tylko gdy q>1; rezerwację kury w drodze i zaliczenie populacji przy dotarciu. Potwierdzony referencyjny start ma jeden silos, pełne 250 wylęgarni i limit floty 4 przy jednym TRIKE. Są to N/S, nie nowe R lub zatwierdzony balans. HatchPress dopisano do 28 jako P. Rdzeń U01–U04 nie jest już niewiadomą; do realizacji pozostają trasa sceny oraz U05/U06. Bieżący podział zadań: [32](32_parallel_delivery_backlog.md).
+[31](31_research_hatching_rcb_and_new_account.md) rozstrzyga N/S: punkty Common=sum(poziomów), inkluzywne progi; press=jedna próba, refill 3/s odrębny od holdRate=0 bez Epic; historyczne aktywne RCB q=min(c^n,K), zastąpione decyzją 28.10.2026 przez stały mnożnik dochodu; rezerwację kury w drodze i zaliczenie populacji przy dotarciu. Potwierdzony referencyjny start ma jeden silos, pełne 250 wylęgarni i limit floty 4 przy jednym TRIKE. Są to N/S, nie nowe R lub zatwierdzony balans. HatchPress dopisano do 28 jako P. Rdzeń U01–U04 nie jest już niewiadomą; do realizacji pozostają trasa sceny oraz U05/U06. Bieżący podział zadań: [32](32_parallel_delivery_backlog.md).
 
 ## PRE-01–03 — przygotowane 24.10.2026
 

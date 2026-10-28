@@ -28,7 +28,7 @@ def main():
     private = "ServerScriptService/HatchTheEgg/"
     client = "StarterPlayer/StarterPlayerScripts/HatchTheEggClient/"
     assert set(p for p in modules if p.startswith(shared)) == {
-        shared + "NumericCodec", shared + "ProtocolSchemas"}
+        shared + "NumericCodec", shared + "ProtocolSchemas", shared + "FeatureAvailability"}
     for name in ("SessionRepository", "ProfileSchema", "PersistenceData",
                  "RobloxDataStorePort", "CatalogRegistry", "CatalogRegistry/Data",
                  "FarmMath/production_research", "FarmMath/ihr",

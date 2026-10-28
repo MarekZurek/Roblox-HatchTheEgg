@@ -41,13 +41,13 @@ end
 do
 	local p = makeProfile()
 
-	-- Buy MAX does not grant Pro Permit
-	local okPrepBM, prevBM = Products.preparePurchase(p, "buy_max", "tok_bm", 1000)
-	eq(okPrepBM, true, "prepare buy_max")
-	local okConfBM, resBM = Products.confirmPurchase(p, "tok_bm", nil, 1050)
-	eq(okConfBM, true, "confirm buy_max")
-	eq(p.entitlements.buy_max, true, "buy_max entitlement granted")
-	eq(p.entitlements.pro_permit, nil, "pro_permit NOT granted by buy_max")
+	-- Planned products cannot create a purchase reservation.
+ for _, id in {"buy_max","auto_hatch"} do
+  local accepted, _, reason = Products.preparePurchase(p,id,"blocked-"..id,1000)
+  eq(accepted,false,"unavailable product rejected")
+  eq(reason,"PRODUCT_UNAVAILABLE_AT_LAUNCH","blocked product reason")
+  eq(p.entitlements[id],nil,"no entitlement granted")
+ end
 
 	-- double_cash grants 2x income entitlement
 	local okPrepDC, prevDC = Products.preparePurchase(p, "double_cash", "tok_dc", 1100)
@@ -56,17 +56,11 @@ do
 	eq(okConfDC, true, "confirm double_cash")
 	eq(p.entitlements.double_cash, true, "double_cash entitlement granted")
 
-	-- auto_hatch grants auto_hatch entitlement
-	local okPrepAH, prevAH = Products.preparePurchase(p, "auto_hatch", "tok_ah", 1200)
-	eq(okPrepAH, true, "prepare auto_hatch")
-	local okConfAH, resAH = Products.confirmPurchase(p, "tok_ah", nil, 1250)
-	eq(okConfAH, true, "confirm auto_hatch")
-	eq(p.entitlements.auto_hatch, true, "auto_hatch entitlement granted")
-
-	-- Cannot re-purchase already owned gamepass
-	local prevBM2 = Products.previewPurchase(p, "buy_max")
-	eq(prevBM2.isAvailable, false, "cannot repurchase buy_max")
-	eq(prevBM2.error, "ALREADY_OWNED", "already owned error")
+	-- Existing ownership survives availability changes; it is not a new purchase.
+ p.entitlements.buy_max=true
+ p.entitlements.auto_hatch=true
+ eq(Products.previewPurchase(p,"buy_max").isAvailable,false,"owned planned pass unavailable for new purchase")
+ eq(p.entitlements.buy_max,true,"existing ownership preserved")
 
 	-- Purchasing Pro Permit does not grant Buy MAX
 	local okPrepPro, prevPro = Products.preparePurchase(p, "pro_permit", "tok_pro", 2000, { paidRandomAllowed = true })

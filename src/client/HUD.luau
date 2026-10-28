@@ -34,6 +34,10 @@ local function resolveModule(studioGetter, lunePath)
 	return require(lunePath)
 end
 
+local Availability = resolveModule(function()
+ return game:GetService("ReplicatedStorage").HatchTheEgg.Shared.FeatureAvailability
+end, "../shared/FeatureAvailability")
+
 local StudUi = resolveModule(function()
 	return script.Parent.ui.StudUi
 end, "./ui/StudUi")
@@ -483,13 +487,7 @@ local COMMON_RESEARCH_MAX_LEVELS = table.freeze({
 	relativity_optimization = 10,
 })
 
-local UNSUPPORTED_EPIC_RESEARCH = table.freeze({
-	afx_mission_time = true,
-	afx_mission_capacity = true,
-	hold_to_research = true,
-	epic_silo_quality = true,
-	warp_shift = true,
-})
+local UNSUPPORTED_EPIC_RESEARCH = Availability.blockedEpic
 
 local EPIC_RESEARCH_CATALOG = table.freeze({
 	{
@@ -705,14 +703,12 @@ local SHOP_PRODUCTS_CATALOG = table.freeze({
 		name = "Auto-Wylęg (Wkrótce - v1.1)",
 		kind = "gamepass",
 		desc = "Automatyczny, ciągły wylęg kurczaków z maksymalną prędkością bez klikania! Planowany na v1.1.",
-		disabled = true,
 	},
 	buy_max = {
 		id = "buy_max",
 		name = "Kupuj MAX (Wkrótce - v1.1)",
 		kind = "gamepass",
 		desc = "Kupuj maksymalną możliwą liczbę ulepszeń i badań jednym kliknięciem! Planowany na v1.1.",
-		disabled = true,
 	},
 	double_cash = {
 		id = "double_cash",
@@ -754,34 +750,6 @@ local EGGS_DATA = table.freeze({
 	[18] = { index = 18, name = "Astralnego Lewiatana", eggValueBase = 1e-7, advanceFV = 3.6e65 },
 })
 
-local function calculateClientFarmValue(farm)
-	if not farm then return 0 end
-	local eggIndex = farm.eggIndex or 0
-	local egg = EGGS_DATA[eggIndex] or EGGS_DATA[0]
-	local eggValueBase = egg.eggValueBase
-
-	local population = 0
-	local habCapacity = 0
-	if type(farm.habitats) == "table" then
-		for _, hab in ipairs(farm.habitats) do
-			population += tonumber(hab.population) or 0
-			habCapacity += tonumber(hab.capacity) or 0
-		end
-	end
-
-	local shippingPerMinute = 0
-	if farm.fleet and farm.fleet.shippingPerMinute then
-		shippingPerMinute = tonumber(farm.fleet.shippingPerMinute) or 0
-	end
-
-	local L = 1.0 / 30
-	local C = math.floor((shippingPerMinute / 60) / L)
-	local P = if population <= C then population else math.floor(C + 0.2 * (population - C))
-	local F = math.max(0, habCapacity - population) ^ 0.6
-	local K = if eggIndex < 18 then 1200 + 600 * eggIndex else 3600
-
-	return 50 * K * L * eggValueBase * (P + F)
-end
 
 -- ============================================================================
 -- GUI Instance Helpers (Studio & Lune Mock)
@@ -1100,6 +1068,7 @@ local function addPulseGlow(stroke, minTransparency, maxTransparency)
 end
 
 local function promptMarketplacePurchase(productId, onPurchaseProductCallback)
+	if not Availability.isProductAvailable(productId) then return end
 	if type(onPurchaseProductCallback) == "function" then
 		onPurchaseProductCallback(productId)
 	end
@@ -2067,27 +2036,6 @@ function HUD:_bindTopHeaderResponsive(root)
 	resize()
 end
 
-function HUD:_buildCloseButton(parent, onClose)
-	local closeBtn = createGuiElement("TextButton", {
-		Name = "CloseBtn",
-		Size = isRoblox and UDim2.new(0, 44, 0, 44) or nil,
-		Position = isRoblox and UDim2.new(1, -50, 0, 6) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(235, 65, 65) or nil,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-		Text = "✕",
-		ZIndex = 20,
-	}, parent)
-	addCornerAndStroke(closeBtn, 8, isRoblox and Color3.fromRGB(85, 20, 20) or nil, 2)
-	if closeBtn.Activated and type(onClose) == "function" then
-		closeBtn.Activated:Connect(function()
-			self:_playClick()
-			onClose()
-		end)
-	end
-	return closeBtn
-end
 
 function HUD:_buildHabitatsModal(root)
 	-- Shared stud-style window (#82): thick border, coloured header, 44px close button.
@@ -2261,7 +2209,7 @@ function HUD:_buildResearchModal(root)
 		shopFrame.Visible = false
 	end)
 
-	-- Tier Selector Bar: T1..T13 + EPICKIE in a comfortable horizontal ScrollingFrame.
+	-- Tier Selector Bar: T1..T13 in a comfortable horizontal ScrollingFrame.
 	-- Exactly the 14 tab buttons live here (the existing suite counts this row's children).
 	local tabsRow = self.ui:scroll(shopFrame, {
 		name = "TierTabsRow",
@@ -2411,7 +2359,7 @@ function HUD:_buildEpicResearchModal(root)
 		radius = 8,
 	})
 
-	-- Scrolling container with cards for all 24 epic researches
+	-- Scrolling container with cards for available and planned Epic research
 	local scroll = self.ui:scroll(eFrame, {
 		name = "EpicResearchListContainer",
 		size = { 1, -28, 1, -118 },
@@ -2422,17 +2370,6 @@ function HUD:_buildEpicResearchModal(root)
 	self.epicResearchListContainer = scroll
 	self.epicResearchCards = {}
 
-	local function getEpicRobuxTier(geCost: number): (string, number)
-		if geCost <= 50 then
-			return "epic_tier_1", 19
-		elseif geCost <= 200 then
-			return "epic_tier_2", 49
-		elseif geCost <= 1000 then
-			return "epic_tier_3", 99
-		else
-			return "epic_tier_4", 199
-		end
-	end
 
 	for i, item in ipairs(EPIC_RESEARCH_CATALOG) do
 		local card = self.ui:card(scroll, {
@@ -2507,18 +2444,15 @@ function HUD:_buildEpicResearchModal(root)
 			end,
 		})
 
-		local initTier, initRobux = getEpicRobuxTier(item.basePriceGE)
-		local cardEntry = nil
 		local buyRobuxBtn = self.ui:button(card, {
 			name = "BuyRobuxButton",
-			text = tostring(initRobux) .. " R$",
+			text = "WKRÓTCE", active = false,
 			tone = "gold",
 			size = { 0.18, 0, 0, 48 },
 			position = { 0.79, 0, 0, 18 },
 			visible = false,
 			onClick = function()
-				local tId = (cardEntry and cardEntry.currentRobuxTier) or initTier
-				promptMarketplacePurchase(tId, self.onPurchaseProduct)
+				return -- Epic Robux unavailable; no purchasable quote exists
 			end,
 		})
 
@@ -2527,7 +2461,7 @@ function HUD:_buildEpicResearchModal(root)
 			if typeof(buyRobuxBtn) == "Instance" then buyRobuxBtn.Visible = false end
 		end
 
-		cardEntry = {
+		local cardEntry = {
 			card = card,
 			title = title,
 			desc = desc,
@@ -2536,7 +2470,6 @@ function HUD:_buildEpicResearchModal(root)
 			fill = fill,
 			buyBtn = buyBtn,
 			buyRobuxBtn = buyRobuxBtn,
-			currentRobuxTier = initTier,
 			spec = item,
 		}
 		self.epicResearchCards[item.id] = cardEntry
@@ -2959,11 +2892,12 @@ function HUD:_buildShopProducts(container)
 			})
 		end
 
-		local isPassDisabled = pass.spec.disabled == true
+		local isPassDisabled = not Availability.isProductAvailable(pass.spec.id)
 		local buyBtn = self.ui:button(card, {
-			name = "BuyPassButton", text = if isPassDisabled then "WKRÓTCE" else "ODBLOKUJ", tone = if isPassDisabled then "ghost" else "primary",
+			name = "BuyPassButton", active = not isPassDisabled, text = if isPassDisabled then "WKRÓTCE" else "ODBLOKUJ", tone = if isPassDisabled then "ghost" else "primary",
 			size = { 0.23, 0, 0, 52 }, position = { 0.74, 0, 0, 34 },
 			onClick = function()
+				if isPassDisabled then return end
 				promptMarketplacePurchase(pass.spec.id, self.onPurchaseProduct)
 			end,
 		})
@@ -3173,7 +3107,7 @@ function HUD:_buildEggUpgradeModal(root)
 			local farm = self.stateStore and self.stateStore:getFarm()
 			local curEggIdx = (farm and farm.eggIndex) or 0
 			local nextEggIdx = curEggIdx + 1
-			if nextEggIdx <= 18 and type(self.onUpgradeEggRequested) == "function" then
+			if self.eggUpgradeBtn and self.eggUpgradeBtn.Active ~= false and nextEggIdx <= 18 and type(self.onUpgradeEggRequested) == "function" then
 				self.onUpgradeEggRequested(nextEggIdx)
 			end
 		end,
@@ -3572,6 +3506,7 @@ function HUD:_buildPrestigeModal(root)
 
 	if prestigeActionBtn.Activated then
 		prestigeActionBtn.Activated:Connect(function()
+			if prestigeActionBtn.Active == false then return end
 			self:_playClick()
 			if type(self.onPrestigeRequested) == "function" then
 				self.onPrestigeRequested()
@@ -3795,7 +3730,6 @@ end
 function HUD:requestQuotesForCurrentTier(force)
 	if not self.intentControllers or not self.intentControllers.shop then return end
 	local currentTier = self.selectedResearchTier or 1
-	if currentTier == 14 then return end
 
 	local now = os.clock()
 	if not force and self._lastTierQuoteReqTime and (now - self._lastTierQuoteReqTime) < 0.3 then
@@ -3874,6 +3808,7 @@ end
 
 -- Tab selection methods
 function HUD:selectResearchTier(tierIndex)
+	if type(tierIndex) ~= "number" or tierIndex % 1 ~= 0 or tierIndex < 1 or tierIndex > 13 then return false end
 	self.selectedResearchTier = tierIndex
 	for idx, btn in ipairs(self.researchTabButtons) do
 		if isRoblox then
@@ -4271,7 +4206,6 @@ function HUD:_updateResearchModal(farm)
 	if not self.shopFrame or not farm then return end
 
 	local currentTier = self.selectedResearchTier or 1
-	local isEpicTab = (currentTier == 14)
 
 	-- Calculate total purchased research levels to evaluate tier unlocking
 	local totalPurchasedLevels = 0
@@ -4281,11 +4215,11 @@ function HUD:_updateResearchModal(farm)
 		end
 	end
 
-	local requiredLevels = if not isEpicTab then (TIER_THRESHOLDS[currentTier] or 0) else 0
+	local requiredLevels = TIER_THRESHOLDS[currentTier] or 0
 	local isTierUnlocked = (totalPurchasedLevels >= requiredLevels)
 
 	if self.researchTierLockBanner then
-		if not isTierUnlocked and not isEpicTab then
+		if not isTierUnlocked then
 			self.researchTierLockBanner.Visible = true
 			self.researchTierLockBanner.Text = string.format("🔒 Tier %d zablokowany! Wymaga %d zakupionych badań (masz %d)", currentTier, requiredLevels, totalPurchasedLevels)
 			if isRoblox and self.shopListContainer then
@@ -4301,8 +4235,8 @@ function HUD:_updateResearchModal(farm)
 		end
 	end
 
-	-- Update items
-	if not isEpicTab then
+	-- Common tiers only; Epic has a dedicated modal.
+	do
 		local visibleIdx = 0
 		if type(farm.common) == "table" then
 			for _, research in ipairs(farm.common) do
@@ -4319,16 +4253,6 @@ function HUD:_updateResearchModal(farm)
 		end
 		if self.shopFrame and self.shopFrame.Visible then
 			self:requestQuotesForCurrentTier(false)
-		end
-	else
-		-- Epic research view: hide common items and render/update epic cards
-		if type(farm.common) == "table" then
-			for _, research in ipairs(farm.common) do
-				local item = self.shopResearch[research.researchId]
-				if item and item.card then
-					item.card.Visible = false
-				end
-			end
 		end
 	end
 end
@@ -4643,17 +4567,6 @@ function HUD:_updateEpicResearchModal(farm)
 
 	local epicProgress = (p and p.epic) or {}
 
-	local function getEpicRobuxTier(geCost: number): (string, number)
-		if geCost <= 50 then
-			return "epic_tier_1", 19
-		elseif geCost <= 200 then
-			return "epic_tier_2", 49
-		elseif geCost <= 1000 then
-			return "epic_tier_3", 99
-		else
-			return "epic_tier_4", 199
-		end
-	end
 
 	for _, item in ipairs(EPIC_RESEARCH_CATALOG) do
 		local cardData = self.epicResearchCards and self.epicResearchCards[item.id]
@@ -4706,7 +4619,6 @@ function HUD:_updateEpicResearchModal(farm)
 				end
 			else
 				local nextPrice = (item.prices and item.prices[curLvl + 1]) or item.basePriceGE
-				local tierId, robuxCost = getEpicRobuxTier(nextPrice)
 				if cardData.lvlLabel then
 					cardData.lvlLabel.Text = "Poziom: " .. tostring(curLvl) .. " / " .. tostring(maxLvl)
 				end
@@ -4719,12 +4631,11 @@ function HUD:_updateEpicResearchModal(farm)
 					end
 				end
 				if cardData.buyRobuxBtn then
-					cardData.buyRobuxBtn.Text = tostring(robuxCost) .. " R$"
-					cardData.buyRobuxBtn.Active = true
+					cardData.buyRobuxBtn.Text = "WKRÓTCE"
+					cardData.buyRobuxBtn.Active = false
 					if isRoblox then
 						cardData.buyRobuxBtn.BackgroundColor3 = Color3.fromRGB(245, 158, 11)
 					end
-					cardData.currentRobuxTier = tierId
 				end
 			end
 		end
@@ -4740,7 +4651,7 @@ function HUD:_updateEggUpgradeModal(farm)
 	local nextEgg = EGGS_DATA[nextEggIdx]
 
 	local codec = self.codec
-	local approxFv = if farm.homeFV ~= nil then (if codec and codec.BigAmount then codec.BigAmount.decode(farm.homeFV) else tonumber(farm.homeFV) or 0) else calculateClientFarmValue(farm)
+	local approxFv = if farm.homeFV ~= nil then (if codec and codec.BigAmount then codec.BigAmount.decode(farm.homeFV) else tonumber(farm.homeFV) or 0) else nil
 	if self.eggUpgradeCurrentLabel then
 		self.eggUpgradeCurrentLabel.Text = string.format("🥚 Aktualne Jajo: %s ($%s)", curEgg.name, formatCompact(curEgg.eggValueBase))
 	end
@@ -4755,18 +4666,19 @@ function HUD:_updateEggUpgradeModal(farm)
 			self.eggUpgradeMultLabel.Text = string.format("📈 Mnożnik Wartości: %.1fx", mult)
 		end
 		if self.eggUpgradeCurrentFvLabel then
-			self.eggUpgradeCurrentFvLabel.Text = string.format("💰 Twoje Farm Value: $%s", formatCompact(approxFv))
+			self.eggUpgradeCurrentFvLabel.Text = string.format("💰 Twoje Farm Value: $%s", if approxFv ~= nil then formatCompact(approxFv) else "—")
 		end
 		if self.eggUpgradeReqFvLabel then
 			self.eggUpgradeReqFvLabel.Text = string.format("🎯 Wymagane Farm Value: $%s", formatCompact(reqFv))
 		end
 
 		if self.eggUpgradeBtn then
-			if approxFv >= reqFv then
+			self.eggUpgradeBtn.Active = approxFv ~= nil and approxFv >= reqFv
+			if approxFv ~= nil and approxFv >= reqFv then
 				self.eggUpgradeBtn.Text = "AWANSUJ NASTĘPNE JAJO (" .. string.upper(nextEgg.name) .. ")"
 				if isRoblox then self.eggUpgradeBtn.BackgroundColor3 = Color3.fromRGB(95, 235, 55) end
 			else
-				self.eggUpgradeBtn.Text = "WYMAGANE WIĘKSZE FARM VALUE"
+				self.eggUpgradeBtn.Text = if approxFv == nil then "OCZEKIWANIE NA WYCENĘ" else "WYMAGANE WIĘKSZE FARM VALUE"
 				if isRoblox then self.eggUpgradeBtn.BackgroundColor3 = Color3.fromRGB(140, 140, 140) end
 			end
 		end
@@ -4781,45 +4693,29 @@ function HUD:_updateEggUpgradeModal(farm)
 	end
 end
 
-local function calculateSoulEggsFormula(earnings: number, epicPrestigeBonusLevel: number?): number
-	if type(earnings) ~= "number" or earnings ~= earnings or earnings < 1 then return 0 end
-	local p = if earnings >= 1e60 then 0.21
-		elseif earnings >= 1e48 then 0.20
-		elseif earnings >= 1e39 then 0.19
-		elseif earnings >= 1e30 then 0.18
-		elseif earnings >= 1e21 then 0.17
-		elseif earnings >= 1e12 then 0.16
-		else 0.15
-	local baseSE = earnings ^ p
-	local epLevel = epicPrestigeBonusLevel or 0
-	return baseSE * (1 + 0.10 * epLevel)
-end
 
 function HUD:_updatePrestigeDisplay(farm)
 	farm = farm or (self.stateStore and (self.stateStore.getPresentationFarm or self.stateStore.getFarm)(self.stateStore))
 	if not farm then return end
 
 	local progress = farm.progress or {}
-	local cashStr = farm.cash or "0"
 	local codec = self.codec
-	local cashNum = if codec and codec.BigAmount then codec.BigAmount.decode(cashStr) else (tonumber(cashStr) or 0)
 	local seStr = progress.SE or "0"
 	local currentSE = if codec and codec.Real64 then codec.Real64.decode(seStr) else (tonumber(seStr) or 0)
 	local epic = progress.epic or {}
-	local epicBonusLvl = (epic.prestige_bonus or epic.epic_prestige_bonus) or 0
 	local soulFoodLvl = (epic.soul_eggs or epic.soul_food) or 0
 
-	local pendingSE = if progress.pendingSE ~= nil then (if codec and codec.Real64 then codec.Real64.decode(progress.pendingSE) else tonumber(progress.pendingSE) or 0) else calculateSoulEggsFormula(cashNum, epicBonusLvl)
-	local pendingInt = math.floor(pendingSE)
+	local pendingSE = if progress.pendingSE ~= nil then (if codec and codec.Real64 then codec.Real64.decode(progress.pendingSE) else tonumber(progress.pendingSE) or 0) else nil
+	local pendingText = if pendingSE ~= nil then formatCompact(pendingSE) else "—"
 
 	local bonusPerCrystal = 10 + soulFoodLvl
-	local totalBonusPercent = if progress.earningBonus ~= nil then (if codec and codec.Real64 then math.floor(codec.Real64.decode(progress.earningBonus)) else tonumber(progress.earningBonus) or 0) else math.floor(currentSE * bonusPerCrystal)
+	local totalBonusPercent = if progress.earningBonus ~= nil then (if codec and codec.Real64 then math.floor(codec.Real64.decode(progress.earningBonus)) else tonumber(progress.earningBonus) or 0) else nil
 
 	-- Update Bottom-Left HUD Rebirth Label
 	if self.rebirthLabel ~= nil then
 		local curEgg = EGGS_DATA[farm.eggIndex or 0]
 		local eggName = if curEgg then curEgg.name else "Kurze"
-		self.rebirthLabel.Text = string.format("🟣 %s Prestiż (+%s) • 🥚 %s", formatCompact(currentSE), formatCompact(pendingInt), eggName)
+		self.rebirthLabel.Text = string.format("🟣 %s Prestiż (+%s) • 🥚 %s", formatCompact(currentSE), pendingText, eggName)
 	end
 
 	-- Update Prestige Modal if created
@@ -4827,13 +4723,14 @@ function HUD:_updatePrestigeDisplay(farm)
 		self.prestigeCurrentCrystalsLabel.Text = "Posiadane Kryształy: 🟣 " .. formatCompact(currentSE)
 	end
 	if self.prestigeCurrentBonusLabel then
-		self.prestigeCurrentBonusLabel.Text = string.format("Bonus do zarobków: +%s%% (+%d%% z każdego kryształu)", formatCompact(totalBonusPercent), bonusPerCrystal)
+		self.prestigeCurrentBonusLabel.Text = string.format("Bonus do zarobków: +%s%% (+%d%% z każdego kryształu)", if totalBonusPercent ~= nil then formatCompact(totalBonusPercent) else "—", bonusPerCrystal)
 	end
 	if self.prestigePendingLabel then
-		self.prestigePendingLabel.Text = string.format("+%s KRYSZTAŁÓW PRESTIŻU", formatCompact(pendingInt))
+		self.prestigePendingLabel.Text = string.format("+%s KRYSZTAŁÓW PRESTIŻU", pendingText)
 	end
 	if self.prestigeActionBtn then
-		self.prestigeActionBtn.Text = string.format("ODRÓDŹ FARMĘ (+%s KRYSZTAŁÓW)", formatCompact(pendingInt))
+		self.prestigeActionBtn.Active = pendingSE ~= nil
+		self.prestigeActionBtn.Text = string.format("ODRÓDŹ FARMĘ (+%s KRYSZTAŁÓW)", pendingText)
 	end
 end
 

@@ -1,4 +1,11 @@
 # TODO — stan 26.10.2026
+**Naprawy po review24de421 — 28.10.2026:** serwer blokuje nieobsługiwane zakupy Epic i oferty WKRÓTCE, podgląd prestiżu uwzględnia event, a potwierdzone martwe helpery i duplikaty zostały usunięte. [Zakres, regresje i ograniczenia](workflow/remaining_fixes_2026_10_28.md). Dowody tej dostawy to lokalne testy L i statyczny build; publikacja kodu GitHub nie oznacza publikacji Roblox ani odbioru Studio. #92/#93 pozostają poza tą naprawą.
+
+> **Aktualna decyzja użytkownika — 28.10.2026 (R):** RCB zależne od liczby biegnących kur zostało usunięte. Dochód korzysta ze stałego mnożnika wynikającego z badań, niezależnego od wylęgu i `runningCount`; działa on również w rozliczeniu away. Grupy kur, rezerwacje miejsc i dotarcia pozostają logiką populacji. Nazwy `activeRCB`/`onscreenChickenMult*` w kodzie i zapisach są historyczne. Aktualny kontrakt: [31 §3](31_research_hatching_rcb_and_new_account.md#3-stały-mnożnik-dochodu-i-przejścia-populacji). Starsze opisy aktywnego RCB w historii dostaw nie są bieżącym wymaganiem.
+
+- [x] Zaktualizować kontrakt po usunięciu aktywnego RCB —28.10.2026; stały mnożnik dochodu, grupy i dotarcia zachowane.
+- [ ] Domknąć pozostałości po24de421: aktywacja boostów (#92) i zgodność zakresu silosów/Hyperloop (#93). Blokady #85/#90–91 i podgląd #86 naprawione lokalnie, publikacja/odbiór pozostają osobno. [Dowody review](workflow/review_24de421_2026_10_28.md).
+
 
 > **Decyzja użytkownika 28.10.2026 (R): czasowy podwajacz dochodu i badanie `video_doubler_time` („Dłuższe Wzmocnienia”) zostały usunięte z gry.** Dawne terminy/poziomy w profilach są zachowane wyłącznie dla zgodności i nie dają efektu ani możliwości zakupu. Poniższe wcześniejsze zasady VD, jego darmowej aktywacji i odnawiania są historyczne. Osobny pass `double_cash` (2× Cash), boosty oraz zasady bonusowych prezentów pozostają poza tą zmianą. [Zakres i testy](workflow/remove_timed_doubler_2026_10_28.md).
 

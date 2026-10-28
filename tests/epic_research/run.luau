@@ -15,6 +15,7 @@ local ProfileSchema = require("../../src/server/ProfileSchema").new(C)
 local ProductionMath = require("../../src/server/FarmMath/production_research").new(C, Catalog, { mode = "INTERNAL_TEST_ONLY" })
 local ViewProjectorMod = require("../../src/server/ViewProjector")
 
+local Availability = require("../../src/shared/FeatureAvailability")
 local assertions = 0
 local function eq(a: any, b: any, label: string?)
 	assertions += 1
@@ -591,16 +592,21 @@ do
 			args = { researchId = epicId },
 		})
 
+		if not Availability.isEpicAvailable(epicId) then
+			eq(res.status,"REJECTED","Unsupported Epic cannot be bought")
+			eq(res.result.errorCode,"FEATURE_UNAVAILABLE","Unavailable effect reason")
+		else
 		eq(res.status, "APPLIED", "Purchase succeeded for epic research: " .. epicId)
 		eq(res.result.researchId, epicId, "Returned researchId matches: " .. epicId)
 		eq(res.result.level, 1, "Level 1 granted for: " .. epicId)
 		eq(res.result.costGE, tostring(row.prices[1]), "Price matches catalog row for: " .. epicId)
+		end
 	end
 
 	local durable = coord.snapshots().durable
 	eq(#Catalog.epicIds, 23, "Catalog contains exactly 23 active epic research items")
 	for _, epicId in ipairs(Catalog.epicIds) do
-		eq(durable.permanent.epic[epicId], 1, "Level 1 recorded for " .. epicId)
+		eq(durable.permanent.epic[epicId], if Availability.isEpicAvailable(epicId) then 1 else nil, "Only supported level recorded for " .. epicId)
 	end
 
 	server:playerLeaving("110")

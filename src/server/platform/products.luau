@@ -13,6 +13,10 @@ local function resolve(studioGetter, lunePath)
 	return require(lunePath)
 end
 
+local Availability = resolve(function()
+ return game:GetService("ReplicatedStorage").HatchTheEgg.Shared.FeatureAvailability
+end, "../../shared/FeatureAvailability")
+
 local Codec = resolve(function()
 	return game:GetService("ReplicatedStorage").HatchTheEgg.Shared.NumericCodec
 end, "../../shared/NumericCodec")
@@ -77,7 +81,7 @@ local CATALOG: { [string]: ProductDef } = table.freeze({
 	buy_max = table.freeze({
 		productId = "buy_max",
 		productType = "gamepass",
-		availableAtLaunch = true,
+		availableAtLaunch = Availability.isProductAvailable("buy_max"),
 		name = "Buy MAX Research",
 	}),
 	double_cash = table.freeze({
@@ -110,31 +114,31 @@ local CATALOG: { [string]: ProductDef } = table.freeze({
 	auto_hatch = table.freeze({
 		productId = "auto_hatch",
 		productType = "gamepass",
-		availableAtLaunch = true,
+		availableAtLaunch = Availability.isProductAvailable("auto_hatch"),
 		name = "Auto-Wylęg (Auto-Hatch)",
 	}),
 	epic_tier_1 = table.freeze({
 		productId = "epic_tier_1",
 		productType = "developer_product",
-		availableAtLaunch = false,
+		availableAtLaunch = Availability.isProductAvailable("epic_tier_1"),
 		name = "Badanie Epickie (Tier 1 - 19 R$)",
 	}),
 	epic_tier_2 = table.freeze({
 		productId = "epic_tier_2",
 		productType = "developer_product",
-		availableAtLaunch = false,
+		availableAtLaunch = Availability.isProductAvailable("epic_tier_2"),
 		name = "Badanie Epickie (Tier 2 - 49 R$)",
 	}),
 	epic_tier_3 = table.freeze({
 		productId = "epic_tier_3",
 		productType = "developer_product",
-		availableAtLaunch = false,
+		availableAtLaunch = Availability.isProductAvailable("epic_tier_3"),
 		name = "Badanie Epickie (Tier 3 - 99 R$)",
 	}),
 	epic_tier_4 = table.freeze({
 		productId = "epic_tier_4",
 		productType = "developer_product",
-		availableAtLaunch = false,
+		availableAtLaunch = Availability.isProductAvailable("epic_tier_4"),
 		name = "Badanie Epickie (Tier 4 - 199 R$)",
 	}),
 	vip = table.freeze({

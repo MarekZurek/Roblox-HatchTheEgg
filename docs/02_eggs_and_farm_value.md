@@ -58,7 +58,7 @@ FV = 50*K*GDR.valuationMult()*GDR.localMysticalEarningsMultiplier()
      *(P+F+0.25*I*T)*R
 ```
 
-Nie pomijać wartości bazowej jaja ani bazowego tempa 1/30. Człon przyszłego wylęgu używa czterech wywołań ResearchEngine; nie liczby zakupionych kurników i nie bonusu Calm. RCB w tym wzorze pochodzi z maksymalnego bonusu z badań, nie z aktualnie biegających kur. Nie zastępować każdej wartości ResearchEngine pełnym GDR z bonusami wszystkich źródeł.
+Nie pomijać wartości bazowej jaja ani bazowego tempa 1/30. Człon przyszłego wylęgu używa czterech wywołań ResearchEngine; nie liczby zakupionych kurników i nie bonusu Calm. Po usunięciu aktywnego RCB nazwy researchMaxRCBBase/researchMaxRCBMult pozostają historycznymi parametrami badawczego członu FV. Ten człon nadal działa w kodzie, nie zależy od biegnących kur i nie jest przywróceniem bonusu za wylęg; nie zmieniamy teraz formuły FV. Nie zastępować każdej wartości ResearchEngine pełnym GDR z bonusami wszystkich źródeł.
 
 Uzupełnienie dla petów: [rozdział 16](16_pet_stacking_offline_and_package_schedule.md) potwierdza wybór `totalHabCapacityOf(..., true)` w FV. Jest to pojemność z ResearchEngine, a nie pełna pojemność GDR z wyposażeniem. Bonusów wartości jaj, znoszenia, IHR i pojemności petów nie dopisujemy bezpośrednio do wejść tego wzoru. Wpływ przez faktycznie zmienioną populację pozostaje zachowany.
 

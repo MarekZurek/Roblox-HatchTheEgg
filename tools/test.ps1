@@ -44,6 +44,9 @@ try {
     $taskSuite = 'fresh_cash_purchases'
     & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
     if ($LASTEXITCODE -ne 0) { throw 'Fresh cash purchase regressions failed.' }
+    $taskSuite = 'remaining_fixes'
+    & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
+    if ($LASTEXITCODE -ne 0) { throw 'Remaining fixes regressions failed.' }
     $taskSuite = 'retired_doubler'
     & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
     if ($LASTEXITCODE -ne 0) { throw 'Retired doubler regressions failed.' }

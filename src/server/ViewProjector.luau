@@ -309,7 +309,8 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
         local fvOk,homeFV=pcall(ProgressActions.calculateProfileFarmValue,profile,catalog,productionMath)
         if not fvOk or profile.farm.isContract then homeFV=nil end
         if homeFV ~= nil then ownFarm.homeFV = codec.BigAmount.encode(homeFV) end
-        local pendingOk, pendingSE = pcall(ProgressActions.calculatePendingSoulEggs, profile)
+        local prestigeEventMult = Effects.calculateMultipliers(nil, farm, serverObservedAt, self.liveEvents).eventPrestigeMult
+        local pendingOk, pendingSE = pcall(ProgressActions.calculatePendingSoulEggs, profile, prestigeEventMult)
         local pendingSEStr = if pendingOk and pendingSE ~= nil then codec.Real64.encode(pendingSE) else nil
         local permanent = profile.permanent or {}
         local epic = permanent.epic or {}

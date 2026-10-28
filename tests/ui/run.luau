@@ -895,7 +895,7 @@ do
 	hud:toggleResearchModal(true)
 	eq(resModal.Visible, true, "ResearchModal opened")
 
-	-- Check tier tabs count: 14 (T1..T13 + EPICKIE)
+	-- Common has 13 tabs; Epic has its own modal.
 	local tabsRow = resModal:FindFirstChild("TierTabsRow")
 	ok(tabsRow ~= nil, "TierTabsRow exists")
 	eq(#tabsRow:GetChildren(), 13, "13 tabs present (T1..T13)")
@@ -928,7 +928,7 @@ do
 	hud:selectResearchTier(1)
 	eq(lockBanner.Visible, false, "TierLockBanner is hidden for Tier 1")
 
-	-- Select EPICKIE tab (tab 14)
+	-- Open the dedicated Epic window.
 	-- Dedicated Epic Research Modal
 	hud:toggleEpicResearchModal(true)
 	local epicModal = hud:getEpicResearchModal()
@@ -1093,7 +1093,14 @@ do
 	local autoHatchCard = cont:FindFirstChild("Tab3_GamePasses"):FindFirstChild("PassCard_auto_hatch")
 	ok(autoHatchCard ~= nil, "PassCard_auto_hatch exists")
 	autoHatchCard:FindFirstChild("BuyPassButton").Activated:Fire()
-	eq(purchasedProduct, "auto_hatch", "auto_hatch buy button fired onPurchaseProduct")
+	eq(purchasedProduct, "pro_permit", "Auto-Hatch placeholder does not invoke purchase")
+	eq(autoHatchCard:FindFirstChild("BuyPassButton").Active, false, "Auto-Hatch disabled")
+	local maxCard=cont:FindFirstChild("Tab3_GamePasses"):FindFirstChild("PassCard_buy_max")
+	maxCard:FindFirstChild("BuyPassButton").Activated:Fire()
+	eq(purchasedProduct,"pro_permit","Buy MAX placeholder cannot invoke purchase")
+	eq(maxCard:FindFirstChild("BuyPassButton").Active,false,"Buy MAX disabled")
+	hud:selectResearchTier(14)
+	eq(hud:getCurrentResearchTier(),1,"Invalid retired tier does not change selection")
 
 	hud:destroy()
 end
@@ -1429,9 +1436,11 @@ do
 	eq(audio:getSFXPlayCount("cluck"), initialCluck + 1, "pressHatch triggered cluck SFX")
 
 	-- 16.3 Mobile Touch Hitbox Optimization (min 44x44 pixels)
-	local dummyFrame = { Children = {} }
-	local closeBtn = hud:_buildCloseButton(dummyFrame, function() end)
-	ok(closeBtn ~= nil, "CloseBtn created")
+	hud:toggleResearchModal(true)
+	local closeBtn = hud:getResearchModal():FindFirstChild("CloseBtn", true)
+	ok(closeBtn ~= nil, "Actual research close button exists")
+	closeBtn.Activated:Fire()
+	eq(hud:getResearchModal().Visible, false, "Actual close button closes research")
 
 	-- Check mobile-friendly touch targets on main interactive buttons
 	ok(hud.hatchButton ~= nil, "HatchButton exists")
@@ -1440,6 +1449,50 @@ do
 
 	hud:destroy()
 	audio:destroy()
+end
+
+-- Availability callbacks stay safe even when a test fires Activated programmatically.
+do
+ local transport=ClientTransport.new({protocol=Protocol,wire=function()end})
+ local store=ClientStateStore.new({transport=transport,codec=C})
+ local bought,paid=0,0
+ local controllers=IntentControllers.new({transport=transport,stateStore=store,codec=C})
+ local hud=HUD.new({stateStore=store,intentControllers=controllers,codec=C,onBuyEpicResearch=function()bought+=1 end,onPurchaseProduct=function()paid+=1 end})
+ hud.onBuyEpicResearch=function()bought+=1 end -- same binding used by Main
+ hud:_updateEpicResearchModal({progress={GE="1000000",epic={}}})
+ for _,id in {"afx_mission_time","afx_mission_capacity","hold_to_research","epic_silo_quality","warp_shift"} do
+  local row=hud.epicResearchCards[id]
+  eq(row.buyBtn.Active,false,"unavailable Epic visibly disabled")
+  row.buyBtn.Activated:Fire()
+  eq(bought,0,"unavailable Epic callback blocked")
+ end
+ for _,row in hud.epicResearchCards do
+  eq(row.buyRobuxBtn.Active,false,"Epic Robux not purchasable")
+  row.buyRobuxBtn.Activated:Fire()
+ end
+ eq(paid,0,"hidden Robux buttons cannot purchase")
+ hud.epicResearchCards.hold_to_hatch.buyBtn.Activated:Fire()
+ eq(bought,1,"available Epic callback works")
+ hud:_updatePrestigeDisplay({cash="100",progress={SE="0",epic={}}})
+ eq(hud.prestigeActionBtn.Active,false,"missing projection cannot invent prestige")
+ local prestigeRequests=0;hud.onPrestigeRequested=function()prestigeRequests+=1 end
+ hud.prestigeActionBtn.Activated:Fire()
+ eq(prestigeRequests,0,"missing preview cannot request prestige")
+ ok(string.find(hud.prestigePendingLabel.Text,"—",1,true)~=nil,"missing preview is explicit")
+ hud:_updatePrestigeDisplay({cash="100",progress={SE="0",epic={},pendingSE="37.465210714934891",earningBonus="0"}})
+ eq(hud.prestigeActionBtn.Active,true,"projected prestige enabled")
+ hud.prestigeActionBtn.Activated:Fire()
+ eq(prestigeRequests,1,"projected prestige can request reset")
+ ok(string.find(hud.prestigePendingLabel.Text,"37.47",1,true)~=nil,"fractional authoritative preview formatted")
+ hud:_updateEggUpgradeModal({eggIndex=0})
+ eq(hud.eggUpgradeBtn.Active,false,"FV requires server projection")
+ hud:_updateEggUpgradeModal({eggIndex=0,homeFV="1e20"})
+ eq(hud.eggUpgradeBtn.Active,true,"authoritative FV enables advancement")
+ for _,invalid in {0,14,-1,1.5,"2"} do
+  hud:selectResearchTier(invalid)
+  eq(hud:getCurrentResearchTier(),1,"invalid tier preserves Common selection")
+ end
+ hud:destroy()
 end
 
 print(string.format("HUD and IntentControllers: %d assertions PASS", assertions))

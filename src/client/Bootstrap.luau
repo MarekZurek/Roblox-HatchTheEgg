@@ -353,10 +353,6 @@ function ClientBootstrap:prestige(callback) return self:_command("Prestige",{},c
 function ClientBootstrap:buyEpicResearch(researchId,callback) return self:_command("BuyEpicResearch",{researchId=researchId},callback) end
 
 function ClientBootstrap:hitDrone(droneId, callback)
-	if self.audioController and type(self.audioController.playSFX) == "function" then
-		self.audioController:playSFX("pop")
-		self.audioController:playSFX("coin")
-	end
 	if type(self.onHitDrone) == "function" then
 		return self.onHitDrone(droneId, callback)
 	end
@@ -375,10 +371,6 @@ function ClientBootstrap:hitDrone(droneId, callback)
 end
 
 function ClientBootstrap:claimOffer(offerId, callback)
-	if self.audioController and type(self.audioController.playSFX) == "function" then
-		self.audioController:playSFX("pop")
-		self.audioController:playSFX("coin")
-	end
 	if type(self.onClaimOffer) == "function" then
 		return self.onClaimOffer(offerId, callback)
 	end

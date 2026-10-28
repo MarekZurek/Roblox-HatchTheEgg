@@ -1,8 +1,15 @@
 # Bieżący kontekst — 28.10.2026
+**Naprawy po review24de421 — 28.10.2026:** serwer blokuje nieobsługiwane zakupy Epic i oferty WKRÓTCE, podgląd prestiżu uwzględnia event, a potwierdzone martwe helpery i duplikaty zostały usunięte. [Zakres, regresje i ograniczenia](workflow/remaining_fixes_2026_10_28.md). Dowody tej dostawy to lokalne testy L i statyczny build; publikacja kodu GitHub nie oznacza publikacji Roblox ani odbioru Studio. #92/#93 pozostają poza tą naprawą.
+
+> **Aktualna decyzja użytkownika — 28.10.2026 (R):** RCB zależne od liczby biegnących kur zostało usunięte. Dochód korzysta ze stałego mnożnika wynikającego z badań, niezależnego od wylęgu i `runningCount`; działa on również w rozliczeniu away. Grupy kur, rezerwacje miejsc i dotarcia pozostają logiką populacji. Nazwy `activeRCB`/`onscreenChickenMult*` w kodzie i zapisach są historyczne. Aktualny kontrakt: [31 §3](31_research_hatching_rcb_and_new_account.md#3-stały-mnożnik-dochodu-i-przejścia-populacji). Starsze opisy aktywnego RCB w historii dostaw nie są bieżącym wymaganiem.
 
 > **Decyzja użytkownika 28.10.2026 (R): czasowy podwajacz dochodu i badanie `video_doubler_time` („Dłuższe Wzmocnienia”) zostały usunięte z gry.** Dawne terminy/poziomy w profilach są zachowane wyłącznie dla zgodności i nie dają efektu ani możliwości zakupu. Poniższe wcześniejsze zasady VD, jego darmowej aktywacji i odnawiania są historyczne. Osobny pass `double_cash` (2× Cash), boosty oraz zasady bonusowych prezentów pozostają poza tą zmianą. [Zakres i testy](workflow/remove_timed_doubler_2026_10_28.md).
 
 Cel: farma HatchTheEgg z petami w Roblox, zgodna z opisaną specyfikacją. Poniższy skrót przekazania jest aktualnym punktem startowym; starsze opisy etapów i listy otwartych zgłoszeń dalej w pliku są historyczne.
+
+## Weryfikacja poprzedniego commitu — 28.10.2026
+
+HEAD przy weryfikacji: `24de421c6b1c1b3668127a6569564dbf64684786`; początkowo drzewo czyste. Commit obejmuje zmiany Gemini deklarowane jako poprawki #83–94. [Ponowna weryfikacja](workflow/review_24de421_2026_10_28.md) potwierdza część napraw, ale nie wszystkie: blokada niedziałających Epic tylko w HUD, klikalne oferty WKRÓTCE, brak eventu w podglądzie prestiżu oraz wcześniejsze pozostałości/duplikaty kodu. Pełny runner 51 zestawów Luau +11 Python i Rojo41+2 PASS nie obejmuje tych dodatkowych rozbieżności. RCB wycofano świadomie — nie traktować stałego mnożnika jako regresji. W tym review bez zmian kodu gry, Studio, chmury i zgłoszeń GitHub. Poniższe dostawy26.10 są historyczne.
 
 ## Najnowsza dostawa Git i bieżące zadania — 26.10.2026
 
