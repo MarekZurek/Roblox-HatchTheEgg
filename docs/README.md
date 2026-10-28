@@ -1,5 +1,7 @@
 # HatchTheEgg — dokumentacja
 
+**Wzmocnienie testów po review — 28.10.2026:** [naprawa oczekiwań, izolacja mutacji i dowody FAIL→PASS](workflow/test_oracle_repairs_2026_10_28.md). Bieżące opisy RCB dotyczą stałego mnożnika badań; mechaniki gry i dane referencyjne bez zmian.
+
 **Testy i workflow Roblox — 28.10.2026:** [kontrakt niezależnych oczekiwań i regresji](workflow/ROBLOX_TESTING_CONTRACT.md) wymaga źródła ze specyfikacji oraz poprawnego FAIL na błędnym zachowaniu → PASS po naprawie. [Wzmocnienie komunikatu FV i skilli](workflow/spec_testing_hardening_2026_10_28.md) ma lokalny dowód wykrycia wcześniej przechodzącej mutacji. Bez zmiany mechanik gry.
 
 **Naprawy po review24de421 — 28.10.2026:** serwer blokuje nieobsługiwane zakupy Epic i oferty WKRÓTCE, podgląd prestiżu uwzględnia event, a potwierdzone martwe helpery i duplikaty zostały usunięte. [Zakres, regresje i ograniczenia](workflow/remaining_fixes_2026_10_28.md). Dowody tej dostawy to lokalne testy L i statyczny build; publikacja kodu GitHub nie oznacza publikacji Roblox ani odbioru Studio. #92/#93 pozostają poza tą naprawą.

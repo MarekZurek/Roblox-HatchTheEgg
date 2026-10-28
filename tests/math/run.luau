@@ -6,7 +6,7 @@ local Catalog = require("../../src/server/CatalogRegistry").new(Codec, require("
 local Module = require("../../src/server/FarmMath/production_research")
 local M = Module.new(Codec, Catalog, {mode="INTERNAL_TEST_ONLY"})
 local assertions = 0
-local function eq(a,b) assertions += 1; assert(a == b, tostring(a).." != "..tostring(b)) end
+local function eq(a,b,label) assertions += 1; assert(a == b, (label or "")..tostring(a).." != "..tostring(b)) end
 local function near(a,b)
 	assertions += 1
 	assert(math.abs(a-b) <= math.max(math.abs(b)*2e-15, 1e-15), tostring(a).." != "..tostring(b))
@@ -29,10 +29,20 @@ for id, rule in rules do
 	for level=0,rule[1] do local r=M.research({[id]=level});eq(r.commonPoints,level);near(r[rule[2]],rule[3](level)) end
 	for _,bad in {-1,0.5,rule[1]+1,math.huge,0/0,"1"} do reject(function() M.research({[id]=bad}) end) end
 end
+-- docs/01 + reference thresholds at 57cd5b9; values do not come from tierThreshold().
+local referenceRows=serde.decode('json',fs.readFile('docs/reference_data/research.json')).common
+local function pointsFixture(points)
+ local levels={};local remaining=points
+ for _,row in referenceRows do
+  local level=math.min(remaining,row.maxLevel);levels[row.id]=level;remaining-=level
+ end
+ eq(remaining,0,'SPEC/points fixture can represent boundary ')
+ return levels
+end
 for tier,threshold in {0,30,80,160,280,400,520,650,800,980,1185,1390,1655} do
-	-- All known thresholds are checked against attainable first-fragment points; high tiers remain locked.
-	local level=math.min(50,threshold)
-	eq(M.tierUnlocked({comfy_nests=level},tier-1),level>=threshold)
+ for _,points in {math.max(0,threshold-1),threshold,threshold+1} do
+  eq(M.tierUnlocked(pointsFixture(points),tier-1),points>=threshold,'SPEC/tier boundary '..tier..'/'..points..' ')
+ end
 end
 for _,p in {29,30,31,79,80,81} do
 	local levels={comfy_nests=math.min(p,50),nutritional_sup=math.max(0,p-50)}

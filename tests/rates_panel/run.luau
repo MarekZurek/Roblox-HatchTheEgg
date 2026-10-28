@@ -295,12 +295,19 @@ do
 	audioBtn.Activated:Fire()
 	eq(audioBtn.Text, "🔊", "sound toggle still unmutes")
 
-	-- Lune has no viewport, so the touch targets are asserted from the source, like the other
-	-- geometry-independent UI checks in this repository.
-	local source = fs.readFile("src/client/HUD.luau")
-	ok(string.find(source, "UDim2.new(0, 44, 0, 44)", 1, true) ~= nil, "the Dom button keeps its 44px hit target")
-	ok(string.find(source, "UDim2.new(0, 48, 0, 48)", 1, true) ~= nil, "the sound toggle keeps its 48px hit target")
-	ok(string.find(source, "IgnoreGuiInset = false", 1, true) ~= nil, "the existing IgnoreGuiInset treatment is preserved")
+	-- Execute actual named controls; never search unrelated source strings.
+	-- Requirement: docs/workflow/top_rates_panel_2026_10_26.md, preserved 44/48 px targets.
+	local header=require('../support/HudHeaderHarness')()
+	local function target(name,size)
+		local node=header[name]
+		ok(node~=nil,'SPEC/header control exists: '..name)
+		eq(node.Size.X.Scale,0,'SPEC/header absolute width: '..name)
+		eq(node.Size.Y.Scale,0,'SPEC/header absolute height: '..name)
+		eq(node.Size.X.Offset,size,'SPEC/header target width: '..name)
+		eq(node.Size.Y.Offset,size,'SPEC/header target height: '..name)
+	end
+	target('DomButton',44);target('AudioToggleButton',48)
+	eq(header.HatchTheEggHUD.IgnoreGuiInset,false,'SPEC/header respects inset')
 
 	hud:destroy()
 end

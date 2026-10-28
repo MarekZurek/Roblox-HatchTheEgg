@@ -1,22 +1,11 @@
 --!nocheck
--- Issue #81 — independent verification that the ACTIVE Running Chicken Bonus (RCB) changes the
--- REAL farm income (farm.cash and accounting.currentFarmCash), not just a label or a multiplier
--- text in the research shop.
---
--- Scope and method
---   * Real modules only: ServerBootstrap + PlayerCoordinator + TimelineSimulation + FarmMath
---     (production_research/hatching_rcb) and the real ViewProjector projection. Client cosmetics
---     are exercised through the real ClientBootstrap/RoutePresentation stream.
---   * Every expectation below is derived here from documented reference data:
---       - docs/31 §3  q = min(c^n, K), the final multiplier M stays 1 because the current catalog
---         has no separate final-multiplier source (docs/workflow/session_prestige_rcb_63_65.md);
---       - c/K inputs read from the generated catalog rows (docs/reference_data/research.json);
---       - EDIBLE egg value 0.25 and the one-egg-per-30s base (docs/reference_data/infrastructure.json).
---     The tested income function is never called to produce its own expected value.
---   * Fixtures are isolated INTERNAL_TEST_ONLY profiles, not approved launch balance. No catalog,
---     price or balance value is changed to make the bonus visible.
---   * Existing docs/31 distinction is respected: this is the ACTIVE RCB in income, not the
---     maximum-RCB term of the Farm Value formula (ProgressActions/#72).
+-- Current contract: docs/31 section 3 and CURRENT_SPEC at 57cd5b9 (user decision 2026-10-28).
+-- Active running-chicken passive multiplier is retired. Research supplies a CONSTANT income multiplier:
+-- K when c>1 or K>5, otherwise 1, online and away. Runner count does not change it.
+-- Settled population alone lays eggs; arrivals can increase future production.
+-- Independent fixtures: Edible $0.50, one egg/30s/hen, TRIKE 5000 eggs/min,
+-- hand-derived c/K examples, actual cash and accounting accumulator assertions.
+-- Reference data parity does not approve launch balance. These are isolated local profiles.
 local B = require("../../src/server/Bootstrap")
 local Client = require("../../src/client/Bootstrap")
 local C = require("../../src/shared/NumericCodec")
@@ -63,9 +52,8 @@ do
 	eq(Catalog.getVehicle(0).capacity, TRIKE_PER_MINUTE, "reference TRIKE capacity")
 end
 
--- Independent active-RCB model (docs/31 §3): q = min(c^n, K), M = 1.
-local function rcb(c, n, K)
-	local _ = c or n or K
+-- Independent constant-multiplier rule (docs/31 section 3, 57cd5b9); n is irrelevant.
+local function passiveMultiplier(c, _n, K)
 	return if (c > 1 or K > 5) then K else 1
 end
 
@@ -74,7 +62,7 @@ end
 --   cash = sold * eggValue * rcb * 1
 local function stepIncome(pop, c, n, K, dt)
 	local sold = math.min(pop * LAY_PER_CHICKEN, TRIKE_PER_MINUTE / 60) * dt
-	return sold * EGG_VALUE * rcb(c, n, K)
+	return sold * EGG_VALUE * passiveMultiplier(c, n, K)
 end
 
 -- ============================================================================
@@ -141,7 +129,7 @@ local function fixture(p, spec)
 	p.farm.habitats[1].population = tostring(spec.pop or POP)
 	-- Keep every paired profile physically feasible, including 100 settled + 220 runners.
 	-- The same 500-capacity habitat is used by the no-runner baseline; capacity does not
-	-- change laying/sale rates or the active RCB oracle.
+	-- change laying/sale rates or the passive research multiplier oracle.
 	p.farm.habitats[1].typeIndex = 1
 	local n = spec.n or 0
 	assert((spec.pop or POP) + n <= Catalog.getHabitat(1).capacity, "fixture exceeds habitat capacity")
@@ -168,7 +156,7 @@ end
 -- A. Paired fixed-population runs: no runners vs runners
 --    Population, elapsed time, egg, research, boosts, pets and transport are identical inside a
 --    pair; only the running count differs. No runner arrives inside the window, so the measured
---    difference can only be the active RCB and never a hen joining production.
+--    income must remain equal, with no hen joining production.
 -- ============================================================================
 local WINDOW = 3
 local CASES = {
@@ -177,23 +165,23 @@ local CASES = {
 	{ label = "excitable25, no runners", n = 0, c = 1.025, K = 5, common = { excitable_chickens = 25 }, epic = {} },
 	{ label = "excitable25, 1 runner", n = 1, c = 1.025, K = 5, common = { excitable_chickens = 25 }, epic = {} },
 	{ label = "excitable25, 10 runners", n = 10, c = 1.025, K = 5, common = { excitable_chickens = 25 }, epic = {} },
-	{ label = "excitable25, 65 runners (below cap)", n = 65, c = 1.025, K = 5, common = { excitable_chickens = 25 }, epic = {} },
-	{ label = "excitable25, 66 runners (cap reached)", n = 66, c = 1.025, K = 5, common = { excitable_chickens = 25 }, epic = {} },
-	{ label = "excitable25, 100 runners (cap)", n = 100, c = 1.025, K = 5, common = { excitable_chickens = 25 }, epic = {} },
+	{ label = "excitable25, 65 runners (unchanged multiplier)", n = 65, c = 1.025, K = 5, common = { excitable_chickens = 25 }, epic = {} },
+	{ label = "excitable25, 66 runners (unchanged multiplier)", n = 66, c = 1.025, K = 5, common = { excitable_chickens = 25 }, epic = {} },
+	{ label = "excitable25, 100 runners (same K)", n = 100, c = 1.025, K = 5, common = { excitable_chickens = 25 }, epic = {} },
 	{ label = "clucking K=15, 100 runners", n = 100, c = 1.025, K = 15,
 		common = { excitable_chickens = 25, coordinated_clucking = 50 }, epic = {} },
 	{ label = "epic clucking c=1.0455, 10 runners", n = 10, c = 1.025 * 1.02, K = 5,
 		common = { excitable_chickens = 25 }, epic = { epic_clucking = 20 } },
 	{ label = "epic multiplier K=205, 100 runners", n = 100, c = 1.025, K = 205,
 		common = { excitable_chickens = 25 }, epic = { epic_multiplier = 100 } },
-	{ label = "epic multiplier K=205, 220 runners (cap)", n = 220, c = 1.025, K = 205,
+	{ label = "epic multiplier K=205, 220 runners (same K)", n = 220, c = 1.025, K = 205,
 		common = { excitable_chickens = 25 }, epic = { epic_multiplier = 100 } },
 }
 for _, case in CASES do
 	local m = measure(case, WINDOW)
-	local q = rcb(case.c, case.n, case.K)
+	local q = passiveMultiplier(case.c, case.n, case.K)
 	local expected = stepIncome(POP, case.c, case.n, case.K, WINDOW)
-	-- The projected per-second server view must already carry the same active RCB.
+	-- The projected per-second server view must already carry the same passive research multiplier.
 	near(m.projected, stepIncome(POP, case.c, case.n, case.K, 1), case.label .. ": projected rate")
 	near(m.cash, expected, case.label .. ": actual cash")
 	near(m.acc, expected, case.label .. ": earned accumulator")
@@ -202,17 +190,13 @@ for _, case in CASES do
 	eq(m.h.state().farm.habitats[1].population, tostring(POP), case.label .. ": no runner joined production")
 	-- Paired contrast against the same-research, no-runner baseline.
 	local base = measure({ n = 0, c = case.c, K = case.K, common = case.common, epic = case.epic }, WINDOW)
-	if true then
-		near(m.cash, base.cash, case.label .. ": income is constant regardless of runner count")
-	else
-		near(m.cash, base.cash, case.label .. ": neutral multiplier leaves income unchanged")
-	end
+	near(m.cash, base.cash, case.label .. ": income is constant regardless of runner count")
 	near(m.cash / (WINDOW * POP * LAY_PER_CHICKEN * EGG_VALUE), q, case.label .. ": ratio equals the passive multiplier")
 end
--- Different running counts must order the income by the documented growth until the cap.
+-- Different running counts must leave the income multiplier unchanged.
 do
 	local c, K = 1.025, 5
-	local q1, q10, q65, q66, q100 = rcb(c, 1, K), rcb(c, 10, K), rcb(c, 65, K), rcb(c, 66, K), rcb(c, 100, K)
+	local q1, q10, q65, q66, q100 = passiveMultiplier(c, 1, K), passiveMultiplier(c, 10, K), passiveMultiplier(c, 65, K), passiveMultiplier(c, 66, K), passiveMultiplier(c, 100, K)
 	ok(q1 == K and q10 == K and q65 == K, "running counts evaluate to passive multiplier K")
 	ok(q66 == K and q100 == K, "higher running counts evaluate to passive multiplier K")
 	local m1 = measure({ n = 1, c = c, K = K, common = { excitable_chickens = 25 } }, WINDOW)
@@ -224,9 +208,9 @@ do
 	near(m66.cash, stepIncome(POP, c, 66, K, WINDOW), "income equals the passive multiplier model")
 end
 -- A2. Projection agreement and exact big counters
---     The projected server rate must carry the same active RCB as the real income once pets,
---     boosts and the video doubler are composed. A running count above 2^53 cannot be represented
---     as a double, so it is only ever handled as an exact decimal string by the pure RCB math.
+--     The projected server rate must carry the same passive research multiplier as the real income once pets,
+--     boosts are composed; retired timed doubler is inert. A running count above 2^53 cannot be represented
+--     as a double, so it is only ever handled as an exact decimal string by the compatibility API; it is irrelevant to the multiplier.
 do
 	local h = harness(function(p)
 		fixture(p, { n = 10, common = { excitable_chickens = 25 } })
@@ -237,19 +221,19 @@ do
 	local projected = C.BigAmount.decode(h.view().view.farm.cashIncomePerSecond)
 	h.step(3)
 	near(h.cash() / 3, projected, "projected rate equals the real income rate with pets/boosts (legacy VD inert)")
-	ok(h.cash() > stepIncome(POP, 1.025, 10, 5, 3), "boosted income still contains the active RCB")
+	ok(h.cash() > stepIncome(POP, 1.025, 10, 5, 3), "boosted income still contains the passive research multiplier")
 end
 do
 	-- A2b. A running count above 2^53 is not representable as a double, so the exact decimal string is
-	-- passed straight to the pure RCB math. No impossible farm (>2^53 assigned in transit) is built;
+	-- passed to the compatibility API and does not affect the multiplier. No impossible farm (>2^53 assigned in transit) is built;
 	-- only production_math.activeRCB is exercised, with the exact string input preserved.
 	local big = "9007199254740993" -- 2^53 + 1: rounds to 2^53 as a double
 	local M = require("../../src/server/FarmMath/production_research").new(C, Catalog, { mode = "INTERNAL_TEST_ONLY" })
 	local common = { excitable_chickens = 25 }
 	local multiplier = M.activeRCB(common, {}, big)
-	eq(multiplier, 5, "an exact over-cap running count returns the capped active RCB")
+	eq(multiplier, 5, "an arbitrary exact running count leaves the passive multiplier unchanged")
 	eq(C.ExactUInt.encode(C.ExactUInt.decode(big)), big, "the exact running-count string is preserved through the codec")
-	eq(common.excitable_chickens, 25, "active RCB leaves the research input untouched")
+	eq(common.excitable_chickens, 25, "passive research multiplier leaves the research input untouched")
 end
 
 
@@ -257,15 +241,15 @@ end
 -- ============================================================================
 -- B. Arrivals must not be confounded with the bonus
 --    A runner group with travel 0.3 s is still running during the step it arrives at the end of.
---    The step before arrival earns the RCB on the OLD population; the step after earns the grown
---    population with no RCB. Both values are separated explicitly.
+--    The step before arrival earns the passive multiplier on the OLD population; the step after earns the grown
+--    population with the same passive multiplier. Both values are separated explicitly.
 -- ============================================================================
 do
 	local c, K, n = 1.025, 5, 10
 	local h = harness(function(p) fixture(p, { n = n, common = { excitable_chickens = 25 }, travel = 0.3 }) end)
 	h.step(0.3)
 	local step1 = h.cash()
-	near(step1, stepIncome(POP, c, n, K, 0.3), "arrival step: RCB on the pre-arrival population")
+	near(step1, stepIncome(POP, c, n, K, 0.3), "arrival step: passive multiplier on the pre-arrival population")
 	eq(h.state().farm.runningCount, "0", "arrival closes the running group after production")
 	eq(h.state().farm.habitats[1].population, tostring(POP + n), "arrived hens join the settled population")
 	local settledThenRunning = POP + n
@@ -273,7 +257,7 @@ do
 	local before = h.cash()
 	h.step(0.3)
 	local step2 = h.cash() - before
-	near(step2, stepIncome(POP + n, c, 0, K, 0.3), "step after arrival: grown population, no RCB")
+	near(step2, stepIncome(POP + n, c, 0, K, 0.3), "step after arrival: grown population, same passive multiplier")
 	ok(step2 ~= stepIncome(POP, c, n, K, 0.3), "the arrival step is not repaid a second time")
 	eq(h.state().farm.habitats[1].population, tostring(settledThenRunning), "no double population")
 end
@@ -289,7 +273,7 @@ do
 	h.step(0.3) -- runners arrive
 	local before = h.cash()
 	h.step(0.3)
-	near(h.cash() - before, stepIncome(POP + 10, c, 0, K, 0.3), "after arrival the RCB is neutral")
+	near(h.cash() - before, stepIncome(POP + 10, c, 0, K, 0.3), "after arrival the passive multiplier stays constant")
 	local stream = h.b:getPlayer("1").hatchingRuntime.streamId
 	for seq = 1, 9 do
 		h.b:dispatch("1", { protocolVersion = 1, kind = "HatchPress", requestId = "press-" .. seq,
@@ -298,7 +282,7 @@ do
 	eq(h.state().farm.runningCount, "9", "nine fresh runners are in transit")
 	before = h.cash()
 	h.step(0.3)
-	near(h.cash() - before, stepIncome(POP + 10, c, 9, K, 0.3), "the RCB returns with the new runners")
+	near(h.cash() - before, stepIncome(POP + 10, c, 9, K, 0.3), "the passive multiplier returns with the new runners")
 	near(h.cash() - before, stepIncome(POP + 10, c, 0, K, 0.3), "passive multiplier remains steady with new runners")
 end
 
@@ -306,7 +290,7 @@ end
 -- ============================================================================
 -- E. The bounded cosmetic client population is irrelevant to income
 --    No client message can claim chickens, and the bounded client visuals are never the source
---    of the RCB. The server income always uses the full authoritative running count.
+--    of the passive multiplier. The server tracks the full authoritative running count for population only.
 -- ============================================================================
 do
 	local h = harness(function(p) fixture(p, { n = 0, common = { excitable_chickens = 25 } }) end)
@@ -367,7 +351,7 @@ end
 
 -- ============================================================================
 -- F. Approved hatch pressure plate at 30 chickens/second
---    The plate releases real chickens; the RCB uses that real server running count, ramped inside
+--    The plate releases real chickens; the population uses that real server running count, arriving inside
 --    the observed window and limited by real stock/vacancy. The nominal 30/s is never the bonus.
 -- ============================================================================
 -- Documented plate rules: 30 attempts/s, float accumulator strictly above one period per attempt,
@@ -410,7 +394,7 @@ end
 do
 	local h, windows, expected = plateWindows(250, 4)
 	eq(table.concat(windows, ","), "7,15,22,30", "plate releases the approved 30/s in 250 ms windows")
-	near(h.cash(), expected, "plate RCB income follows the real running count per window")
+	near(h.cash(), expected, "plate income uses settled population and constant research multiplier per window")
 	eq(h.state().farm.hatcheryStock, "223", "plate stock is charged per release with the base refill")
 	near(h.cash(), stepIncome(POP, 1.025, 0, 5, 1), "plate hatching earns the steady passive multiplier")
 end
@@ -419,33 +403,33 @@ do
 	local model = plateReleases(2, 4, 0.25, 30, 3, 250, 250)
 	eq(table.concat(model, ","), "2,2,3,4", "independent stock-limited release model")
 	eq(table.concat(windows, ","), table.concat(model, ","), "real releases match the stock-limited model")
-	near(h.cash(), expected, "stock-limited plate income follows the real running count")
+	near(h.cash(), expected, "stock-limited plate income keeps the constant research multiplier")
 	ok(tonumber(h.state().farm.runningCount) < 30, "the plate cannot use 30 as the bonus count under a stock limit")
 end
 
 
 -- ============================================================================
--- G. Fresh-earned RCB cash, a purchase before any checkpoint, replay and reload
+-- G. Fresh-earned passive multiplier cash, a purchase before any checkpoint, replay and reload
 -- ============================================================================
 do
 	local c, K, n = 1.025, 5, 10
 	local h = harness(function(p) fixture(p, { n = n, common = { excitable_chickens = 25 } }) end)
 	h.step(20)
 	local earned = stepIncome(POP, c, n, K, 20)
-	near(h.cash(), earned, "fresh income includes the active RCB")
-	near(h.acc(), earned, "the earned accumulator includes the active RCB")
+	near(h.cash(), earned, "fresh income includes the passive research multiplier")
+	near(h.acc(), earned, "the earned accumulator includes the passive research multiplier")
 	near(h.durableCash(), 0, "fresh income is not checkpointed yet")
 	near(h.durableAcc(), 0, "the fresh accumulator is not checkpointed yet")
 
 	local cost = Catalog.researchPrice("comfy_nests", 0)
 	local q = h.quote("BuyResearch", { researchId = "comfy_nests", mode = "single" })
-	eq(q.available, true, "the quote sees the freshly earned RCB cash")
+	eq(q.available, true, "the quote sees the freshly earned passive multiplier cash")
 	eq(q.cashCost, C.BigAmount.encode(cost), "the quote charges the reference price")
 	local packet = h.packet(q, "spend-fresh-rcb")
 	eq(h.b:dispatch("1", packet).status, "APPLIED", "a purchase before any checkpoint is applied")
-	near(h.cash(), earned - cost, "spending debits exactly once from the RCB-inclusive balance")
+	near(h.cash(), earned - cost, "spending debits exactly once from the passive multiplier-inclusive balance")
 	near(h.acc(), earned, "spending does not reduce the earned accumulator")
-	near(h.durableCash(), earned - cost, "the committed balance keeps the RCB income exactly once")
+	near(h.durableCash(), earned - cost, "the committed balance keeps the passive multiplier income exactly once")
 	eq(h.state().farm.common.comfy_nests, 1, "research granted once")
 
 	h.b:checkpointPlayer("1")
@@ -457,13 +441,13 @@ do
 	eq(h.b:playerJoined("1").status, "JOINED", "restart/rejoin")
 	eq(h.b:dispatch("1", packet).status, "REPLAYED", "the old purchase replays without re-applying")
 	near(h.durableCash(), earned - cost, "replay does not debit or credit again")
-	near(h.durableAcc(), earned, "replay does not double count the earned RCB income")
+	near(h.durableAcc(), earned, "replay does not double count the earned passive multiplier income")
 	eq(h.records["player:1"].farm.common.comfy_nests, 1, "replay does not grant a second level")
 end
 
 
 -- ============================================================================
--- H. Checkpoint / reload keeps the RCB income exactly once
+-- H. Checkpoint / reload keeps the passive multiplier income exactly once
 -- ============================================================================
 do
 	-- Direct timeline checkpoint round trip over a window with constant running chickens.
@@ -491,28 +475,28 @@ do
 	while not sliced.done do
 		sliced = T.decodeCheckpoint(serde.decode("json", serde.encode("json", T.encodeCheckpoint(T.advance(sliced, 1)))))
 	end
-	eq(D.fingerprint(sliced), D.fingerprint(whole), "checkpoint round trip matches the uninterrupted RCB run")
+	eq(D.fingerprint(sliced), D.fingerprint(whole), "checkpoint round trip matches the uninterrupted passive multiplier run")
 	local window = stepIncome(POP, 1.025, 10, 5, 6)
-	near(whole.state.farm.cash, window, "uninterrupted RCB income over the window")
-	near(sliced.state.farm.cash, window, "reloaded RCB income is neither lost nor doubled")
+	near(whole.state.farm.cash, window, "uninterrupted passive multiplier income over the window")
+	near(sliced.state.farm.cash, window, "reloaded passive multiplier income is neither lost nor doubled")
 	eq(D.fingerprint(T.advance(sliced, 10)), D.fingerprint(sliced), "a completed checkpoint does not repeat income")
 end
 do
-	-- Real session: save, long absence, reload. The pre-save RCB income is kept once and the away
-	-- catch-up is RCB-neutral because the in-flight runners are closed before away production.
+	-- Real session: save, long absence, reload. The pre-save passive multiplier income is kept once and the away
+	-- catch-up keeps the passive multiplier; in-flight runners settle before away production.
 	local c, K, n = 1.025, 5, 10
 	local h = harness(function(p) fixture(p, { n = n, common = { excitable_chickens = 25 } }) end)
 	h.step(3)
 	local online = stepIncome(POP, c, n, K, 3)
-	near(h.cash(), online, "online window earned the RCB")
+	near(h.cash(), online, "online window earned the passive multiplier")
 	h.b:checkpointPlayer("1")
-	near(h.durableCash(), online, "checkpoint stores the RCB income exactly once")
+	near(h.durableCash(), online, "checkpoint stores the passive multiplier income exactly once")
 	h.now += 120000
 	h.restart()
 	eq(h.b:playerJoined("1").status, "JOINED", "rejoin after a long absence")
 	h.step(3)
 	local expected = online + stepIncome(POP + n, c, 0, K, 123) * 0.5
-	near(h.cash(), expected, "reload adds the away income once and never replays the RCB")
+	near(h.cash(), expected, "reload adds the away income once and never replays the passive multiplier")
 	near(h.acc(), expected, "the earned accumulator matches the reload total")
 	eq(h.state().farm.runningCount, "0", "away closes the in-flight runners")
 	eq(h.state().farm.habitats[1].population, tostring(POP + n), "runners arrive during the away settle")
@@ -521,7 +505,7 @@ end
 fs.writeFile("build/rcb_income-results.json", serde.encode("json", {
 	status = "PASS", level = "L", assertions = assertions,
 	studioTested = false, dataStoreTested = false, humanAcceptanceTested = false,
-	scope = "issue #81: active Running Chicken Bonus changes real farm.cash and accounting.currentFarmCash; paired fixed-population/time/egg/research/boost/pet/transport runs; c=1 neutral; c>1 fixture; running-count growth and cap; arrivals; return after arrivals; bounded cosmetic client population; plate 30/s; fresh-earned purchase, replay and checkpoint/reload without double counting or loss",
+	scope = "issue #81: constant research multiplier affects real farm.cash and accounting.currentFarmCash independently of runners; paired fixed-population/time/egg/research/boost/pet/transport runs; c=1 neutral; c>1 fixture; independence from running count; arrivals; return after arrivals; bounded cosmetic client population; plate 30/s; fresh-earned purchase, replay and checkpoint/reload without double counting or loss",
 }, true))
-print(string.format("Active RCB real income (issue #81): %d assertions PASS", assertions))
+print(string.format("Constant research multiplier real income (issue #81): %d assertions PASS", assertions))
 

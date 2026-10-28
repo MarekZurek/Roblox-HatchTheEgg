@@ -29,6 +29,14 @@ for _, legacy in {false, true} do
   p.permanent.epic.video_doubler_time=12
  end
  p=serde.decode('json',serde.encode('json',p))
+ -- Direct public effect API also ignores legacy timers; Bootstrap stripping them
+ -- must not hide a revived effect from this regression (decision R, 2026-10-28).
+ local Effects=require('../../src/server/EffectsManager')
+ local multipliers=Effects.calculateMultipliers(p.effects,p.farm,10000000)
+ eq(multipliers.vdMultiplier,1,'SPEC/legacy timer has neutral multiplier')
+ local activated,code=Effects.activateVideoDoubler(p.effects,10000000,12)
+ eq(activated,false,'SPEC/retired activation rejected')
+ eq(code,'FEATURE_REMOVED','SPEC/retired activation reason')
  eq(S.validate(p,'1'),true,'legacy schema accepted')
  eq(server:playerJoined('1',p).status,'JOINED','old/new profile loads')
  local packet={protocolVersion=1,kind='BuyEpicResearch',requestId='retired-1',operationId='retired-buy',expectedRevision='0',args={researchId='video_doubler_time'}}

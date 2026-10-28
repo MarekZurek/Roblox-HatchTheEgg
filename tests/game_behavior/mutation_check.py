@@ -4,7 +4,9 @@ Never mutates the working source. A syntax/import failure is INVALID, not a kill
 Run after tools/test.ps1; output is an ignored local verification artifact.
 """
 from pathlib import Path
-import argparse, hashlib, json, shutil, subprocess, uuid
+import argparse, sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]/"tools"))
+from mutation_support import run_mutations
 ROOT=Path(__file__).resolve().parents[2]
 MUTANTS=[
  ('fv_missing_projection_invents_zero','src/client/HUD.luau',
@@ -85,6 +87,7 @@ MUTANTS=[
  ('prestige_ignores_collection_event','src/server/Bootstrap.luau',
   'deps.prestigeEventMult=Effects.calculateMultipliers(nil,candidateProfile.farm,self.clock.utcNowMs(),self.liveEvents).eventPrestigeMult',
   'deps.prestigeEventMult=1'),
+ # Historical case name: this fault removes the CONSTANT research multiplier, not active RCB.
  ('running_chickens_ignored','src/server/TimelineSimulation.luau',
   'runningCount=f.runningCount,eggIndex=f.eggIndex',
   'rcbMultiplier=1,eggIndex=f.eggIndex'),
@@ -125,66 +128,117 @@ MUTANTS=[
   'if ok and owns and player.Parent == Players and activePlayerObjects[pId] == player and server:getPlayer(pId) == grantSession then',
   'if ok and owns then'),
 ]
+
+EXPECTED_FAILURES = {'fv_missing_projection_invents_zero': 'Missing FV is shown as unknown',
+ 'local_fake_success': ' expected nil got table:',
+ 'missing_trophy_route': 'confirmed operation status expected APPLIED got nil',
+ 'calendar_claim_twice': 'confirmed operation status expected REJECTED got APPLIED',
+ 'trophy_below_threshold': 'confirmed operation status expected REJECTED got APPLIED',
+ 'fusion_free_materials': ' expected nil got table:',
+ 'shop_credit_instead_of_debit': ' expected 3 got 17',
+ 'trophy_wrong_GE': ' expected 3010 got 3011',
+ 'calendar_cash_percent_omitted': 'base preview uses same current farm, independent oracle: '
+                                  '1373200.679132647 != 13732.00679132647',
+ 'calendar_shell_precision_lost': ' expected APPLIED got UNKNOWN',
+ 'calendar_prestige_base_lost': 'calendar cash stays in prestige base: 0 != 13732.00679132647',
+ 'startup_receipt_handler_missing': 'SPEC/startup safe receipt callback exists',
+ 'local_payments_enabled': ' expected NotProcessedYet got PurchaseGranted',
+ 'rejected_receipt_acknowledged': ' expected NotProcessedYet got PurchaseGranted',
+ 'durable_receipt_replay_ignored': 'saved success replays after a fresh process, without '
+                                   'in-process entries expected PurchaseGranted got '
+                                   'NotProcessedYet',
+ 'confirmed_retry_snapshot_stale': 'the next command must not overwrite a grant confirmed by retry '
+                                   'expected 1202 got 1010',
+ 'unknown_policy_allowed': ' expected false got true',
+ 'fusion_trusts_saved_pro_flag': ' expected APPLIED got REJECTED',
+ 'fulfillment_trusts_prepared_policy': ' expected false got true',
+ 'late_policy_response_overwrites_current': ' expected false got true',
+ 'sensitive_action_skips_policy_refresh': ' expected 2 got 1',
+ 'egg_reset_reuses_group_ids': 'UpgradeEgg retains high watermark: 0 != 1',
+ 'prestige_reuses_group_ids': 'Prestige retains high watermark: 0 != 1',
+ 'event_end_point_sampling': 'weighted earnings expected 0.8333333333333334 got 0.5',
+ 'event_ignores_deadline': 'weighted earnings expected 0.8333333333333334 got 1.5',
+ 'event_overlap_applies_whole_step': 'weighted earnings expected 0.8333333333333334 got 1.5',
+ 'shop_operation_reuses_local_counter': 'new purchase after reconnect expected APPLIED got '
+                                        'REPLAYED',
+ 'stream_omits_session_generation': 'new process keeps operation namespace unique expected APPLIED '
+                                    'got REPLAYED',
+ 'prestige_ignores_collection_event': ' expected APPLIED got REJECTED',
+ 'running_chickens_ignored': 'step begins with running population expected 2.5 got 0.5',
+ 'issued_drone_not_projected_to_visual': ' expected true got false',
+ 'valuation_epic_ignored': 'valuation from Epic expected 28837.21426178559 got 27464.01358265294',
+ 'hold_rate_ignored': 'owned level determines hold rate expected 9 got 0',
+ 'hold_timeout_unbounded': 'two-second technical lease cannot grant 2.1s of breeding expected true '
+                           'got false',
+ 'sharing_ignored': 'own IHR plus shared IHR expected 0.011000000000000001 got 0.01',
+ 'hyperloop_unlock_checks_omitted': ' expected false got true',
+ 'owned_pass_retry_dropped': 'owned entitlement did not finish',
+ 'fv_max_rcb_ignored': 'max RCB cap in FV expected 50016.370853903434 got 27464.01358265294',
+ 'epic_discounts_ignored': ' expected 0.47747519430072366 got 0.5026054676849723',
+ 'reset_stops_hold_before_commit': 'rejected plan is not a reset expected true got false',
+ 'discount_quote_change_ignored': ' expected REJECTED got APPLIED',
+ 'stale_ownership_callback_allowed': 'old callback cannot grant successor expected nil got true'}
+
+def suite_for(name):
+ suite='ui' if name=='fv_missing_projection_invents_zero' else 'entitlement_farm_regressions' if name in {'owned_pass_retry_dropped','fv_max_rcb_ignored','epic_discounts_ignored','reset_stops_hold_before_commit','discount_quote_change_ignored','stale_ownership_callback_allowed'} else 'farm_gaps' if name in {'issued_drone_not_projected_to_visual','valuation_epic_ignored','hold_rate_ignored','hold_timeout_unbounded','sharing_ignored','hyperloop_unlock_checks_omitted'} else 'session_prestige_rcb' if name in {'shop_operation_reuses_local_counter','stream_omits_session_generation','prestige_ignores_collection_event','running_chickens_ignored'} else 'event_time' if name in {'event_end_point_sampling','event_ignores_deadline','event_overlap_applies_whole_step'} else 'resets' if name in {'egg_reset_reuses_group_ids','prestige_reuses_group_ids'} else 'pro_policy' if name in {'unknown_policy_allowed','fusion_trusts_saved_pro_flag','fulfillment_trusts_prepared_policy','late_policy_response_overwrites_current','sensitive_action_skips_policy_refresh'} else 'persistence_startup' if name in {'startup_receipt_handler_missing','local_payments_enabled','rejected_receipt_acknowledged','durable_receipt_replay_ignored','confirmed_retry_snapshot_stale'} else 'calendar_cycle' if name in {'calendar_cash_percent_omitted','calendar_shell_precision_lost','calendar_prestige_base_lost'} else 'game_behavior'
+ return suite
+
+EXPECTED_CASE_LINES = {'fv_missing_projection_invents_zero': 1492,
+ 'local_fake_success': 69,
+ 'missing_trophy_route': 136,
+ 'calendar_claim_twice': 83,
+ 'trophy_below_threshold': 146,
+ 'fusion_free_materials': 164,
+ 'shop_credit_instead_of_debit': 209,
+ 'trophy_wrong_GE': 137,
+ 'calendar_cash_percent_omitted': 88,
+ 'calendar_shell_precision_lost': 70,
+ 'calendar_prestige_base_lost': 112,
+ 'startup_receipt_handler_missing': 45,
+ 'local_payments_enabled': 120,
+ 'rejected_receipt_acknowledged': 113,
+ 'durable_receipt_replay_ignored': 101,
+ 'confirmed_retry_snapshot_stale': 93,
+ 'unknown_policy_allowed': 79,
+ 'fusion_trusts_saved_pro_flag': 113,
+ 'fulfillment_trusts_prepared_policy': 56,
+ 'late_policy_response_overwrites_current': 126,
+ 'sensitive_action_skips_policy_refresh': 97,
+ 'egg_reset_reuses_group_ids': 892,
+ 'prestige_reuses_group_ids': 892,
+ 'event_end_point_sampling': 47,
+ 'event_ignores_deadline': 47,
+ 'event_overlap_applies_whole_step': 47,
+ 'shop_operation_reuses_local_counter': 56,
+ 'stream_omits_session_generation': 65,
+ 'prestige_ignores_collection_event': 87,
+ 'running_chickens_ignored': 158,
+ 'issued_drone_not_projected_to_visual': 163,
+ 'valuation_epic_ignored': 44,
+ 'hold_rate_ignored': 64,
+ 'hold_timeout_unbounded': 73,
+ 'sharing_ignored': 110,
+ 'hyperloop_unlock_checks_omitted': 130,
+ 'owned_pass_retry_dropped': 48,
+ 'fv_max_rcb_ignored': 106,
+ 'epic_discounts_ignored': 129,
+ 'reset_stops_hold_before_commit': 157,
+ 'discount_quote_change_ignored': 147,
+ 'stale_ownership_callback_allowed': 82}
+
 def main():
  parser=argparse.ArgumentParser(description=__doc__)
- parser.add_argument('--only',action='append',choices=[m[0] for m in MUTANTS],help='Run only this named semantic mutation; repeat for multiple names.')
+ parser.add_argument('--only',action='append',choices=[m[0] for m in MUTANTS])
  args=parser.parse_args()
- manifest=json.loads((ROOT/'tools/toolchain.json').read_text(encoding='utf-8'))
- lune=ROOT/'.tools'/('lune-'+manifest['lune']['version'])/'lune.exe'
- assert lune.is_file(),'Manifest-selected Lune is missing; run tools/bootstrap.ps1'
- assert hashlib.sha256(lune.read_bytes()).hexdigest()==manifest['lune']['executableSha256'],'Lune checksum mismatch'
- selected=[m for m in MUTANTS if not args.only or m[0] in args.only]
- assert selected,'No mutations selected'
- base=ROOT/'build'/('behavior-mutations-'+uuid.uuid4().hex[:8]);base.mkdir(parents=True)
- results=[]
- for name,relative,old,new in selected:
-  target=base/name;target.mkdir()
-  shutil.copytree(ROOT/'src',target/'src')
-  shutil.copytree(ROOT/'tests/game_behavior',target/'tests/game_behavior')
-  if name=='fv_missing_projection_invents_zero':
-   shutil.copytree(ROOT/'tests/ui',target/'tests/ui')
-  shutil.copytree(ROOT/'tests/calendar_cycle',target/'tests/calendar_cycle')
-  shutil.copytree(ROOT/'tests/persistence_startup',target/'tests/persistence_startup')
-  shutil.copytree(ROOT/'tests/support',target/'tests/support')
-  shutil.copytree(ROOT/'tests/pro_policy',target/'tests/pro_policy')
-  shutil.copytree(ROOT/'tests/resets',target/'tests/resets')
-  shutil.copytree(ROOT/'tests/event_time',target/'tests/event_time')
-  shutil.copytree(ROOT/'tests/session_prestige_rcb',target/'tests/session_prestige_rcb')
-  shutil.copytree(ROOT/'tests/farm_gaps',target/'tests/farm_gaps')
-  shutil.copytree(ROOT/'tests/entitlement_farm_regressions',target/'tests/entitlement_farm_regressions')
-  (target/'docs/reference_data').mkdir(parents=True);(target/'build').mkdir()
-  for ref in ['infrastructure','research','rewards']:
-   shutil.copy2(ROOT/f'docs/reference_data/{ref}.json',target/f'docs/reference_data/{ref}.json')
-  file=target/relative;text=file.read_text(encoding='utf-8');assert text.count(old)==1,(name,text.count(old))
-  file.write_text(text.replace(old,new),encoding='utf-8')
+ cases=[]
+ for name,relative,old,new in MUTANTS:
+  if args.only and name not in args.only: continue
+  faults=[(relative,old,new)]
   if name=='hyperloop_unlock_checks_omitted':
-   # Disable all three defenses to reproduce an actual unauthorized train purchase.
-   text=file.read_text(encoding='utf-8')
-   text=text.replace('if typeIndex==11 and candidateProfile.permanent.hyperloop~=true then','if false then')
-   text=text.replace('if typeIndex==11 and freshProfile.permanent.hyperloop~=true then','if false then')
-   file.write_text(text,encoding='utf-8')
+   for owner in ('candidateProfile','freshProfile'):
+    faults.append((relative,'if typeIndex==11 and '+owner+'.permanent.hyperloop~=true then','if false then'))
   if name=='calendar_claim_twice':
-   # There are two independent UTC fences. Disabling only the leaf check
-   # preserves correct behavior through the ingress and is not a semantic defect.
-   server=target/'src/server/Bootstrap.luau';text=server.read_text(encoding='utf-8')
-   old='if not Calendar.canClaimCalendarDay(draft,self.clock.utcNowMs()) then'
-   assert text.count(old)==1
-   server.write_text(text.replace(old,'if false then'),encoding='utf-8')
-  suite='ui' if name=='fv_missing_projection_invents_zero' else 'entitlement_farm_regressions' if name in {'owned_pass_retry_dropped','fv_max_rcb_ignored','epic_discounts_ignored','reset_stops_hold_before_commit','discount_quote_change_ignored','stale_ownership_callback_allowed'} else 'farm_gaps' if name in {'issued_drone_not_projected_to_visual','valuation_epic_ignored','hold_rate_ignored','hold_timeout_unbounded','sharing_ignored','hyperloop_unlock_checks_omitted'} else 'session_prestige_rcb' if name in {'shop_operation_reuses_local_counter','stream_omits_session_generation','prestige_ignores_collection_event','running_chickens_ignored'} else 'event_time' if name in {'event_end_point_sampling','event_ignores_deadline','event_overlap_applies_whole_step'} else 'resets' if name in {'egg_reset_reuses_group_ids','prestige_reuses_group_ids'} else 'pro_policy' if name in {'unknown_policy_allowed','fusion_trusts_saved_pro_flag','fulfillment_trusts_prepared_policy','late_policy_response_overwrites_current','sensitive_action_skips_policy_refresh'} else 'persistence_startup' if name in {'startup_receipt_handler_missing','local_payments_enabled','rejected_receipt_acknowledged','durable_receipt_replay_ignored','confirmed_retry_snapshot_stale'} else 'calendar_cycle' if name in {'calendar_cash_percent_omitted','calendar_shell_precision_lost','calendar_prestige_base_lost'} else 'game_behavior'
-  baseline=None
-  if name=='fv_missing_projection_invents_zero':
-   positive=subprocess.run([str(lune),'run','tests/ui/run.luau'],cwd=ROOT,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=120)
-   baseline={'exitCode':positive.returncode,'testSha256':hashlib.sha256((ROOT/'tests/ui/run.luau').read_bytes()).hexdigest(),'sourceSha256':hashlib.sha256((ROOT/relative).read_bytes()).hexdigest()}
-  run=subprocess.run([str(lune),'run',f'tests/{suite}/run.luau'],cwd=target,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=120)
-  output=run.stdout+run.stderr
-  invalid=any(word in output for word in ['SyntaxError','Failed to resolve require','could not resolve','error parsing'])
-  if name=='fv_missing_projection_invents_zero':
-   invalid=invalid or baseline['exitCode']!=0 or (run.returncode!=0 and 'Missing FV is shown as unknown' not in output)
-  state='INVALID' if invalid else 'KILLED' if run.returncode else 'SURVIVED'
-  (target/'build/output.txt').write_text(output,encoding='utf-8')
-  print(f'{name}: {state}',flush=True)
-  results.append({'mutant':name,'state':state,'exitCode':run.returncode,'output':str((target/'build/output.txt').relative_to(ROOT)),'baseline':baseline,'fault':{'path':relative,'before':old,'after':new},'expectedFailure':'Missing FV is shown as unknown' if name=='fv_missing_projection_invents_zero' else None})
- report={'status':'PASS' if all(r['state']=='KILLED' for r in results) else 'FAIL','mutants':results,'scope':f'{len(results)} selected semantic mutations; not exhaustive mutation coverage'}
- (ROOT/'build/game-behavior-mutations.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
- assert report['status']=='PASS',report
+   faults.append(('src/server/Bootstrap.luau','if not Calendar.canClaimCalendarDay(draft,self.clock.utcNowMs()) then','if false then'))
+  cases.append({'name':name,'suite':suite_for(name),'faults':faults,'expectedFailure':EXPECTED_FAILURES[name],'expectedCaseLine':EXPECTED_CASE_LINES[name]})
+ run_mutations(ROOT,cases,'game-behavior-mutations')
 if __name__=='__main__':main()

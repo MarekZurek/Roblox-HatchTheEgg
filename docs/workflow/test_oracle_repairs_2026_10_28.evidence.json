@@ -1,0 +1,1673 @@
+{
+  "date": "2026-10-28",
+  "baseRevision": "57cd5b9348fc36d91d474c1e670767f78c74b4d0",
+  "status": "PASS_LOCAL_ONLY",
+  "python": "3.12.14",
+  "toolchain": {
+    "platform": "windows-x86_64",
+    "lune": {
+      "version": "0.11.1",
+      "url": "https://github.com/lune-org/lune/releases/download/v0.11.1/lune-0.11.1-windows-x86_64.zip",
+      "archiveSha256": "83f1dc29d9e35c494907521f2ca6561f6c204fdf6f1b06525d2e9fdd1e6b4301",
+      "executableSha256": "95f4a457317237516c347745bf363aa63dd30c97105c9595e6b8914b29267fdb"
+    },
+    "rojo": {
+      "version": "7.7.1",
+      "url": "https://github.com/rojo-rbx/rojo/releases/download/v7.7.1/rojo-7.7.1-windows-x86_64.zip",
+      "archiveSha256": "d4dfa3493a1613a43fc87312d6dac660d7c8bf38e6a99aa5dcd0d26154ba0b82",
+      "executableSha256": "e73e956676b8b27ff43f2c5d80e040121e49c2f9e8cc69fd65123799473cf6d3"
+    }
+  },
+  "finalClassifierSha256": "945774692ccafb617904d889e401ba094c9477ae06c195e382afa2054e6398fd",
+  "scope": "61 selected Luau semantic faults + 5 faults of the Python mutation gate; not exhaustive game coverage",
+  "commands": [
+    "tools/test.ps1 -PythonExecutable <python>",
+    "<python> tests/game_behavior/mutation_check.py",
+    "<python> tests/fresh_cash_purchases/mutation_check.py",
+    "<python> tests/spec_regressions/mutation_check.py",
+    "<python> tests/spec_regressions/test_mutation_support.py",
+    "<python> tests/spec_regressions/runner_fault_check.py",
+    "<python> tests/spec_regressions/verify_evidence.py"
+  ],
+  "verification": "All captured logs rechecked with final classifier, exact test/case locations and source+fixture graph hashes against isolated copies. Initial 42-case execution preceded the stricter call-site guard; final verification applies that guard to every captured failure.",
+  "semanticEvidence": [
+    {
+      "name": "fv_missing_projection_invents_zero",
+      "suite": "ui",
+      "faults": [
+        [
+          "src/client/HUD.luau",
+          "else tonumber(farm.homeFV) or 0) else nil",
+          "else tonumber(farm.homeFV) or 0) else 0"
+        ]
+      ],
+      "expectedFailure": "Missing FV is shown as unknown",
+      "expectedCaseLine": 1492,
+      "state": "KILLED",
+      "testSha256": "c638f28c7fd57bd1fae94bd46fb96bf7a73aba399b49ebbdc34e828fd3eef414",
+      "sourceSha256": {
+        "src/client/HUD.luau": "8d77186d52ed3558569fef0061de4558b33e3b4e709f62f6355738420c84bc22"
+      },
+      "inputTreeSha256": "152f33a3e3240b1a64047cf225f9c199fcfc39bfb6baeae30888b6b23d804a48",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\fv_missing_projection_invents_zero\\tests/ui/run:30: Missing FV is shown as unknown"
+    },
+    {
+      "name": "local_fake_success",
+      "suite": "game_behavior",
+      "faults": [
+        [
+          "src/client/Bootstrap.luau",
+          "function ClientBootstrap:claimDailyGift(callback) return self:_command(\"ClaimDailyGift\",{},callback) end",
+          "function ClientBootstrap:claimDailyGift(callback) local r={status=\"APPLIED\"};if callback then callback(r) end;return r end"
+        ]
+      ],
+      "expectedFailure": " expected nil got table:",
+      "expectedCaseLine": 69,
+      "state": "KILLED",
+      "testSha256": "74740c0540d330b12865a6c19a293f836814576b455955699aa66576872eaecc",
+      "sourceSha256": {
+        "src/client/Bootstrap.luau": "6023a6201bb517b23dccd3ad40166055e1024f3ea254922c2d79147c3d63eaad"
+      },
+      "inputTreeSha256": "d70618423ee5221abbe9e2f72a6715e0d0ce660c87d28065478c7d32f13c8420",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\local_fake_success\\tests/game_behavior/run:10:  expected nil got table: 0x0000025f88d055b0"
+    },
+    {
+      "name": "missing_trophy_route",
+      "suite": "game_behavior",
+      "faults": [
+        [
+          "src/server/NetworkGateway.luau",
+          "{\"ClaimDailyGift\",\"ClaimTrophy\",\"FusePets\",",
+          "{\"ClaimDailyGift\",\"FusePets\","
+        ]
+      ],
+      "expectedFailure": "confirmed operation status expected APPLIED got nil",
+      "expectedCaseLine": 136,
+      "state": "KILLED",
+      "testSha256": "74740c0540d330b12865a6c19a293f836814576b455955699aa66576872eaecc",
+      "sourceSha256": {
+        "src/server/NetworkGateway.luau": "90e109644fbb4a344192e5cfa4031da4c3c009179ae36ae3998715ba6bb58e5a"
+      },
+      "inputTreeSha256": "d70618423ee5221abbe9e2f72a6715e0d0ce660c87d28065478c7d32f13c8420",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\missing_trophy_route\\tests/game_behavior/run:10: confirmed operation status expected APPLIED got nil"
+    },
+    {
+      "name": "calendar_claim_twice",
+      "suite": "game_behavior",
+      "faults": [
+        [
+          "src/server/rewards/calendar.luau",
+          "if currentUtcDay <= lastDay then",
+          "if false then"
+        ],
+        [
+          "src/server/Bootstrap.luau",
+          "if not Calendar.canClaimCalendarDay(draft,self.clock.utcNowMs()) then",
+          "if false then"
+        ]
+      ],
+      "expectedFailure": "confirmed operation status expected REJECTED got APPLIED",
+      "expectedCaseLine": 83,
+      "state": "KILLED",
+      "testSha256": "74740c0540d330b12865a6c19a293f836814576b455955699aa66576872eaecc",
+      "sourceSha256": {
+        "src/server/rewards/calendar.luau": "060e451b228bdf66844a7fa6a4ddd6a9bb54e7506759aba90e07358447364e2b",
+        "src/server/Bootstrap.luau": "d7c5c1e3e2cefe7ae3f6a0d0d31fcef41ba8aaca673b657dff7808f4ac75fedb"
+      },
+      "inputTreeSha256": "d70618423ee5221abbe9e2f72a6715e0d0ce660c87d28065478c7d32f13c8420",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\calendar_claim_twice\\tests/game_behavior/run:10: confirmed operation status expected REJECTED got APPLIED"
+    },
+    {
+      "name": "trophy_below_threshold",
+      "suite": "game_behavior",
+      "faults": [
+        [
+          "src/server/rewards/trophies.luau",
+          "if currentPopulation < spec.populationRequired then",
+          "if false then"
+        ]
+      ],
+      "expectedFailure": "confirmed operation status expected REJECTED got APPLIED",
+      "expectedCaseLine": 146,
+      "state": "KILLED",
+      "testSha256": "74740c0540d330b12865a6c19a293f836814576b455955699aa66576872eaecc",
+      "sourceSha256": {
+        "src/server/rewards/trophies.luau": "86f38c2652b8761c4cca6817baa386b6dae95e41456c2408dd823dc4d36a78b2"
+      },
+      "inputTreeSha256": "d70618423ee5221abbe9e2f72a6715e0d0ce660c87d28065478c7d32f13c8420",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\trophy_below_threshold\\tests/game_behavior/run:10: confirmed operation status expected REJECTED got APPLIED"
+    },
+    {
+      "name": "fusion_free_materials",
+      "suite": "game_behavior",
+      "faults": [
+        [
+          "src/server/pets/fusion.luau",
+          "inventory.pets[mUid] = nil",
+          "inventory.pets[mUid] = inventory.pets[mUid]"
+        ]
+      ],
+      "expectedFailure": " expected nil got table:",
+      "expectedCaseLine": 164,
+      "state": "KILLED",
+      "testSha256": "74740c0540d330b12865a6c19a293f836814576b455955699aa66576872eaecc",
+      "sourceSha256": {
+        "src/server/pets/fusion.luau": "80db419efe0dc516ea377f5b0987abef71cf49859730b1d2484d63442541a0da"
+      },
+      "inputTreeSha256": "d70618423ee5221abbe9e2f72a6715e0d0ce660c87d28065478c7d32f13c8420",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\fusion_free_materials\\tests/game_behavior/run:10:  expected nil got table: 0x0000025018bb10e0"
+    },
+    {
+      "name": "shop_credit_instead_of_debit",
+      "suite": "game_behavior",
+      "faults": [
+        [
+          "src/server/Bootstrap.luau",
+          "U.subtract(U.decode(draft.permanent.GE),cost)",
+          "U.add(U.decode(draft.permanent.GE),cost)"
+        ]
+      ],
+      "expectedFailure": " expected 3 got 17",
+      "expectedCaseLine": 209,
+      "state": "KILLED",
+      "testSha256": "74740c0540d330b12865a6c19a293f836814576b455955699aa66576872eaecc",
+      "sourceSha256": {
+        "src/server/Bootstrap.luau": "d7c5c1e3e2cefe7ae3f6a0d0d31fcef41ba8aaca673b657dff7808f4ac75fedb"
+      },
+      "inputTreeSha256": "d70618423ee5221abbe9e2f72a6715e0d0ce660c87d28065478c7d32f13c8420",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\shop_credit_instead_of_debit\\tests/game_behavior/run:10:  expected 3 got 17"
+    },
+    {
+      "name": "trophy_wrong_GE",
+      "suite": "game_behavior",
+      "faults": [
+        [
+          "src/server/rewards/trophies.luau",
+          "ExactUInt.fromSafeNumber(spec.goldenEggs)",
+          "ExactUInt.fromSafeNumber(spec.goldenEggs+1)"
+        ]
+      ],
+      "expectedFailure": " expected 3010 got 3011",
+      "expectedCaseLine": 137,
+      "state": "KILLED",
+      "testSha256": "74740c0540d330b12865a6c19a293f836814576b455955699aa66576872eaecc",
+      "sourceSha256": {
+        "src/server/rewards/trophies.luau": "86f38c2652b8761c4cca6817baa386b6dae95e41456c2408dd823dc4d36a78b2"
+      },
+      "inputTreeSha256": "d70618423ee5221abbe9e2f72a6715e0d0ce660c87d28065478c7d32f13c8420",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\trophy_wrong_GE\\tests/game_behavior/run:10:  expected 3010 got 3011"
+    },
+    {
+      "name": "calendar_cash_percent_omitted",
+      "suite": "calendar_cycle",
+      "faults": [
+        [
+          "src/server/rewards/calendar.luau",
+          "BigAmount.divide(reward.amountNumber,100)",
+          "reward.amountNumber"
+        ]
+      ],
+      "expectedFailure": "base preview uses same current farm, independent oracle: 1373200.679132647 != 13732.00679132647",
+      "expectedCaseLine": 88,
+      "state": "KILLED",
+      "testSha256": "ea20d78da8c27f38e07114b2e37ec380baa405e885027272c309b5006f44e199",
+      "sourceSha256": {
+        "src/server/rewards/calendar.luau": "060e451b228bdf66844a7fa6a4ddd6a9bb54e7506759aba90e07358447364e2b"
+      },
+      "inputTreeSha256": "e9694ba7620499daddbb0a2c8057f7e237db9511d4dc91859c2e59d500015b6a",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\calendar_cash_percent_omitted\\tests/calendar_cycle/run:15: base preview uses same current farm, independent oracle: 1373200.679132647 != 13732.00679132647"
+    },
+    {
+      "name": "calendar_shell_precision_lost",
+      "suite": "calendar_cycle",
+      "faults": [
+        [
+          "src/server/rewards/calendar.luau",
+          "ExactUInt.decode(profile.permanent.shellScripts or \"0\")",
+          "ExactUInt.fromSafeNumber(tonumber(profile.permanent.shellScripts or \"0\"))"
+        ]
+      ],
+      "expectedFailure": " expected APPLIED got UNKNOWN",
+      "expectedCaseLine": 70,
+      "state": "KILLED",
+      "testSha256": "ea20d78da8c27f38e07114b2e37ec380baa405e885027272c309b5006f44e199",
+      "sourceSha256": {
+        "src/server/rewards/calendar.luau": "060e451b228bdf66844a7fa6a4ddd6a9bb54e7506759aba90e07358447364e2b"
+      },
+      "inputTreeSha256": "e9694ba7620499daddbb0a2c8057f7e237db9511d4dc91859c2e59d500015b6a",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\calendar_shell_precision_lost\\tests/calendar_cycle/run:14:  expected APPLIED got UNKNOWN"
+    },
+    {
+      "name": "calendar_prestige_base_lost",
+      "suite": "calendar_cycle",
+      "faults": [
+        [
+          "src/server/rewards/calendar.luau",
+          "profile.accounting.currentFarmCash = BigAmount.encode(BigAmount.add(BigAmount.decode(profile.accounting.currentFarmCash or \"0\"),addCash))",
+          "profile.accounting.currentFarmCash = profile.accounting.currentFarmCash"
+        ]
+      ],
+      "expectedFailure": "calendar cash stays in prestige base: 0 != 13732.00679132647",
+      "expectedCaseLine": 112,
+      "state": "KILLED",
+      "testSha256": "ea20d78da8c27f38e07114b2e37ec380baa405e885027272c309b5006f44e199",
+      "sourceSha256": {
+        "src/server/rewards/calendar.luau": "060e451b228bdf66844a7fa6a4ddd6a9bb54e7506759aba90e07358447364e2b"
+      },
+      "inputTreeSha256": "e9694ba7620499daddbb0a2c8057f7e237db9511d4dc91859c2e59d500015b6a",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\calendar_prestige_base_lost\\tests/calendar_cycle/run:15: calendar cash stays in prestige base: 0 != 13732.00679132647"
+    },
+    {
+      "name": "startup_receipt_handler_missing",
+      "suite": "persistence_startup",
+      "faults": [
+        [
+          "src/server/Main.server.luau",
+          "MarketplaceService.ProcessReceipt = function(receipt) return receiptHandler(receipt) end",
+          "-- Startup receipt handler missing"
+        ]
+      ],
+      "expectedFailure": "SPEC/startup safe receipt callback exists",
+      "expectedCaseLine": 45,
+      "state": "KILLED",
+      "testSha256": "74777b09b93a81fc0aae99f14d923a0e9a21421862f07fa1be762410aeef7143",
+      "sourceSha256": {
+        "src/server/Main.server.luau": "57398cab0f1b81b0782b586349d4619daf8730b31e711242d334d08601aee958"
+      },
+      "inputTreeSha256": "ea62f3c2b0cfe22405dec0c49ca2bd5e40220f56fb1798fa26bd105903915662",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\startup_receipt_handler_missing\\tests/persistence_startup/run:11: SPEC/startup safe receipt callback exists expected function got nil"
+    },
+    {
+      "name": "local_payments_enabled",
+      "suite": "persistence_startup",
+      "faults": [
+        [
+          "src/server/Bootstrap.luau",
+          "purchasesEnabled = storageMode ~= \"STUDIO_MEMORY\",",
+          "purchasesEnabled = true,"
+        ]
+      ],
+      "expectedFailure": " expected NotProcessedYet got PurchaseGranted",
+      "expectedCaseLine": 120,
+      "state": "KILLED",
+      "testSha256": "74777b09b93a81fc0aae99f14d923a0e9a21421862f07fa1be762410aeef7143",
+      "sourceSha256": {
+        "src/server/Bootstrap.luau": "d7c5c1e3e2cefe7ae3f6a0d0d31fcef41ba8aaca673b657dff7808f4ac75fedb"
+      },
+      "inputTreeSha256": "ea62f3c2b0cfe22405dec0c49ca2bd5e40220f56fb1798fa26bd105903915662",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\local_payments_enabled\\tests/persistence_startup/run:11:  expected NotProcessedYet got PurchaseGranted"
+    },
+    {
+      "name": "rejected_receipt_acknowledged",
+      "suite": "persistence_startup",
+      "faults": [
+        [
+          "src/server/Bootstrap.luau",
+          "if res and (res.status == \"APPLIED\" or (res.status == \"REPLAYED\" and res.terminalStatus == \"APPLIED\")) then\n\t\tself:checkpointPlayer(pId)\n\t\treturn true, res\n\tend\n\n\treturn false, (res and res.errorCode) or \"PURCHASE_FAILED\"",
+          "if res and (res.status == \"APPLIED\" or res.status == \"REPLAYED\") then\n\t\tself:checkpointPlayer(pId)\n\t\treturn true, res\n\tend\n\n\treturn false, (res and res.errorCode) or \"PURCHASE_FAILED\""
+        ]
+      ],
+      "expectedFailure": " expected NotProcessedYet got PurchaseGranted",
+      "expectedCaseLine": 113,
+      "state": "KILLED",
+      "testSha256": "74777b09b93a81fc0aae99f14d923a0e9a21421862f07fa1be762410aeef7143",
+      "sourceSha256": {
+        "src/server/Bootstrap.luau": "d7c5c1e3e2cefe7ae3f6a0d0d31fcef41ba8aaca673b657dff7808f4ac75fedb"
+      },
+      "inputTreeSha256": "ea62f3c2b0cfe22405dec0c49ca2bd5e40220f56fb1798fa26bd105903915662",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\rejected_receipt_acknowledged\\tests/persistence_startup/run:11:  expected NotProcessedYet got PurchaseGranted"
+    },
+    {
+      "name": "durable_receipt_replay_ignored",
+      "suite": "persistence_startup",
+      "faults": [
+        [
+          "src/server/Bootstrap.luau",
+          "res = admission -- a durable replay may not have an in-process entry after restart",
+          "res = coordinator.resultOf(op.operationId) -- ignores the saved record"
+        ]
+      ],
+      "expectedFailure": "saved success replays after a fresh process, without in-process entries expected PurchaseGranted got NotProcessedYet",
+      "expectedCaseLine": 101,
+      "state": "KILLED",
+      "testSha256": "74777b09b93a81fc0aae99f14d923a0e9a21421862f07fa1be762410aeef7143",
+      "sourceSha256": {
+        "src/server/Bootstrap.luau": "d7c5c1e3e2cefe7ae3f6a0d0d31fcef41ba8aaca673b657dff7808f4ac75fedb"
+      },
+      "inputTreeSha256": "ea62f3c2b0cfe22405dec0c49ca2bd5e40220f56fb1798fa26bd105903915662",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\durable_receipt_replay_ignored\\tests/persistence_startup/run:11: saved success replays after a fresh process, without in-process entries expected PurchaseGranted got NotProcessedYet"
+    },
+    {
+      "name": "confirmed_retry_snapshot_stale",
+      "suite": "persistence_startup",
+      "faults": [
+        [
+          "src/server/PlayerCoordinator.luau",
+          "working=data.copy(h.snapshot) -- confirmed retry may have refreshed the durable snapshot",
+          "working=data.copy(candidate) -- stale state after a confirmed grant"
+        ]
+      ],
+      "expectedFailure": "the next command must not overwrite a grant confirmed by retry expected 1202 got 1010",
+      "expectedCaseLine": 93,
+      "state": "KILLED",
+      "testSha256": "74777b09b93a81fc0aae99f14d923a0e9a21421862f07fa1be762410aeef7143",
+      "sourceSha256": {
+        "src/server/PlayerCoordinator.luau": "ff4cf7da056f0f3b9eacfed7fc817e3f6cfe4c643a49e452b0a29d3c5f45a686"
+      },
+      "inputTreeSha256": "ea62f3c2b0cfe22405dec0c49ca2bd5e40220f56fb1798fa26bd105903915662",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\confirmed_retry_snapshot_stale\\tests/persistence_startup/run:11: the next command must not overwrite a grant confirmed by retry expected 1202 got 1010"
+    },
+    {
+      "name": "unknown_policy_allowed",
+      "suite": "pro_policy",
+      "faults": [
+        [
+          "src/server/platform/products.luau",
+          "return paidRandomAllowed == true and profile.entitlements",
+          "return paidRandomAllowed ~= false and profile.entitlements"
+        ]
+      ],
+      "expectedFailure": " expected false got true",
+      "expectedCaseLine": 79,
+      "state": "KILLED",
+      "testSha256": "f9d08b13fbcc950c2c9a32f029dbf29e854773916771a71ccb9bed2ac5864707",
+      "sourceSha256": {
+        "src/server/platform/products.luau": "21d3431fedce2852f227fdd1bb2474736a2f85fb4d9bb3e55e97e6ec8ae5ec43"
+      },
+      "inputTreeSha256": "9fdb8d669a9bba068782e2972e46bb7d6dcf0ac415c422e2ac8d2cfbc1a8a2b6",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\unknown_policy_allowed\\tests/pro_policy/run:11:  expected false got true"
+    },
+    {
+      "name": "fusion_trusts_saved_pro_flag",
+      "suite": "pro_policy",
+      "faults": [
+        [
+          "src/server/Bootstrap.luau",
+          "local bonus=Products.isProBonusAvailable(draft,Products.readPaidRandomPolicy(self.paidRandomAllowed,playerId))",
+          "local bonus=draft.entitlements.pro_plus10_enabled==true"
+        ]
+      ],
+      "expectedFailure": " expected APPLIED got REJECTED",
+      "expectedCaseLine": 113,
+      "state": "KILLED",
+      "testSha256": "f9d08b13fbcc950c2c9a32f029dbf29e854773916771a71ccb9bed2ac5864707",
+      "sourceSha256": {
+        "src/server/Bootstrap.luau": "d7c5c1e3e2cefe7ae3f6a0d0d31fcef41ba8aaca673b657dff7808f4ac75fedb"
+      },
+      "inputTreeSha256": "9fdb8d669a9bba068782e2972e46bb7d6dcf0ac415c422e2ac8d2cfbc1a8a2b6",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\fusion_trusts_saved_pro_flag\\tests/pro_policy/run:11:  expected APPLIED got REJECTED"
+    },
+    {
+      "name": "fulfillment_trusts_prepared_policy",
+      "suite": "pro_policy",
+      "faults": [
+        [
+          "src/server/platform/products.luau",
+          "profile.entitlements.pro_plus10_enabled = playerContext ~= nil and playerContext.paidRandomAllowed == true",
+          "profile.entitlements.pro_plus10_enabled = op ~= nil and op.paidRandomAllowed == true"
+        ]
+      ],
+      "expectedFailure": " expected false got true",
+      "expectedCaseLine": 56,
+      "state": "KILLED",
+      "testSha256": "f9d08b13fbcc950c2c9a32f029dbf29e854773916771a71ccb9bed2ac5864707",
+      "sourceSha256": {
+        "src/server/platform/products.luau": "21d3431fedce2852f227fdd1bb2474736a2f85fb4d9bb3e55e97e6ec8ae5ec43"
+      },
+      "inputTreeSha256": "9fdb8d669a9bba068782e2972e46bb7d6dcf0ac415c422e2ac8d2cfbc1a8a2b6",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\fulfillment_trusts_prepared_policy\\tests/pro_policy/run:11:  expected false got true"
+    },
+    {
+      "name": "late_policy_response_overwrites_current",
+      "suite": "pro_policy",
+      "faults": [
+        [
+          "src/server/Main.server.luau",
+          "if policyByPlayer[pId]~=row or player.Parent~=Players or activePlayerObjects[pId]~=player then return nil end",
+          "if player.Parent~=Players or activePlayerObjects[pId]~=player then return nil end\n    policyByPlayer[pId]=row"
+        ]
+      ],
+      "expectedFailure": " expected false got true",
+      "expectedCaseLine": 126,
+      "state": "KILLED",
+      "testSha256": "f9d08b13fbcc950c2c9a32f029dbf29e854773916771a71ccb9bed2ac5864707",
+      "sourceSha256": {
+        "src/server/Main.server.luau": "57398cab0f1b81b0782b586349d4619daf8730b31e711242d334d08601aee958"
+      },
+      "inputTreeSha256": "9fdb8d669a9bba068782e2972e46bb7d6dcf0ac415c422e2ac8d2cfbc1a8a2b6",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\late_policy_response_overwrites_current\\tests/pro_policy/run:11:  expected false got true"
+    },
+    {
+      "name": "sensitive_action_skips_policy_refresh",
+      "suite": "pro_policy",
+      "faults": [
+        [
+          "src/server/Main.server.luau",
+          "refreshPolicy(player) -- outside the coordinator/UpdateAsync; concurrent requests coalesce",
+          "-- Sensitive action uses a stale cache"
+        ]
+      ],
+      "expectedFailure": " expected 2 got 1",
+      "expectedCaseLine": 97,
+      "state": "KILLED",
+      "testSha256": "f9d08b13fbcc950c2c9a32f029dbf29e854773916771a71ccb9bed2ac5864707",
+      "sourceSha256": {
+        "src/server/Main.server.luau": "57398cab0f1b81b0782b586349d4619daf8730b31e711242d334d08601aee958"
+      },
+      "inputTreeSha256": "9fdb8d669a9bba068782e2972e46bb7d6dcf0ac415c422e2ac8d2cfbc1a8a2b6",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\sensitive_action_skips_policy_refresh\\tests/pro_policy/run:11:  expected 2 got 1"
+    },
+    {
+      "name": "egg_reset_reuses_group_ids",
+      "suite": "resets",
+      "faults": [
+        [
+          "src/server/ProgressActions.luau",
+          "-- Preserve hatchGroupSequence: group IDs must remain unique across farm resets (docs/38). UpgradeEgg.",
+          "candidateProfile.farm.hatchGroupSequence = \"0\""
+        ]
+      ],
+      "expectedFailure": "UpgradeEgg retains high watermark: 0 != 1",
+      "expectedCaseLine": 892,
+      "state": "KILLED",
+      "testSha256": "62a6cb593dc62b5f3d6f71a76a1b6a5ecb7c6686ff12d337d97a96fdff8b2e3d",
+      "sourceSha256": {
+        "src/server/ProgressActions.luau": "009f08340412046f5a7475ff0ee5c12435d09b800e598e529736da011a0e4726"
+      },
+      "inputTreeSha256": "fd145fedd534d0d21c51bedfeb864bc23096ddfa6889853968da42283dcb23fe",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\egg_reset_reuses_group_ids\\tests/resets/run:29: UpgradeEgg retains high watermark: 0 != 1"
+    },
+    {
+      "name": "prestige_reuses_group_ids",
+      "suite": "resets",
+      "faults": [
+        [
+          "src/server/ProgressActions.luau",
+          "-- Preserve hatchGroupSequence: group IDs must remain unique across farm resets (docs/38). Prestige.",
+          "candidateProfile.farm.hatchGroupSequence = \"0\""
+        ]
+      ],
+      "expectedFailure": "Prestige retains high watermark: 0 != 1",
+      "expectedCaseLine": 892,
+      "state": "KILLED",
+      "testSha256": "62a6cb593dc62b5f3d6f71a76a1b6a5ecb7c6686ff12d337d97a96fdff8b2e3d",
+      "sourceSha256": {
+        "src/server/ProgressActions.luau": "009f08340412046f5a7475ff0ee5c12435d09b800e598e529736da011a0e4726"
+      },
+      "inputTreeSha256": "fd145fedd534d0d21c51bedfeb864bc23096ddfa6889853968da42283dcb23fe",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\prestige_reuses_group_ids\\tests/resets/run:29: Prestige retains high watermark: 0 != 1"
+    },
+    {
+      "name": "event_end_point_sampling",
+      "suite": "event_time",
+      "faults": [
+        [
+          "src/server/TimelineSimulation.luau",
+          "local eventAverage=EffectsManager.averageEarningsEventMultiplier(cp.config.liveEvents,cp.startInstantMs,cp.elapsedSeconds,dt)",
+          "local eventAverage=mults.eventEarningsMult"
+        ]
+      ],
+      "expectedFailure": "weighted earnings expected 0.8333333333333334 got 0.5",
+      "expectedCaseLine": 47,
+      "state": "KILLED",
+      "testSha256": "b45e1d538e1a10e8ecd54770ff7faf0c5aa81cda1ec39b24f5b82da876b92411",
+      "sourceSha256": {
+        "src/server/TimelineSimulation.luau": "2ab75c4f5901edd8c4d438d13ec052422f200cc582ffac5cfbbcf52378cf42fd"
+      },
+      "inputTreeSha256": "81d105392349664b704c59a6d7d17a5d30e82166a7d9b54550ca40d22d491be1",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\event_end_point_sampling\\tests/event_time/run:15: weighted earnings expected 0.8333333333333334 got 0.5"
+    },
+    {
+      "name": "event_ignores_deadline",
+      "suite": "event_time",
+      "faults": [
+        [
+          "src/server/EffectsManager.luau",
+          "local right = math.min(dt, (deadline - originMs) / 1000 - elapsedSeconds)",
+          "local right = dt"
+        ]
+      ],
+      "expectedFailure": "weighted earnings expected 0.8333333333333334 got 1.5",
+      "expectedCaseLine": 47,
+      "state": "KILLED",
+      "testSha256": "b45e1d538e1a10e8ecd54770ff7faf0c5aa81cda1ec39b24f5b82da876b92411",
+      "sourceSha256": {
+        "src/server/EffectsManager.luau": "41ca23a4c892d412d925e20907c58ffa61fe9789eda947a095c97a5db2d1ffd4"
+      },
+      "inputTreeSha256": "81d105392349664b704c59a6d7d17a5d30e82166a7d9b54550ca40d22d491be1",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\event_ignores_deadline\\tests/event_time/run:15: weighted earnings expected 0.8333333333333334 got 1.5"
+    },
+    {
+      "name": "event_overlap_applies_whole_step",
+      "suite": "event_time",
+      "faults": [
+        [
+          "src/server/EffectsManager.luau",
+          "if window.left <= left and window.right >= right then multiplier *= window.multiplier end",
+          "if true then multiplier *= window.multiplier end"
+        ]
+      ],
+      "expectedFailure": "weighted earnings expected 0.8333333333333334 got 1.5",
+      "expectedCaseLine": 47,
+      "state": "KILLED",
+      "testSha256": "b45e1d538e1a10e8ecd54770ff7faf0c5aa81cda1ec39b24f5b82da876b92411",
+      "sourceSha256": {
+        "src/server/EffectsManager.luau": "41ca23a4c892d412d925e20907c58ffa61fe9789eda947a095c97a5db2d1ffd4"
+      },
+      "inputTreeSha256": "81d105392349664b704c59a6d7d17a5d30e82166a7d9b54550ca40d22d491be1",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\event_overlap_applies_whole_step\\tests/event_time/run:15: weighted earnings expected 0.8333333333333334 got 1.5"
+    },
+    {
+      "name": "shop_operation_reuses_local_counter",
+      "suite": "session_prestige_rcb",
+      "faults": [
+        [
+          "src/client/IntentControllers.luau",
+          "local operationId = \"op-shop-\" .. tostring(self.stateStore:getStreamId()) .. \"-\" .. tostring(self._opSerial)",
+          "local operationId = \"op-\" .. tostring(quoteView.target.kind) .. \"-\" .. tostring(self._opSerial)"
+        ]
+      ],
+      "expectedFailure": "new purchase after reconnect expected APPLIED got REPLAYED",
+      "expectedCaseLine": 56,
+      "state": "KILLED",
+      "testSha256": "42d9cf249d2cd242cd4a916a2273215c312707daac5345f60a7180a92a1718f4",
+      "sourceSha256": {
+        "src/client/IntentControllers.luau": "29cfe446857bdc6d6be30aba64b1d6f725737f169c5db243bf82dc858b076300"
+      },
+      "inputTreeSha256": "446c4ff76358e48fe7e36408940f7a50015c02e55f10819eaa31fb3f0cc2a35c",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\shop_operation_reuses_local_counter\\tests/session_prestige_rcb/run:9: new purchase after reconnect expected APPLIED got REPLAYED"
+    },
+    {
+      "name": "stream_omits_session_generation",
+      "suite": "session_prestige_rcb",
+      "faults": [
+        [
+          "src/server/NetworkGateway.luau",
+          "local streamPrefix=\"stream-\" .. playerId .. \"-g\" .. generation .. \"-\"",
+          "local streamPrefix=\"stream-\" .. playerId .. \"-\""
+        ]
+      ],
+      "expectedFailure": "new process keeps operation namespace unique expected APPLIED got REPLAYED",
+      "expectedCaseLine": 65,
+      "state": "KILLED",
+      "testSha256": "42d9cf249d2cd242cd4a916a2273215c312707daac5345f60a7180a92a1718f4",
+      "sourceSha256": {
+        "src/server/NetworkGateway.luau": "90e109644fbb4a344192e5cfa4031da4c3c009179ae36ae3998715ba6bb58e5a"
+      },
+      "inputTreeSha256": "446c4ff76358e48fe7e36408940f7a50015c02e55f10819eaa31fb3f0cc2a35c",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\stream_omits_session_generation\\tests/session_prestige_rcb/run:9: new process keeps operation namespace unique expected APPLIED got REPLAYED"
+    },
+    {
+      "name": "prestige_ignores_collection_event",
+      "suite": "session_prestige_rcb",
+      "faults": [
+        [
+          "src/server/Bootstrap.luau",
+          "deps.prestigeEventMult=Effects.calculateMultipliers(nil,candidateProfile.farm,self.clock.utcNowMs(),self.liveEvents).eventPrestigeMult",
+          "deps.prestigeEventMult=1"
+        ]
+      ],
+      "expectedFailure": " expected APPLIED got REJECTED",
+      "expectedCaseLine": 87,
+      "state": "KILLED",
+      "testSha256": "42d9cf249d2cd242cd4a916a2273215c312707daac5345f60a7180a92a1718f4",
+      "sourceSha256": {
+        "src/server/Bootstrap.luau": "d7c5c1e3e2cefe7ae3f6a0d0d31fcef41ba8aaca673b657dff7808f4ac75fedb"
+      },
+      "inputTreeSha256": "446c4ff76358e48fe7e36408940f7a50015c02e55f10819eaa31fb3f0cc2a35c",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\prestige_ignores_collection_event\\tests/session_prestige_rcb/run:9:  expected APPLIED got REJECTED"
+    },
+    {
+      "name": "running_chickens_ignored",
+      "suite": "session_prestige_rcb",
+      "faults": [
+        [
+          "src/server/TimelineSimulation.luau",
+          "runningCount=f.runningCount,eggIndex=f.eggIndex",
+          "rcbMultiplier=1,eggIndex=f.eggIndex"
+        ]
+      ],
+      "expectedFailure": "step begins with running population expected 2.5 got 0.5",
+      "expectedCaseLine": 158,
+      "state": "KILLED",
+      "testSha256": "42d9cf249d2cd242cd4a916a2273215c312707daac5345f60a7180a92a1718f4",
+      "sourceSha256": {
+        "src/server/TimelineSimulation.luau": "2ab75c4f5901edd8c4d438d13ec052422f200cc582ffac5cfbbcf52378cf42fd"
+      },
+      "inputTreeSha256": "446c4ff76358e48fe7e36408940f7a50015c02e55f10819eaa31fb3f0cc2a35c",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\running_chickens_ignored\\tests/session_prestige_rcb/run:10: step begins with running population expected 2.5 got 0.5"
+    },
+    {
+      "name": "issued_drone_not_projected_to_visual",
+      "suite": "farm_gaps",
+      "faults": [
+        [
+          "src/client/Bootstrap.luau",
+          "for _,spawn in (progress and progress.issuedDrones) or {} do",
+          "for _,spawn in {} do"
+        ]
+      ],
+      "expectedFailure": " expected true got false",
+      "expectedCaseLine": 163,
+      "state": "KILLED",
+      "testSha256": "3a2c10c92c2788433b2e568c2cfb07f1f7a974d94abca8d5f35a82e84d451aec",
+      "sourceSha256": {
+        "src/client/Bootstrap.luau": "6023a6201bb517b23dccd3ad40166055e1024f3ea254922c2d79147c3d63eaad"
+      },
+      "inputTreeSha256": "7ca125e9a82c7e81ea2e4917c93ee1cbd41de5fcfb14e9087828e4c6f222f8f8",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\issued_drone_not_projected_to_visual\\tests/farm_gaps/run:11:  expected true got false"
+    },
+    {
+      "name": "valuation_epic_ignored",
+      "suite": "farm_gaps",
+      "faults": [
+        [
+          "src/server/ProgressActions.luau",
+          "valuationMult = catalog.epicEffects(\"accounting_tricks\",epic.accounting_tricks or 0).valuationMult or 1.0,",
+          "valuationMult = 1.0,"
+        ]
+      ],
+      "expectedFailure": "valuation from Epic expected 28837.21426178559 got 27464.01358265294",
+      "expectedCaseLine": 44,
+      "state": "KILLED",
+      "testSha256": "3a2c10c92c2788433b2e568c2cfb07f1f7a974d94abca8d5f35a82e84d451aec",
+      "sourceSha256": {
+        "src/server/ProgressActions.luau": "009f08340412046f5a7475ff0ee5c12435d09b800e598e529736da011a0e4726"
+      },
+      "inputTreeSha256": "7ca125e9a82c7e81ea2e4917c93ee1cbd41de5fcfb14e9087828e4c6f222f8f8",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\valuation_epic_ignored\\tests/farm_gaps/run:12: valuation from Epic expected 28837.21426178559 got 27464.01358265294"
+    },
+    {
+      "name": "hold_rate_ignored",
+      "suite": "farm_gaps",
+      "faults": [
+        [
+          "src/server/TimelineSimulation.luau",
+          "hatching.holdStep(f,hold.runtime,holdDt,research.holdRate,",
+          "hatching.holdStep(f,hold.runtime,holdDt,0,"
+        ]
+      ],
+      "expectedFailure": "owned level determines hold rate expected 9 got 0",
+      "expectedCaseLine": 64,
+      "state": "KILLED",
+      "testSha256": "3a2c10c92c2788433b2e568c2cfb07f1f7a974d94abca8d5f35a82e84d451aec",
+      "sourceSha256": {
+        "src/server/TimelineSimulation.luau": "2ab75c4f5901edd8c4d438d13ec052422f200cc582ffac5cfbbcf52378cf42fd"
+      },
+      "inputTreeSha256": "7ca125e9a82c7e81ea2e4917c93ee1cbd41de5fcfb14e9087828e4c6f222f8f8",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\hold_rate_ignored\\tests/farm_gaps/run:11: owned level determines hold rate expected 9 got 0"
+    },
+    {
+      "name": "hold_timeout_unbounded",
+      "suite": "farm_gaps",
+      "faults": [
+        [
+          "src/server/TimelineSimulation.luau",
+          "local holdDt=math.max(0,math.min(dt,(hold.expiresAtMs-cp.startInstantMs)/1000-cp.elapsedSeconds))",
+          "local holdDt=dt"
+        ]
+      ],
+      "expectedFailure": "two-second technical lease cannot grant 2.1s of breeding expected true got false",
+      "expectedCaseLine": 73,
+      "state": "KILLED",
+      "testSha256": "3a2c10c92c2788433b2e568c2cfb07f1f7a974d94abca8d5f35a82e84d451aec",
+      "sourceSha256": {
+        "src/server/TimelineSimulation.luau": "2ab75c4f5901edd8c4d438d13ec052422f200cc582ffac5cfbbcf52378cf42fd"
+      },
+      "inputTreeSha256": "7ca125e9a82c7e81ea2e4917c93ee1cbd41de5fcfb14e9087828e4c6f222f8f8",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\hold_timeout_unbounded\\tests/farm_gaps/run:11: two-second technical lease cannot grant 2.1s of breeding expected true got false"
+    },
+    {
+      "name": "sharing_ignored",
+      "suite": "farm_gaps",
+      "faults": [
+        [
+          "src/server/TimelineSimulation.luau",
+          "f.habitats=ihr.step(f.habitats,effectiveIHRRate,dt,research.sharing,function()return draw(cp)end)",
+          "f.habitats=ihr.step(f.habitats,effectiveIHRRate,dt,0,nil)"
+        ]
+      ],
+      "expectedFailure": "own IHR plus shared IHR expected 0.011000000000000001 got 0.01",
+      "expectedCaseLine": 110,
+      "state": "KILLED",
+      "testSha256": "3a2c10c92c2788433b2e568c2cfb07f1f7a974d94abca8d5f35a82e84d451aec",
+      "sourceSha256": {
+        "src/server/TimelineSimulation.luau": "2ab75c4f5901edd8c4d438d13ec052422f200cc582ffac5cfbbcf52378cf42fd"
+      },
+      "inputTreeSha256": "7ca125e9a82c7e81ea2e4917c93ee1cbd41de5fcfb14e9087828e4c6f222f8f8",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\sharing_ignored\\tests/farm_gaps/run:12: own IHR plus shared IHR expected 0.011000000000000001 got 0.01"
+    },
+    {
+      "name": "hyperloop_unlock_checks_omitted",
+      "suite": "farm_gaps",
+      "faults": [
+        [
+          "src/server/FarmActions.luau",
+          "if typeIndex==11 and profile.permanent.hyperloop~=true then available=false;blockedReason=\"HYPERLOOP_LOCKED\" end",
+          "-- Missing quote unlock guard"
+        ],
+        [
+          "src/server/FarmActions.luau",
+          "if typeIndex==11 and candidateProfile.permanent.hyperloop~=true then",
+          "if false then"
+        ],
+        [
+          "src/server/FarmActions.luau",
+          "if typeIndex==11 and freshProfile.permanent.hyperloop~=true then",
+          "if false then"
+        ]
+      ],
+      "expectedFailure": " expected false got true",
+      "expectedCaseLine": 130,
+      "state": "KILLED",
+      "testSha256": "3a2c10c92c2788433b2e568c2cfb07f1f7a974d94abca8d5f35a82e84d451aec",
+      "sourceSha256": {
+        "src/server/FarmActions.luau": "a7ca7f65c382d20a8d4d5afe03df9529cc66e0b1fb73611f4e12caa50d195ec5"
+      },
+      "inputTreeSha256": "7ca125e9a82c7e81ea2e4917c93ee1cbd41de5fcfb14e9087828e4c6f222f8f8",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\hyperloop_unlock_checks_omitted\\tests/farm_gaps/run:11:  expected false got true"
+    },
+    {
+      "name": "owned_pass_retry_dropped",
+      "suite": "entitlement_farm_regressions",
+      "faults": [
+        [
+          "src/server/Bootstrap.luau",
+          "then self:grantEntitlement(playerId, entitlementId) end",
+          "then local ignored = entitlementId end"
+        ]
+      ],
+      "expectedFailure": "owned entitlement did not finish",
+      "expectedCaseLine": 48,
+      "state": "KILLED",
+      "testSha256": "80e3064f438fddc46283691cc8ca0e86fbc2834f71dca9d92b331e5a81f3e384",
+      "sourceSha256": {
+        "src/server/Bootstrap.luau": "d7c5c1e3e2cefe7ae3f6a0d0d31fcef41ba8aaca673b657dff7808f4ac75fedb"
+      },
+      "inputTreeSha256": "56577c08d507b656358a3e597012ed6f06e5f9c5cffe987e8314c2db4fd6987e",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\owned_pass_retry_dropped\\tests/entitlement_farm_regressions/run:39: owned entitlement did not finish"
+    },
+    {
+      "name": "fv_max_rcb_ignored",
+      "suite": "entitlement_farm_regressions",
+      "faults": [
+        [
+          "src/server/ProgressActions.luau",
+          "researchMaxRCBBase = r.rcbCap - 5 + (catalog.epicEffects(\"epic_multiplier\",epic.epic_multiplier or 0).onscreenChickenMultMax or 0),",
+          "researchMaxRCBBase = 0,"
+        ]
+      ],
+      "expectedFailure": "max RCB cap in FV expected 50016.370853903434 got 27464.01358265294",
+      "expectedCaseLine": 106,
+      "state": "KILLED",
+      "testSha256": "80e3064f438fddc46283691cc8ca0e86fbc2834f71dca9d92b331e5a81f3e384",
+      "sourceSha256": {
+        "src/server/ProgressActions.luau": "009f08340412046f5a7475ff0ee5c12435d09b800e598e529736da011a0e4726"
+      },
+      "inputTreeSha256": "56577c08d507b656358a3e597012ed6f06e5f9c5cffe987e8314c2db4fd6987e",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\fv_max_rcb_ignored\\tests/entitlement_farm_regressions/run:13: max RCB cap in FV expected 50016.370853903434 got 27464.01358265294"
+    },
+    {
+      "name": "epic_discounts_ignored",
+      "suite": "entitlement_farm_regressions",
+      "faults": [
+        [
+          "src/server/FarmActions.luau",
+          "return catalog.epicEffects(spec[1], lvl)[spec[2]] or 1",
+          "return 1"
+        ]
+      ],
+      "expectedFailure": " expected 0.47747519430072366 got 0.5026054676849723",
+      "expectedCaseLine": 129,
+      "state": "KILLED",
+      "testSha256": "80e3064f438fddc46283691cc8ca0e86fbc2834f71dca9d92b331e5a81f3e384",
+      "sourceSha256": {
+        "src/server/FarmActions.luau": "a7ca7f65c382d20a8d4d5afe03df9529cc66e0b1fb73611f4e12caa50d195ec5"
+      },
+      "inputTreeSha256": "56577c08d507b656358a3e597012ed6f06e5f9c5cffe987e8314c2db4fd6987e",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\epic_discounts_ignored\\tests/entitlement_farm_regressions/run:13:  expected 0.47747519430072366 got 0.5026054676849723"
+    },
+    {
+      "name": "reset_stops_hold_before_commit",
+      "suite": "entitlement_farm_regressions",
+      "faults": [
+        [
+          "src/server/Bootstrap.luau",
+          "local outcome=ProgressActions.apply(candidateProfile,op,deps)",
+          "local outcome=ProgressActions.apply(candidateProfile,op,deps);if outcome.terminalStatus==\"APPLIED\" then playerSession.hatchingRuntime.held=false;playerSession.hatchingRuntime.holdElapsed=0 end"
+        ]
+      ],
+      "expectedFailure": "rejected plan is not a reset expected true got false",
+      "expectedCaseLine": 157,
+      "state": "KILLED",
+      "testSha256": "80e3064f438fddc46283691cc8ca0e86fbc2834f71dca9d92b331e5a81f3e384",
+      "sourceSha256": {
+        "src/server/Bootstrap.luau": "d7c5c1e3e2cefe7ae3f6a0d0d31fcef41ba8aaca673b657dff7808f4ac75fedb"
+      },
+      "inputTreeSha256": "56577c08d507b656358a3e597012ed6f06e5f9c5cffe987e8314c2db4fd6987e",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\reset_stops_hold_before_commit\\tests/entitlement_farm_regressions/run:12: rejected plan is not a reset expected true got false"
+    },
+    {
+      "name": "discount_quote_change_ignored",
+      "suite": "entitlement_farm_regressions",
+      "faults": [
+        [
+          "src/server/FarmActions.luau",
+          "if playerQuotes and op.quoteId and (not quoted or quoted.kind ~= op.kind or quoted.generation ~= candidateProfile.ownership.generation or quoted.multiplier ~= costMultiplier(candidateProfile,catalog,op.kind)) then",
+          "if false then"
+        ]
+      ],
+      "expectedFailure": " expected REJECTED got APPLIED",
+      "expectedCaseLine": 147,
+      "state": "KILLED",
+      "testSha256": "80e3064f438fddc46283691cc8ca0e86fbc2834f71dca9d92b331e5a81f3e384",
+      "sourceSha256": {
+        "src/server/FarmActions.luau": "a7ca7f65c382d20a8d4d5afe03df9529cc66e0b1fb73611f4e12caa50d195ec5"
+      },
+      "inputTreeSha256": "56577c08d507b656358a3e597012ed6f06e5f9c5cffe987e8314c2db4fd6987e",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\discount_quote_change_ignored\\tests/entitlement_farm_regressions/run:12:  expected REJECTED got APPLIED"
+    },
+    {
+      "name": "stale_ownership_callback_allowed",
+      "suite": "entitlement_farm_regressions",
+      "faults": [
+        [
+          "src/server/Main.server.luau",
+          "if ok and owns and player.Parent == Players and activePlayerObjects[pId] == player and server:getPlayer(pId) == grantSession then",
+          "if ok and owns then"
+        ]
+      ],
+      "expectedFailure": "old callback cannot grant successor expected nil got true",
+      "expectedCaseLine": 82,
+      "state": "KILLED",
+      "testSha256": "80e3064f438fddc46283691cc8ca0e86fbc2834f71dca9d92b331e5a81f3e384",
+      "sourceSha256": {
+        "src/server/Main.server.luau": "57398cab0f1b81b0782b586349d4619daf8730b31e711242d334d08601aee958"
+      },
+      "inputTreeSha256": "56577c08d507b656358a3e597012ed6f06e5f9c5cffe987e8314c2db4fd6987e",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\game-behavior-mutations-d4d48765\\stale_ownership_callback_allowed\\tests/entitlement_farm_regressions/run:12: old callback cannot grant successor expected nil got true"
+    },
+    {
+      "name": "validate_durable_only",
+      "suite": "fresh_cash_purchases",
+      "faults": [
+        [
+          "src/server/PlayerCoordinator.luau",
+          "local validator=settledValidator(h.snapshot,candidate,outcome.validate)",
+          "local validator=outcome.validate"
+        ]
+      ],
+      "expectedFailure": "spend new earnings without a checkpoint expected APPLIED got REJECTED",
+      "expectedCaseLine": 63,
+      "state": "KILLED",
+      "testSha256": "29e94f77bab6b5446137d602badc2113638dca3d43abc2841b7d9ffc401cb092",
+      "sourceSha256": {
+        "src/server/PlayerCoordinator.luau": "ff4cf7da056f0f3b9eacfed7fc817e3f6cfe4c643a49e452b0a29d3c5f45a686"
+      },
+      "inputTreeSha256": "3270b65961711fecba32e9bd9fb029b369be64832bd0c878a1b691baa340e40d",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\fresh_cash_mutations-results-25612620\\validate_durable_only\\tests/fresh_cash_purchases/run:8: spend new earnings without a checkpoint expected APPLIED got REJECTED"
+    },
+    {
+      "name": "omit_pending_fields",
+      "suite": "fresh_cash_purchases",
+      "faults": [
+        [
+          "src/server/PlayerCoordinator.luau",
+          "fresh[change.path[1]][change.path[2]]=data.copy(change.value)",
+          "-- mutation: pending simulation omitted"
+        ]
+      ],
+      "expectedFailure": "spend new earnings without a checkpoint expected APPLIED got REJECTED",
+      "expectedCaseLine": 63,
+      "state": "KILLED",
+      "testSha256": "29e94f77bab6b5446137d602badc2113638dca3d43abc2841b7d9ffc401cb092",
+      "sourceSha256": {
+        "src/server/PlayerCoordinator.luau": "ff4cf7da056f0f3b9eacfed7fc817e3f6cfe4c643a49e452b0a29d3c5f45a686"
+      },
+      "inputTreeSha256": "3270b65961711fecba32e9bd9fb029b369be64832bd0c878a1b691baa340e40d",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\fresh_cash_mutations-results-25612620\\omit_pending_fields\\tests/fresh_cash_purchases/run:8: spend new earnings without a checkpoint expected APPLIED got REJECTED"
+    },
+    {
+      "name": "ignore_changed_base",
+      "suite": "fresh_cash_purchases",
+      "faults": [
+        [
+          "src/server/PlayerCoordinator.luau",
+          "if actual~=expected[i] then return false,\"SIMULATION_BASE_CHANGED\" end",
+          "if false then return false,\"SIMULATION_BASE_CHANGED\" end"
+        ]
+      ],
+      "expectedFailure": "SPEC/reject changed simulation base expected REJECTED got APPLIED",
+      "expectedCaseLine": 235,
+      "state": "KILLED",
+      "testSha256": "29e94f77bab6b5446137d602badc2113638dca3d43abc2841b7d9ffc401cb092",
+      "sourceSha256": {
+        "src/server/PlayerCoordinator.luau": "ff4cf7da056f0f3b9eacfed7fc817e3f6cfe4c643a49e452b0a29d3c5f45a686"
+      },
+      "inputTreeSha256": "3270b65961711fecba32e9bd9fb029b369be64832bd0c878a1b691baa340e40d",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\fresh_cash_mutations-results-25612620\\ignore_changed_base\\tests/fresh_cash_purchases/run:8: SPEC/reject changed simulation base expected REJECTED got APPLIED"
+    },
+    {
+      "name": "omit_income_cursor_patch",
+      "suite": "fresh_cash_purchases",
+      "faults": [
+        [
+          "src/server/PlayerCoordinator.luau",
+          "local changes=patches(h.snapshot,final)",
+          "local changes=patches(candidate,final)"
+        ]
+      ],
+      "expectedFailure": "spending does not reduce earned accumulator expected 6 got 0",
+      "expectedCaseLine": 66,
+      "state": "KILLED",
+      "testSha256": "29e94f77bab6b5446137d602badc2113638dca3d43abc2841b7d9ffc401cb092",
+      "sourceSha256": {
+        "src/server/PlayerCoordinator.luau": "ff4cf7da056f0f3b9eacfed7fc817e3f6cfe4c643a49e452b0a29d3c5f45a686"
+      },
+      "inputTreeSha256": "3270b65961711fecba32e9bd9fb029b369be64832bd0c878a1b691baa340e40d",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\fresh_cash_mutations-results-25612620\\omit_income_cursor_patch\\tests/fresh_cash_purchases/run:9: spending does not reduce earned accumulator expected 6 got 0"
+    },
+    {
+      "name": "allow_stale_checkpoint",
+      "suite": "fresh_cash_purchases",
+      "faults": [
+        [
+          "src/server/PlayerCoordinator.luau",
+          "freezeWork(\"SIMULATION_BASE_CHANGED\")",
+          "-- mutation: keep divergent working state available"
+        ]
+      ],
+      "expectedFailure": "divergent provisional state hidden expected nil got table:",
+      "expectedCaseLine": 238,
+      "state": "KILLED",
+      "testSha256": "29e94f77bab6b5446137d602badc2113638dca3d43abc2841b7d9ffc401cb092",
+      "sourceSha256": {
+        "src/server/PlayerCoordinator.luau": "ff4cf7da056f0f3b9eacfed7fc817e3f6cfe4c643a49e452b0a29d3c5f45a686"
+      },
+      "inputTreeSha256": "3270b65961711fecba32e9bd9fb029b369be64832bd0c878a1b691baa340e40d",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\fresh_cash_mutations-results-25612620\\allow_stale_checkpoint\\tests/fresh_cash_purchases/run:8: divergent provisional state hidden expected nil got table: 0x000001dc1c5a5ad0"
+    },
+    {
+      "name": "validate_post_purchase",
+      "suite": "fresh_cash_purchases",
+      "faults": [
+        [
+          "src/server/PlayerCoordinator.luau",
+          "local validator=settledValidator(h.snapshot,candidate,outcome.validate)",
+          "local validator=settledValidator(h.snapshot,final,outcome.validate)"
+        ]
+      ],
+      "expectedFailure": "spend new earnings without a checkpoint expected APPLIED got REJECTED",
+      "expectedCaseLine": 63,
+      "state": "KILLED",
+      "testSha256": "29e94f77bab6b5446137d602badc2113638dca3d43abc2841b7d9ffc401cb092",
+      "sourceSha256": {
+        "src/server/PlayerCoordinator.luau": "ff4cf7da056f0f3b9eacfed7fc817e3f6cfe4c643a49e452b0a29d3c5f45a686"
+      },
+      "inputTreeSha256": "3270b65961711fecba32e9bd9fb029b369be64832bd0c878a1b691baa340e40d",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\fresh_cash_mutations-results-25612620\\validate_post_purchase\\tests/fresh_cash_purchases/run:8: spend new earnings without a checkpoint expected APPLIED got REJECTED"
+    },
+    {
+      "name": "missing_common_descriptor",
+      "suite": "upgrade_previews",
+      "faults": [
+        [
+          "src/server/ViewProjector.luau",
+          "\t\t\tif not can and reason ~= nil then",
+          "\t\t\tif id == \"excoskeletons\" then entry.effects = {} end\n\t\t\tif not can and reason ~= nil then"
+        ]
+      ],
+      "expectedFailure": "SPEC/common effect missing: excoskeletons/",
+      "expectedCaseLine": null,
+      "state": "KILLED",
+      "testSha256": "6c52ccf796bce4841015b4a8700fa0b09c4410c778d2acbe6cf6739258aa22e0",
+      "sourceSha256": {
+        "src/server/ViewProjector.luau": "56fcfbac0178d42a60edd34ac8085911e24e4f00a885511db2f30afc081e569a"
+      },
+      "inputTreeSha256": "f87a883a39cd9d1d21fd4beb363fc22bffb657f96e7ef8161cb2edff866a8db9",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\spec-regression-mutations-f8279030\\missing_common_descriptor\\tests/upgrade_previews/run:11: SPEC/common effect missing: excoskeletons/maxFleetSize expected true got nil"
+    },
+    {
+      "name": "wrong_habitat_price",
+      "suite": "purchases",
+      "faults": [
+        [
+          "src/server/CatalogRegistry/init.luau",
+          "return api.getHabitat(typeIndex).prices[index(slotIndex, 3) + 1]",
+          "return api.getHabitat(typeIndex).prices[index(slotIndex, 3) + 1] * 1.01"
+        ]
+      ],
+      "expectedFailure": "SPEC/habitat same-type reference price",
+      "expectedCaseLine": null,
+      "state": "KILLED",
+      "testSha256": "95eb48a77e89cf719f72922c5ac62541557c1f8a520d6389e24699d0689eb3fb",
+      "sourceSha256": {
+        "src/server/CatalogRegistry/init.luau": "6d9a70f59c0616343b96b3572d0ae4c164cb2e07ac7aaf91dfb86f8e6f24729c"
+      },
+      "inputTreeSha256": "d40da8fa7b32433f8c2b93fc36ac29de49cdece0d29dfb111e0d51ef371c1a8a",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\spec-regression-mutations-f8279030\\wrong_habitat_price\\tests/purchases/run:27: SPEC/habitat same-type reference price expected 29.12425183994392 got 29.415494358343359"
+    },
+    {
+      "name": "wrong_epic_discount",
+      "suite": "epic_research",
+      "faults": [
+        [
+          "src/server/CatalogRegistry/init.luau",
+          "return row.effectsByLevel[index(level, row.maxLevel) + 1]\n\tend\n\tfunction api.tierThreshold",
+          "local out = row.effectsByLevel[index(level, row.maxLevel) + 1]\n\t\tif id == \"cheaper_contractors\" and level == 5 then local changed = table.clone(out);changed.habCostMult *= 0.9;return changed end\n\t\treturn out\n\tend\n\tfunction api.tierThreshold"
+        ]
+      ],
+      "expectedFailure": "SPEC/habitat discount 0.75",
+      "expectedCaseLine": null,
+      "state": "KILLED",
+      "testSha256": "1270f9502ff12fe4c8d470cd1eb5f2006de7eeaac7900a9a4a2226dec79789af",
+      "sourceSha256": {
+        "src/server/CatalogRegistry/init.luau": "6d9a70f59c0616343b96b3572d0ae4c164cb2e07ac7aaf91dfb86f8e6f24729c"
+      },
+      "inputTreeSha256": "8ffdc223d9ffc1435a5394327f5d4b721498381b84f136f8500119e70ab41ec3",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\spec-regression-mutations-f8279030\\wrong_epic_discount\\tests/epic_research/run:27: SPEC/habitat discount 0.75 (0.675 == 0.75)"
+    },
+    {
+      "name": "wrong_high_tier_threshold",
+      "suite": "math",
+      "faults": [
+        [
+          "src/server/CatalogRegistry/init.luau",
+          "return d.tierThresholds[index(tierRaw, #d.tierThresholds - 1) + 1]",
+          "local value=d.tierThresholds[index(tierRaw, #d.tierThresholds - 1) + 1];return if tierRaw >= 3 then 9999 else value"
+        ]
+      ],
+      "expectedFailure": "SPEC/tier boundary ",
+      "expectedCaseLine": null,
+      "state": "KILLED",
+      "testSha256": "09e552b1eb27ee0c50a28b7e60f99dc88a239e4afe9f352c8d2696a2ba53cf06",
+      "sourceSha256": {
+        "src/server/CatalogRegistry/init.luau": "6d9a70f59c0616343b96b3572d0ae4c164cb2e07ac7aaf91dfb86f8e6f24729c"
+      },
+      "inputTreeSha256": "f46fb76d69469869b5b6a93d42a2ae16674222b8dd7293c99a887dca21ffd91b",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\spec-regression-mutations-f8279030\\wrong_high_tier_threshold\\tests/math/run:9: SPEC/tier boundary 4/160 false != true"
+    },
+    {
+      "name": "tiny_home_target",
+      "suite": "rates_panel",
+      "faults": [
+        [
+          "src/client/HUD.luau",
+          "Name = \"DomButton\",\n\t\tSize = isRoblox and UDim2.new(0, 44, 0, 44) or nil,",
+          "Name = \"DomButton\",\n\t\tSize = isRoblox and UDim2.new(0, 1, 0, 1) or nil,"
+        ]
+      ],
+      "expectedFailure": "SPEC/header target width: DomButton",
+      "expectedCaseLine": null,
+      "state": "KILLED",
+      "testSha256": "c622801e0e4ee5bf36429c7f60e1a224d9376af785e5a57c76fde2275d8329ea",
+      "sourceSha256": {
+        "src/client/HUD.luau": "8d77186d52ed3558569fef0061de4558b33e3b4e709f62f6355738420c84bc22"
+      },
+      "inputTreeSha256": "a3cdefd32494b70b0b3062984fb6a505856871928d135099302c8255183c6051",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\spec-regression-mutations-f8279030\\tiny_home_target\\tests/rates_panel/run:28: SPEC/header target width: DomButton expected 44 got 1"
+    },
+    {
+      "name": "unsupported_epic_allowed",
+      "suite": "remaining_fixes",
+      "faults": [
+        [
+          "src/server/Bootstrap.luau",
+          "elseif not Availability.isEpicAvailable(canonicalId) then",
+          "elseif false then"
+        ]
+      ],
+      "expectedFailure": "unsupported effect rejected",
+      "expectedCaseLine": null,
+      "state": "KILLED",
+      "testSha256": "d79113e3f60127311accae3e21c48ad128592339b976d70edda3672cf0bf4ada",
+      "sourceSha256": {
+        "src/server/Bootstrap.luau": "d7c5c1e3e2cefe7ae3f6a0d0d31fcef41ba8aaca673b657dff7808f4ac75fedb"
+      },
+      "inputTreeSha256": "f3243a6b94f0736c6f76957874f3d08cc585ad0c365012cc1ed61478cf96edbe",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\spec-regression-mutations-f8279030\\unsupported_epic_allowed\\tests/remaining_fixes/run:11: unsupported effect rejected: APPLIED != REJECTED"
+    },
+    {
+      "name": "planned_purchase_reserved",
+      "suite": "remaining_fixes",
+      "faults": [
+        [
+          "src/server/platform/products.luau",
+          "if not preview.isAvailable then",
+          "if false then"
+        ]
+      ],
+      "expectedFailure": "planned product cannot reserve a purchase",
+      "expectedCaseLine": null,
+      "state": "KILLED",
+      "testSha256": "d79113e3f60127311accae3e21c48ad128592339b976d70edda3672cf0bf4ada",
+      "sourceSha256": {
+        "src/server/platform/products.luau": "21d3431fedce2852f227fdd1bb2474736a2f85fb4d9bb3e55e97e6ec8ae5ec43"
+      },
+      "inputTreeSha256": "f3243a6b94f0736c6f76957874f3d08cc585ad0c365012cc1ed61478cf96edbe",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\spec-regression-mutations-f8279030\\planned_purchase_reserved\\tests/remaining_fixes/run:11: planned product cannot reserve a purchase: true != false"
+    },
+    {
+      "name": "planned_purchase_granted",
+      "suite": "remaining_fixes",
+      "faults": [
+        [
+          "src/server/platform/products.luau",
+          "if not def or not def.availableAtLaunch then",
+          "if not def then"
+        ]
+      ],
+      "expectedFailure": "old pending reservation cannot grant unavailable product",
+      "expectedCaseLine": null,
+      "state": "KILLED",
+      "testSha256": "d79113e3f60127311accae3e21c48ad128592339b976d70edda3672cf0bf4ada",
+      "sourceSha256": {
+        "src/server/platform/products.luau": "21d3431fedce2852f227fdd1bb2474736a2f85fb4d9bb3e55e97e6ec8ae5ec43"
+      },
+      "inputTreeSha256": "f3243a6b94f0736c6f76957874f3d08cc585ad0c365012cc1ed61478cf96edbe",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\spec-regression-mutations-f8279030\\planned_purchase_granted\\tests/remaining_fixes/run:11: old pending reservation cannot grant unavailable product: true != false"
+    },
+    {
+      "name": "prestige_preview_without_event",
+      "suite": "remaining_fixes",
+      "faults": [
+        [
+          "src/server/ViewProjector.luau",
+          "local prestigeEventMult = Effects.calculateMultipliers(nil, farm, serverObservedAt, self.liveEvents).eventPrestigeMult",
+          "local prestigeEventMult = 1"
+        ]
+      ],
+      "expectedFailure": "event start and deadline semantics",
+      "expectedCaseLine": null,
+      "state": "KILLED",
+      "testSha256": "d79113e3f60127311accae3e21c48ad128592339b976d70edda3672cf0bf4ada",
+      "sourceSha256": {
+        "src/server/ViewProjector.luau": "56fcfbac0178d42a60edd34ac8085911e24e4f00a885511db2f30afc081e569a"
+      },
+      "inputTreeSha256": "f3243a6b94f0736c6f76957874f3d08cc585ad0c365012cc1ed61478cf96edbe",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\spec-regression-mutations-f8279030\\prestige_preview_without_event\\tests/remaining_fixes/run:14: event start and deadline semantics"
+    },
+    {
+      "name": "retired_timer_gives_income",
+      "suite": "retired_doubler",
+      "faults": [
+        [
+          "src/server/EffectsManager.luau",
+          "local vdMult = 1.0",
+          "local vdMult = if effects and effects.videoDoublerEndsAtMs then 2.0 else 1.0"
+        ]
+      ],
+      "expectedFailure": "SPEC/legacy timer has neutral multiplier",
+      "expectedCaseLine": null,
+      "state": "KILLED",
+      "testSha256": "4ecf117f8416092d286fa71d8d049f7c214d652b5e5948de4a6bb9c4b3041c84",
+      "sourceSha256": {
+        "src/server/EffectsManager.luau": "41ca23a4c892d412d925e20907c58ffa61fe9789eda947a095c97a5db2d1ffd4"
+      },
+      "inputTreeSha256": "1cf673aaea446d87fba1edb4aa6dda8c10fac8bf56c774fa046f8a043e1b55e7",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\spec-regression-mutations-f8279030\\retired_timer_gives_income\\tests/retired_doubler/run:12: SPEC/legacy timer has neutral multiplier: 2 != 1"
+    },
+    {
+      "name": "retired_research_readmitted",
+      "suite": "retired_doubler",
+      "faults": [
+        [
+          "src/server/CatalogRegistry/init.luau",
+          "if id == \"video_doubler_time\" then fail(\"RESEARCH_REMOVED\") end",
+          "-- Mutation: retired research readmitted"
+        ]
+      ],
+      "expectedFailure": "retired catalog access rejected",
+      "expectedCaseLine": null,
+      "state": "KILLED",
+      "testSha256": "4ecf117f8416092d286fa71d8d049f7c214d652b5e5948de4a6bb9c4b3041c84",
+      "sourceSha256": {
+        "src/server/CatalogRegistry/init.luau": "6d9a70f59c0616343b96b3572d0ae4c164cb2e07ac7aaf91dfb86f8e6f24729c"
+      },
+      "inputTreeSha256": "1cf673aaea446d87fba1edb4aa6dda8c10fac8bf56c774fa046f8a043e1b55e7",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\spec-regression-mutations-f8279030\\retired_research_readmitted\\tests/retired_doubler/run:12: retired catalog access rejected: true != false"
+    },
+    {
+      "name": "permanent_cash_pass_removed",
+      "suite": "retired_doubler",
+      "faults": [
+        [
+          "src/server/TimelineSimulation.luau",
+          "if (cp.state.entitlements and cp.state.entitlements.double_cash == true) or (cp.config and cp.config.double_cash == true) then",
+          "if false then"
+        ]
+      ],
+      "expectedFailure": "30 hens * 1/30 eggs/s * $1.25 * 3s * 2x permanent pass, no timed bonus",
+      "expectedCaseLine": null,
+      "state": "KILLED",
+      "testSha256": "4ecf117f8416092d286fa71d8d049f7c214d652b5e5948de4a6bb9c4b3041c84",
+      "sourceSha256": {
+        "src/server/TimelineSimulation.luau": "2ab75c4f5901edd8c4d438d13ec052422f200cc582ffac5cfbbcf52378cf42fd"
+      },
+      "inputTreeSha256": "1cf673aaea446d87fba1edb4aa6dda8c10fac8bf56c774fa046f8a043e1b55e7",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\spec-regression-mutations-f8279030\\permanent_cash_pass_removed\\tests/retired_doubler/run:16: 30 hens * 1/30 eggs/s * $1.25 * 3s * 2x permanent pass, no timed bonus"
+    },
+    {
+      "name": "retired_activation_allowed",
+      "suite": "retired_doubler",
+      "faults": [
+        [
+          "src/server/EffectsManager.luau",
+          "return false, \"FEATURE_REMOVED\"",
+          "return true, \"FEATURE_REMOVED\""
+        ]
+      ],
+      "expectedFailure": "SPEC/retired activation rejected",
+      "expectedCaseLine": null,
+      "state": "KILLED",
+      "testSha256": "4ecf117f8416092d286fa71d8d049f7c214d652b5e5948de4a6bb9c4b3041c84",
+      "sourceSha256": {
+        "src/server/EffectsManager.luau": "41ca23a4c892d412d925e20907c58ffa61fe9789eda947a095c97a5db2d1ffd4"
+      },
+      "inputTreeSha256": "1cf673aaea446d87fba1edb4aa6dda8c10fac8bf56c774fa046f8a043e1b55e7",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "failure": "<repo>\\build\\spec-regression-mutations-f8279030\\retired_activation_allowed\\tests/retired_doubler/run:12: SPEC/retired activation rejected: true != false"
+    }
+  ],
+  "runnerEvidence": [
+    {
+      "name": "wrong_callsite_accepted",
+      "state": "KILLED",
+      "fault": {
+        "path": "tools/mutation_support.py",
+        "before": "if expected_case_line is not None:",
+        "after": "if False:"
+      },
+      "expectedFailure": "FAIL: test_same_message_from_wrong_case_is_invalid",
+      "baselineExit": 0,
+      "mutantExit": 1,
+      "correctedExit": 0,
+      "command": [
+        "C:\\Users\\Marek\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-B",
+        "tests/spec_regressions/test_mutation_support.py"
+      ],
+      "logs": "build\\runner-faults-787cba0e\\wrong_callsite_accepted\\build"
+    },
+    {
+      "name": "runtime_crash_counted_as_kill",
+      "state": "KILLED",
+      "fault": {
+        "path": "tools/mutation_support.py",
+        "before": "if any(s in first for s in ('SyntaxError', 'attempt to call', 'attempt to index', 'Failed to resolve', 'error parsing')):",
+        "after": "if False:"
+      },
+      "expectedFailure": "FAIL: test_runtime_crash_even_with_marker",
+      "baselineExit": 0,
+      "mutantExit": 1,
+      "correctedExit": 0,
+      "command": [
+        "C:\\Users\\Marek\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-B",
+        "tests/spec_regressions/test_mutation_support.py"
+      ],
+      "logs": "build\\runner-faults-787cba0e\\runtime_crash_counted_as_kill\\build"
+    },
+    {
+      "name": "foreign_assertion_counted_as_kill",
+      "state": "KILLED",
+      "fault": {
+        "path": "tools/mutation_support.py",
+        "before": "re.search(r'tests/' + re.escape(suite) + r'/run(?:\\.luau)?:\\d+: ', first)",
+        "after": "True"
+      },
+      "expectedFailure": "FAIL: test_foreign_assertion",
+      "baselineExit": 0,
+      "mutantExit": 1,
+      "correctedExit": 0,
+      "command": [
+        "C:\\Users\\Marek\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-B",
+        "tests/spec_regressions/test_mutation_support.py"
+      ],
+      "logs": "build\\runner-faults-787cba0e\\foreign_assertion_counted_as_kill\\build"
+    },
+    {
+      "name": "broken_baseline_accepted",
+      "state": "KILLED",
+      "fault": {
+        "path": "tools/mutation_support.py",
+        "before": "if baseline_exit != 0 or exit_code is None:",
+        "after": "if exit_code is None:"
+      },
+      "expectedFailure": "FAIL: test_timeout_and_failed_baseline",
+      "baselineExit": 0,
+      "mutantExit": 1,
+      "correctedExit": 0,
+      "command": [
+        "C:\\Users\\Marek\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-B",
+        "tests/spec_regressions/test_mutation_support.py"
+      ],
+      "logs": "build\\runner-faults-787cba0e\\broken_baseline_accepted\\build"
+    },
+    {
+      "name": "working_source_modified",
+      "state": "KILLED",
+      "fault": {
+        "path": "tools/mutation_support.py",
+        "before": "path = target / relative",
+        "after": "path = root / relative"
+      },
+      "expectedFailure": "FAIL: test_fault_only_exists_in_copy_and_corrected_test_runs",
+      "baselineExit": 0,
+      "mutantExit": 1,
+      "correctedExit": 0,
+      "command": [
+        "C:\\Users\\Marek\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-B",
+        "tests/spec_regressions/test_mutation_support.py"
+      ],
+      "logs": "build\\runner-faults-787cba0e\\working_source_modified\\build"
+    }
+  ]
+}

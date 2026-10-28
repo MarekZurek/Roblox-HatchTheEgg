@@ -232,7 +232,7 @@ do
 	local q=h.quote('BuyResearch',research)
 	h.beforeWrite=function()h.records['player:1'].farm.cash='9' end
 	local result=h.send(h.packet(q,'base-changed'))
-	eq(result.status,'REJECTED');eq(result.result.errorCode,'SIMULATION_BASE_CHANGED')
+	eq(result.status,'REJECTED','SPEC/reject changed simulation base');eq(result.result.errorCode,'SIMULATION_BASE_CHANGED')
 	eq(h.cash(),9,'new durable cash cannot be overwritten by old simulation')
 	eq(h.records['player:1'].farm.common.comfy_nests,nil)
 	eq(h.state().working,nil,'divergent provisional state hidden')

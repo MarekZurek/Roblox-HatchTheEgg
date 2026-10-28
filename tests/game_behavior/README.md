@@ -8,10 +8,10 @@
 |---|---|---|
 | Liczby, granice i precyzja | numeric, catalog; niezależne wektory Pythona | Nie jest to typecheck Luau |
 | Nowe konto, tutorial | tutorial, integration, acceptance | Samouczek w silniku nieuruchomiony |
-| Wylęg/RCB, grupy, IHR | hatching, ihr, integration89, timeline | Tożsamość grup po resecie sprawdzana w resets (#59) |
+| Wylęg, grupy, IHR i stały mnożnik badań | hatching, ihr, integration89, timeline | Tożsamość grup po resecie sprawdzana w resets (#59) |
 | Produkcja, badania, transport | math, catalog, purchases, production_context, game_behavior | Bez kalibracji tempa progresji |
 | Jajo, SE/PE, wyposażenie i boosty | production_context; rachunki niezależne, granice kontekstu | Ważenie granicznego kroku badane w event_time (#61) |
-| Wydarzenia, offline, silosy i VD | effect_boundaries, timeline, production_context, event_time | Ważenie granic i silosów #61; brak natywnych zegarów Studio |
+| Wydarzenia, offline, silosy; legacy VD bez efektu | effect_boundaries, timeline, production_context, event_time | Ważenie granic i silosów #61; brak natywnych zegarów Studio |
 | Zakupy infrastruktury/badań | purchases, gateway, integration, acceptance | Buy MAX jako produkt wymaga odrębnego domknięcia logiki |
 | Zmiana jaja i prestiż | resets, fv_se; realna komenda prestige w game_behavior | Dalsze znane problemy pozostają w Issues |
 | Pety, lock/wyposażenie, fuzja | pet_effects, fusion, game_behavior z jawnym fixture | Produkcyjna fuzja niedostępna; quote/config nieukończone |
@@ -42,8 +42,14 @@ Raportowanie #60: tests/release_reporting/test_reporting.py odrzuca fałszywe po
 
 Trzy mutacje #61 uruchamiają event_time: odczyt tylko końca kroku, pomijanie deadline oraz aktywność poza właściwym fragmentem kroku. Wymagane S/D/H pozostają niezweryfikowane.
 
-Cztery mutacje #63–65 uruchamiają session_prestige_rcb: lokalne ID sklepu, brak generacji w strumieniu, pominięta kolekcja eventu i neutralne RCB. Nowe intencje po reconnect są badane dwoma rzeczywistymi klientami; retry nadal ma odtwarzać dawny wynik.
+Cztery mutacje #63–65 uruchamiają session_prestige_rcb: lokalne ID sklepu, brak generacji w strumieniu, pominięta kolekcja eventu i wymuszenie neutralnego mnożnika badań. Nowe intencje po reconnect są badane dwoma rzeczywistymi klientami; retry nadal ma odtwarzać dawny wynik.
 
 Sześć mutacji #66–70 uruchamia farm_gaps: projekcja drona, valuation, rate hold, timeout, sharing oraz bramka stacji (wyłączane wszystkie trzy zabezpieczenia w kopii testowej). Pusty kanał pozostaje jawnie nieaktywny; nie dodano produkcyjnego harmonogramu.
 
 Sześć mutacji #71–74 uruchamia entitlement_farm_regressions: utrata nadania po offline, pominięcie maksimum RCB w FV, neutralne zniżki Epic, zatrzymanie hold przed zatwierdzeniem resetu, stara wycena po zmianie zniżki i spóźniona odpowiedź własności. Wyniki wyłącznie L; bez realnych zakupów lub chmury.
+
+## Kontrakt mutacji po review 28.10.2026
+
+Wspólny `tools/mutation_support.py` izoluje źródła i fixture w `build/`, odczytuje Lune i SHA z `tools/toolchain.json`, wykonuje czysty baseline, mutację i ponowny test po jej usunięciu. `KILLED` wymaga pierwszego błędu z konkretnej asercji wskazanego zestawu; starsze ogólne komunikaty mają również przypisany numer wywołania asercji w teście. Obca asercja, błąd wykonania/składni/importu, timeout lub zły baseline to `INVALID`. Kod roboczy nie jest modyfikowany.
+
+Dodatkowe kontrole i dowody: [spec_regressions](../spec_regressions/README.md), [raport napraw](../../docs/workflow/test_oracle_repairs_2026_10_28.md). Aktywne RCB wycofano; stare nazwy plików/API nie oznaczają przywrócenia mechaniki.

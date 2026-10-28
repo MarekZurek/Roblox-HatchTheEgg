@@ -62,7 +62,15 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Behavior mutation checks failed.' }
         & $PythonExecutable tests/fresh_cash_purchases/mutation_check.py
         if ($LASTEXITCODE -ne 0) { throw 'Fresh cash mutation checks failed.' }
+        & $PythonExecutable tests/spec_regressions/mutation_check.py
+        if ($LASTEXITCODE -ne 0) { throw 'Spec regression mutation checks failed.' }
+        & $PythonExecutable tests/spec_regressions/runner_fault_check.py
+        if ($LASTEXITCODE -ne 0) { throw 'Mutation gate negative controls failed.' }
+        & $PythonExecutable tests/spec_regressions/verify_evidence.py
+        if ($LASTEXITCODE -ne 0) { throw 'Mutation evidence verification failed.' }
     }
+    & $PythonExecutable tests/spec_regressions/test_mutation_support.py
+    if ($LASTEXITCODE -ne 0) { throw 'Mutation evidence runner regressions failed.' }
     & $PythonExecutable tests/release_reporting/test_reporting.py
     if ($LASTEXITCODE -ne 0) { throw 'Release evidence regression tests failed.' }
     & $PythonExecutable tools/verify_release.py

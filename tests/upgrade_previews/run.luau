@@ -105,12 +105,20 @@ do
 			for _,v in snapshot.view.farm.common do if v.researchId==row.id then entry=v end end
 			local current=row.effectsByLevel[level+1]
 			local nextLevel=if level<row.maxLevel then row.effectsByLevel[level+2] else nil
+			eq(entry~=nil,true,'SPEC/common research entry exists')
+			local expectedKeys, actualKeys = {}, {}
+			for key in current do expectedKeys[key]=true end
+			for key in nextLevel or {} do expectedKeys[key]=true end
 			for _,effect in entry.effects do
+				eq(actualKeys[effect.stat],nil,'SPEC/common effects have no duplicates')
+				actualKeys[effect.stat]=true
+				eq(expectedKeys[effect.stat],true,'SPEC/common effects have no extra keys')
 				local neutral=if additive[effect.stat] then 0 else 1
 				near(C.BigAmount.decode(effect.current),current[effect.stat] or neutral,'reference current effect')
 				if nextLevel then near(C.BigAmount.decode(effect.next),nextLevel[effect.stat] or neutral,'reference next effect')
 				else eq(effect.next,nil,'MAX has no fictional next level') end
 			end
+			for key in expectedKeys do eq(actualKeys[key],true,'SPEC/common effect missing: '..row.id..'/'..key) end
 		end
 	end
 end

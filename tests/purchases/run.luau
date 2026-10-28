@@ -10,6 +10,16 @@ local Catalog = require("../../src/server/CatalogRegistry").new(C, CatalogData, 
 local FarmActions = require("../../src/server/FarmActions")
 local serde = require("@lune/serde")
 local fs = require("@lune/fs")
+-- docs/03-04 + reference_data at 57cd5b9: same-type price index; reference parity only.
+local infra = serde.decode('json', fs.readFile('docs/reference_data/infrastructure.json'))
+local refs = serde.decode('json', fs.readFile('docs/reference_data/research.json'))
+local function researchPrice(id, level)
+ for _,row in refs.common do if row.id==id then return row.prices[level+1] end end
+ error('Missing independent price fixture')
+end
+local function habitatPrice(index, owned) return infra.habitats[index+1].prices[owned+1] end
+local function vehiclePrice(index, owned) return infra.vehicles[index+1].prices[owned+1] end
+
 
 local assertions = 0
 local function eq(a, b, label)
@@ -43,7 +53,7 @@ do
 	eq(quote.blockedReason, nil)
 	eq(quote.nextLevel, 1)
 	eq(quote.currency, "cash")
-	local pPrice = Catalog.researchPrice("comfy_nests", 0)
+	local pPrice = researchPrice("comfy_nests", 0)
 	eq(quote.cashCost, C.BigAmount.encode(pPrice))
 	local valid, err = ProtocolSchemas.validateServer(quote)
 	ok(valid, "QuoteView passes ProtocolSchemas validation: " .. tostring(err))
@@ -105,8 +115,8 @@ do
 	local qHabSlot2 = FarmActions.createQuote(p, Catalog, targetHabSlot2, "req-h2", "0", "qh-2", 1000000, "cfg:1")
 	eq(qHabSlot2.available, true)
 	eq(qHabSlot2.resultIndex, 0)
-	local expectedPrice = Catalog.habitatPrice(0, 1) -- price for 2nd COOP
-	eq(qHabSlot2.cashCost, C.BigAmount.encode(expectedPrice))
+	local expectedPrice = habitatPrice(0, 1) -- price for 2nd COOP
+	eq(qHabSlot2.cashCost, C.BigAmount.encode(expectedPrice), "SPEC/habitat same-type reference price")
 	local validH2, errH2 = ProtocolSchemas.validateServer(qHabSlot2)
 	ok(validH2, "Hab QuoteView valid: " .. tostring(errH2))
 
@@ -116,7 +126,7 @@ do
 	local qHabShack = FarmActions.createQuote(p, Catalog, targetHabShack, "req-h3", "0", "qh-3", 1000000, "cfg:1")
 	eq(qHabShack.available, true)
 	eq(qHabShack.resultIndex, 1)
-	local expectedShackPrice = Catalog.habitatPrice(1, 0)
+	local expectedShackPrice = habitatPrice(1, 0)
 	eq(qHabShack.cashCost, C.BigAmount.encode(expectedShackPrice))
 	local validH3, errH3 = ProtocolSchemas.validateServer(qHabShack)
 	ok(validH3, "Shack QuoteView valid: " .. tostring(errH3))
@@ -144,7 +154,7 @@ do
 	local qVehSlot2 = FarmActions.createQuote(p, Catalog, targetVehSlot2, "req-v2", "0", "qv-2", 1000000, "cfg:1")
 	eq(qVehSlot2.available, true)
 	eq(qVehSlot2.resultIndex, 0)
-	local expectedTrike2 = Catalog.vehiclePrice(0, 1)
+	local expectedTrike2 = vehiclePrice(0, 1)
 	eq(qVehSlot2.cashCost, C.BigAmount.encode(expectedTrike2))
 	local validV2, errV2 = ProtocolSchemas.validateServer(qVehSlot2)
 	ok(validV2, "Veh QuoteView valid: " .. tostring(errV2))
@@ -155,7 +165,7 @@ do
 	local qTransit = FarmActions.createQuote(p, Catalog, targetTransit, "req-v3", "0", "qv-3", 1000000, "cfg:1")
 	eq(qTransit.available, true)
 	eq(qTransit.resultIndex, 1)
-	local expectedVanPrice = Catalog.vehiclePrice(1, 0)
+	local expectedVanPrice = vehiclePrice(1, 0)
 	eq(qTransit.cashCost, C.BigAmount.encode(expectedVanPrice))
 	local validV3, errV3 = ProtocolSchemas.validateServer(qTransit)
 	ok(validV3, "Transit QuoteView valid: " .. tostring(errV3))
@@ -207,7 +217,7 @@ do
 
 	-- 3.5 Successful BuyResearch purchase
 	local pRich = freshProfile("1000", "50000")
-	local priceComfy = Catalog.researchPrice("comfy_nests", 0)
+	local priceComfy = researchPrice("comfy_nests", 0)
 	local outBuyRes = actions.apply(pRich, opComfy)
 	eq(outBuyRes.terminalStatus, "APPLIED")
 	eq(outBuyRes.result.terminalStatus, "APPLIED")
@@ -243,7 +253,7 @@ do
 	pHab.farm.habitats[1].fractionalIHR = "0.5"
 	pHab.farm.runningCount = "25"
 
-	local shackPrice0 = Catalog.habitatPrice(1, 0)
+	local shackPrice0 = habitatPrice(1, 0)
 	local opShack = { kind = "BuyHabitat", args = { slotId = 1, habitatId = "SHACK", quoteId = "q-shack" } }
 	local outShack = actions.apply(pHab, opShack)
 	eq(outShack.terminalStatus, "APPLIED")
@@ -265,7 +275,7 @@ do
 	local pScale = freshProfile("1000000", "50000")
 	-- Initially: Slot 1 has COOP (0), slots 2, 3, 4 are -1.
 	-- Buy COOP on Slot 2: sameTypeOwned is 1
-	local coopPrice1 = Catalog.habitatPrice(0, 1)
+	local coopPrice1 = habitatPrice(0, 1)
 	local cashBefore = C.BigAmount.decode(pScale.farm.cash)
 	local outH2 = actions.apply(pScale, { kind = "BuyHabitat", args = { slotId = 2, habitatId = "COOP", quoteId = "q-c2" } })
 	eq(outH2.terminalStatus, "APPLIED")
@@ -273,7 +283,7 @@ do
 	eq(pScale.farm.cash, C.BigAmount.encode(C.BigAmount.subtract(cashBefore, coopPrice1)))
 
 	-- Buy COOP on Slot 3: sameTypeOwned is now 2
-	local coopPrice2 = Catalog.habitatPrice(0, 2)
+	local coopPrice2 = habitatPrice(0, 2)
 	cashBefore = C.BigAmount.decode(pScale.farm.cash)
 	local outH3 = actions.apply(pScale, { kind = "BuyHabitat", args = { slotId = 3, habitatId = "COOP", quoteId = "q-c3" } })
 	eq(outH3.terminalStatus, "APPLIED")
@@ -281,7 +291,7 @@ do
 	eq(pScale.farm.cash, C.BigAmount.encode(C.BigAmount.subtract(cashBefore, coopPrice2)))
 
 	-- Buy COOP on Slot 4: sameTypeOwned is now 3
-	local coopPrice3 = Catalog.habitatPrice(0, 3)
+	local coopPrice3 = habitatPrice(0, 3)
 	cashBefore = C.BigAmount.decode(pScale.farm.cash)
 	local outH4 = actions.apply(pScale, { kind = "BuyHabitat", args = { slotId = 4, habitatId = "COOP", quoteId = "q-c4" } })
 	eq(outH4.terminalStatus, "APPLIED")
@@ -297,7 +307,7 @@ do
 	local pVeh = freshProfile("1000000", "50000")
 	-- Initially: 1 TRIKE at slot 1. sameTypeOwned = 1.
 	-- Buy TRIKE on slot 2: price is catalog.vehiclePrice(0, 1)
-	local trikePrice1 = Catalog.vehiclePrice(0, 1)
+	local trikePrice1 = vehiclePrice(0, 1)
 	cashBefore = C.BigAmount.decode(pVeh.farm.cash)
 	local outV2 = actions.apply(pVeh, { kind = "BuyVehicle", args = { slotId = 2, vehicleId = "TRIKE", quoteId = "qv-2" } })
 	eq(outV2.terminalStatus, "APPLIED")
@@ -309,7 +319,7 @@ do
 	eq(pVeh.accounting.currentFarmCash, "50000")
 
 	-- Buy TRANSIT VAN on slot 1: upgrade from TRIKE to TRANSIT VAN. sameTypeOwned for TRANSIT VAN = 0.
-	local vanPrice0 = Catalog.vehiclePrice(1, 0)
+	local vanPrice0 = vehiclePrice(1, 0)
 	cashBefore = C.BigAmount.decode(pVeh.farm.cash)
 	local outV1 = actions.apply(pVeh, { kind = "BuyVehicle", args = { slotId = 1, vehicleId = "TRANSIT VAN", quoteId = "qv-1" } })
 	eq(outV1.terminalStatus, "APPLIED")
@@ -415,7 +425,7 @@ do
 	local record = h.records["player:1"]
 	eq(record.farm.common.comfy_nests, 1)
 	eq(record.meta.revision, "1")
-	local priceComfy = Catalog.researchPrice("comfy_nests", 0)
+	local priceComfy = researchPrice("comfy_nests", 0)
 	local expectedCash = C.BigAmount.subtract(500000, priceComfy)
 	eq(record.farm.cash, C.BigAmount.encode(expectedCash))
 	-- CRITICAL INVARIANT: currentFarmCash NOT decreased!

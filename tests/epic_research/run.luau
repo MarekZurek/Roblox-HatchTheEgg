@@ -455,9 +455,10 @@ do
 	local discountedHabCost = C.BigAmount.decode(quoteHabDiscounted.cashCost)
 
 	ok(discountedHabCost < baseHabCost, "Habitat cost strictly lower with cheaper_contractors (" .. tostring(discountedHabCost) .. " < " .. tostring(baseHabCost) .. ")")
-	local expectedMult = Catalog.epicEffects("cheaper_contractors", 5).habCostMult
+	-- docs/01, reference discount rule at 57cd5b9: five levels x 5 percentage points.
+	local expectedMult = 0.75
 	local actualRatio = discountedHabCost / baseHabCost
-	ok(math.abs(actualRatio - expectedMult) < 1e-6, "Habitat discount matches exact habCostMult (" .. tostring(actualRatio) .. " == " .. tostring(expectedMult) .. ")")
+	ok(math.abs(actualRatio - expectedMult) < 1e-6, "SPEC/habitat discount 0.75 (" .. tostring(actualRatio) .. " == " .. tostring(expectedMult) .. ")")
 
 	-- 2. Common Research Quote with lab_upgrade / cheaper_research
 	local resTarget = { kind = "BuyResearch", args = { researchId = "comfy_nests", mode = "single" } }
@@ -479,7 +480,7 @@ do
 	local cheaperResCost = C.BigAmount.decode(quoteResCheaper.cashCost)
 
 	eq(labResCost, cheaperResCost, "lab_upgrade and cheaper_research produce identical discount")
-	local expectedResMult = Catalog.epicEffects("cheaper_research", 4).researchCostMult
+	local expectedResMult = 0.80 -- four levels x 5 percentage points
 	local actualResRatio = labResCost / baseResCost
 	ok(math.abs(actualResRatio - expectedResMult) < 1e-6, "Research discount matches exact researchCostMult (" .. tostring(actualResRatio) .. " == " .. tostring(expectedResMult) .. ")")
 end

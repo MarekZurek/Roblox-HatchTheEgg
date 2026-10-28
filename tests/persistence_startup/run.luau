@@ -42,6 +42,7 @@ for _,options in {{openError=true},{nilStore=true},{probeError=true},{openError=
  local h=runMain(options)
  eq(h.constructs,0,'no fallback server');eq(h.worldBuilds,0);eq(h.writes,0)
  eq(h.player.kickCount,1);eq(type(h.player.kickMessage),'string');eq(utf8.len(h.player.kickMessage)~=nil,true)
+ eq(type(h.market.ProcessReceipt),'function','SPEC/startup safe receipt callback exists')
  eq(h.market.ProcessReceipt({}),'NotProcessedYet','a failed startup still owns a safe receipt callback')
  eq(h.receiptBeforeOpen,'NotProcessedYet','safe handler precedes even the open call')
  eq(h.services.ReplicatedStorage:FindFirstChild('HatchTheEgg'),nil,'no economy remotes in failed startup')
