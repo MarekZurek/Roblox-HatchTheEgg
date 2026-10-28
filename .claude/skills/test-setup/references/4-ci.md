@@ -1,5 +1,10 @@
 # /test-setup — Phase 4: Create CI/CD Workflow
 
+## Roblox CI
+
+For Roblox reuse the project's Windows/PowerShell tools/test.ps1 gate and tools/toolchain.json pins/checksums. Where bootstrap is required, use the existing bootstrap script rather than unpinned latest downloads. Retain local test/build results as local evidence; hosted CI cannot certify a Studio scene or real Roblox persistence/payments. Do not add publishing credentials or steps. Other-engine workflow templates below do not apply to Roblox.
+
+
 > Part of `/test-setup`. `SKILL.md` names when to read this file; the settings it
 > resolved and the rules under its later headings still apply here.
 

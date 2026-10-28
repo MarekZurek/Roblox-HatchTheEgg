@@ -7,7 +7,7 @@ Professional Roblox game development managed through coordinated AI agents, stud
 - **Engine**: Roblox (Studio 2026 / DataModel runtime)
 - **Language**: Luau (strict mode `--!strict` enforced)
 - **Toolchain & Sync**: Rojo 7.x (`default.project.json` -> `HatchTheEgg.rbxlx`)
-- **Testing & Headless Runtime**: Lune 0.8.x + Custom test suites (`tools/test.ps1`)
+- **Testing & Headless Runtime**: Lune 0.11.x (pin and hashes in tools/toolchain.json) + Custom test suites (`tools/test.ps1`)
 - **Code Organization**:
   - `src/server` -> `ServerScriptService` (Authoritative game logic, persistence, security)
   - `src/client` -> `StarterPlayerScripts` / `StarterGui` (UI, client prediction, camera)
@@ -29,7 +29,7 @@ Custom agent definitions live in [`.agents/agents/`](.agents/agents/):
 ## Engine Reference & Best Practices
 
 Always consult the pinned engine documentation in [`docs/engine-reference/roblox/`](docs/engine-reference/roblox/):
-- [VERSION.md](docs/engine-reference/roblox/VERSION.md) — Studio 2026, Luau 0.600+, Rojo 7.4.4, Lune 0.8.9.
+- [VERSION.md](docs/engine-reference/roblox/VERSION.md) — Studio 2026, Luau 0.600+, Rojo 7.7.1, Lune 0.11.1.
 - [current-best-practices.md](docs/engine-reference/roblox/current-best-practices.md) — Server authority, session locking, zero allocation loops, Maid/Janitor patterns.
 - [breaking-changes.md](docs/engine-reference/roblox/breaking-changes.md) — Deferred signal behavior, Luau 2.0 type solver, audio wires.
 - [deprecated-apis.md](docs/engine-reference/roblox/deprecated-apis.md) — Forbidden legacy APIs (`wait`, `spawn`, `delay`, BodyMovers, FindPartOnRay).

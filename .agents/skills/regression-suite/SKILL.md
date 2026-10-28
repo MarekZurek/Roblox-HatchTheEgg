@@ -15,6 +15,9 @@ Resolved above — use as-is. No block → defaults in
 
 # Regression Suite
 
+**Roblox projects:** read [the Roblox testing contract](../../../docs/workflow/ROBLOX_TESTING_CONTRACT.md) before planning, writing or assessing tests. Use current approved requirements and independently derived expectations; catalogue consistency is not independent spec validation. Every bug regression needs a recorded semantic FAIL on the unfixed behavior and PASS on the fix. A passing-only test or an invalid negative control is incomplete evidence. The Roblox artifact-scope and Lune/Studio distinctions in that contract apply to the steps below.
+
+
 This skill ensures that every bug fix is backed by a test that would have
 caught the original bug — and that the regression suite stays current as the
 game evolves. It also detects when new features have been added without
@@ -25,6 +28,8 @@ tests already in `tests/`** that collectively cover the game's critical paths
 and known failure points. This skill maintains that list.
 
 **Output:** `tests/regression-suite.md`
+
+For Roblox entries, retain requirement/source revision, independent expected-result provenance, test path and the exact FAIL/PASS commands with source revision or semantic fault diff. A registered green suite alone does not close a bug-regression coverage gap. Catalogue-derived expectations count as consistency checks, not independent pricing/spec verification.
 
 **When to run:**
 - After fixing a bug (confirm a regression test was written or identify gap)

@@ -17,6 +17,9 @@ every file write follows `.claude/docs/automation-modes.md`
 
 # Test Setup
 
+**Roblox projects:** read [the Roblox testing contract](../../../docs/workflow/ROBLOX_TESTING_CONTRACT.md) before planning, writing or assessing tests. Use current approved requirements and independently derived expectations; catalogue consistency is not independent spec validation. Every bug regression needs a recorded semantic FAIL on the unfixed behavior and PASS on the fix. A passing-only test or an invalid negative control is incomplete evidence. The Roblox artifact-scope and Lune/Studio distinctions in that contract apply to the steps below.
+
+
 This skill scaffolds the automated testing infrastructure for the project.
 It detects the configured engine, generates the appropriate test runner
 configuration, creates the standard directory layout, and wires up CI/CD

@@ -3,9 +3,9 @@
 | Field | Value |
 |-------|-------|
 | **Engine Version** | Roblox Studio 2026 (Live Engine & DataModel API) |
-| **Installed Toolchain** | Rojo 7.4.4, Lune 0.8.9, Python 3.x harness |
+| **Installed Toolchain** | Rojo 7.7.1, Lune 0.11.1, Python 3.x harness (tools/toolchain.json) |
 | **Language Runtime** | Luau 0.600+ (Strict Type Solver, Native Code Gen support) |
-| **Project Pinned** | 2026-10-27 |
+| **Project Pinned** | Toolchain checked against repository manifest 2026-10-28 |
 | **Last Docs Verified** | 2026-10-27 |
 | **LLM Knowledge Cutoff** | May 2025 |
 

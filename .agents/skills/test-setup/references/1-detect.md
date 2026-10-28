@@ -1,5 +1,10 @@
 # /test-setup — Phase 1: Detect Engine and Existing State
 
+## Roblox detection
+
+When engine.name is Roblox, recognize tools/test.ps1, tools/toolchain.json and tests/*/run.luau as existing infrastructure. Absence of tests/unit or tests/integration does not mean absence of tests. Preserve the custom runner and fixtures; TestEZ is optional when actually installed. Resolve versions from the manifest, not example pins. Read docs/workflow/ROBLOX_TESTING_CONTRACT.md before the following detection steps.
+
+
 > Part of `/test-setup`. `SKILL.md` names when to read this file; the settings it
 > resolved and the rules under its later headings still apply here.
 

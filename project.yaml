@@ -49,10 +49,10 @@ naming:
   scenes: PascalCase
 
 commands:
-  build: "powershell -Command \"& .tools/rojo-7.4.4/rojo.exe build default.project.json --output build/HatchTheEgg.rbxlx\""
+  build: "powershell -Command \"& .tools/rojo-7.7.1/rojo.exe build default.project.json --output build/HatchTheEgg.rbxlx\""
   test: "powershell -File tools/test.ps1"
-  run: "python tools/sync_studio.py"
-  smoke: "powershell -Command \"& .tools/lune-0.8.9/lune.exe run tests/numeric/run.luau\""
+  # Native Play/replication checks use the connected Studio workflow, not a missing sync_studio.py.
+  smoke: "powershell -Command \"& .tools/lune-0.11.1/lune.exe run tests/numeric/run.luau\""
 
 features:
   session_state: on

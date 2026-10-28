@@ -18,6 +18,9 @@ to wait. A skipped or dismissed question is not an answer: ask again in plain te
 
 # Dev Story
 
+**Roblox projects:** read [the Roblox testing contract](../../../docs/workflow/ROBLOX_TESTING_CONTRACT.md) before planning, writing or assessing tests. Use current approved requirements and independently derived expectations; catalogue consistency is not independent spec validation. Every bug regression needs a recorded semantic FAIL on the unfixed behavior and PASS on the fix. A passing-only test or an invalid negative control is incomplete evidence. The Roblox artifact-scope and Lune/Studio distinctions in that contract apply to the steps below.
+
+
 Implements one story: checks it can start, marks it In Progress, hands the code to
 the right programmer agent with a brief built from the story, then checks the
 result parses and looks right, and hands off.
@@ -171,7 +174,7 @@ paste whole documents into it.
     `qa.level: minimal`." Say it: an omitted line and a forgotten one look the same
     to the agent.
   - `standard`: "Write the test at [path] with the code. Each acceptance criterion
-    needs at least one test function." Naming per engine from
+    needs at least one independently specified test case (Luau do/for blocks are valid)." Naming per engine from
     `.claude/rules/test-standards.md`. No random seeds, no time-dependent
     assertions, no external I/O.
   - `full`: the same, and "every criterion must be covered: `/story-done` blocks on
@@ -228,6 +231,7 @@ command, the exit code and any error lines:
   `commands.test` names when its file name says godot (a wrapper such as `bash
   run-tests.sh` is not the editor), else `engine.path`, else `godot`. Never search the disk for
   one: when none of the three runs, the check is not verified.
+- **Roblox:** run the relevant registered Lune suite using tools/toolchain.json, then the scoped/full tools/test.ps1 gate as warranted. Report command, exit status and the independent-oracle and FAIL/PASS evidence from the Roblox testing contract. Lune exercises only loaded paths; Rojo is a static mapping check, neither proves a full strict typecheck or native DataModel behavior. For visible/runtime replication work, use separate authorized Studio evidence; do not substitute another engine's launch command or stop an existing Play without authorization.
 - **Unity, Unreal:** read `references/engine-checks.md`.
 - **No engine executable:** `parse NOT VERIFIED — engine binary not available`.
   Never infer from reading the code that it parses.

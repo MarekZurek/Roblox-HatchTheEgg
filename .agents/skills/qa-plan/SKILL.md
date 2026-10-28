@@ -15,6 +15,9 @@ Resolved above — use as-is. No block → defaults in
 
 # QA Plan
 
+**Roblox projects:** read [the Roblox testing contract](../../../docs/workflow/ROBLOX_TESTING_CONTRACT.md) before planning, writing or assessing tests. Use current approved requirements and independently derived expectations; catalogue consistency is not independent spec validation. Every bug regression needs a recorded semantic FAIL on the unfixed behavior and PASS on the fix. A passing-only test or an invalid negative control is incomplete evidence. The Roblox artifact-scope and Lune/Studio distinctions in that contract apply to the steps below.
+
+
 This skill generates a structured QA plan for a sprint, feature, or individual
 story. It reads all in-scope story files and their referenced GDDs, classifies
 each story by test type, and produces a plan that tells developers exactly what
@@ -201,7 +204,9 @@ Assemble the full QA plan document. Use this structure:
 manual/smoke verification only.)*
 
 ### [Story Title] — [Type]
-**Test file path**: `tests/[unit|integration]/[system]/[story-slug]_test.[ext]`
+**Test file path**: `tests/<suite>/run.luau` for the existing Roblox/Lune runner; use the configured engine convention otherwise.
+**Oracle source**: approved requirement/section/revision and independent derivation of the expected result.
+**Regression control**: unfixed revision or semantic fault, expected failing assertion, then the fixed PASS; identify missing evidence explicitly.
 **What to test**:
 - [Specific formula or rule from the GDD Formulas section]
 - [Each named state transition or decision branch]

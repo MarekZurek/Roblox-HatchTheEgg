@@ -1,5 +1,10 @@
 # /test-setup — Phase 5: Create Smoke Test Seed
 
+## Roblox smoke seed
+
+For Roblox write into the existing tests/<suite>/run.luau convention and register the suite, rather than creating Godot/Unity/Unreal assets. Derive observations from approved criteria, with independent expected-result provenance. For a bug seed show a valid FAIL on the unfixed behavior or isolated semantic fault and PASS on the fix; never substitute an import failure. Keep native UI/replication/Studio checks in a separate evidence scope. Read docs/workflow/ROBLOX_TESTING_CONTRACT.md.
+
+
 > Part of `/test-setup`. `SKILL.md` names when to read this file; the settings it
 > resolved and the rules under its later headings still apply here.
 

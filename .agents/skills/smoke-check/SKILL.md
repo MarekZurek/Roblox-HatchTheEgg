@@ -11,6 +11,9 @@ model: sonnet
 
 # Smoke Check
 
+**Roblox projects:** read [the Roblox testing contract](../../../docs/workflow/ROBLOX_TESTING_CONTRACT.md) before planning, writing or assessing tests. Use current approved requirements and independently derived expectations; catalogue consistency is not independent spec validation. Every bug regression needs a recorded semantic FAIL on the unfixed behavior and PASS on the fix. A passing-only test or an invalid negative control is incomplete evidence. The Roblox artifact-scope and Lune/Studio distinctions in that contract apply to the steps below.
+
+
 This skill is the gate between "implementation done" and "ready for QA
 hand-off". It runs the automated test suite, checks for test coverage gaps,
 batch-verifies critical paths with the developer, and produces a PASS/FAIL

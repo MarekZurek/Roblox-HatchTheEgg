@@ -1486,6 +1486,19 @@ do
  ok(string.find(hud.prestigePendingLabel.Text,"37.47",1,true)~=nil,"fractional authoritative preview formatted")
  hud:_updateEggUpgradeModal({eggIndex=0})
  eq(hud.eggUpgradeBtn.Active,false,"FV requires server projection")
+ -- Spec: docs/workflow/remaining_fixes_2026_10_28.md, Zachowanie (cf383dc).
+ -- An unknown valuation is distinct from a server-confirmed zero.
+ -- Do not call the HUD formatter to derive expectations from the tested code.
+ ok(string.find(hud.eggUpgradeCurrentFvLabel.Text,"—",1,true)~=nil,"Missing FV is shown as unknown")
+ ok(string.find(hud.eggUpgradeCurrentFvLabel.Text,"$0",1,true)==nil,"Missing FV must not invent zero")
+ eq(hud.eggUpgradeBtn.Text,"OCZEKIWANIE NA WYCENĘ","Missing FV explains why advancement is unavailable")
+ hud:_updateEggUpgradeModal({eggIndex=0,homeFV="0"})
+ ok(string.find(hud.eggUpgradeCurrentFvLabel.Text,"$0",1,true)~=nil,"Authoritative zero is displayed as zero")
+ eq(hud.eggUpgradeBtn.Text,"WYMAGANE WIĘKSZE FARM VALUE","Known zero is insufficient, not pending")
+ eq(hud.eggUpgradeBtn.Active,false,"Known zero does not enable advancement")
+ hud:_updateEggUpgradeModal({eggIndex=0,homeFV="6000000"})
+ ok(string.find(hud.eggUpgradeCurrentFvLabel.Text,"$6M",1,true)~=nil,"Server valuation is displayed without a local FV formula")
+ eq(hud.eggUpgradeBtn.Active,true,"Known eligible valuation enables advancement")
  hud:_updateEggUpgradeModal({eggIndex=0,homeFV="1e20"})
  eq(hud.eggUpgradeBtn.Active,true,"authoritative FV enables advancement")
  for _,invalid in {0,14,-1,1.5,"2"} do

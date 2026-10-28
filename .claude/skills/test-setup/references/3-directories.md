@@ -1,5 +1,10 @@
 # /test-setup — Phase 3: Create Directory Structure
 
+## Roblox branch
+
+For Roblox use tests/<suite>/run.luau (or TestEZ *.spec.luau only when configured). Preserve existing helpers, fixtures and tools/test.ps1; add only an approved missing suite and its registration. Keep module tests, integration fixtures and native Studio evidence distinguishable. Do not apply the generic unit/integration directory template or other-engine scaffolds below to an existing Lune project.
+
+
 > Part of `/test-setup`. `SKILL.md` names when to read this file; the settings it
 > resolved and the rules under its later headings still apply here.
 

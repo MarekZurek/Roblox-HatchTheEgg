@@ -7,6 +7,8 @@ description: Review a specific HatchTheEgg diff, delivery or integration for cor
 
 Wejście: zlecenie/DoD, diff lub lista ocenianych plików z wersją oraz raport autora. Sprawdź [specyfikację](../../../docs/CURRENT_SPEC.md) i właściwe źródła z [workflow](../../../docs/workflow/WORKFLOW.md). Deklaracja PASS autora jest twierdzeniem do sprawdzenia.
 
+Przy ocenie testów stosuj [kontrakt testowania Roblox](../../../docs/workflow/ROBLOX_TESTING_CONTRACT.md): niezależne oczekiwania z aktualnej specyfikacji i dowód FAIL na błędnym zachowaniu → PASS po naprawie. Zgodność z tym samym katalogiem lub sama liczba asercji nie zastępują tego dowodu.
+
 ## Procedura
 
 1. Ustal dokładną wersję: commit, jeśli dostępny, albo SHA256 ocenianych plików. Odróżnij ocenę pakietu od jego integracji. Zmiana źródeł może unieważnić wcześniejsze wyniki.

@@ -1,5 +1,14 @@
 # /smoke-check — Phase 2: Run Automated Tests
 
+## Roblox / Luau / Lune
+
+Use the Roblox testing contract in docs/workflow/ROBLOX_TESTING_CONTRACT.md. Prefer the existing commands.test/tools/test.ps1 runner; pass -PythonExecutable when required. Read executable pins/hashes from tools/toolchain.json. Discover tests/<suite>/run.luau; do not substitute Godot, NUnit or Unreal commands. Register new suites in the existing runner.
+
+A normal PASS requires actual relevant cases and a successful process exit. For bug fixes additionally inspect independent expectations and a valid unfixed/mutant FAIL followed by fixed PASS. A stale JSON, exit0 over no relevant cases, syntax/import failure used as a negative control, or a passing-only regression does not establish that result. Numeric-only smoke is reported as numeric-only.
+
+On Windows use the execution tool's timeout/process management; do not assume a Unix timeout utility. Rojo mapping, Lune module tests and native Studio evidence are separate levels. No full strict typecheck or cloud/replication claim from a static build. Use the other engine sections below only for those engines.
+
+
 > Part of `/smoke-check`. `SKILL.md` names when to read this file; the settings it
 > resolved and the rules under its later headings still apply here.
 

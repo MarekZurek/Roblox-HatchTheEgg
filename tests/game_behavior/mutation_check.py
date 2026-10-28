@@ -4,9 +4,12 @@ Never mutates the working source. A syntax/import failure is INVALID, not a kill
 Run after tools/test.ps1; output is an ignored local verification artifact.
 """
 from pathlib import Path
-import json, shutil, subprocess, uuid
+import argparse, hashlib, json, shutil, subprocess, uuid
 ROOT=Path(__file__).resolve().parents[2]
 MUTANTS=[
+ ('fv_missing_projection_invents_zero','src/client/HUD.luau',
+  'else tonumber(farm.homeFV) or 0) else nil',
+  'else tonumber(farm.homeFV) or 0) else 0'),
  ('local_fake_success','src/client/Bootstrap.luau',
   'function ClientBootstrap:claimDailyGift(callback) return self:_command("ClaimDailyGift",{},callback) end',
   'function ClientBootstrap:claimDailyGift(callback) local r={status="APPLIED"};if callback then callback(r) end;return r end'),
@@ -123,12 +126,23 @@ MUTANTS=[
   'if ok and owns then'),
 ]
 def main():
+ parser=argparse.ArgumentParser(description=__doc__)
+ parser.add_argument('--only',action='append',choices=[m[0] for m in MUTANTS],help='Run only this named semantic mutation; repeat for multiple names.')
+ args=parser.parse_args()
+ manifest=json.loads((ROOT/'tools/toolchain.json').read_text(encoding='utf-8'))
+ lune=ROOT/'.tools'/('lune-'+manifest['lune']['version'])/'lune.exe'
+ assert lune.is_file(),'Manifest-selected Lune is missing; run tools/bootstrap.ps1'
+ assert hashlib.sha256(lune.read_bytes()).hexdigest()==manifest['lune']['executableSha256'],'Lune checksum mismatch'
+ selected=[m for m in MUTANTS if not args.only or m[0] in args.only]
+ assert selected,'No mutations selected'
  base=ROOT/'build'/('behavior-mutations-'+uuid.uuid4().hex[:8]);base.mkdir(parents=True)
  results=[]
- for name,relative,old,new in MUTANTS:
+ for name,relative,old,new in selected:
   target=base/name;target.mkdir()
   shutil.copytree(ROOT/'src',target/'src')
   shutil.copytree(ROOT/'tests/game_behavior',target/'tests/game_behavior')
+  if name=='fv_missing_projection_invents_zero':
+   shutil.copytree(ROOT/'tests/ui',target/'tests/ui')
   shutil.copytree(ROOT/'tests/calendar_cycle',target/'tests/calendar_cycle')
   shutil.copytree(ROOT/'tests/persistence_startup',target/'tests/persistence_startup')
   shutil.copytree(ROOT/'tests/support',target/'tests/support')
@@ -156,15 +170,21 @@ def main():
    old='if not Calendar.canClaimCalendarDay(draft,self.clock.utcNowMs()) then'
    assert text.count(old)==1
    server.write_text(text.replace(old,'if false then'),encoding='utf-8')
-  suite='entitlement_farm_regressions' if name in {'owned_pass_retry_dropped','fv_max_rcb_ignored','epic_discounts_ignored','reset_stops_hold_before_commit','discount_quote_change_ignored','stale_ownership_callback_allowed'} else 'farm_gaps' if name in {'issued_drone_not_projected_to_visual','valuation_epic_ignored','hold_rate_ignored','hold_timeout_unbounded','sharing_ignored','hyperloop_unlock_checks_omitted'} else 'session_prestige_rcb' if name in {'shop_operation_reuses_local_counter','stream_omits_session_generation','prestige_ignores_collection_event','running_chickens_ignored'} else 'event_time' if name in {'event_end_point_sampling','event_ignores_deadline','event_overlap_applies_whole_step'} else 'resets' if name in {'egg_reset_reuses_group_ids','prestige_reuses_group_ids'} else 'pro_policy' if name in {'unknown_policy_allowed','fusion_trusts_saved_pro_flag','fulfillment_trusts_prepared_policy','late_policy_response_overwrites_current','sensitive_action_skips_policy_refresh'} else 'persistence_startup' if name in {'startup_receipt_handler_missing','local_payments_enabled','rejected_receipt_acknowledged','durable_receipt_replay_ignored','confirmed_retry_snapshot_stale'} else 'calendar_cycle' if name in {'calendar_cash_percent_omitted','calendar_shell_precision_lost','calendar_prestige_base_lost'} else 'game_behavior'
-  run=subprocess.run([str(ROOT/'.tools/lune-0.11.1/lune.exe'),'run',f'tests/{suite}/run.luau'],cwd=target,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=120)
+  suite='ui' if name=='fv_missing_projection_invents_zero' else 'entitlement_farm_regressions' if name in {'owned_pass_retry_dropped','fv_max_rcb_ignored','epic_discounts_ignored','reset_stops_hold_before_commit','discount_quote_change_ignored','stale_ownership_callback_allowed'} else 'farm_gaps' if name in {'issued_drone_not_projected_to_visual','valuation_epic_ignored','hold_rate_ignored','hold_timeout_unbounded','sharing_ignored','hyperloop_unlock_checks_omitted'} else 'session_prestige_rcb' if name in {'shop_operation_reuses_local_counter','stream_omits_session_generation','prestige_ignores_collection_event','running_chickens_ignored'} else 'event_time' if name in {'event_end_point_sampling','event_ignores_deadline','event_overlap_applies_whole_step'} else 'resets' if name in {'egg_reset_reuses_group_ids','prestige_reuses_group_ids'} else 'pro_policy' if name in {'unknown_policy_allowed','fusion_trusts_saved_pro_flag','fulfillment_trusts_prepared_policy','late_policy_response_overwrites_current','sensitive_action_skips_policy_refresh'} else 'persistence_startup' if name in {'startup_receipt_handler_missing','local_payments_enabled','rejected_receipt_acknowledged','durable_receipt_replay_ignored','confirmed_retry_snapshot_stale'} else 'calendar_cycle' if name in {'calendar_cash_percent_omitted','calendar_shell_precision_lost','calendar_prestige_base_lost'} else 'game_behavior'
+  baseline=None
+  if name=='fv_missing_projection_invents_zero':
+   positive=subprocess.run([str(lune),'run','tests/ui/run.luau'],cwd=ROOT,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=120)
+   baseline={'exitCode':positive.returncode,'testSha256':hashlib.sha256((ROOT/'tests/ui/run.luau').read_bytes()).hexdigest(),'sourceSha256':hashlib.sha256((ROOT/relative).read_bytes()).hexdigest()}
+  run=subprocess.run([str(lune),'run',f'tests/{suite}/run.luau'],cwd=target,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=120)
   output=run.stdout+run.stderr
   invalid=any(word in output for word in ['SyntaxError','Failed to resolve require','could not resolve','error parsing'])
+  if name=='fv_missing_projection_invents_zero':
+   invalid=invalid or baseline['exitCode']!=0 or (run.returncode!=0 and 'Missing FV is shown as unknown' not in output)
   state='INVALID' if invalid else 'KILLED' if run.returncode else 'SURVIVED'
   (target/'build/output.txt').write_text(output,encoding='utf-8')
   print(f'{name}: {state}',flush=True)
-  results.append({'mutant':name,'state':state,'exitCode':run.returncode,'output':str((target/'build/output.txt').relative_to(ROOT))})
- report={'status':'PASS' if all(r['state']=='KILLED' for r in results) else 'FAIL','mutants':results,'scope':'Forty-one selected semantic mutations; not exhaustive mutation coverage'}
+  results.append({'mutant':name,'state':state,'exitCode':run.returncode,'output':str((target/'build/output.txt').relative_to(ROOT)),'baseline':baseline,'fault':{'path':relative,'before':old,'after':new},'expectedFailure':'Missing FV is shown as unknown' if name=='fv_missing_projection_invents_zero' else None})
+ report={'status':'PASS' if all(r['state']=='KILLED' for r in results) else 'FAIL','mutants':results,'scope':f'{len(results)} selected semantic mutations; not exhaustive mutation coverage'}
  (ROOT/'build/game-behavior-mutations.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
  assert report['status']=='PASS',report
 if __name__=='__main__':main()

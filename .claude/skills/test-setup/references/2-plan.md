@@ -1,5 +1,10 @@
 # /test-setup — Phase 2: Present Plan
 
+## Roblox plan
+
+For Roblox propose only missing pieces in the existing Lune layout: tests/<suite>/run.luau and registration in tools/test.ps1, with manifest-pinned tools. Do not replace it with another engine's hierarchy or add TestEZ merely because examples use it. Include independent expectation provenance and the required semantic FAIL/PASS regression evidence from docs/workflow/ROBLOX_TESTING_CONTRACT.md.
+
+
 > Part of `/test-setup`. `SKILL.md` names when to read this file; the settings it
 > resolved and the rules under its later headings still apply here.
 

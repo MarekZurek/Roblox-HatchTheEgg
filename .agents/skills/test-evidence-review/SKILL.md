@@ -1,7 +1,7 @@
 ---
 name: test-evidence-review
 description: "Quality review of test files and evidence — goes beyond existence, evaluates assertion coverage. ADEQUATE/INCOMPLETE/MISSING/NOT ASSESSED per story."
-argument-hint: "[story-path | sprint | system-name]"
+argument-hint: "[story-path | sprint | system-name | Roblox test-path/issue/diff]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Bash(bash "*/.claude/skills/test-evidence-review/../../hooks/yaml-helper.sh" resolve_config *), Bash(bash .claude/scripts/review-receipts.sh check *)
 model: sonnet
@@ -33,6 +33,9 @@ item here is one that would stop `/story-done`:
 
 # Test Evidence Review
 
+**Roblox projects:** read [the Roblox testing contract](../../../docs/workflow/ROBLOX_TESTING_CONTRACT.md) before planning, writing or assessing tests. Use current approved requirements and independently derived expectations; catalogue consistency is not independent spec validation. Every bug regression needs a recorded semantic FAIL on the unfixed behavior and PASS on the fix. A passing-only test or an invalid negative control is incomplete evidence. The Roblox artifact-scope and Lune/Studio distinctions in that contract apply to the steps below.
+
+
 `/smoke-check` verifies that test files **exist** and **pass**. This skill
 goes further — it reviews the **quality** of those tests and evidence documents.
 A test file that exists and passes may still leave critical behaviour uncovered.
@@ -53,6 +56,7 @@ A manual evidence doc that exists may lack the sign-offs required for closure.
 - `/test-evidence-review [story-path]` — review a single story's evidence
 - `/test-evidence-review sprint` — review all stories in the current sprint
 - `/test-evidence-review [system-name]` — review all stories in an epic/system
+- **Roblox artifact scope:** explicit test files, issue criteria or a scoped diff may supply the requirement/evidence set when story files do not exist. Build the same criterion-to-evidence review directly; label it artifact-scope and do not invent a story.
 - No argument — ask which scope: "Single story", "Current sprint", "A system"
 
 ---
@@ -69,7 +73,7 @@ the list of story file paths from the sprint plan.
 
 **System**: Glob `production/epics/[system-name]/story-*.md`.
 
-> **If the resolved scope contains ZERO stories, stop here.** Report
+> **If the resolved scope contains ZERO stories and no explicit Roblox artifact scope, stop here.** Report
 > `NOT ASSESSED — no stories in scope`, name which scope was searched and which
 > path was empty, and route: no sprint file → `/sprint-plan new` (at `workflow: minimal`,
 > which has no sprints, `/test-evidence-review [epic-slug]` instead); a sprint plan
@@ -109,6 +113,8 @@ For each story, find the evidence. **Check the story's stated evidence path firs
 — the one Section 2 captured from its `## Test Evidence` section. If it exists, use
 it. Fall back to searching only when no path is stated or it is not found:
 
+**Roblox Logic/Integration:** first inspect the stated evidence path; otherwise discover `tests/*/run.luau` and their registration in `tools/test.ps1`. TestEZ `*.spec.luau` applies only if the project uses TestEZ. Do not infer missing tests from absent Godot-style unit/integration folders.
+
 **Logic stories**: search the engine's unit-test root — `tests/unit/[system]/`
 (Godot), `Assets/Tests/EditMode/` (Unity), `Source/<Module>/Private/Tests/`
 (Unreal); see `.claude/docs/directory-structure.md` — for a file whose name
@@ -135,17 +141,9 @@ For each test file found, read it and evaluate:
 
 ### Assertion coverage
 
-Count the number of distinct assertions (lines containing assert, expect,
-check, verify, or engine-specific assertion patterns). Low assertion count is
-a quality signal — a test that makes only 1 assertion per test function may
-not cover the range of expected behaviour.
+Map each criterion to a fixture, action and observable assertion. Count distinct behaviors covered, not assertion lines or calls to eq/near helpers. There is no universal minimum number of assertions per function. In Roblox/Lune, top-level do/for blocks are valid test cases; iterating a helper many times does not establish additional requirements.
 
-Thresholds:
-- **3+ assertions per test function** → normal
-- **1-2 assertions per test function** → note as potentially thin
-- **0 assertions** (test exists but no asserts) → flag as BLOCKING (the story
-  type's gate level; ADVISORY at `qa.level: minimal`) — the test passes
-  vacuously and proves nothing
+A case without a meaningful assertion is vacuous. An unchecked criterion is INCOMPLETE at the applicable gate level. Verify the expected message/state as well as the button/counter where the requirement distinguishes them (for example unknown FV versus a confirmed zero).
 
 ### Edge case coverage
 
@@ -164,17 +162,16 @@ Heuristics:
 Test function names should describe: the scenario + the expected result.
 Pattern per engine (`.claude/rules/test-standards.md`): Godot
 `test_[scenario]_[expected]`, Unity `[Scenario]_[Expected]`, Unreal
-`<Project>.[System].[Scenario]`.
+`<Project>.[System].[Scenario]`. Roblox/Lune suites may use descriptive case comments and assertion messages inside do/for blocks; do not grade helper names as test scenario names.
 
 Flag functions named generically (`test_1`, `test_run`, `testBasic`) as
 **naming issues** — they make failures harder to diagnose.
 
 ### Formula traceability
 
-For Logic stories where the GDD has a Formulas section: check that the test
-file contains at least one test whose name or comment references the formula
-name or a formula value. A test that exercises a formula without mentioning
-it by name is harder to maintain when the formula changes.
+For each relevant criterion require the source section/revision and the provenance of its expected result, following the Roblox testing contract. A comment naming a formula or matching a numeric literal is insufficient. Check that the expected result is not obtained by calling the tested function, copying the changed algorithm or reading only the same catalogue the implementation consumes. Label useful consistency/metamorphic tests honestly; they do not independently approve a price or formula.
+
+For bug regressions require the same fixture/assertions failing on the unfixed implementation or a documented isolated semantic fault, then passing on the fix. Read the actual failing assertion and exit code. A syntax/import error or timeout is INVALID; a fault that still passes is SURVIVED. Missing valid FAIL/PASS evidence or a surviving fault makes that regression INCOMPLETE, even when the normal runner is green.
 
 ---
 
@@ -293,7 +290,9 @@ in scope was waived, and the report names each waived story either way.
 **Test/evidence path**: `[path]` (found) / (not found)
 
 **Automated test quality** *(Logic/Integration only)*:
-- Assertion coverage: [N per function on average] — [adequate / thin / none]
+- Criterion coverage: [N/M criteria, with meaningful observable assertions]
+- Oracle provenance: [independent source and derivation / consistency-only / missing]
+- Bug regression: [valid FAIL then PASS / SURVIVED / INVALID / not verified]
 - Edge cases: [covered / partial / not found]
 - Naming: [consistent / [N] generic names flagged]
 - Formula traceability: [yes / no — formula names not referenced in tests]

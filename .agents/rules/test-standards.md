@@ -137,3 +137,9 @@ func test1() -> void:  # VIOLATION: no descriptive name
     h.take_damage(25)  # VIOLATION: no arrange step, no clear assert
     assert_bool(h.current_health < 100).is_true()  # VIOLATION: imprecise assertion
 ```
+
+## Roblox expected results and regression proof
+
+Read [the Roblox testing contract](../../docs/workflow/ROBLOX_TESTING_CONTRACT.md). Cite the approved requirement, section/revision and independent derivation of each relevant expectation. Do not call the tested function to produce its expected value, or silently regenerate acceptance expectations from an implementation change. Catalogue consistency remains useful but must not be presented as independent spec/pricing validation.
+
+Retain the unfixed revision or isolated semantic fault, exact command, intended failing assertion/exit, and corrected PASS. Syntax/import failure, timeout or an unrelated assertion is INVALID evidence; a faulty implementation that passes is SURVIVED. A regression only observed passing remains INCOMPLETE. In Luau review do/for cases and meaningful observations, not a fixed assertion quota per helper function.
