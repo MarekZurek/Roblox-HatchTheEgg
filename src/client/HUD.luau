@@ -487,7 +487,6 @@ local EPIC_RESEARCH_CATALOG = table.freeze({
 	{ id = "hold_to_hatch", name = "Przytrzymaj by Wylęgać", maxLevel = 15, basePriceGE = 10, desc = "+Szybkość ciągłego wylęgu" },
 	{ id = "epic_hatchery", name = "Epicka Wylęgarnia", maxLevel = 20, basePriceGE = 15, desc = "+Zapas wylęgarni" },
 	{ id = "epic_int_hatchery", name = "Epicki Wewnętrzny Wylęg", maxLevel = 20, basePriceGE = 25, desc = "+Wewnętrzny wylęg kurcząt" },
-	{ id = "video_doubler_time", name = "Wydłużony Mnożnik", maxLevel = 12, basePriceGE = 50, desc = "+Czas trwania wzmocnień" },
 	{ id = "epic_clucking", name = "Epickie Gdakanie", maxLevel = 20, basePriceGE = 20, desc = "+Mnożnik biegających kurcząt" },
 	{ id = "epic_multiplier", name = "Epicki Mnożnik", maxLevel = 100, basePriceGE = 30, desc = "+Maksymalny bonus biegających kurcząt" },
 	{ id = "cheaper_contractors", name = "Tańsi Wykonawcy", maxLevel = 10, basePriceGE = 100, desc = "-Koszt budowy kurników" },

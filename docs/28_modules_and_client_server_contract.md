@@ -1,5 +1,7 @@
 # Podział modułów i kontrakt komunikacji serwer–klient
 
+> **Decyzja użytkownika 28.10.2026 (R): czasowy podwajacz dochodu i badanie `video_doubler_time` („Dłuższe Wzmocnienia”) zostały usunięte z gry.** Dawne terminy/poziomy w profilach są zachowane wyłącznie dla zgodności i nie dają efektu ani możliwości zakupu. Poniższe wcześniejsze zasady VD, jego darmowej aktywacji i odnawiania są historyczne. Osobny pass `double_cash` (2× Cash), boosty oraz zasady bonusowych prezentów pozostają poza tą zmianą. [Zakres i testy](workflow/remove_timed_doubler_2026_10_28.md).
+
 23.10.2026. **P — propozycja techniczna, bez implementacji.** Uzupełnia [27 — liczby, czas i stan](27_numbers_time_and_player_state_contract.md), nie zastępuje jego typów, resetów ani D07. Nazwy modułów, wiadomości i pól są propozycjami. Reguły R rozstrzygają [CURRENT_SPEC](CURRENT_SPEC.md) i dokumenty [22](22_gameplay_rules_for_approval.md), [24](24_doubler_and_bonus_gift_acceptance_review.md), [25](25_approved_product_structure.md), [26](26_approved_launch_scope_and_pro_availability.md).
 
 Nie ustala bibliotek, fizycznej liczby plików, produktów platformowych, cen, slotów lub bilansu. Nie tworzy remotes, konfiguracji, kodu Luau ani środowiska Studio. Nazwy funkcji są opisem interfejsów logicznych, nie twierdzeniem o istniejących API.

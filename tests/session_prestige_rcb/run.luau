@@ -171,7 +171,7 @@ do
   p.effects={videoDoublerEndsAtMs=ORIGIN+1000,boosts={{id='jimbos_blue_v2',remainingSeconds='10'},{id='soul_beacon_blue_v2',remainingSeconds='10'}}}
  end,{{type='earnings',multiplier=3,startTimeMs=ORIGIN,deadlineMs=ORIGIN+100}})
  h.step(.3)
- local income=.25*(1.025^10)*1.5*3*2*(5/3)
+ local income=.25*(1.025^10)*1.5*3*(5/3)
  near(C.BigAmount.decode(h.state().farm.cash),income,'RCB composed exactly once')
  near(C.BigAmount.decode(h.state().accounting.prestigeExtraEarnings),income*4,'actual earnings feed Soul Beacon accumulator')
 end

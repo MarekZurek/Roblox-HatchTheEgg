@@ -1,5 +1,7 @@
 # Propozycje zasad przed implementacją — do zatwierdzenia
 
+> **Decyzja użytkownika 28.10.2026 (R): czasowy podwajacz dochodu i badanie `video_doubler_time` („Dłuższe Wzmocnienia”) zostały usunięte z gry.** Dawne terminy/poziomy w profilach są zachowane wyłącznie dla zgodności i nie dają efektu ani możliwości zakupu. Poniższe wcześniejsze zasady VD, jego darmowej aktywacji i odnawiania są historyczne. Osobny pass `double_cash` (2× Cash), boosty oraz zasady bonusowych prezentów pozostają poza tą zmianą. [Zakres i testy](workflow/remove_timed_doubler_2026_10_28.md).
+
 23.10.2026. **Status mieszany po odpowiedzi użytkownika: D02–D07 zatwierdzone (R); D01: zatwierdzony bonus premium +10 p.p. zamiast dopłat za próbę; zachowanie peta bazowego, zużycie pozostałych kopii i trwały licznik gwarancji zatwierdzone (R); definicja stopnia tier × cel oraz ochrona wyboru kopii zatwierdzone (R).** Zachowuje decyzje R z [CURRENT_SPEC](CURRENT_SPEC.md). Nie zmienia rozdziałów 17–21, ich parametrów, cen, szans, receptur ani analiz; nie wznawia bilansu. Brak implementacji.
 
 Zatwierdzone decyzje projektu oznaczamy R. Reguły obliczeń i tabele pozostają opisem referencyjnym, a propozycje P nie stanowią konfiguracji wydania. Szczegóły systemów opisują dokumenty 11–16.

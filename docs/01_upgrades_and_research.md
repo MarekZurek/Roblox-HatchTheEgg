@@ -1,5 +1,7 @@
 # Badania — dane źródłowe i zasady
 
+> **Decyzja użytkownika 28.10.2026 (R): czasowy podwajacz dochodu i badanie `video_doubler_time` („Dłuższe Wzmocnienia”) zostały usunięte z gry.** Dawne terminy/poziomy w profilach są zachowane wyłącznie dla zgodności i nie dają efektu ani możliwości zakupu. Poniższe wcześniejsze zasady VD, jego darmowej aktywacji i odnawiania są historyczne. Osobny pass `double_cash` (2× Cash), boosty oraz zasady bonusowych prezentów pozostają poza tą zmianą. [Zakres i testy](workflow/remove_timed_doubler_2026_10_28.md).
+
 **Status: S/N — dane konfiguracji referencyjnej i wykonane odczyty ResearchEngine.** Źródło: dokumentacja referencyjna. Znaczenie statusów: [bieżąca specyfikacja](CURRENT_SPEC.md). Dane dotyczą konfiguracji referencyjnej, nie listy automatycznie zatwierdzonej dla Roblox.
 
 ## 1. Reguły i granice

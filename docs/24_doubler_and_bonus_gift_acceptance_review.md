@@ -1,5 +1,7 @@
 # Przegląd przypadków podwajacza i bonusowych prezentów
 
+> **Decyzja użytkownika 28.10.2026 (R): czasowy podwajacz dochodu i badanie `video_doubler_time` („Dłuższe Wzmocnienia”) zostały usunięte z gry.** Dawne terminy/poziomy w profilach są zachowane wyłącznie dla zgodności i nie dają efektu ani możliwości zakupu. Poniższe wcześniejsze zasady VD, jego darmowej aktywacji i odnawiania są historyczne. Osobny pass `double_cash` (2× Cash), boosty oraz zasady bonusowych prezentów pozostają poza tą zmianą. [Zakres i testy](workflow/remove_timed_doubler_2026_10_28.md).
+
 23.10.2026. Recenzja 20 scenariuszy przekazanych przez użytkownika, nie wykonane testy i nie nowe zatwierdzenia. Obowiązujące zasady: [22, D04/D05/D07](22_gameplay_rules_for_approval.md). Reguły źródłowe: [12](12_calendar_scaling_and_video_doubler.md), [16](16_pet_stacking_offline_and_package_schedule.md). Bilans i implementacja pozostają poza zakresem.
 
 ## Ocena i korekty

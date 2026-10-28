@@ -47,7 +47,10 @@ for _, row in research.common do table.insert(expectedCommonIds, row.id) end
 same(C.commonIds, expectedCommonIds, "commonIds")
 
 local expectedEpicIds = {}
-for _, row in research.epic do table.insert(expectedEpicIds, row.id) end
+for _, row in research.epic do
+ if row.id ~= "video_doubler_time" then table.insert(expectedEpicIds, row.id) end
+end
+rejects("RESEARCH_REMOVED", function() C.getEpic("video_doubler_time") end)
 same(C.epicIds, expectedEpicIds, "epicIds")
 
 local byId = {}
@@ -92,7 +95,7 @@ for _, id in expectedEpicIds do
 	rejects("MAX_LEVEL", function() C.epicPrice(id, row.maxLevel) end)
 	rejects("INVALID_INDEX", function() C.epicEffects(id, row.maxLevel + 1) end)
 end
-equal(epicPrices, 668); equal(epicEffects, 692)
+equal(epicPrices, 656); equal(epicEffects, 679)
 
 for tier, threshold in research.tierThresholds do
 	same(C.tierThreshold(tier - 1), threshold, "thresholds." .. tostring(tier))

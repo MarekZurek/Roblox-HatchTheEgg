@@ -1,4 +1,6 @@
-# Bieżący kontekst — 26.10.2026
+# Bieżący kontekst — 28.10.2026
+
+> **Decyzja użytkownika 28.10.2026 (R): czasowy podwajacz dochodu i badanie `video_doubler_time` („Dłuższe Wzmocnienia”) zostały usunięte z gry.** Dawne terminy/poziomy w profilach są zachowane wyłącznie dla zgodności i nie dają efektu ani możliwości zakupu. Poniższe wcześniejsze zasady VD, jego darmowej aktywacji i odnawiania są historyczne. Osobny pass `double_cash` (2× Cash), boosty oraz zasady bonusowych prezentów pozostają poza tą zmianą. [Zakres i testy](workflow/remove_timed_doubler_2026_10_28.md).
 
 Cel: farma HatchTheEgg z petami w Roblox, zgodna z opisaną specyfikacją. Poniższy skrót przekazania jest aktualnym punktem startowym; starsze opisy etapów i listy otwartych zgłoszeń dalej w pliku są historyczne.
 

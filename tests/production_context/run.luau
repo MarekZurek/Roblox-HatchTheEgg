@@ -53,10 +53,10 @@ do
   p.effects.boosts={{id='jimbos_blue_v2',remainingSeconds='10'},{id='boost_beacon_blue',remainingSeconds=10}}
   p.effects.videoDoublerEndsAtMs=10010000
  end)
- local p=step(b,.3);near(cash(p),.25*1.5*(3*2*1.5)*2)
+ local p=step(b,.3);near(cash(p),.25*1.5*(3*2*1.5))
  near(C.Real64.decode(p.effects.boosts[1].remainingSeconds),9.7)
  local snapshot=b:dispatch('1',{protocolVersion=1,kind='Bootstrap',requestId='view'})
- near(C.BigAmount.decode(snapshot.view.farm.cashIncomePerSecond),(100*(1/30))*.25*1.5*(3*2*1.5)*2)
+ near(C.BigAmount.decode(snapshot.view.farm.cashIncomePerSecond),(100*(1/30))*.25*1.5*(3*2*1.5))
 end
 do
  local b=create(function(p)pet(p,'alien',{boostBoostMult=100})end)

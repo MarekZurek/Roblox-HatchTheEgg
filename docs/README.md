@@ -1,5 +1,7 @@
 # HatchTheEgg — dokumentacja
 
+> **Decyzja użytkownika 28.10.2026 (R): czasowy podwajacz dochodu i badanie `video_doubler_time` („Dłuższe Wzmocnienia”) zostały usunięte z gry.** Dawne terminy/poziomy w profilach są zachowane wyłącznie dla zgodności i nie dają efektu ani możliwości zakupu. Poniższe wcześniejsze zasady VD, jego darmowej aktywacji i odnawiania są historyczne. Osobny pass `double_cash` (2× Cash), boosty oraz zasady bonusowych prezentów pozostają poza tą zmianą. [Zakres i testy](workflow/remove_timed_doubler_2026_10_28.md).
+
 Stan:26.10.2026. Zrealizowano i zweryfikowano [#81 — dochód RCB](workflow/rcb_income_81_2026_10_26.md) oraz [#82 — okna StudUI Lite i ikony gvesster](workflow/asset_ui_82_2026_10_26.md) (49 zestawów / 82 727 asercji Luau PASS, 11 Python PASS, Rojo 41+2 PASS_STATIC_BUILD, weryfikacja w Studio i celowane QA AGY PASS); szczegóły i ograniczenia w [WORKING_CONTEXT](WORKING_CONTEXT.md). Lokalny test nie oznacza odbioru chmury ani wydania. Bilans 17–21 pozostaje odłożony.
 
 Kod wcześniejszej płyty/UI opublikowano w6006f2b; #75–80 zamknięto. Nie publikowano Roblox.

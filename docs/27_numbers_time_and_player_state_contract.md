@@ -1,5 +1,7 @@
 # Kontrakt liczb, czasu i stanu gracza
 
+> **Decyzja użytkownika 28.10.2026 (R): czasowy podwajacz dochodu i badanie `video_doubler_time` („Dłuższe Wzmocnienia”) zostały usunięte z gry.** Dawne terminy/poziomy w profilach są zachowane wyłącznie dla zgodności i nie dają efektu ani możliwości zakupu. Poniższe wcześniejsze zasady VD, jego darmowej aktywacji i odnawiania są historyczne. Osobny pass `double_cash` (2× Cash), boosty oraz zasady bonusowych prezentów pozostają poza tą zmianą. [Zakres i testy](workflow/remove_timed_doubler_2026_10_28.md).
+
 23.10.2026. **P — proponowany kontrakt techniczny przed implementacją.** Dokument konkretyzuje etap 0, ale nie wybiera biblioteki, nie tworzy kodu, konfiguracji produkcyjnej ani migracji. Reguły N/S/R odsyłają do [CURRENT_SPEC](CURRENT_SPEC.md); nowe nazwy pól, formaty i procedury poniżej mają status P. Nie zmieniają D01–D07, zakresu 25–26 ani odłożonego bilansu 17–21.
 
 ## 1. Źródła i granice

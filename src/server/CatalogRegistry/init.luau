@@ -28,8 +28,13 @@ function CatalogRegistry.new(codec, data, options)
 		elseif type(value) == "table" then for _, v in value do validateNumbers(v) end end
 	end
 	validateNumbers(d)
+	local activeEpicIds = {}
+	for _, id in d.epicIds do
+		if id ~= "video_doubler_time" then table.insert(activeEpicIds, id) end
+	end
+	table.freeze(activeEpicIds)
 	local api = { VERSION = 1, STATUS = d.status, productionConfigurationApproved = false,
-		sourceSha256 = d.sourceSha256, commonIds = d.commonIds, epicIds = d.epicIds }
+		sourceSha256 = d.sourceSha256, commonIds = d.commonIds, epicIds = activeEpicIds }
 	function api.getCommon(id)
 		if type(id) ~= "string" or d.common[id] == nil then fail("UNSUPPORTED_RESEARCH") end
 		return d.common[id]
@@ -45,6 +50,7 @@ function CatalogRegistry.new(codec, data, options)
 		return row.effectsByLevel[index(level, row.maxLevel) + 1]
 	end
 	function api.getEpic(id)
+		if id == "video_doubler_time" then fail("RESEARCH_REMOVED") end
 		if type(id) ~= "string" or d.epic[id] == nil then fail("UNSUPPORTED_RESEARCH") end
 		return d.epic[id]
 	end

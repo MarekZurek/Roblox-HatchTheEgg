@@ -1,6 +1,8 @@
 # Bieżąca specyfikacja i status ustaleń
 
-Stan: **26.10.2026**. Zakres: farma domowa HatchTheEgg z petami w Roblox; kod farmy i UI ma lokalne dowody L oraz ograniczone próby Studio opisane w [WORKING_CONTEXT](WORKING_CONTEXT.md). Implementacje płyty 30/s i [UI #77–80](workflow/ui_tasks_77_80_2026_10_26.md) sprawdzone lokalnie (zakres i ograniczenia w raportach); brak pełnego odbioru chmury i wydania. To indeks obowiązujących ustaleń, nie nowy bilans.
+> **Decyzja użytkownika 28.10.2026 (R): czasowy podwajacz dochodu i badanie `video_doubler_time` („Dłuższe Wzmocnienia”) zostały usunięte z gry.** Dawne terminy/poziomy w profilach są zachowane wyłącznie dla zgodności i nie dają efektu ani możliwości zakupu. Poniższe wcześniejsze zasady VD, jego darmowej aktywacji i odnawiania są historyczne. Osobny pass `double_cash` (2× Cash), boosty oraz zasady bonusowych prezentów pozostają poza tą zmianą. [Zakres i testy](workflow/remove_timed_doubler_2026_10_28.md).
+
+Stan: **28.10.2026**. Zakres: farma domowa HatchTheEgg z petami w Roblox; kod farmy i UI ma lokalne dowody L oraz ograniczone próby Studio opisane w [WORKING_CONTEXT](WORKING_CONTEXT.md). Implementacje płyty 30/s i [UI #77–80](workflow/ui_tasks_77_80_2026_10_26.md) sprawdzone lokalnie (zakres i ograniczenia w raportach); brak pełnego odbioru chmury i wydania. To indeks obowiązujących ustaleń, nie nowy bilans.
 
 **Panel tempa — decyzja26.10.2026 (R):** górne pola Produkcja/Sprzedaż/Limit transportu w jaj/s. Limit to istniejące shippingPerMinute/60, nie dochód. [Wdrożenie i dowody lokalne](workflow/top_rates_panel_2026_10_26.md). Preferowany kierunek kolejnych okien: styl Roblox/stud z StudUI Lite i ikonami gvesster; szczegóły w planie[#82](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/82) i skillu hte-design-visuals. Bez zmiany domeny, balansu ani zatwierdzenia wydania.
 

@@ -1,5 +1,7 @@
 # Podwajacz dochodu — czas i składanie efektów
 
+> **Decyzja użytkownika 28.10.2026 (R): czasowy podwajacz dochodu i badanie `video_doubler_time` („Dłuższe Wzmocnienia”) zostały usunięte z gry.** Dawne terminy/poziomy w profilach są zachowane wyłącznie dla zgodności i nie dają efektu ani możliwości zakupu. Poniższe wcześniejsze zasady VD, jego darmowej aktywacji i odnawiania są historyczne. Osobny pass `double_cash` (2× Cash), boosty oraz zasady bonusowych prezentów pozostają poza tą zmianą. [Zakres i testy](workflow/remove_timed_doubler_2026_10_28.md).
+
 Aktualne decyzje produktu: [22](22_gameplay_rules_for_approval.md), D04. Jest to opis reguł, nie wynik testów implementacji HatchTheEgg.
 
 ## Aktywacja i odnowienie

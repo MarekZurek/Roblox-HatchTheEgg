@@ -1,5 +1,7 @@
 # TODO — stan 26.10.2026
 
+> **Decyzja użytkownika 28.10.2026 (R): czasowy podwajacz dochodu i badanie `video_doubler_time` („Dłuższe Wzmocnienia”) zostały usunięte z gry.** Dawne terminy/poziomy w profilach są zachowane wyłącznie dla zgodności i nie dają efektu ani możliwości zakupu. Poniższe wcześniejsze zasady VD, jego darmowej aktywacji i odnawiania są historyczne. Osobny pass `double_cash` (2× Cash), boosty oraz zasady bonusowych prezentów pozostają poza tą zmianą. [Zakres i testy](workflow/remove_timed_doubler_2026_10_28.md).
+
 ## Bieżące zadanie
 
 - [x] [Górny panel tempa](workflow/top_rates_panel_2026_10_26.md): trzy opisane wartości w jaj/s, skalowanie i safe area; lokalne testy i ograniczone Studio PASS, Cline/AGY; bez nowego commitu/pusha.

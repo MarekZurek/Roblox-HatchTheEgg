@@ -91,66 +91,27 @@ local function makeConfig(pro, siloCapacityLevel, liveEvents)
 end
 
 -- ============================================================================
--- Section 1: Clock Distinction & Video Doubler (docs/12 §2, docs/27 §3)
+-- Section 1: Retired timed doubler compatibility (28.10.2026)
 -- ============================================================================
 do
-	local nowMs = 1000000
-	local endsAtMs = 1000000 + 7200 * 1000
-
-	-- 1.1 Strict inequality < endsAtMs: active before, inactive at or after
-	local effBefore = { videoDoublerEndsAtMs = endsAtMs }
-	local mBefore = EffectsManager.calculateMultipliers(effBefore, { eggIndex = 0 }, endsAtMs - 1)
-	eq(mBefore.videoDoublerActive, true, "VD active 1ms before deadline")
-	eq(mBefore.vdMultiplier, 2.0, "VD multiplier 2.0 before deadline")
-
-	local mAt = EffectsManager.calculateMultipliers(effBefore, { eggIndex = 0 }, endsAtMs)
-	eq(mAt.videoDoublerActive, false, "VD inactive AT deadline (strict <)")
-	eq(mAt.vdMultiplier, 1.0, "VD multiplier 1.0 at deadline")
-
-	local mAfter = EffectsManager.calculateMultipliers(effBefore, { eggIndex = 0 }, endsAtMs + 1)
-	eq(mAfter.videoDoublerActive, false, "VD inactive after deadline")
-	eq(mAfter.vdMultiplier, 1.0, "VD multiplier 1.0 after deadline")
-
-	-- 1.2 Continuous binary64 fraction preservation (no floor to ms)
-	local effFrac = { videoDoublerEndsAtMs = 1000000.5 }
-	eq(EffectsManager.calculateMultipliers(effFrac, nil, 1000000.4).videoDoublerActive, true, "VD active at 1000000.4 < 1000000.5")
-	eq(EffectsManager.calculateMultipliers(effFrac, nil, 1000000.5).videoDoublerActive, false, "VD inactive at 1000000.5 == 1000000.5")
-
-	-- 1.3 Renewal rules: allowed strictly when remaining time < 7200s (2h)
-	local effRenew = { videoDoublerEndsAtMs = nowMs + 7200 * 1000 }
-	local ok1, code1 = EffectsManager.activateVideoDoubler(effRenew, nowMs, 0)
-	eq(ok1, false, "VD renewal refused when remaining == 7200s")
-	eq(code1, "CANNOT_RENEW")
-
-	local effRenewHigh = { videoDoublerEndsAtMs = nowMs + 7201 * 1000 }
-	local okHigh, codeHigh = EffectsManager.activateVideoDoubler(effRenewHigh, nowMs, 0)
-	eq(okHigh, false, "VD renewal refused when remaining > 7200s")
-	eq(codeHigh, "CANNOT_RENEW")
-
-	-- Allowed at 7199s (strictly < 7200s)
-	local effRenewOk = { videoDoublerEndsAtMs = nowMs + 7199 * 1000 }
-	local ok2, newDeadline = EffectsManager.activateVideoDoubler(effRenewOk, nowMs, 0)
-	eq(ok2, true, "VD renewal accepted when remaining < 7200s")
-	eq(newDeadline, nowMs + 7200 * 1000, "new deadline is nowMs + 2h base")
-	eq(effRenewOk.videoDoublerEndsAtMs, nowMs + 7200 * 1000, "deadline updated in effects")
-
-	-- 1.4 Overwrite deadline test (does not add to leftover time)
-	local effOverwrite = { videoDoublerEndsAtMs = nowMs + 1000 * 1000 } -- 1000s left
-	local _, ovDeadline = EffectsManager.activateVideoDoubler(effOverwrite, nowMs, 0)
-	eq(ovDeadline, nowMs + 7200 * 1000, "deadline overwritten, not summed with 1000s")
-
-	-- 1.5 Epic research video_doubler_time scaling: (2 + 0.5 * lvl) * 3600 across all 0..12 levels
-	for lvl = 0, 12 do
-		local effLvl = {}
-		local okLvl, dlLvl = EffectsManager.activateVideoDoubler(effLvl, nowMs, lvl)
-		eq(okLvl, true, "activate VD level " .. lvl)
-		local expectedSec = (2 + 0.5 * lvl) * 3600
-		eq(dlLvl, nowMs + expectedSec * 1000, "duration for epic lvl " .. lvl)
-	end
+ local nowMs = 1000000
+ for _, effects in {{}, {videoDoublerEndsAtMs=nowMs+99999999}, {videoDoubler={endsAtMs=nowMs+99999999}}} do
+  local before = serde.encode("json", effects)
+  for level = 0, 12 do
+   local accepted, code = EffectsManager.activateVideoDoubler(effects, nowMs, level)
+   eq(accepted, false, "retired activation rejected")
+   eq(code, "FEATURE_REMOVED")
+   eq(serde.encode("json", effects), before, "rejected activation leaves state unchanged")
+  end
+  local mult = EffectsManager.calculateMultipliers(effects, {eggIndex=0}, nowMs)
+  eq(mult.videoDoublerActive, false, "legacy deadline inert")
+  eq(mult.vdMultiplier, 1)
+  eq(mult.earningsMultiplier, 1)
+ end
 end
 
 -- ============================================================================
--- Section 2: Boost Categories & Boost Beacon Compounding (docs/11 §4)
+-- Section 2: Boost Categories & Boost Beacon Compounding (docs/11 Â§4)
 -- ============================================================================
 do
 	local nowMs = 1000000
@@ -234,7 +195,7 @@ do
 	eq(mBA.effectivePrestigeBoost, 1.0, "prestige remains 1.0 without base boost")
 	eq(mBA.earningsMultiplier, 1.0, "total earnings 1.0")
 
-	-- 2.8 Boost Beacon does NOT multiply Video Doubler
+	-- 2.8 Boost Beacon alone stays neutral even with a retired deadline
 	local effBeaconVD = {
 		videoDoublerEndsAtMs = nowMs + 100000,
 		boosts = {
@@ -242,13 +203,13 @@ do
 		},
 	}
 	local mBVD = EffectsManager.calculateMultipliers(effBeaconVD, { eggIndex = 0 }, nowMs)
-	eq(mBVD.vdMultiplier, 2.0, "VD is 2.0")
-	eq(mBVD.earningsMultiplier, 2.0, "total earnings is 2.0 (Beacon does not multiply VD)")
+	eq(mBVD.vdMultiplier, 1.0, "retired VD neutral")
+	eq(mBVD.earningsMultiplier, 1.0, "Beacon alone remains neutral")
 
-	-- 2.9 Jimbo 50 + Beacon 50 + VD: 2500 * 2.0 = 5000x
+	-- 2.9 Jimbo 50 + Beacon 50: legacy VD does not change 2500x
 	effJB.videoDoublerEndsAtMs = nowMs + 100000
 	local mJBVD = EffectsManager.calculateMultipliers(effJB, { eggIndex = 0 }, nowMs)
-	eq(mJBVD.earningsMultiplier, 5000.0, "Jimbo 50 * Beacon 50 * VD 2.0 = 5000x")
+	eq(mJBVD.earningsMultiplier, 2500.0, "Jimbo 50 * Beacon 50; legacy VD ignored")
 
 	-- 2.10 Simultaneous 3-category compounding with 2 Boost Beacons
 	-- Jimbo 10 + Jimbo 50 = 60x earnings
@@ -296,14 +257,14 @@ do
 		},
 	}
 
-	-- 3.1 Multipliers on Enlightenment are neutral (except VD which is wall clock)
+	-- 3.1 Multipliers on Enlightenment are neutral, including retired VD
 	local mEnl = EffectsManager.calculateMultipliers(effEnlightenment, { eggIndex = 18 }, nowMs)
 	eq(mEnl.boostsEnabled, false, "boostsEnabled is false on Enlightenment")
 	eq(mEnl.effectiveEarningsBoost, 1.0, "earnings boost is 1.0 on Enlightenment")
 	eq(mEnl.effectiveIHRBoost, 1.0, "IHR boost is 1.0 on Enlightenment")
 	eq(mEnl.effectivePrestigeBoost, 1.0, "prestige boost is 1.0 on Enlightenment")
-	eq(mEnl.vdMultiplier, 2.0, "VD remains active based on UTC")
-	eq(mEnl.earningsMultiplier, 2.0, "composite earnings is 2.0 (VD only)")
+	eq(mEnl.vdMultiplier, 1.0, "retired VD inert on Enlightenment")
+	eq(mEnl.earningsMultiplier, 1.0, "Enlightenment neutral")
 
 	-- 3.2 Time does NOT decay on Enlightenment
 	local beforeSeconds = effEnlightenment.boosts[1].remainingSeconds
@@ -332,7 +293,7 @@ do
 end
 
 -- ============================================================================
--- Section 4: Boost Activation & Slot Limits (docs/11 §4)
+-- Section 4: Boost Activation & Slot Limits (docs/11 Â§4)
 -- ============================================================================
 do
 	local nowMs = 1000000
@@ -439,6 +400,26 @@ do
 	near(resPro.state.farm.cash / resFree.state.farm.cash, 2.0, 1e-12, "Pro gets 2x standard away income (1.0x vs 0.5x)")
 end
 
+-- Legacy timers are inert online/away and through checkpoint serialization.
+do
+ for _, pro in {false, true} do
+  for _, duration in {0.3, 61, 3600} do
+   local function run(effects)
+    local cp=Timeline.begin(makeState(makeFarm(0,30,0,1),effects,1000000),1000000+duration*1000,makeConfig(pro,0))
+    cp=Timeline.decodeCheckpoint(serde.decode("json",serde.encode("json",Timeline.encodeCheckpoint(cp))))
+    return Timeline.advance(cp,100000).state
+   end
+   local base=run({boosts={}})
+   for _, legacy in {{videoDoublerEndsAtMs=999999999},{videoDoubler={endsAtMs=999999999}}} do
+    local result=run(legacy)
+    near(result.farm.cash,base.farm.cash,nil,"legacy timer cannot increase online/away income")
+    near(result.accounting.currentFarmCash,base.accounting.currentFarmCash,nil,"no ledger inflation")
+    near(result.accounting.prestigeExtraEarnings,base.accounting.prestigeExtraEarnings,nil,"no phantom prestige earnings")
+   end
+  end
+ end
+end
+
 -- ============================================================================
 -- Section 6: Live Events & Multiplier Composition in Simulation
 -- ============================================================================
@@ -466,7 +447,7 @@ do
 
 	near(resEv.state.farm.cash / resBase.state.farm.cash, 2.0, 1e-12, "2x live event doubles cash income in simulation")
 
-	-- 6.2 Event + Jimbo 50 + VD 2.0 composition: 2.0 (event) * 50 (Jimbo) * 2.0 (VD) = 200x
+	-- 6.2 Event + Jimbo 50 composition: 2.0 * 50 = 100x; legacy VD ignored
 	local effFull = {
 		videoDoublerEndsAtMs = startMs + 50000,
 		boosts = {
@@ -477,7 +458,7 @@ do
 	local cpFull = Timeline.begin(stateFull, startMs + 1000, cfgEv)
 	local resFull = Timeline.advance(cpFull, 1000)
 
-	near(resFull.state.farm.cash / resBase.state.farm.cash, 200.0, 1e-12, "event 2x * Jimbo 50x * VD 2x = 200x total cash")
+	near(resFull.state.farm.cash / resBase.state.farm.cash, 100.0, 1e-12, "event 2x * Jimbo 50x; legacy VD ignored")
 
 	-- 6.3 Event expired mid-simulation: only active in window
 	local evShort = {
@@ -558,7 +539,7 @@ fs.writeFile("build/effect_boundaries-results.json", serde.encode("json", {
 	assertions = assertions,
 	studioTested = false,
 	dataStoreTested = false,
-	scope = "NEXT-03 Video Doubler, boost composition, decay, Enlightenment pause, offline silos, and live events",
+	scope = "Retired doubler compatibility, boost composition, decay, Enlightenment pause, offline silos, and live events",
 }, true))
 
 print(string.format("EffectsManager & Effect Boundaries PASS: %d assertions", assertions))

@@ -258,14 +258,14 @@ local dupClaim, dupErr = DroneRewards.claimDrone(droneSpawn, t + 200, p, { drone
 assertFalse(dupClaim, "Duplicate drone claim rejected")
 assertEq(dupErr, "ALREADY_CLAIMED", "Duplicate claim returns ALREADY_CLAIMED")
 
--- Stage 6: Boosts & Video Doubler Activation (NEXT-03)
+-- Stage 6: Boosts and retired doubler compatibility
 local vdOk, vdDl = EffectsManager.activateVideoDoubler(p.effects, t, 0)
-assertTrue(vdOk, "Video doubler activated")
-assertTrue(vdDl > t, "Video doubler deadline in future")
+assertEq(vdOk, false, "Retired doubler rejects activation")
+assertEq(vdDl, "FEATURE_REMOVED", "Retired feature code")
 
 local mults = EffectsManager.calculateMultipliers(p.effects, p.farm, t + 100)
-assertTrue(mults.videoDoublerActive, "VD active in multipliers")
-assertEq(mults.earningsMultiplier, 2.0, "Earnings multiplier doubled by VD")
+assertEq(mults.videoDoublerActive, false, "Legacy doubler inactive")
+assertEq(mults.earningsMultiplier, 1.0, "No retired multiplier")
 
 -- Stage 7: 2+1 Offer Delivery Channel & Free Dismissal / GE Reservation (NEXT-07)
 local offerState = OfferRewards.createOffersState()

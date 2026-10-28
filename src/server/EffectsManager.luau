@@ -1,5 +1,5 @@
 --!strict
--- EffectsManager: authoritative server domain logic for Video Doubler, boosts, decay, and live events.
+-- EffectsManager: authoritative server domain logic for boosts, decay, and live events.
 -- Spec: docs/11 §2, §4; docs/12 §2; docs/27 §3; NEXT-03 (#28).
 
 local EffectsManager = {
@@ -83,13 +83,9 @@ local function calculateMultipliers(
 	liveEvents: { [any]: any }?,
 	options: any?
 ): { [string]: any }
-	-- 1. Video Doubler (docs/12 §2, docs/27 §3)
-	-- Strict inequality in continuous binary64 without floor to ms.
-	local vdEndsAtMs = if effects
-		then (effects.videoDoublerEndsAtMs or (effects.videoDoubler and effects.videoDoubler.endsAtMs) or 0)
-		else 0
-	local isVDActive = (nowMs < vdEndsAtMs)
-	local vdMult = if isVDActive then 2.0 else 1.0
+	-- Retired 2026-10-28. Legacy save fields are inert; compatibility projection stays neutral.
+	local isVDActive = false
+	local vdMult = 1.0
 
 	-- 2. Farm Enlightenment check (docs/11 §4, docs/27 §3.1)
 	-- On Enlightenment (eggIndex == 18), boosts are paused.
@@ -244,31 +240,9 @@ local function stepDecay(effects: any?, farm: any?, dt: number): any?
 	return effects
 end
 
--- Activates or renews Video Doubler (docs/12 §2, docs/27 §3).
--- Allowed only when remaining time < 7200s (2h). Overwrites deadline to nowMs + durationMs.
-local function activateVideoDoubler(effects: any, nowMs: number, epicDurationLevel: number?): (boolean, any)
-	assert(type(effects) == "table", "EffectsManager/INVALID_EFFECTS")
-	assert(type(nowMs) == "number" and nowMs >= 0, "EffectsManager/INVALID_NOW_MS")
-
-	local currentEndsAtMs = effects.videoDoublerEndsAtMs
-		or (effects.videoDoubler and effects.videoDoubler.endsAtMs)
-		or 0
-
-	local remainingSeconds = math.max(0, (currentEndsAtMs - nowMs) / 1000)
-	if remainingSeconds >= 7200 then
-		return false, "CANNOT_RENEW"
-	end
-
-	local epicLvl = epicDurationLevel or 0
-	local durationSeconds = (2 + 0.5 * epicLvl) * 3600
-	local newEndsAtMs = nowMs + durationSeconds * 1000
-
-	effects.videoDoublerEndsAtMs = newEndsAtMs
-	if effects.videoDoubler and type(effects.videoDoubler) == "table" then
-		effects.videoDoubler.endsAtMs = newEndsAtMs
-	end
-
-	return true, newEndsAtMs
+-- Compatibility entry point: retired feature must never mutate an old profile.
+local function activateVideoDoubler(_effects: any, _nowMs: number, _epicDurationLevel: number?): (boolean, any)
+	return false, "FEATURE_REMOVED"
 end
 
 -- Activates a boost from inventory into effects.boosts (docs/11 §4).

@@ -65,11 +65,11 @@ do
  local fractional=run(state(),{event(0,100.5,3)},300)
  near(fractional.state.farm.cash,RATE*(.1005*3+.1995),'fractional milliseconds not floored')
 end
--- VD still uses stepEnd < deadline, unlike event weighting. Boost decays once per 0.3s.
+-- Legacy VD is inert across deadline boundaries. Boost decays once per 0.3s.
 for _,vdEnd in {100,300,301} do
  local s=state();s.effects={videoDoublerEndsAtMs=ORIGIN+vdEnd,boosts={{id='fixture',dimension_raw=2,effect=10,remainingSeconds=.1},{id='fixture-soul',dimension_raw=9,effect=5,remainingSeconds=.1}}}
  local result=run(s,{event(0,100,3)},300)
- local vd=if vdEnd>300 then 2 else 1
+ local vd=1 -- retired deadline inert
  near(result.state.farm.cash,(5/12)*10*vd,'VD point rule distinct from weighted event')
  near(result.state.accounting.prestigeExtraEarnings,(5/12)*10*vd*4,'prestige extra uses actual earned income')
  eq(#result.state.effects.boosts,0,'expired boost removed once after full step')
