@@ -63,7 +63,8 @@ Nowe rekomendacje: [22, D01–D07](22_gameplay_rules_for_approval.md). D02–D07
 
 - Pety tej samej statystyki: P=1+sum(b). Drone Hawk zwiększa szansę elity, nie częstość, z końcowym ograniczeniem szansy do 100%.
 - Offline rozlicza faktyczny historyczny czas wydarzenia, w oknie produkcji silosów. To świadoma adaptacja, nie dowód referencyjnego predykatu.
-- Kierunek ekonomii: znaczenie płatnych korzyści, GE i boostów oraz późnego spowolnienia. Nie zatwierdza konkretnych liczb i produktów.
+- Kierunek ekonomii: znaczenie płatnych korzyści, Diamentów (Diamonds, 💎; w kodzie i bazie zachowany klucz profilu `profile.permanent.GE`) i boostów oraz późnego spowolnienia. Nie zatwierdza konkretnych liczb i produktów.
+- **Waluta Premium (R):** oficjalną walutą premium gry są **Diamenty (Diamonds, 💎)**. Prezentacja w interfejsie użytkownika, dialogach i sklepie posługuje się Diamentami (np. koszty badań epickich `54 💎`, Sklep Diamentów i Przepustek, pakiety `1,000 💎` i `10,000 💎`). Wewnętrzny klucz bazy danych oraz parametry serwera zachowują identyfikator pola `profile.permanent.GE` dla pełnej kompatybilności wstecznej.
 
 ## Odłożony bilans — nie wznawiać
 

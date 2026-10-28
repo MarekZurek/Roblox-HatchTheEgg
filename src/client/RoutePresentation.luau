@@ -547,9 +547,9 @@ end
 -- Constructor
 function RoutePresentation.new(deps)
 	local d = deps or {}
-
-	local baseSpeed = d.baseSpeed or DEFAULT_SPEED
-	local routes = d.routes or (if baseSpeed == DEFAULT_SPEED then CANONICAL_ROUTES else generateCanonicalRoutes(baseSpeed))
+	local container = if typeof(d) == "Instance" then d elseif type(d) == "table" then (d.container or d.modelsContainer) else nil
+	local baseSpeed = if type(d) == "table" then (d.baseSpeed or DEFAULT_SPEED) else DEFAULT_SPEED
+	local routes = if type(d) == "table" and d.routes then d.routes elseif baseSpeed == DEFAULT_SPEED then CANONICAL_ROUTES else generateCanonicalRoutes(baseSpeed)
 
 	local self = setmetatable({
 		baseSpeed = baseSpeed,
@@ -560,7 +560,7 @@ function RoutePresentation.new(deps)
 		maxCompletedHistory = d.maxCompletedHistory or DEFAULT_MAX_COMPLETED_HISTORY,
 		modelFactory = d.modelFactory,
 		chickenTemplate = d.chickenTemplate,
-		container = d.container or d.modelsContainer,
+		container = container,
 		clientStateStore = d.clientStateStore,
 		_activeGroups = {},
 		_completedGroups = {},
@@ -818,9 +818,11 @@ local function bezierCubic(p0, p1, p2, p3, t)
 end
 
 function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startInstantMs: number, durationSeconds: number?, onClicked: ((string) -> ())?, trajectory: any?)
-	local durSec = durationSeconds or 9.0
+	local durSec = durationSeconds or 15.0
+	local descentDuration = if isRoblox then 2.5 else durSec
+	local groundDuration = math.max(0, durSec - (if isRoblox then 2.5 else 0))
 
-	-- 3D Bezier trajectory: customizable or calculated across the farm
+	-- 3D Bezier trajectory: parachute drop down to random farm ground point
 	local p0, p1, p2, p3
 	if trajectory and trajectory.p0 and trajectory.p3 then
 		p0 = trajectory.p0
@@ -828,18 +830,21 @@ function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startI
 		p2 = trajectory.p2 or trajectory.p3
 		p3 = trajectory.p3
 	else
-		-- Deterministic pseudo-random Bezier curve across farm based on droneId
+		-- Deterministic pseudo-random Bezier curve dropping onto farm based on droneId
 		local seedNum = 0
 		for i = 1, #tostring(droneId) do
 			seedNum = (seedNum * 31 + string.byte(tostring(droneId), i)) % 100000
 		end
-		local angle = (seedNum / 100000) * math.pi * 2
-		local r = 80
-		p0 = createPoint(math.cos(angle) * r, 24, math.sin(angle) * r)
-		local endAngle = angle + math.pi + ((seedNum % 7) - 3) * 0.15
-		p3 = createPoint(math.cos(endAngle) * r, 24, math.sin(endAngle) * r)
-		p1 = createPoint(p0.x * 0.35 + ((seedNum % 13) - 6) * 3, 28, p0.z * 0.35 + ((seedNum % 17) - 8) * 3)
-		p2 = createPoint(p3.x * 0.35 + ((seedNum % 11) - 5) * 3, 26, p3.z * 0.35 + ((seedNum % 19) - 9) * 3)
+		-- Random landing position within [-30, 30] studs on X and Z
+		local targetX = ((seedNum % 6000) / 100) - 30
+		local targetZ = (((math.floor(seedNum / 7)) % 6000) / 100) - 30
+		local driftX = (((seedNum % 2000) / 100) - 10) * 0.4
+		local driftZ = ((((math.floor(seedNum / 13)) % 2000) / 100) - 10) * 0.4
+		local startY = 48 + (seedNum % 6)
+		p0 = createPoint(targetX + driftX, startY, targetZ + driftZ)
+		p1 = createPoint(targetX + driftX * 0.7, startY + 2.5, targetZ + driftZ * 0.7)
+		p2 = createPoint(targetX + driftX * 0.3, 20.0, targetZ + driftZ * 0.3)
+		p3 = createPoint(targetX, 1.15, targetZ)
 	end
 
 	local startPos = p0
@@ -850,74 +855,175 @@ function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startI
 		model = Instance.new("Model")
 		model.Name = "Drone_" .. tostring(droneId)
 
-		local core = Instance.new("Part")
-		core.Name = "DroneCore"
-		core.Shape = Enum.PartType.Ball
-		core.Size = if isElite then Vector3.new(5.2, 5.2, 5.2) else Vector3.new(3.8, 3.8, 3.8)
-		core.Color = if isElite then Color3.fromRGB(255, 215, 35) else Color3.fromRGB(255, 95, 175)
-		core.Material = Enum.Material.Neon
-		core.Anchored = true
-		core.CanCollide = false
-		core.CanTouch = false
-		core.CanQuery = true
-		core.Position = Vector3.new(startPos.x, startPos.y, startPos.z)
-		core.Parent = model
-		model.PrimaryPart = core
-
-		-- Gift Box Payload hanging underneath
+		-- Main Gift Box Part (~3.5x3.5x3.5 studs, red or gold for elite)
 		local box = Instance.new("Part")
-		box.Name = "GiftCrate"
-		box.Size = Vector3.new(2.8, 2.8, 2.8)
-		box.Color = if isElite then Color3.fromRGB(255, 235, 85) else Color3.fromRGB(115, 235, 95)
-		box.TopSurface = Enum.SurfaceType.Studs
-		box.Anchored = false
+		box.Name = "GiftBoxPart"
+		box.Shape = Enum.PartType.Block
+		box.Size = Vector3.new(3.5, 3.5, 3.5)
+		box.Color = if isElite then Color3.fromRGB(255, 215, 35) else Color3.fromRGB(235, 45, 65)
+		box.Material = Enum.Material.SmoothPlastic
+		box.TopSurface = Enum.SurfaceType.Smooth
+		box.BottomSurface = Enum.SurfaceType.Smooth
+		box.Anchored = true
 		box.CanCollide = false
-		box.CanTouch = false
+		box.CanTouch = true
 		box.CanQuery = true
-		box.Position = Vector3.new(startPos.x, startPos.y - 3.0, startPos.z)
+		box.Position = Vector3.new(startPos.x, startPos.y, startPos.z)
 		box.Parent = model
+		model.PrimaryPart = box
 
-		local weld = Instance.new("WeldConstraint")
-		weld.Part0 = core
-		weld.Part1 = box
-		weld.Parent = box
+		-- Ribbon bands (Horizontal & Vertical)
+		local ribbonColor = if isElite then Color3.fromRGB(50, 230, 255) else Color3.fromRGB(255, 215, 35)
 
-		-- ClickDetector on core and box so clicking or tapping shoots the drone!
-		local cd = Instance.new("ClickDetector")
-		cd.MaxActivationDistance = 140
-		cd.Parent = core
-		cd.MouseClick:Connect(function()
-			self:shootDrone(droneId)
-		end)
+		local ribbonH = Instance.new("Part")
+		ribbonH.Name = "RibbonH"
+		ribbonH.Size = Vector3.new(3.54, 3.54, 0.85)
+		ribbonH.Color = ribbonColor
+		ribbonH.Material = Enum.Material.Neon
+		ribbonH.TopSurface = Enum.SurfaceType.Smooth
+		ribbonH.BottomSurface = Enum.SurfaceType.Smooth
+		ribbonH.Anchored = false
+		ribbonH.CanCollide = false
+		ribbonH.CanTouch = false
+		ribbonH.CanQuery = false
+		ribbonH.CFrame = box.CFrame
+		ribbonH.Parent = model
+		local weldH = Instance.new("WeldConstraint")
+		weldH.Part0 = box; weldH.Part1 = ribbonH; weldH.Parent = ribbonH
 
-		local cdBox = Instance.new("ClickDetector")
-		cdBox.MaxActivationDistance = 140
-		cdBox.Parent = box
-		cdBox.MouseClick:Connect(function()
-			self:shootDrone(droneId)
-		end)
+		local ribbonV = Instance.new("Part")
+		ribbonV.Name = "RibbonV"
+		ribbonV.Size = Vector3.new(0.85, 3.54, 3.54)
+		ribbonV.Color = ribbonColor
+		ribbonV.Material = Enum.Material.Neon
+		ribbonV.TopSurface = Enum.SurfaceType.Smooth
+		ribbonV.BottomSurface = Enum.SurfaceType.Smooth
+		ribbonV.Anchored = false
+		ribbonV.CanCollide = false
+		ribbonV.CanTouch = false
+		ribbonV.CanQuery = false
+		ribbonV.CFrame = box.CFrame
+		ribbonV.Parent = model
+		local weldV = Instance.new("WeldConstraint")
+		weldV.Part0 = box; weldV.Part1 = ribbonV; weldV.Parent = ribbonV
 
+		-- Ribbon Bow on top
+		local bow = Instance.new("Part")
+		bow.Name = "RibbonBow"
+		bow.Shape = Enum.PartType.Ball
+		bow.Size = Vector3.new(1.3, 0.7, 1.3)
+		bow.Color = ribbonColor
+		bow.Material = Enum.Material.Neon
+		bow.Anchored = false
+		bow.CanCollide = false
+		bow.CanTouch = false
+		bow.CanQuery = false
+		bow.CFrame = box.CFrame * CFrame.new(0, 1.85, 0)
+		bow.Parent = model
+		local weldBow = Instance.new("WeldConstraint")
+		weldBow.Part0 = box; weldBow.Part1 = bow; weldBow.Parent = bow
+
+		-- Parachute Canopy above the box during gentle descent
+		local parachute = Instance.new("Part")
+		parachute.Name = "GiftParachute"
+		parachute.Shape = Enum.PartType.Ball
+		parachute.Size = Vector3.new(5.6, 2.6, 5.6)
+		parachute.Color = if isElite then Color3.fromRGB(255, 235, 140) else Color3.fromRGB(250, 245, 235)
+		parachute.Material = Enum.Material.SmoothPlastic
+		parachute.Anchored = false
+		parachute.CanCollide = false
+		parachute.CanTouch = false
+		parachute.CanQuery = false
+		parachute.CFrame = box.CFrame * CFrame.new(0, 5.2, 0)
+		parachute.Parent = model
+		local weldP = Instance.new("WeldConstraint")
+		weldP.Part0 = box; weldP.Part1 = parachute; weldP.Parent = parachute
+
+		-- Soft Sparkle Light & Particles
+		local light = Instance.new("PointLight")
+		light.Name = "GiftLight"
+		light.Range = 14
+		light.Brightness = 1.5
+		light.Color = if isElite then Color3.fromRGB(255, 220, 80) else Color3.fromRGB(255, 140, 140)
+		light.Parent = box
+
+		local sparkles = Instance.new("ParticleEmitter")
+		sparkles.Name = "GiftSparkles"
+		sparkles.Rate = 5
+		sparkles.Lifetime = NumberRange.new(0.5, 1.0)
+		sparkles.Speed = NumberRange.new(1, 2.5)
+		sparkles.Size = NumberSequence.new(0.35, 0)
+		sparkles.LightEmission = 0.8
+		sparkles.Color = ColorSequence.new(if isElite then Color3.fromRGB(255, 235, 100) else Color3.fromRGB(255, 240, 180))
+		sparkles.Parent = box
+
+		-- BillboardGui: Title & Subtitle with countdown
 		local bb = Instance.new("BillboardGui")
-		bb.Name = "DroneBillboard"
-		bb.Adornee = core
-		bb.Size = UDim2.new(0, 180, 0, 50)
-		bb.StudsOffset = Vector3.new(0, 4.5, 0)
+		bb.Name = "GiftBillboard"
+		bb.Adornee = box
+		bb.Size = UDim2.new(0, 220, 0, 60)
+		bb.StudsOffset = Vector3.new(0, 4.6, 0)
 		bb.AlwaysOnTop = true
-		bb.Parent = core
+		bb.Parent = box
 
-		local lbl = Instance.new("TextLabel")
-		lbl.Size = UDim2.new(1, 0, 1, 0)
-		lbl.BackgroundTransparency = 1
-		lbl.Font = Enum.Font.FredokaOne
-		lbl.TextScaled = true
-		lbl.Text = if isElite then "👑 ELITARNY DRON! [KLIKNIJ]" else "📦 DRON Z PACZKĄ! [KLIKNIJ]"
-		lbl.TextColor3 = Color3.fromRGB(255, 245, 95)
-		lbl.Parent = bb
+		local titleLbl = Instance.new("TextLabel")
+		titleLbl.Name = "Title"
+		titleLbl.Size = UDim2.new(1, 0, 0.55, 0)
+		titleLbl.BackgroundTransparency = 1
+		titleLbl.Font = Enum.Font.FredokaOne
+		titleLbl.TextScaled = true
+		titleLbl.Text = if isElite then "👑 ZŁOTY PREZENT!" else "🎁 PREZENT!"
+		titleLbl.TextColor3 = if isElite then Color3.fromRGB(255, 225, 60) else Color3.fromRGB(255, 245, 110)
+		titleLbl.Parent = bb
+		local st1 = Instance.new("UIStroke")
+		st1.Thickness = 2.4; st1.Color = Color3.fromRGB(20, 10, 5); st1.Parent = titleLbl
 
-		local st = Instance.new("UIStroke")
-		st.Thickness = 2.4
-		st.Color = Color3.fromRGB(20, 10, 5)
-		st.Parent = lbl
+		local subLbl = Instance.new("TextLabel")
+		subLbl.Name = "Subtitle"
+		subLbl.Size = UDim2.new(1, 0, 0.45, 0)
+		subLbl.Position = UDim2.new(0, 0, 0.55, 0)
+		subLbl.BackgroundTransparency = 1
+		subLbl.Font = Enum.Font.FredokaOne
+		subLbl.TextScaled = true
+		subLbl.Text = "[PODBIEGNIJ BY PODNIEŚĆ]"
+		subLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+		subLbl.Parent = bb
+		local st2 = Instance.new("UIStroke")
+		st2.Thickness = 2.0; st2.Color = Color3.fromRGB(20, 10, 5); st2.Parent = subLbl
+
+		-- Pickup via Touched (physical contact by character)
+		box.Touched:Connect(function(hit)
+			if not hit then return end
+			local Players = game:GetService("Players")
+			local lp = Players.LocalPlayer
+			if lp and lp.Character and hit:IsDescendantOf(lp.Character) then
+				self:shootDrone(droneId, true)
+			end
+		end)
+
+		-- Pickup via ProximityPrompt
+		local prompt = Instance.new("ProximityPrompt")
+		prompt.Name = "GiftPrompt"
+		prompt.ObjectText = if isElite then "👑 Złoty Prezent" else "🎁 Prezent"
+		prompt.ActionText = "Podnieś"
+		prompt.HoldDuration = 0
+		prompt.MaxActivationDistance = 12
+		prompt.RequiresLineOfSight = false
+		prompt.Parent = box
+		prompt.Triggered:Connect(function(player)
+			local Players = game:GetService("Players")
+			if player == Players.LocalPlayer then
+				self:shootDrone(droneId, true)
+			end
+		end)
+
+		-- Pickup via ClickDetector
+		local cd = Instance.new("ClickDetector")
+		cd.MaxActivationDistance = 14
+		cd.Parent = box
+		cd.MouseClick:Connect(function()
+			self:shootDrone(droneId, true)
+		end)
 
 		if self.container then
 			model.Parent = self.container
@@ -934,7 +1040,11 @@ function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startI
 		droneId = droneId,
 		isElite = isElite == true,
 		startInstantMs = startInstantMs,
-		durationSeconds = durSec,
+		durationSeconds = durSec, expiresAtMs = startInstantMs + math.floor(durSec * 1000),
+		descentDuration = descentDuration,
+		groundDuration = groundDuration,
+		landed = false,
+		landedAtMs = 0,
 		startPos = startPos,
 		endPos = endPos,
 		p0 = p0,
@@ -952,20 +1062,32 @@ function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startI
 	return entry
 end
 
-function RoutePresentation:shootDrone(droneId: string)
+function RoutePresentation:shootDrone(droneId: string, instant: boolean?)
 	local d = self._activeDrones[droneId]
 	if not d or d.claimed or d.falling then return false end
+
+	self:_emit("droneShot", droneId)
+
+	if d.landed or instant == true then
+		if d.onClicked then
+			d.onClicked(droneId)
+		end
+		self:claimDroneVisual(droneId)
+		return true
+	end
+
 	d.falling = true
 	d.fallVelocity = 8
 	if isRoblox and typeof(d.model) == "Instance" then
+		local para = d.model:FindFirstChild("GiftParachute")
+		if para then para:Destroy() end
 		local bb = d.model:FindFirstChildWhichIsA("BillboardGui", true)
 		if bb then bb:Destroy() end
-		local core = d.model:FindFirstChild("DroneCore")
-		if core then
-			core.Color = Color3.fromRGB(120, 120, 120)
+		local box = d.model:FindFirstChild("GiftBoxPart")
+		if box and box:IsA("BasePart") then
+			box.Color = Color3.fromRGB(120, 120, 120)
 		end
 	end
-	self:_emit("droneShot", droneId)
 	return true
 end
 
@@ -978,24 +1100,50 @@ function RoutePresentation:updateDrones(nowMs: number, dtSeconds: number?)
 			local curY = d.currentPosition.y - d.fallVelocity * dt
 			d.currentPosition = createPoint(d.currentPosition.x, curY, d.currentPosition.z)
 			applyModelPosition(d.model, d.currentPosition)
-			if curY <= 0.85 then
-				d.currentPosition = createPoint(d.currentPosition.x, 0.85, d.currentPosition.z)
+			if curY <= 1.15 then
+				d.currentPosition = createPoint(d.currentPosition.x, 1.15, d.currentPosition.z)
 				applyModelPosition(d.model, d.currentPosition)
 				table.insert(finished, { droneId = droneId, shot = true })
 			end
+		elseif d.landed then
+			local elapsedSec = (nowMs - (d.landedAtMs or nowMs)) / 1000
+			local remainingSec = math.max(0, math.ceil(((d.expiresAtMs or (d.startInstantMs + d.durationSeconds * 1000)) - nowMs) / 1000))
+			if isRoblox and typeof(d.model) == "Instance" then
+				local sub = d.model:FindFirstChild("Subtitle", true)
+				if sub and sub:IsA("TextLabel") then
+					sub.Text = string.format("[PODBIEGNIJ BY PODNIEŚĆ] (%ds...)", remainingSec)
+				end
+			end
+			if nowMs >= (d.expiresAtMs or (d.startInstantMs + d.durationSeconds * 1000)) or elapsedSec >= d.groundDuration then
+				table.insert(finished, { droneId = droneId, shot = false })
+			end
 		else
-			local alpha = math.clamp((nowMs - d.startInstantMs) / (d.durationSeconds * 1000), 0, 1)
+			local alpha = math.clamp((nowMs - d.startInstantMs) / (d.descentDuration * 1000), 0, 1)
 			local pos
 			if d.p0 and d.p1 and d.p2 and d.p3 then
 				pos = bezierCubic(d.p0, d.p1, d.p2, d.p3, alpha)
 			else
 				pos = lerpPoint(d.startPos, d.endPos, alpha)
 			end
-			local bobY = math.sin(alpha * math.pi * 8) * 1.8
-			d.currentPosition = createPoint(pos.x, pos.y + bobY, pos.z)
+			local swayX = if isRoblox then math.sin(alpha * math.pi * 6) * 0.8 else 0
+			local swayZ = if isRoblox then math.cos(alpha * math.pi * 6) * 0.8 else 0
+			d.currentPosition = createPoint(pos.x + swayX, pos.y, pos.z + swayZ)
 			applyModelPosition(d.model, d.currentPosition)
 			if alpha >= 1 then
-				table.insert(finished, { droneId = droneId, shot = false })
+				if isRoblox then
+					d.landed = true
+					d.landedAtMs = nowMs
+					local para = d.model:FindFirstChild("GiftParachute")
+					if para then para:Destroy() end
+					spawnArrivalPuff(d.currentPosition, self.container)
+					local sub = d.model:FindFirstChild("Subtitle", true)
+					if sub and sub:IsA("TextLabel") then
+						local remainingOnLand = math.max(0, math.ceil(((d.expiresAtMs or (d.startInstantMs + d.durationSeconds * 1000)) - nowMs) / 1000))
+						sub.Text = string.format("[PODBIEGNIJ BY PODNIEŚĆ] (%ds...)", remainingOnLand)
+					end
+				else
+					table.insert(finished, { droneId = droneId, shot = false })
+				end
 			end
 		end
 	end
@@ -1009,6 +1157,7 @@ function RoutePresentation:updateDrones(nowMs: number, dtSeconds: number?)
 				end
 				self:claimDroneVisual(item.droneId)
 			else
+				spawnArrivalPuff(d.currentPosition, self.container)
 				destroyModel(d.model)
 				self._activeDrones[item.droneId] = nil
 			end

@@ -303,7 +303,7 @@ for _,population in {0,1,30,100,10000} do
  local h=harness(function(p)p.farm.habitats[1].population=tostring(population);p.farm.habitats[1].typeIndex=18 end)
  h.now+=300;h.elapsed+=.3;h.server:tick(.3)
  local working=h.server:getCoordinator('1').snapshots().working
- near(C.BigAmount.decode(working.farm.cash),math.min(population/30,5000/60)*.3*.25,'shipping capped before valuing eggs')
+ near(C.BigAmount.decode(working.farm.cash),math.min(population/30,5000/60)*.3*.50,'shipping capped before valuing eggs')
  h.client:destroy()
 end
 

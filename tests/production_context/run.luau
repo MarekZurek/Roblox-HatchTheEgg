@@ -29,23 +29,23 @@ local function pet(p,id,bonuses)
  table.insert(p.inventory.equipped,id)
 end
 -- Catalog values from reference_data/infrastructure; not values from the function under test.
-for index,value in { [0]=.25,[1]=1.25,[2]=6.25,[17]=1e14,[18]=1e-7 } do
+for index,value in { [0]=.50,[1]=1.25,[2]=6.25,[17]=1e14,[18]=1e-7 } do
  local b=create(function(p)p.farm.eggIndex=index end)
  near(cash(step(b,.3)),value)
 end
 for _,case in {{se='0',pe='0',sf=0,pb=0,m=1},{se='1000',pe='2',sf=0,pb=0,m=111.25},
  {se='1000',pe='2',sf=2,pb=3,m=1+1000*.12*1.08^2},{se='0',pe='18446744073709551615',sf=0,pb=0,m=1}} do
  local b=create(function(p)p.permanent.SE=case.se;p.permanent.PE=case.pe;p.permanent.epic={soul_eggs=case.sf,prophecy_bonus=case.pb}end)
- local p=step(b,.3);near(cash(p),.25*case.m);eq(p.permanent.PE,case.pe)
+ local p=step(b,.3);near(cash(p),.50*case.m);eq(p.permanent.PE,case.pe)
 end
 do
- local b=create(function(p)p.permanent.epic.epic_egg_laying=1 end);near(cash(step(b,.3)),.25*1.05)
+ local b=create(function(p)p.permanent.epic.epic_egg_laying=1 end);near(cash(step(b,.3)),.50*1.05)
 end
 do
  local b=create(function(p)pet(p,'a',{eggValueMult=.5});pet(p,'b',{eggValueMult=.5})end)
- near(cash(step(b,.3)),.5)
+ near(cash(step(b,.3)),1.0)
  local h=create(function(p)pet(p,'lay',{layingRateMult=100})end)
- near(cash(step(h,.3)),(5000/60*.3)*.25) -- laying increase is capped BEFORE sale, not after
+ near(cash(step(h,.3)),(5000/60*.3)*.50) -- laying increase is capped BEFORE sale, not after
 end
 do
  local b=create(function(p)
@@ -53,15 +53,15 @@ do
   p.effects.boosts={{id='jimbos_blue_v2',remainingSeconds='10'},{id='boost_beacon_blue',remainingSeconds=10}}
   p.effects.videoDoublerEndsAtMs=10010000
  end)
- local p=step(b,.3);near(cash(p),.25*1.5*(3*2*1.5))
+ local p=step(b,.3);near(cash(p),.50*1.5*(3*2*1.5))
  near(C.Real64.decode(p.effects.boosts[1].remainingSeconds),9.7)
  local snapshot=b:dispatch('1',{protocolVersion=1,kind='Bootstrap',requestId='view'})
- near(C.BigAmount.decode(snapshot.view.farm.cashIncomePerSecond),(100*(1/30))*.25*1.5*(3*2*1.5))
+ near(C.BigAmount.decode(snapshot.view.farm.cashIncomePerSecond),(100*(1/30))*.50*1.5*(3*2*1.5))
 end
 do
  local b=create(function(p)pet(p,'alien',{boostBoostMult=100})end)
- near(cash(step(b,.3)),.25) -- no boost category means neutral, not 101x
- local p=step(b,.3);near(cash(p),.5)
+ near(cash(step(b,.3)),.50) -- no boost category means neutral, not 101x
+ local p=step(b,.3);near(cash(p),1.0)
 end
 do
  local b=create(function(p)
@@ -70,7 +70,7 @@ do
   p.effects.boosts={{id='tachyon_prism_blue_v2',remainingSeconds=10},{id='boost_beacon_blue',remainingSeconds=10}}
  end)
  local p=step(b,.3);eq(p.farm.habitats[1].population,'1');near(C.Real64.decode(p.farm.habitats[1].fractionalIHR),.25);eq(cash(p),0)
- near(cash(step(b,.3)),1*(1/30)*.3*.25)
+ near(cash(step(b,.3)),1*(1/30)*.3*.50)
 end
 do
  local b=create(function(p)
@@ -78,7 +78,7 @@ do
  end)
  local p=step(b,.3);eq(p.farm.habitats[1].capacity,'375');eq(p.farm.habitats[1].population,'375')
  eq(b:unequipPet('1','cow'),true)
- p=step(b,.3);eq(p.farm.habitats[1].capacity,'250');eq(p.farm.habitats[1].population,'375');near(cash(p),1.875)
+ p=step(b,.3);eq(p.farm.habitats[1].capacity,'250');eq(p.farm.habitats[1].population,'375');near(cash(p),3.75)
 end
 do
  local b=create(function(p)p.farm.common.hab_capacity1=1;pet(p,'cow',{habCapacityMult=.1})end)
@@ -87,10 +87,10 @@ do
 end
 do
  local b=create(function(p)p.effects.boosts={{id='jimbos_blue_v2',remainingSeconds='0'}}end)
- local p=step(b,.3);near(cash(p),.75);eq(#p.effects.boosts,0)
- near(cash(step(b,.3)),1.0)
+ local p=step(b,.3);near(cash(p),1.50);eq(#p.effects.boosts,0)
+ near(cash(step(b,.3)),2.0)
  local d=create(function(p)p.effects.videoDoublerEndsAtMs=10000300 end)
- near(cash(step(d,.3)),.25) -- strict equality at deadline: no VD
+ near(cash(step(d,.3)),.50) -- legacy deadline has no effect
 end
 do
  local b=create(function(p)
@@ -104,15 +104,15 @@ do
   p.accounting.prestigeSessionArchivedCash='1000';p.accounting.lastBaseEarnings='1000'
   pet(p,'phoenix',{prestigeEarningsMult=.5});p.effects.boosts={{id='soul_beacon_blue_v2',remainingSeconds=10}}
  end)
- local p=step(b,.3);near(cash(p),.25);near(C.BigAmount.decode(p.accounting.prestigeExtraEarnings),.25*(5*1.5-1))
+ local p=step(b,.3);near(cash(p),.50);near(C.BigAmount.decode(p.accounting.prestigeExtraEarnings),.50*(5*1.5-1))
  eq(p.accounting.prestigeSessionArchivedCash,'1000');eq(p.permanent.SE,'0')
 end
 -- An equipment change settles elapsed time with the old set before the new bonus.
 do
  local b=create(function(p)p.inventory.pets.dog={uid='dog',speciesId='fixture',tier=1,variant='normal',locked=false,customBonus={eggValueMult=.5}}end)
  b.clock.advance(.3);eq(b:equipPet('1','dog'),true)
- near(cash(state(b).durable),.25)
- near(cash(step(b,.3)),.25+.375)
+ near(cash(state(b).durable),.50)
+ near(cash(step(b,.3)),.50+.75)
 end
 -- Both a real UpgradeEgg command and a real Prestige result feed future production.
 do
@@ -120,7 +120,7 @@ do
  b.clock.advance(.3)
  local result=b:dispatch('1',{protocolVersion=1,kind='UpgradeEgg',requestId='up',operationId='up',expectedRevision='0',args={targetEggIndex=1}})
  eq(result.status,'APPLIED');local p=state(b).durable;eq(p.farm.eggIndex,1)
- near(C.BigAmount.decode(p.accounting.prestigeSessionArchivedCash),.25*(1+1e12*.1))
+ near(C.BigAmount.decode(p.accounting.prestigeSessionArchivedCash),.50*(1+1e12*.1))
  -- Actual hatch -> actual arrival; reset population isn't replaced by a test grant.
  eq(b:dispatch('1',{protocolVersion=1,kind='HatchPress',requestId='h',streamId=joined.streamId,inputSeq='1'}).kind,'HatchPress')
  step(b,4);local before=cash(state(b).working);near(cash(step(b,.3))-before,1*(1/30)*.3*1.25*(1+1e12*.1))
@@ -130,7 +130,7 @@ do
  local actor=b:getCoordinator('1');eq(actor.submit({operationId='prestige',kind='Prestige',expectedRevision='0',args={}}).status,'PENDING');actor.drain()
  eq(actor.resultOf('prestige').status,'APPLIED');near(C.Real64.decode(state(b).durable.permanent.SE),1e6^.15)
  b:dispatch('1',{protocolVersion=1,kind='HatchPress',requestId='h',streamId=joined.streamId,inputSeq='1'})
- step(b,4);local before=cash(state(b).working);near(cash(step(b,.3))-before,(1/30)*.3*.25*(1+1e6^.15*.1))
+ step(b,4);local before=cash(state(b).working);near(cash(step(b,.3))-before,(1/30)*.3*.50*(1+1e6^.15*.1))
 end
 -- Serialization after production but before growth resumes the same frozen bonuses.
 do
@@ -154,7 +154,7 @@ for _,pro in {false,true} do
   p.timeline.settledWallThrough=10000000-61000;p.entitlements.pro_permit=pro
   pet(p,'dog',{eggValueMult=.5});p.effects.boosts={{id='jimbos_blue_v2',remainingSeconds='100'}}
  end)
- local p=step(b,0);near(cash(p),(100*(1/30))*.25*61*1.5*3*(if pro then 1 else .5))
+ local p=step(b,0);near(cash(p),(100*(1/30))*.50*61*1.5*3*(if pro then 1 else .5))
  local remaining,timer=61,100
  while remaining>0 do local dt=math.min(remaining,.3);timer-=dt;remaining-=dt end
  eq(p.effects.boosts[1].remainingSeconds,C.Real64.encode(timer));eq(p.timeline.settledWallThrough,10000000)
@@ -168,7 +168,7 @@ do
 end
 do
  local b=create(function(p)p.effects.boosts={{id='jimbos_blue_v2',remainingSeconds='10'}}end,{liveEvents={{id='full',type='earnings',multiplier=3,startTimeMs=10000000,deadlineMs=10010000}}})
- near(cash(step(b,.3)),.25*3*3) -- whole-step event context; partial-step weighting remains issue #61
+ near(cash(step(b,.3)),.50*3*3) -- whole-step event context; partial-step weighting remains issue #61
 end
 -- Farm Value continues using research-only inputs, not pet/boost production stats.
 do

@@ -731,7 +731,7 @@
     "egg_loading_bots.prices.2": "e67688a721b35245",
     "egg_loading_bots.tier_raw": "0000000000001840",
     "eggs.0.index": "0000000000000000",
-    "eggs.0.value": "000000000000d03f",
+    "eggs.0.value": "000000000000e03f",
     "eggs.1.index": "000000000000f03f",
     "eggs.1.value": "000000000000f43f",
     "eggs.10.index": "0000000000002440",
@@ -6568,7 +6568,7 @@
     "wormhole_dampening.tier_raw": "0000000000002640"
   },
   "sourceSha256": {
-    "infrastructure.json": "34f0dcc09d0dc5157f0f228e079fc06ceab735fa19d2fa11c79a0ad3e0c8f89f",
+    "infrastructure.json": "f2f0751573af461d9d27f84f00c63aa5ffc19705664e5b174a8265c3a6026a31",
     "research.json": "682948b3989c2ab3e91bb2ea282eeda71424bce9fa2ad8b738d42780d38788ef"
   }
 }

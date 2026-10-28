@@ -16,11 +16,11 @@ Stan 23.10.2026. Statusy według [CURRENT_SPEC](CURRENT_SPEC.md). **Dalszy bilan
 | Zadania | Dawne przykłady „Center→100 GE” itp. nie miały wskazanego potwierdzenia w audycie. Nie traktować ich jako opisanych nagród. Zakres zadań Roblox pozostaje otwarty. |
 | Piggy | Rozróżniać surowe saldo, poziom, pełność, utracone przyrosty i końcową wypłatę. Nagroda wypełnienia ma inną gałąź niż zwykły wzrost. Bonus poziomu nie jest prostym +10% od pierwszego poziomu; dodatkowy bonus Ultra i dwa osobne obcięcia opisuje [13](13_rewards_contracts_resets_and_gift_distributions.md). |
 
-Rakiety, Fuel Tank, crafting artefaktów i kontrakty są mechanikami modelu referencyjnego; ich obecność w źródłach nie włącza ich automatycznie do zakresu Roblox z petami. Nie przenosimy kosztów tych systemów jako zatwierdzonych kosztów ekspedycji petów.
+Rakiety, Fuel Tank, crafting artefaktów i kontrakty kosmiczne nie wchodzą w zakres gry. Badania epickie `afx_mission_time` i `afx_mission_capacity` w HatchTheEgg zostały oczyszczone z tematyki kosmicznej i powiązane z logistyką i transportem floty lądowej (Szybkość Kursu Floty oraz Logistyka i Magazyn Floty).
 
 ## 2. Zatwierdzony kierunek — R
 
-Użytkownik wybrał priorytet wartości dla gracza płacącego, zachowanie znaczenia Pro/GE/boostów oraz późniejszych spowolnień . Nie oznacza to zatwierdzenia konkretnego cennika Robux, rozmiarów pakietów, parametrów świnki ani płatnych losowych jaj. Rodzaje produktów GE/Piggy i passów zatwierdzono osobno w 25. [20](20_paying_player_balance_direction.md) zachowuje opis kierunku, a [21](21_payer_progression_and_incubation.md) ostatnią analizę.
+Użytkownik wybrał priorytet wartości dla gracza płacącego, zachowanie znaczenia Pro, Diamentów (Diamonds, 💎; identyfikator `profile.permanent.GE`), boostów oraz późniejszych spowolnień . Nie oznacza to zatwierdzenia konkretnego cennika Robux, rozmiarów pakietów, parametrów świnki ani płatnych losowych jaj. Rodzaje produktów Diamentów/Piggy i passów zatwierdzono osobno w 25. [20](20_paying_player_balance_direction.md) zachowuje opis kierunku, a [21](21_payer_progression_and_incubation.md) ostatnią analizę.
 
 ## 3. Zatwierdzony podział produktów — R
 
@@ -29,7 +29,7 @@ Pełna specyfikacja: [25](25_approved_product_structure.md).
 - **Pro:** większe możliwości silosów i boostów, pełna jakość offline, dodatkowe miejsca petów i +10 p.p. do łączenia. Nie zawiera Buy MAX ani Auto-Hatch.
 - **Buy MAX:** osobny gamepass zakupów badań; nie pomija kosztów i bramek postępu.
 - **Auto-Hatch kurczaków:** osobny gamepass automatyzujący ręczną wylęgarnię z zachowaniem ograniczeń; nie otwiera automatycznie petów.
-- **Pakiety GE i rozbicie Piggy:** powtarzalne zakupy, z jednokrotnym rozliczeniem każdej transakcji według D07.
+- **Pakiety Diamentów (Diamonds, 💎) i rozbicie Piggy:** powtarzalne zakupy (w kodzie i schemacie zapisu zachowany klucz profilu `profile.permanent.GE`), z jednokrotnym rozliczeniem każdej transakcji według D07.
 
 D04 ustala osobno zasady podwajacza i bonusowych prezentów; nie są już otwartym pytaniem o samą dostępność.
 

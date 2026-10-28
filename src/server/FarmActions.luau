@@ -33,7 +33,8 @@ local costEffects = {
 local function costMultiplier(profile, catalog, kind)
 	local spec = costEffects[kind]
 	local epic = profile.permanent.epic or {}
-	return catalog.epicEffects(spec[1], epic[spec[1]] or 0)[spec[2]] or 1
+	local lvl = epic[spec[1]] or (if spec[1] == "cheaper_research" then epic.lab_upgrade else nil) or 0
+	return catalog.epicEffects(spec[1], lvl)[spec[2]] or 1
 end
 
 local FarmActions = {

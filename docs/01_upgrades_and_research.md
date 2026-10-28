@@ -6,7 +6,7 @@
 
 ## 1. Reguły i granice
 
-Common kosztują gotówkę i resetują się przy zmianie jaja/prestiżu; Epic kosztują GE i zachowują poziomy. W konfiguracji referencyjnej rozpoznano **56 Common w 13 tierach oraz 24 Epic** (80 identyfikatorów). Liczba wpisów nie dowodzi ich dostępności w każdym trybie/UI.
+Common kosztują gotówkę i resetują się przy zmianie jaja/prestiżu; Epic kosztują **Diamenty (Diamonds, 💎)** (w kodzie i schemacie zapisu zachowany identyfikator pola `profile.permanent.GE`) lub bezpośrednio Robux i zachowują poziomy po resetach. W konfiguracji referencyjnej rozpoznano **56 Common w 13 tierach oraz 24 Epic** (80 identyfikatorów). Liczba wpisów nie dowodzi ich dostępności w każdym trybie/UI.
 
 Nie stosować jednego wzoru `1+level×bonus` do wszystkich badań: część efektów jest addytywna, inne mają charakter wykładniczy lub dotyczą odrębnych kategorii. Przykład: Even Bigger Eggs daje ×2 na poziomie 1 i ×32 na poziomie 5, a nie ×6. Dla mnożnikowych wymiarów niezależne badania składają się zgodnie z właściwym agregatorem; bazy, dodatki, bramki i efekty portalowe/Hyperloop mają osobne znaczenie.
 
@@ -143,7 +143,7 @@ Graviton Coupling (`micro_coupling`) zwiększa długość pociągu Hyperloop, ni
 
 ## 3. Epic Research
 
-| ID | Nazwa | Max | Efekt lvl 1 → max | Suma cen GE |
+| ID | Nazwa | Max | Efekt lvl 1 → max | Suma cen Diamentów (💎 / GE) |
 |---|---|---:|---|---:|
 | `hold_to_hatch` | HOLD TO HATCH | 15 | `{"holdToHatchRate":2.0}` → `{"holdToHatchRate":30.0}` | 3825 |
 | `epic_hatchery` | EPIC HATCHERY | 20 | `{"hatcheryRefillRateMult":1.1}` → `{"hatcheryRefillRateMult":3.0}` | 10011 |
@@ -167,12 +167,12 @@ Graviton Coupling (`micro_coupling`) zwiększa długość pociągu Hyperloop, ni
 | `transportation_lobbyist` | TRANSPORTATION LOBBYISTS | 30 | `{"vehicleCapacityMult":1.05}` → `{"vehicleCapacityMult":2.5}` | 78736 |
 | `warp_shift` | WARP SHIFT | 16 | `{}` → `{}` | 41995 |
 | `prophecy_bonus` | PROPHECY BONUS | 5 | `{"eggOfProphecyBonus":0.01}` → `{"eggOfProphecyBonus":0.05}` | 2750000 |
-| `afx_mission_time` | FTL DRIVE UPGRADES | 60 | `{"artifactsMissionFTLDurationResearchMult":0.99}` → `{"artifactsMissionFTLDurationResearchMult":0.4}` | 6149971 |
-| `afx_mission_capacity` | ZERO-G QUANTUM CONTAINMENT | 10 | `{"artifactsMissionCapacityResearchMult":1.05}` → `{"artifactsMissionCapacityResearchMult":1.5}` | 5249996 |
+| `afx_mission_time` | Szybkość Kursu Floty (FTL Drive Upgrades) | 60 | `{"artifactsMissionFTLDurationResearchMult":0.99}` → `{"artifactsMissionFTLDurationResearchMult":0.4}` | 6149971 |
+| `afx_mission_capacity` | Logistyka i Magazyn Floty (Zero-G Quantum Containment) | 10 | `{"artifactsMissionCapacityResearchMult":1.05}` → `{"artifactsMissionCapacityResearchMult":1.5}` | 5249996 |
 
 `videoDoublerHours` w tabeli jest wkładem badania: baza GDR 2 h +0.5 h/poziom, do 8 h. `siloSeconds` także jest dodatkiem do bazy, nie pełną długością silosu. Puste próbki Epic Internal Incubators/Silo Quality nie uzasadniają usunięcia tych mechanik; pełne złożenie IHR/away opisuje [10](10_verified_simulation_and_server_config.md).
 
-Dawne `pet_mission_time` / `pet_mission_capacity` nie są identyfikatorami konfiguracji referencyjnej. Przemianowanie badań rakiet na rozwój ekspedycji petów jest **P — propozycją**, bez zatwierdzonych kosztów i bez implementacji. Zakres ekspedycji pozostaje otwarty.
+Badania `afx_mission_time` oraz `afx_mission_capacity` w HatchTheEgg zostały w pełni zaadaptowane do logistyki i transportu farmy (Szybkość Kursu Floty oraz Logistyka i Magazyn Floty), eliminując zbędne odniesienia do lotów rakietowych i ekspedycji kosmicznych z gry referencyjnej.
 
 ## 4. Propozycja interfejsu Roblox
 

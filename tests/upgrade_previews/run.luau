@@ -24,7 +24,7 @@ do
 	local h=harness();local farm=h.client:getFarm()
 	eq(h.hud.shopResearch.comfy_nests.subtitleLabel.Text,'Tempo znoszenia: +0% → +10%')
 	eq(h.hud.shopResearch.internal_hatchery1.subtitleLabel.Text,'Kurczaki/min/kurnik: +0 → +2')
-	eq(h.hud.goldenEggsLabel.Text,'Złote jaja: 10','GE visible without opening a modal')
+	eq(h.hud.goldenEggsLabel.Text,'Diamenty: 10','GE visible without opening a modal')
 	for i=1,4 do
 		eq(h.hud.vehicleCards[i].card.Visible,true,'four base slots visible')
 		eq(h.hud.vehicleCards[i].upgBtn.Active,true,'four base slots purchasable')
@@ -53,7 +53,7 @@ do
 	eq(h.hud.vehicleCards[4].titleLabel.Text,'Slot #4: Tier 1','slot identity, not list index')
 	h.client:claimDailyGift(function(r)result=r end)
 	eq(result.status,'APPLIED')
-	eq(h.hud.goldenEggsLabel.Text,'Złote jaja: 202','GE counter reacts to new server balance')
+	eq(h.hud.goldenEggsLabel.Text,'Diamenty: 202','GE counter reacts to new server balance')
 	eq(h.b:playerLeaving('1'),true);eq(h.b:playerJoined('1').status,'JOINED')
 	h.client:connect('fleet-reconnect')
 	eq(h.hud.vehicleCards[4].titleLabel.Text,'Slot #4: Tier 1','reconnect preserves slot identities')

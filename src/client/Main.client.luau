@@ -176,6 +176,18 @@ if hud then
 	hud.onUpgradeEggRequested = function(targetEggIndex)
 		client:upgradeEgg(targetEggIndex)
 	end
+	hud.onPrestigeRequested = function()
+		client:prestige(function(res)
+			if res and (res.terminalStatus == "APPLIED" or res.status == "APPLIED" or res.success == true) then
+				if hud.audioController then
+					hud.audioController:playSFX("fanfare")
+				end
+				if hud.prestigeModal then
+					hud.prestigeModal.Visible = false
+				end
+			end
+		end)
+	end
 	hud.onClaimDailyGift = function()
 		client:claimDailyGift()
 	end
@@ -272,7 +284,7 @@ if serverToClient then
 			end
 			local rw = message.reward
 			local desc = if rw and rw.formattedAmount then ("+" .. tostring(rw.formattedAmount)) elseif rw and rw.amount then ("+" .. tostring(rw.amount) .. " " .. tostring(rw.type or "")) else "+1 Nagroda"
-			showLootNotification("🎯 ZESTRZELONO DRONA!", desc)
+			showLootNotification("🎁 ZEBRANO PREZENT!", desc)
 			return
 		elseif type(message) == "table" and message.kind == "OfferClaimedPopup" then
 			if audio then
@@ -295,7 +307,7 @@ if serverToClient then
 			return
 		elseif type(message) == "table" and message.kind == "PetHatchFailed" then
 			local reason = if message.error == "FEATURE_UNAVAILABLE" then "Inkubacja jest obecnie niedostępna."
-				elseif message.error == "INSUFFICIENT_GE" then "Niewystarczająco Złotych Jaj."
+				elseif message.error == "INSUFFICIENT_GE" then "Niewystarczająco Diamentów."
 				else "Nie można teraz wykonać inkubacji."
 			showLootNotification("⚠️ BŁĄD INKUBACJI", reason)
 			return

@@ -164,6 +164,9 @@ function ClientBootstrap.new(deps)
 		if hud.onPurchaseProduct == nil then
 			hud.onPurchaseProduct = function(prodId) self:purchaseProduct(prodId) end
 		end
+		if hud.onBuyEpicResearch == nil then
+			hud.onBuyEpicResearch = function(researchId) self:buyEpicResearch(researchId) end
+		end
 	end
 
 	self:_setupEventBindings()
@@ -347,6 +350,7 @@ function ClientBootstrap:togglePetLock(petId,callback) return self:_command("Tog
 function ClientBootstrap:buyBoost(boostId,callback) return self:_command("BuyBoost",{boostId=boostId},callback) end
 function ClientBootstrap:purchaseProduct(productId,callback) return self:_command("PurchaseProduct",{productId=productId},callback) end
 function ClientBootstrap:prestige(callback) return self:_command("Prestige",{},callback) end
+function ClientBootstrap:buyEpicResearch(researchId,callback) return self:_command("BuyEpicResearch",{researchId=researchId},callback) end
 
 function ClientBootstrap:hitDrone(droneId, callback)
 	if self.audioController and type(self.audioController.playSFX) == "function" then

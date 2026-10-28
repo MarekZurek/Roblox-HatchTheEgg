@@ -172,7 +172,7 @@ mutable.eggs = table.clone(Data.eggs)
 mutable.eggs[1] = table.clone(Data.eggs[1])
 local isolated = Registry.new(Codec, mutable, {mode="INTERNAL_TEST_ONLY"})
 mutable.eggs[1].value = 999
-equal(isolated.getEgg(0).value, 0.25)
+equal(isolated.getEgg(0).value, 0.50)
 
 fs.writeFile("build/catalog-results.json", serde.encode("json", {
 	status = "PASS",

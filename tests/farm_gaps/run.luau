@@ -38,7 +38,7 @@ local function harness(mutate)
  return h
 end
 -- #67: independent closed-form empty-farm FV and real calendar claim/upgrade gate.
-local emptyFV=50*1200*(1/30)*.25*(250^.6)
+local emptyFV=50*1200*(1/30)*.50*(250^.6)
 for _,level in {0,1,20} do
  local p=S.createReference('1',ORIGIN);p.permanent.epic.accounting_tricks=level
  near(Progress.calculateProfileFarmValue(p),emptyFV*(1+.05*level),'valuation from Epic')
@@ -51,7 +51,7 @@ for _,level in {0,1,20} do
  near(C.BigAmount.decode(view.view.farm.progress.calendar[4].amount),emptyFV*(1+.05*level)*.5,'calendar preview uses same FV')
 end
 do
- local p=S.createReference('1',ORIGIN);p.permanent.SE='40000'
+ local p=S.createReference('1',ORIGIN);p.permanent.SE='1000'
  eq(Progress.canUpgradeEgg(p,1),false,'below egg threshold without valuation')
  p.permanent.epic.accounting_tricks=20
  eq(Progress.canUpgradeEgg(p,1),true,'valuation reaches existing egg threshold')

@@ -1,10 +1,10 @@
-# Prestiż, Jaja Duszy i Boosty (Prestige, Soul Eggs & Boosts)
+# Prestiż, Kryształy Prestiżu i Boosty (Prestige, Soul Eggs / Prestige Crystals & Boosts)
 
 > **Decyzja użytkownika 28.10.2026 (R): czasowy podwajacz dochodu i badanie `video_doubler_time` („Dłuższe Wzmocnienia”) zostały usunięte z gry.** Dawne terminy/poziomy w profilach są zachowane wyłącznie dla zgodności i nie dają efektu ani możliwości zakupu. Poniższe wcześniejsze zasady VD, jego darmowej aktywacji i odnawiania są historyczne. Osobny pass `double_cash` (2× Cash), boosty oraz zasady bonusowych prezentów pozostają poza tą zmianą. [Zakres i testy](workflow/remove_timed_doubler_2026_10_28.md).
 
 > **Status N/S:** wzory i granice testów według wskazanych raportów. Phoenix jest adaptacją na warstwie Feather; nie jest referencyjnym petem. [Statusy](CURRENT_SPEC.md).
 
-Prestiż (Prestige) to fundament progresji w HatchTheEgg. Pozwala zamienić zsumowane dochody z obecnej farmy na mistyczne **Jaja Duszy (Soul Eggs)**, które trwale zwiększają dochód przyszłych farm.
+Prestiż (Prestige) to fundament progresji w HatchTheEgg. Pozwala zamienić zsumowane dochody z obecnej farmy na mistyczne **Kryształy Prestiżu (Soul Eggs - SE)**, które trwale zwiększają dochód przyszłych farm.
 
 ---
 
@@ -12,8 +12,8 @@ Prestiż (Prestige) to fundament progresji w HatchTheEgg. Pozwala zamienić zsum
 
 Gdy gracz dochodzi do ściany, a ceny kolejnych badań lub kurników stają się zbyt wysokie, decyduje się na prestiż:
 * Cała farma zostaje zresetowana do pierwszego jaja (**Edible Egg**).
-* Gracz otrzymuje nowo wyliczoną pulę **Jaj Duszy (Soul Eggs)**.
-* Poprzednio zdobyte Soul Eggs sumują się z nowymi, podnosząc stały **Earning Bonus (EB)**.
+* Gracz otrzymuje nowo wyliczoną pulę **Kryształów Prestiżu (Soul Eggs)**.
+* Poprzednio zdobyte Kryształy Prestiżu (Soul Eggs) sumują się z nowymi, podnosząc stały **Earning Bonus (EB)**.
 * Dzięki wyższemu mnożnikowi ponowne przejście początkowych poziomów zajmuje sekundy zamiast godzin.
 
 ---

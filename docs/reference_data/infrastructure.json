@@ -12,7 +12,7 @@
     {
       "index": 0,
       "name": "EDIBLE",
-      "value": 0.25,
+      "value": 0.5,
       "targetPopulation": 4000,
       "trophySoulEggRewards": [
         2000000,

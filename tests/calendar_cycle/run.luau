@@ -61,7 +61,7 @@ end
 local function expectedFV(se,pe,soulFood,epicMultiplier)
  -- Calendar day 11 grants Epic Multiplier: its cap is +2 per level, so
  -- the documented FV factor is (1 + 2*level)^0.25 on this empty farm.
- return 50*1200*(1+se*(.1+.01*soulFood)*1.05^pe)*(1/30)*.25*250^.6*(1+2*(epicMultiplier or 0))^.25
+ return 50*1200*(1+se*(.1+.01*soulFood)*1.05^pe)*(1/30)*.50*250^.6*(1+2*(epicMultiplier or 0))^.25
 end
 
 -- Exact uint64, including above 2^53, persists through prestige and old profiles.

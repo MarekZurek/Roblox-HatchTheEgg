@@ -19,7 +19,7 @@ To kontrakt semantyczny, nie kod ani lista potwierdzonych testów. Nie wprowadza
 |---|---|---|
 | BigAmount | Gotówka, ceny, FV, przychody sesji i dodatkowy przychód prestiżowy | W referencyjnym zakresie skończone binary64; wersjonowany adapter oddzielony od prezentacji. Zapis jako tekst dziesiętny z odtworzeniem tych samych bitów. |
 | Real64 | SE, mnożniki, ułamki kur, zapas wylęgarni i tempa | Binary64. SE nie jest ExactUInt i nie otrzymuje dodatkowego floor. Zapis z odtworzeniem bitów. |
-| ExactUInt | GE, PE, całkowite populacje, liczby przedmiotów, statystyki i gwarancje | Dokładne nieujemne całkowite, proponowana pojemność do 2^64−1. W zapisie ciąg cyfr; pełny zakres wymaga dokładnych operacji całkowitych. |
+| ExactUInt | Diamenty (Diamonds, 💎; w kodzie i schemacie zachowany klucz GE), PE, całkowite populacje, liczby przedmiotów, statystyki i gwarancje | Dokładne nieujemne całkowite, proponowana pojemność do 2^64−1. W zapisie ciąg cyfr; pełny zakres wymaga dokładnych operacji całkowitych. |
 | SmallIndex | Indeks jaja, slot, poziom badania i wariant | Dokładna mała liczba całkowita, sprawdzana względem konkretnego katalogu i zatwierdzonego zakresu. |
 | Identifier | UID peta, oferta, operacja, zakup, event, wersja konfiguracji, token sesji | Niepusty tekst; bez konwersji do liczby i bez porównywania nazw leksykograficznie jako poziomów. |
 | Instant | Absolutny czas serwera | Proponowany zapis: całkowite milisekundy Unix mieszczące się w dokładnym zakresie binary64. |
@@ -112,7 +112,7 @@ Poniższe sekcje są logicznym podziałem jednego spójnego agregatu gracza, nie
 | ownership | sessionToken/generation, właściciel, stan dzierżawy; weryfikacja podczas każdej mutacji, odnowienia i zwolnienia. |
 | farm | eggIndex, maxEggReached, cash BigAmount, cztery rekordy kurników: typ, population ExactUInt, fractionalIHR Real64, kury przypisane w drodze; pojazdy i długość każdego pociągu, silosOwned, Common, zapas/refill wylęgarni, autorytatywny stan RCB i wypuszczonych grup. |
 | accounting | prestigeSessionArchivedCash, prestigeExtraEarnings, lastBaseEarnings, bieżące akumulatory dochodu i lastCashEarned, lifetime statystyki; każda wielkość ma własną rolę. |
-| permanent | GE i totalGESpent ExactUInt, SE Real64, PE ExactUInt lub suma źródeł, Epic, odblokowanie Hyperloop, liczba prestiżów, trwałe flagi postępu. |
+| permanent | Diamenty (Diamonds, 💎; w kodzie zachowany klucz GE i totalGESpent ExactUInt), SE Real64, PE ExactUInt lub suma źródeł, Epic (24 badania oczyszczone z odniesień kosmicznych na rzecz logistyki floty), odblokowanie Hyperloop, liczba prestiżów, trwałe flagi postępu. |
 | inventory | Sztuki boostów ExactUInt; pety po UID: gatunek, tier pochodzenia, wariant, lock; wyposażenie jako UID. Liczniki gwarancji po kluczu gatunek×tier×cel, nie po UID. Liczba miejsc pozostaje parametrem bilansu. |
 | effects | Lista aktywacji boostów: ID aktywacji, ID boostu, remainingSeconds, długość przy aktywacji i wersja konfiguracji; endsAt VD. Skuteczność/pauza wynika z aktualnego jaja i reguł, nie z usunięcia wpisu. |
 | timeline | settledWallThrough, ewentualny checkpoint obliczenia, potrzebne wersje eventów i historia uprawnień/zmian stanu. |

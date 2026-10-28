@@ -8,9 +8,9 @@
 -- Supported Full Modals (PROD-03):
 -- 1. HabitatsModal: All 19 habitat types (Tier 1..Tier 19), 4 parcel cards, capacity fill bars, prices.
 -- 2. VehiclesModal: Up to 17 fleet slots, 12 vehicle types (Tier 1..Tier 12), live shipping comparison bar.
--- 3. ResearchModal: Multi-tier modal with tabs for Tiers 1–13 (56 common) + dedicated Epic research tab (Złote Jaja).
+-- 3. ResearchModal: Multi-tier modal with tabs for Tiers 1–13 (56 common) + dedicated Epic research tab (Diamenty).
 -- 4. PetsModal: Equipped slots (3/5), inventory grid, fusion section (chance indicator, guarantee counter, +10 p.p. Pro Permit bonus).
--- 5. ShopModal: 3 tabs: Złote Jaja (GE packs 1..4), Wzmocnienia (Boosts for GE), Przepustki (Pro Permit, Buy MAX).
+-- 5. ShopModal: 3 tabs: Diamenty (pakiety Diamentów 1..4), Wzmocnienia (Boosts za Diamenty), Przepustki (Pro Permit, Buy MAX).
 -- 6. CalendarModal: 28-day calendar grid with claim indicators + Trophies tab across 19 eggs with 5 tier cups.
 -- 7. EggUpgradeModal: 19 eggs progression, Farm Value threshold checking and reset confirmation.
 --
@@ -104,8 +104,8 @@ local RESEARCH_EFFECT_LABELS = {
 	vehicleSpeedMult="Prędkość pojazdów", vehicleRoundTripTimeMult="Czas kursu",
 	vehicleLoadingTimeMult="Czas załadunku", hatcheryCapacity="Zapas wylęgu",
 	internalHatcheryRate="Kurczaki/min/kurnik", maxFleetSize="Miejsca floty",
-	onscreenChickenMult="Przyrost RCB",
-	onscreenChickenMultMax="Limit RCB", hyperloopMaxTrainLength="Dodatkowe wagony",
+	onscreenChickenMult="Mnożnik Dochodów",
+	onscreenChickenMultMax="Maksymalny Mnożnik", hyperloopMaxTrainLength="Dodatkowe wagony",
 }
 local function researchEffectText(research,fallback)
 	local lines={}
@@ -307,62 +307,62 @@ local COMMON_RESEARCH_TIERS = table.freeze({
 })
 
 local RESEARCH_DISPLAY_NAMES = table.freeze({
-	comfy_nests = "Wygodne Gniazda (+Tempo znoszenia)",
-	nutritional_sup = "Suplementy Odżywcze (+Wartość jaj)",
-	better_incubators = "Lepsze Inkubatory (+Wylęgarnia)",
-	excitable_chickens = "Podekscytowane Kury (+Mnożnik biegu)",
-	hab_capacity1 = "Rozbudowa Kurników (+Pojemność)",
-	internal_hatchery1 = "Wewnętrzny Wylęg I (+Kurczaki/min)",
-	padded_packaging = "Miękkie Pudełka (+Wartość jaj)",
-	hatchery_expansion = "Pojemniejsza Wylęgarnia (+Zapas jaj)",
-	bigger_eggs = "Większe Jaja (+Wartość x2)",
-	internal_hatchery2 = "Wewnętrzny Wylęg II (+Kurczaki/min)",
-	leafsprings = "Resory Pojazdów (+Pojemność floty)",
-	vehicle_reliablity = "Niezawodność Floty (+Slot pojazdu)",
-	rooster_booster = "Kogut Motywator (+Tempo wylęgu)",
-	coordinated_clucking = "Skoordynowane Gdakanie (+Mnożnik)",
-	hatchery_rebuild1 = "Modernizacja Wylęgarni (+Zapas)",
-	usde_prime = "Certyfikat USDE (+Wartość x3)",
-	hen_house_ac = "Klimatyzacja Kurników (+Znoszenie)",
-	superfeed = "Super Pasza (+Wartość jaj)",
-	microlux = "Żarówki Microlux (+Pojemność)",
-	compact_incubators = "Kompaktowe Inkubatory (+Zapas)",
-	lightweight_boxes = "Lekkie Kartony (+Pojemność floty)",
-	excoskeletons = "Egzoszkielety (+Slot pojazdu)",
-	internal_hatchery3 = "Wewnętrzny Wylęg III (+Kurczaki/min)",
-	improved_genetics = "Ulepszona Genetyka (+Wartość i tempo)",
-	traffic_management = "Zarządzanie Ruchem (+Slot pojazdu)",
-	motivational_clucking = "Motywacyjny Śpiew (+Mnożnik)",
-	driver_training = "Trening Kierowców (+Pojemność floty)",
-	shell_fortification = "Wzmocnienie Skorupek (+Wartość)",
-	egg_loading_bots = "Boty Załadunkowe (+Slot pojazdu)",
-	super_alloy = "Super Stopy (+Pojemność floty)",
-	even_bigger_eggs = "Gigantyczne Jaja (+Wartość)",
-	internal_hatchery4 = "Wewnętrzny Wylęg IV (+Kurczaki/min)",
-	quantum_storage = "Kwantowe Magazyny (+Pojemność)",
-	genetic_purification = "Oczyszczanie Genetyczne (+Wartość)",
-	internal_hatchery5 = "Wewnętrzny Wylęg V (+Kurczaki/min)",
-	time_compress = "Kompresja Czasu (+Tempo wylęgu)",
-	hover_upgrades = "Poduszkowce (+Pojemność floty)",
-	graviton_coating = "Powłoka Grawitonowa (+Wartość)",
-	grav_plating = "Płyty Antygrawitacyjne (+Pojemność)",
-	chrystal_shells = "Krystaliczne Skorupki (+Wartość)",
-	autonomous_vehicles = "Autonomiczna Flota (+Slot pojazdu)",
-	neural_linking = "Łącze Neuronowe (+Tempo znoszenia)",
-	telepathic_will = "Telepatyczna Wola (+Tempo wylęgu)",
-	enlightened_chickens = "Oświecone Kury (+Wartość)",
-	dark_containment = "Izolacja Ciemnej Materii (+Pojemność)",
-	atomic_purification = "Atomowe Oczyszczenie (+Wartość)",
-	multi_layering = "Wielowarstwowość (+Pojemność)",
-	timeline_diversion = "Dywergencja Czasowa (+Tempo wylęgu)",
-	wormhole_dampening = "Wygłuszanie Tuneli (+Slot pojazdu)",
-	eggsistor = "Eggzystory Kwantowe (+Wartość)",
-	micro_coupling = "Mikrosprzęgła (+Pojemność floty)",
-	neural_net_refine = "Sieci Neuronowe (+Tempo)",
-	matter_reconfig = "Rekonfiguracja Materii (+Wartość)",
-	timeline_splicing = "Splatanie Osi Czasu (+Wylęg)",
-	hyper_portalling = "Hiperportale (+Pojemność)",
-	relativity_optimization = "Optymalizacja Relatywistyczna (+Wartość)",
+	comfy_nests = "Szybkość Znoszenia Jaj",
+	nutritional_sup = "Wartość Znoszonych Jaj",
+	better_incubators = "Odnowienie Wylęgarni",
+	excitable_chickens = "Mnożnik Dochodów I",
+	hab_capacity1 = "Pojemność Kurników I",
+	internal_hatchery1 = "Automatyczny Wylęg I",
+	padded_packaging = "Wartość Jaj - Bezpieczne Opakowania",
+	hatchery_expansion = "Pojemność Wylęgarni I",
+	bigger_eggs = "Większe Jaja",
+	internal_hatchery2 = "Automatyczny Wylęg II",
+	leafsprings = "Pojemność Floty I",
+	vehicle_reliablity = "Niezawodne Pojazdy",
+	rooster_booster = "Tempo Wylęgu - Kogut Lider",
+	coordinated_clucking = "Mnożnik Dochodów II",
+	hatchery_rebuild1 = "Pojemność Wylęgarni II",
+	usde_prime = "Certyfikat Jakości Farmy",
+	hen_house_ac = "Tempo Znoszenia - Klimatyzacja",
+	superfeed = "Wartość Jaj - Pożywna Pasza",
+	microlux = "Pojemność Kurników II",
+	compact_incubators = "Pojemność Wylęgarni III",
+	lightweight_boxes = "Pojemność Floty II",
+	excoskeletons = "Miejsca Floty I",
+	internal_hatchery3 = "Automatyczny Wylęg III",
+	improved_genetics = "Wartość Jaj - Inżynieria Genetyczna",
+	traffic_management = "Miejsca Floty II",
+	motivational_clucking = "Mnożnik Dochodów III",
+	driver_training = "Pojemność Floty III",
+	shell_fortification = "Wzmocnienie Skorup Jaj",
+	egg_loading_bots = "Roboty Załadunkowe Floty",
+	super_alloy = "Pojemność Floty IV",
+	even_bigger_eggs = "Olbrzymie Jaja",
+	internal_hatchery4 = "Automatyczny Wylęg IV",
+	quantum_storage = "Pojemność Kurników III",
+	genetic_purification = "Oczyszczanie Genetyczne Jaj",
+	internal_hatchery5 = "Automatyczny Wylęg V",
+	time_compress = "Kompresja Czasu Wylęgu",
+	hover_upgrades = "Pojemność Floty - Poduszkowce",
+	graviton_coating = "Powłoka Grawitonowa Jaj",
+	grav_plating = "Pojemność Kurników IV",
+	chrystal_shells = "Krystaliczne Skorupki Jaj",
+	autonomous_vehicles = "Autonomiczne Pojazdy Floty",
+	neural_linking = "Neuronowe Tempo Znoszenia",
+	telepathic_will = "Telepatyczne Tempo Wylęgu",
+	enlightened_chickens = "Oświecone Kury",
+	dark_containment = "Pojemność Kurników V",
+	atomic_purification = "Atomowa Czystość Jaj",
+	multi_layering = "Pojemność Kurników VI",
+	timeline_diversion = "Rozszerzenie Czasu Wylęgu",
+	wormhole_dampening = "Przestrzenna Flota Tunelowa",
+	eggsistor = "Kwantowa Wartość Jaj",
+	micro_coupling = "Pojemność Floty - Mikrosprzęgła",
+	neural_net_refine = "Sieci Neuronowe Znoszenia",
+	matter_reconfig = "Rekonfiguracja Materii Jaj",
+	timeline_splicing = "Splatanie Czasu Wylęgu",
+	hyper_portalling = "Pojemność Kurników - Hiperportale",
+	relativity_optimization = "Relatywistyczna Wartość Jaj",
 })
 
 local RESEARCH_ICONS = table.freeze({
@@ -483,30 +483,199 @@ local COMMON_RESEARCH_MAX_LEVELS = table.freeze({
 	relativity_optimization = 10,
 })
 
+local UNSUPPORTED_EPIC_RESEARCH = table.freeze({
+	afx_mission_time = true,
+	afx_mission_capacity = true,
+	hold_to_research = true,
+	epic_silo_quality = true,
+	warp_shift = true,
+})
+
 local EPIC_RESEARCH_CATALOG = table.freeze({
-	{ id = "hold_to_hatch", name = "Przytrzymaj by Wylęgać", maxLevel = 15, basePriceGE = 10, desc = "+Szybkość ciągłego wylęgu" },
-	{ id = "epic_hatchery", name = "Epicka Wylęgarnia", maxLevel = 20, basePriceGE = 15, desc = "+Zapas wylęgarni" },
-	{ id = "epic_int_hatchery", name = "Epicki Wewnętrzny Wylęg", maxLevel = 20, basePriceGE = 25, desc = "+Wewnętrzny wylęg kurcząt" },
-	{ id = "epic_clucking", name = "Epickie Gdakanie", maxLevel = 20, basePriceGE = 20, desc = "+Mnożnik biegających kurcząt" },
-	{ id = "epic_multiplier", name = "Epicki Mnożnik", maxLevel = 100, basePriceGE = 30, desc = "+Maksymalny bonus biegających kurcząt" },
-	{ id = "cheaper_contractors", name = "Tańsi Wykonawcy", maxLevel = 10, basePriceGE = 100, desc = "-Koszt budowy kurników" },
-	{ id = "bust_unions", name = "Związki Zawodowe", maxLevel = 10, basePriceGE = 100, desc = "-Koszt zakupu pojazdów" },
-	{ id = "lab_upgrade", name = "Modernizacja Laboratorium", maxLevel = 10, basePriceGE = 250, desc = "-Koszt zwykłych badań" },
-	{ id = "silo_capacity", name = "Pojemność Silosów", maxLevel = 60, basePriceGE = 20, desc = "+Czas działania silosów offline" },
-	{ id = "silo_quality", name = "Jakość Silosów", maxLevel = 20, basePriceGE = 100, desc = "+Efektywność produkcji offline" },
-	{ id = "internal_hatchery_calm", name = "Spokój w Kurnikach", maxLevel = 20, basePriceGE = 50, desc = "+Tempo wylęgu gdy jesteś offline" },
-	{ id = "soul_food", name = "Pokarm Dusz", maxLevel = 140, basePriceGE = 10, desc = "+Bonus do zarobków za każde Soul Egg" },
-	{ id = "prestige_bonus", name = "Bonus Prestiżu", maxLevel = 20, basePriceGE = 100, desc = "+Liczba Soul Eggs zdobywana przy resecie" },
-	{ id = "epic_comfy_nests", name = "Epickie Wygodne Gniazda", maxLevel = 20, basePriceGE = 150, desc = "+Globalne tempo znoszenia jaj" },
-	{ id = "transportation_fleet", name = "Epicka Flota", maxLevel = 20, basePriceGE = 200, desc = "+Pojemność całej floty transportowej" },
-	{ id = "prophecy_bonus", name = "Bonus Przepowiedni", maxLevel = 5, basePriceGE = 1000, desc = "+Mnożnik dla każdego Jaja Przepowiedni (PE)" },
-	{ id = "drone_rewards", name = "Nagrody z Dronów", maxLevel = 20, basePriceGE = 50, desc = "+Szansa na rzadkie nagrody z dronów" },
-	{ id = "epic_warm_eggs", name = "Ciepłe Inkubatory", maxLevel = 20, basePriceGE = 200, desc = "-Czas inkubacji petów" },
-	{ id = "int_hatch_sharing", name = "Współdzielenie Wylęgu", maxLevel = 10, basePriceGE = 300, desc = "+Przekazywanie wylęgu z pełnych kurników" },
-	{ id = "int_hatch_constant", name = "Stały Wewnętrzny Wylęg", maxLevel = 10, basePriceGE = 400, desc = "+Stały wylęg niezależnie od populacji" },
-	{ id = "afx_mission_time", name = "Szybkie Misje Kosmiczne", maxLevel = 10, basePriceGE = 500, desc = "-Czas trwania ekspedycji" },
-	{ id = "afx_ship_capacity", name = "Pojemność Statków", maxLevel = 10, basePriceGE = 600, desc = "+Miejsca na artefakty w statkach" },
-	{ id = "relic_finder", name = "Poszukiwacz Reliktów", maxLevel = 10, basePriceGE = 750, desc = "+Szansa na legendarne artefakty" },
+	{
+		id = "hold_to_hatch",
+		name = "Maksymalne Tempo Wylęgu",
+		desc = "Zwiększa tempo wylęgu kurczaków przy przytrzymaniu (+2/s na poziom, do +30/s)",
+		maxLevel = 15,
+		basePriceGE = 10,
+		prices = table.freeze({ 10, 45, 80, 115, 150, 185, 220, 255, 290, 325, 360, 395, 430, 465, 500 }),
+	},
+	{
+		id = "epic_hatchery",
+		name = "Odnowienie Wylęgarni",
+		desc = "Zwiększa tempo uzupełniania wylęgarni kurczaków (+10% na poziom, do +200%)",
+		maxLevel = 20,
+		basePriceGE = 2,
+		prices = table.freeze({ 2, 54, 107, 159, 212, 264, 317, 369, 422, 474, 527, 579, 632, 684, 737, 789, 842, 894, 947, 1000 }),
+	},
+	{
+		id = "epic_internal_incubators",
+		name = "Automatyczny Wylęg Kurczaków",
+		desc = "Zwiększa pasywny przyrost kurczaków we wszystkich kurnikach (+5% na poziom, do +100%)",
+		maxLevel = 20,
+		basePriceGE = 50,
+		prices = table.freeze({ 50, 573, 1097, 1621, 2144, 2668, 3192, 3715, 4239, 4763, 5286, 5810, 6334, 6857, 7381, 7905, 8428, 8952, 9476, 10000 }),
+	},
+	{
+		id = "epic_clucking",
+		name = "Turbodoładowanie Wylęgarni",
+		desc = "Zwiększa bonus dochodu za każdego biegającego kurczaka (+0.1% na poziom, do +2.0%)",
+		maxLevel = 20,
+		basePriceGE = 100,
+		prices = table.freeze({ 100, 621, 1142, 1663, 2184, 2705, 3226, 3747, 4268, 4789, 5310, 5831, 6352, 6873, 7394, 7915, 8436, 8957, 9478, 10000 }),
+	},
+	{
+		id = "epic_multiplier",
+		name = "Globalny Mnożnik Farmy",
+		desc = "Zwiększa maksymalny limit mnożnika biegających kurczaków (+2x na poziom, do 200x)",
+		maxLevel = 100,
+		basePriceGE = 50,
+		prices = table.freeze({ 50, 150, 251, 351, 452, 552, 653, 753, 854, 954, 1055, 1155, 1256, 1356, 1457, 1557, 1658, 1758, 1859, 1959, 2060, 2160, 2261, 2361, 2462, 2562, 2663, 2763, 2864, 2964, 3065, 3165, 3266, 3366, 3467, 3567, 3668, 3768, 3869, 3969, 4070, 4170, 4271, 4371, 4472, 4572, 4673, 4773, 4874, 4974, 5075, 5175, 5276, 5376, 5477, 5577, 5678, 5778, 5879, 5979, 6080, 6180, 6281, 6381, 6482, 6582, 6683, 6783, 6884, 6984, 7085, 7185, 7286, 7386, 7487, 7587, 7688, 7788, 7889, 7989, 8090, 8190, 8291, 8391, 8492, 8592, 8693, 8793, 8894, 8994, 9095, 9195, 9296, 9396, 9497, 9597, 9698, 9798, 9899, 10000 }),
+	},
+	{
+		id = "cheaper_contractors",
+		name = "Zniżka na Rozbudowę Kurników",
+		desc = "Obniża koszt zakupu oraz rozbudowy kurników (-5% na poziom, do -50%)",
+		maxLevel = 10,
+		basePriceGE = 50,
+		prices = table.freeze({ 50, 488, 927, 1366, 1805, 2244, 2683, 3122, 3561, 4000 }),
+	},
+	{
+		id = "bust_unions",
+		name = "Zniżka na Pojazdy Floty",
+		desc = "Obniża koszt zakupu oraz ulepszania pojazdów floty (-5% na poziom, do -50%)",
+		maxLevel = 10,
+		basePriceGE = 50,
+		prices = table.freeze({ 50, 488, 927, 1366, 1805, 2244, 2683, 3122, 3561, 4000 }),
+	},
+	{
+		id = "cheaper_research",
+		name = "Zniżka na Badania Naukowe",
+		desc = "Obniża koszt zwykłych badań technologicznych (-5% na poziom, do -50%)",
+		maxLevel = 10,
+		basePriceGE = 100,
+		prices = table.freeze({ 100, 977, 1855, 2733, 3611, 4488, 5366, 6244, 7122, 8000 }),
+	},
+	{
+		id = "epic_silo_quality",
+		name = "Efektywność Silosów Offline",
+		desc = "Zwiększa efektywność dochodu generowanego offline w silosach (+1% na poziom, do +40%)",
+		maxLevel = 40,
+		basePriceGE = 5,
+		prices = table.freeze({ 5, 11, 17, 23, 30, 36, 42, 48, 55, 61, 67, 74, 80, 86, 92, 99, 105, 111, 118, 124, 130, 136, 143, 149, 155, 162, 168, 174, 180, 187, 193, 199, 206, 212, 218, 224, 231, 237, 243, 250 }),
+	},
+	{
+		id = "silo_capacity",
+		name = "Czas Silosów Offline",
+		desc = "Wydłuża czas działania każdego silosu offline (+6 min na poziom, do +2h na silos)",
+		maxLevel = 20,
+		basePriceGE = 5,
+		prices = table.freeze({ 5, 110, 215, 320, 425, 530, 635, 740, 845, 950, 1055, 1160, 1265, 1370, 1475, 1580, 1685, 1790, 1895, 2000 }),
+	},
+	{
+		id = "int_hatch_sharing",
+		name = "Współdzielenie Wylęgu Kurników",
+		desc = "Przekazuje wylęg z pełnych kurników do wolnych (+10% na poziom, do 100%)",
+		maxLevel = 10,
+		basePriceGE = 100,
+		prices = table.freeze({ 100, 366, 633, 900, 1166, 1433, 1700, 1966, 2233, 2500 }),
+	},
+	{
+		id = "int_hatch_calm",
+		name = "Spokój w Kurnikach (Auto-Wylęg)",
+		desc = "Mnoży tempo wylęgu kurcząt gdy jesteś poza grą (+10% na poziom, do +200% / 3x)",
+		maxLevel = 20,
+		basePriceGE = 250,
+		prices = table.freeze({ 250, 763, 1276, 1789, 2302, 2815, 3328, 3842, 4355, 4868, 5381, 5894, 6407, 6921, 7434, 7947, 8460, 8973, 9486, 10000 }),
+	},
+	{
+		id = "accounting_tricks",
+		name = "Wycena Rynkowa Farmy",
+		desc = "Zwiększa ogólną wycenę majątku farmy (+5% na poziom, do +100%)",
+		maxLevel = 20,
+		basePriceGE = 100,
+		prices = table.freeze({ 100, 621, 1142, 1663, 2184, 2705, 3226, 3747, 4268, 4789, 5310, 5831, 6352, 6873, 7394, 7915, 8436, 8957, 9478, 10000 }),
+	},
+	{
+		id = "hold_to_research",
+		name = "Błyskawiczne Zakupy Badań",
+		desc = "Przyspiesza seryjny zakup badań przy przytrzymaniu (+25% na poziom, do 6x)",
+		maxLevel = 20,
+		basePriceGE = 5000,
+		prices = table.freeze({ 5000, 5789, 6578, 7368, 8157, 8947, 9736, 10526, 11315, 12105, 12894, 13684, 14473, 15263, 16052, 16842, 17631, 18421, 19210, 20000 }),
+	},
+	{
+		id = "soul_eggs",
+		name = "Mnożnik Kryształów Prestiżu",
+		desc = "Zwiększa bonus zarobków z każdego Kryształu Prestiżu (+1% na poziom, do +140%)",
+		maxLevel = 140,
+		basePriceGE = 500,
+		prices = table.freeze({ 500, 532, 564, 597, 629, 661, 694, 726, 758, 791, 823, 856, 888, 920, 953, 985, 1017, 1050, 1082, 1115, 1147, 1179, 1212, 1244, 1276, 1309, 1341, 1374, 1406, 1438, 1471, 1503, 1535, 1568, 1600, 1633, 1665, 1697, 1730, 1762, 1794, 1827, 1859, 1892, 1924, 1956, 1989, 2021, 2053, 2086, 2118, 2151, 2183, 2215, 2248, 2280, 2312, 2345, 2377, 2410, 2442, 2474, 2507, 2539, 2571, 2604, 2636, 2669, 2701, 2733, 2766, 2798, 2830, 2863, 2895, 2928, 2960, 2992, 3025, 3057, 3089, 3122, 3154, 3187, 3219, 3251, 3284, 3316, 3348, 3381, 3413, 3446, 3478, 3510, 3543, 3575, 3607, 3640, 3672, 3705, 3737, 3769, 3802, 3834, 3866, 3899, 3931, 3964, 3996, 4028, 4061, 4093, 4125, 4158, 4190, 4223, 4255, 4287, 4320, 4352, 4384, 4417, 4449, 4482, 4514, 4546, 4579, 4611, 4643, 4676, 4708, 4741, 4773, 4805, 4838, 4870, 4902, 4935, 4967, 5000 }),
+	},
+	{
+		id = "prestige_bonus",
+		name = "Więcej Kryształów Prestiżu",
+		desc = "Zwiększa liczbę Kryształów Prestiżu zdobywanych przy resecie (+10% na poziom, do +200%)",
+		maxLevel = 20,
+		basePriceGE = 2000,
+		prices = table.freeze({ 2000, 2947, 3894, 4842, 5789, 6736, 7684, 8631, 9578, 10526, 11473, 12421, 13368, 14315, 15263, 16210, 17157, 18105, 19052, 20000 }),
+	},
+	{
+		id = "drone_rewards",
+		name = "Wartość Spadających Prezentów",
+		desc = "Zwiększa szansę na cenniejsze nagrody ze spadających prezentów (+10% wartości na poziom, do +200%)",
+		maxLevel = 20,
+		basePriceGE = 50,
+		prices = table.freeze({ 50, 152, 255, 357, 460, 563, 665, 768, 871, 973, 1076, 1178, 1281, 1384, 1486, 1589, 1692, 1794, 1897, 2000 }),
+	},
+	{
+		id = "epic_egg_laying",
+		name = "Szybkość Znoszenia Jaj",
+		desc = "Zwiększa tempo znoszenia jaj przez całą populację (+5% na poziom, do +100%)",
+		maxLevel = 20,
+		basePriceGE = 250,
+		prices = table.freeze({ 250, 2868, 5486, 8105, 10723, 13342, 15960, 18578, 21197, 23815, 26434, 29052, 31671, 34289, 36907, 39526, 42144, 44763, 47381, 50000 }),
+	},
+	{
+		id = "transportation_lobbyist",
+		name = "Pojemność Floty Pojazdów",
+		desc = "Zwiększa pojemność i ładowność każdego pojazdu floty (+5% na poziom, do +150%)",
+		maxLevel = 30,
+		basePriceGE = 250,
+		prices = table.freeze({ 250, 413, 577, 741, 905, 1068, 1232, 1396, 1560, 1724, 1887, 2051, 2215, 2379, 2543, 2706, 2870, 3034, 3198, 3362, 3525, 3689, 3853, 4017, 4181, 4344, 4508, 4672, 4836, 5000 }),
+	},
+	{
+		id = "warp_shift",
+		name = "Efektywność Skoków Czasowych",
+		desc = "Zwiększa zysk gotówkowy i zasięg natychmiastowych skoków czasowych (+1h na poziom, do +16h)",
+		maxLevel = 16,
+		basePriceGE = 250,
+		prices = table.freeze({ 250, 566, 883, 1200, 1516, 1833, 2150, 2466, 2783, 3100, 3416, 3733, 4050, 4366, 4683, 5000 }),
+	},
+	{
+		id = "prophecy_bonus",
+		name = "Siła Królewskich Koron",
+		desc = "Zwiększa mnożnik dochodu z każdej Królewskiej Korony (+1% na poziom, do +5%)",
+		maxLevel = 5,
+		basePriceGE = 100000,
+		prices = table.freeze({ 100000, 325000, 550000, 775000, 1000000 }),
+	},
+	{
+		id = "afx_mission_time",
+		name = "Szybkość Kursu Floty",
+		desc = "Skraca czas podróży i kursów floty transportowej (-1% na poziom, do -60%)",
+		maxLevel = 60,
+		basePriceGE = 5000,
+		prices = table.freeze({ 5000, 8305, 11610, 14915, 18220, 21525, 24830, 28135, 31440, 34745, 38050, 41355, 44661, 47966, 51271, 54576, 57881, 61186, 64491, 67796, 71101, 74406, 77711, 81016, 84322, 87627, 90932, 94237, 97542, 100847, 104152, 107457, 110762, 114067, 117372, 120677, 123983, 127288, 130593, 133898, 137203, 140508, 143813, 147118, 150423, 153728, 157033, 160338, 163644, 166949, 170254, 173559, 176864, 180169, 183474, 186779, 190084, 193389, 196694, 200000 }),
+	},
+	{
+		id = "afx_mission_capacity",
+		name = "Logistyka i Magazyn Floty",
+		desc = "Zwiększa ładowność i przepustowość magazynową floty (+5% na poziom, do +50%)",
+		maxLevel = 10,
+		basePriceGE = 50000,
+		prices = table.freeze({ 50000, 155555, 261111, 366666, 472222, 577777, 683333, 788888, 894444, 1000000 }),
+	},
 })
 
 local BOOSTS_CATALOG = table.freeze({
@@ -515,27 +684,41 @@ local BOOSTS_CATALOG = table.freeze({
 	{ id = "jimbos_orange", name = "Najlepsza Pasza (50x)", priceGE = 2500, duration = "10 min", effect = "50x Dochód" },
 	{ id = "tachyon_prism_blue_v2", name = "Pryzmat Tachionowy", priceGE = 50, duration = "10 min", effect = "10x Wylęg" },
 	{ id = "tachyon_prism_blue_big", name = "Wielki Pryzmat", priceGE = 500, duration = "4 godz", effect = "10x Wylęg" },
-	{ id = "soul_beacon", name = "Latarnia Dusz", priceGE = 1000, duration = "30 min", effect = "5x Soul Eggs" },
-	{ id = "blank_check", name = "Czysty Czek", priceGE = 750, duration = "Natychmiast", effect = "Zastrzyk Gotówki" },
-	{ id = "money_printer", name = "Drukarka Pieniędzy", priceGE = 2500, duration = "Natychmiast", effect = "Ogromna Gotówka" },
+	{ id = "soul_beacon", name = "Latarnia Prestiżu", priceGE = 1000, duration = "30 min", effect = "5x Kryształów Prestiżu" },
+	{ id = "blank_check", name = "Zastrzyk Gotówki", priceGE = 750, duration = "Natychmiast", effect = "Zastrzyk Gotówki" },
+	{ id = "money_printer", name = "Wielki Zastrzyk Gotówki", priceGE = 2500, duration = "Natychmiast", effect = "Wielki Zastrzyk Gotówki" },
 })
 
 local SHOP_PRODUCTS_CATALOG = table.freeze({
-	ge_pack_small = { id = "ge_pack_small", name = "Pakiet Złotych Jaj (1,000 GE)", kind = "developer_product", geAmount = 1000 },
-	ge_pack_large = { id = "ge_pack_large", name = "Wielki Pakiet Złotych Jaj (10,000 GE)", kind = "developer_product", geAmount = 10000 },
-	piggy_break = { id = "piggy_break", name = "Rozbij Skarbonkę (Break Piggy)", kind = "developer_product", desc = "Odbierz wszystkie Złote Jaja zebrane w Skarbonce!" },
+	ge_pack_small = { id = "ge_pack_small", name = "Paczka Diamentów (1,000 💎)", kind = "developer_product", geAmount = 1000 },
+	ge_pack_large = { id = "ge_pack_large", name = "Wielka Paka Diamentów (10,000 💎)", kind = "developer_product", geAmount = 10000 },
+	piggy_break = { id = "piggy_break", name = "Rozbij Skarbonkę (Break Piggy)", kind = "developer_product", desc = "Wypłać wszystkie Diamenty zmagazynowane w Skarbonce!" },
 	pro_permit = {
 		id = "pro_permit",
-		name = "Pro Permit",
+		name = "Przepustka PRO",
 		kind = "gamepass",
-		desc = "+2 Dodatkowe Sloty na Pety (łącznie 5), rozbudowa silosów do 10, bonus +10 p.p. do szansy fuzji petów*.",
+		desc = "Stała Przepustka PRO: 10 silosów (do 24h działania offline z badaniami), 5 aktywnych boostów i +10 p.p. szansy fuzji petów.",
 		notice = "*Uwaga: Zgodnie z regulacjami dotyczącymi płatnych losowych mechanik, bonus +10 p.p. do fuzji jest dostępny tylko w uprawnionych regionach.",
+	},
+	auto_hatch = {
+		id = "auto_hatch",
+		name = "Auto-Wylęg (Wkrótce - v1.1)",
+		kind = "gamepass",
+		desc = "Automatyczny, ciągły wylęg kurczaków z maksymalną prędkością bez klikania! Planowany na v1.1.",
+		disabled = true,
 	},
 	buy_max = {
 		id = "buy_max",
-		name = "Kupuj MAX (Buy MAX)",
+		name = "Kupuj MAX (Wkrótce - v1.1)",
 		kind = "gamepass",
-		desc = "Kupuj maksymalną możliwą liczbę ulepszeń i badań jednym kliknięciem!",
+		desc = "Kupuj maksymalną możliwą liczbę ulepszeń i badań jednym kliknięciem! Planowany na v1.1.",
+		disabled = true,
+	},
+	double_cash = {
+		id = "double_cash",
+		name = "2x Dochód (2x Cash)",
+		kind = "gamepass",
+		desc = "Podwójny Dochód: stały mnożnik x2 do wszystkich zysków z jaj.",
 	},
 })
 
@@ -550,25 +733,25 @@ local TROPHY_POPULATION_TIERS = table.freeze({
 })
 
 local EGGS_DATA = table.freeze({
-	[0] = { index = 0, name = "Edible", eggValueBase = 0.25, advanceFV = 0 },
-	[1] = { index = 1, name = "Superfood", eggValueBase = 1.25, advanceFV = 68000000 },
-	[2] = { index = 2, name = "Medical", eggValueBase = 6.25, advanceFV = 5300000000 },
-	[3] = { index = 3, name = "Rocket Fuel", eggValueBase = 30, advanceFV = 240000000000 },
-	[4] = { index = 4, name = "Super Material", eggValueBase = 150, advanceFV = 1.7e14 },
-	[5] = { index = 5, name = "Fusion", eggValueBase = 700, advanceFV = 5e16 },
-	[6] = { index = 6, name = "Quantum", eggValueBase = 3000, advanceFV = 2.3e19 },
-	[7] = { index = 7, name = "CRISPR", eggValueBase = 12500, advanceFV = 9.4e22 },
-	[8] = { index = 8, name = "Tachyon", eggValueBase = 50000, advanceFV = 1.7e26 },
-	[9] = { index = 9, name = "Graviton", eggValueBase = 175000, advanceFV = 9.8e29 },
-	[10] = { index = 10, name = "Dilithium", eggValueBase = 525000, advanceFV = 4.8e33 },
-	[11] = { index = 11, name = "Prodigy", eggValueBase = 1500000, advanceFV = 1.6e37 },
-	[12] = { index = 12, name = "Terraform", eggValueBase = 10000000, advanceFV = 2e40 },
-	[13] = { index = 13, name = "Antimatter", eggValueBase = 1000000000, advanceFV = 1.3e44 },
-	[14] = { index = 14, name = "Dark Matter", eggValueBase = 100000000000, advanceFV = 1.2e48 },
-	[15] = { index = 15, name = "A.I.", eggValueBase = 1e12, advanceFV = 3.2e52 },
-	[16] = { index = 16, name = "Nebula", eggValueBase = 1.5e13, advanceFV = 2e56 },
-	[17] = { index = 17, name = "Universe", eggValueBase = 1e14, advanceFV = 4e60 },
-	[18] = { index = 18, name = "Enlightenment", eggValueBase = 1e-7, advanceFV = 3.6e65 },
+	[0] = { index = 0, name = "Kurze", eggValueBase = 0.50, advanceFV = 0 },
+	[1] = { index = 1, name = "Kacze", eggValueBase = 1.25, advanceFV = 5000000 },
+	[2] = { index = 2, name = "Gęsie", eggValueBase = 6.25, advanceFV = 5300000000 },
+	[3] = { index = 3, name = "Indycze", eggValueBase = 30, advanceFV = 240000000000 },
+	[4] = { index = 4, name = "Strusie", eggValueBase = 150, advanceFV = 1.7e14 },
+	[5] = { index = 5, name = "Pawie", eggValueBase = 700, advanceFV = 5e16 },
+	[6] = { index = 6, name = "Pingwinie", eggValueBase = 3000, advanceFV = 2.3e19 },
+	[7] = { index = 7, name = "Krucze", eggValueBase = 12500, advanceFV = 9.4e22 },
+	[8] = { index = 8, name = "Orle", eggValueBase = 50000, advanceFV = 1.7e26 },
+	[9] = { index = 9, name = "Kazuara", eggValueBase = 175000, advanceFV = 9.8e29 },
+	[10] = { index = 10, name = "Pterodaktyla", eggValueBase = 525000, advanceFV = 4.8e33 },
+	[11] = { index = 11, name = "Raptora", eggValueBase = 1500000, advanceFV = 1.6e37 },
+	[12] = { index = 12, name = "Tyranozaura", eggValueBase = 10000000, advanceFV = 2e40 },
+	[13] = { index = 13, name = "Gryfa", eggValueBase = 1000000000, advanceFV = 1.3e44 },
+	[14] = { index = 14, name = "Hydry", eggValueBase = 100000000000, advanceFV = 1.2e48 },
+	[15] = { index = 15, name = "Bazyliszka", eggValueBase = 1e12, advanceFV = 3.2e52 },
+	[16] = { index = 16, name = "Feniksa", eggValueBase = 1.5e13, advanceFV = 2e56 },
+	[17] = { index = 17, name = "Smocze", eggValueBase = 1e14, advanceFV = 4e60 },
+	[18] = { index = 18, name = "Astralnego Lewiatana", eggValueBase = 1e-7, advanceFV = 3.6e65 },
 })
 
 local function calculateClientFarmValue(farm)
@@ -623,6 +806,13 @@ local Enum = if isRoblox then Enum else {
 	ApplyStrokeMode = { Border = "Border" },
 }
 
+local TweenService = nil
+if isRoblox then
+	pcall(function()
+		TweenService = game:GetService("TweenService")
+	end)
+end
+
 local function createMockEvent()
 	local listeners = {}
 	local event = {}
@@ -646,6 +836,7 @@ local function createMockEvent()
 end
 
 local function createMockElement(className, properties)
+	local attributes = {}
 	local inst = {
 		ClassName = className,
 		Name = (properties and properties.Name) or className,
@@ -656,6 +847,18 @@ local function createMockElement(className, properties)
 		Active = if properties and properties.Active ~= nil then properties.Active else true,
 		AutoButtonColor = if properties and properties.AutoButtonColor ~= nil then properties.AutoButtonColor else true,
 	}
+
+	function inst:SetAttribute(name, value)
+		attributes[name] = value
+	end
+
+	function inst:GetAttribute(name)
+		return attributes[name]
+	end
+
+	function inst:GetAttributes()
+		return table.clone(attributes)
+	end
 
 	function inst:FindFirstChild(name)
 		for _, child in ipairs(self.Children) do
@@ -833,6 +1036,69 @@ local function decorateGuiElement(inst, spec)
 	end
 end
 
+local function bindBouncyButton(btn)
+	if not isRoblox or typeof(btn) ~= "Instance" or not TweenService then return end
+	local uiScale = btn:FindFirstChild("PressScale")
+	if not uiScale then
+		uiScale = Instance.new("UIScale")
+		uiScale.Name = "PressScale"
+		uiScale.Scale = 1
+		uiScale.Parent = btn
+	end
+	if btn:IsA("GuiButton") then
+		local tweenDown = TweenService:Create(uiScale, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Scale = 0.94 })
+		local tweenUp = TweenService:Create(uiScale, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1.0 })
+		btn.MouseButton1Down:Connect(function()
+			tweenDown:Play()
+		end)
+		btn.MouseButton1Up:Connect(function()
+			tweenUp:Play()
+		end)
+		btn.MouseLeave:Connect(function()
+			tweenUp:Play()
+		end)
+	end
+end
+
+local function addShimmerEffect(frame)
+	if not isRoblox or typeof(frame) ~= "Instance" or not TweenService then return end
+	local gradient = Instance.new("UIGradient")
+	gradient.Name = "ShimmerGradient"
+	gradient.Rotation = 25
+	gradient.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+		ColorSequenceKeypoint.new(0.45, Color3.fromRGB(255, 255, 255)),
+		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 255, 255)),
+		ColorSequenceKeypoint.new(0.55, Color3.fromRGB(255, 255, 255)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255)),
+	})
+	gradient.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(0.4, 1),
+		NumberSequenceKeypoint.new(0.5, 0.35),
+		NumberSequenceKeypoint.new(0.6, 1),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	gradient.Offset = Vector2.new(-1, 0)
+	gradient.Parent = frame
+
+	local tween = TweenService:Create(gradient, TweenInfo.new(2.4, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, false, 0.8), {
+		Offset = Vector2.new(1, 0),
+	})
+	tween:Play()
+end
+
+local function addPulseGlow(stroke, minTransparency, maxTransparency)
+	if not isRoblox or typeof(stroke) ~= "Instance" or not TweenService then return end
+	minTransparency = minTransparency or 0.05
+	maxTransparency = maxTransparency or 0.6
+	stroke.Transparency = minTransparency
+	local tween = TweenService:Create(stroke, TweenInfo.new(1.0, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+		Transparency = maxTransparency,
+	})
+	tween:Play()
+end
+
 local function promptMarketplacePurchase(productId, onPurchaseProductCallback)
 	if type(onPurchaseProductCallback) == "function" then
 		onPurchaseProductCallback(productId)
@@ -895,6 +1161,10 @@ function HUD.new(deps)
 		sessionStatusLabel = nil,
 		homeButton = nil,
 		cashLabel = nil,
+		cashIcon = nil,
+		cashRateLabel = nil,
+		diamondsPillFrame = nil,
+		diamondIcon = nil,
 		producedEggsLabel = nil,
 		soldEggsLabel = nil,
 		shippingLabel = nil,
@@ -975,6 +1245,13 @@ function HUD.new(deps)
 		eggUpgradeReqFvLabel = nil,
 		eggUpgradeWarningLabel = nil,
 		eggUpgradeBtn = nil,
+
+		-- Prestige & Rebirth Modal
+		prestigeModal = nil,
+		prestigeCurrentCrystalsLabel = nil,
+		prestigeCurrentBonusLabel = nil,
+		prestigePendingLabel = nil,
+		prestigeActionBtn = nil,
 
 		-- Pet Hatch & Incubator Modal (PROD-07)
 		petHatchModal = nil,
@@ -1268,10 +1545,32 @@ function HUD:_buildInterface()
 	}, bottomLeft)
 	addTextStroke(self.rebirthLabel, 2.4)
 
+	local rebirthBtn = createGuiElement("TextButton", {
+		Name = "RebirthClickButton",
+		Size = isRoblox and UDim2.new(1, 0, 0, 44) or nil,
+		Position = isRoblox and UDim2.new(0, 0, 0, 0) or nil,
+		BackgroundTransparency = 1,
+		Text = "",
+		ZIndex = 5,
+	}, bottomLeft)
+	if rebirthBtn.Activated then
+		rebirthBtn.Activated:Connect(function()
+			self:togglePrestigeModal()
+		end)
+	end
+
+	self.cashIcon = createGuiElement("ImageLabel", {
+		Name = "CashIcon",
+		Size = isRoblox and UDim2.new(0, 42, 0, 42) or nil,
+		Position = isRoblox and UDim2.new(0, 0, 0, 26) or nil,
+		BackgroundTransparency = 1,
+		Image = "rbxassetid://87511254654486", -- Green Cash 1st Outline 256px (Store Decal: 139287659909902, Image: 87511254654486)
+	}, bottomLeft)
+
 	self.cashLabel = createGuiElement("TextLabel", {
 		Name = "CashLabel",
-		Size = isRoblox and UDim2.new(1, 0, 0, 58) or nil,
-		Position = isRoblox and UDim2.new(0, 0, 0, 28) or nil,
+		Size = isRoblox and UDim2.new(1, -48, 0, 40) or nil,
+		Position = isRoblox and UDim2.new(0, 48, 0, 26) or nil,
 		BackgroundTransparency = 1,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
@@ -1280,14 +1579,51 @@ function HUD:_buildInterface()
 		Text = "$0",
 	}, bottomLeft)
 	addTextStroke(self.cashLabel, 3.4)
-	self.goldenEggsLabel=createGuiElement("TextLabel",{
-		Name="GoldenEggsLabel",Size=if isRoblox then UDim2.new(.3,0,0,32) else nil,
-		Position=if isRoblox then UDim2.new(0,16,0,104) else nil,BackgroundTransparency=1,
-		Font=if isRoblox then Enum.Font.FredokaOne else nil,TextScaled=true,
-		TextXAlignment=if isRoblox then Enum.TextXAlignment.Left else nil,
-		TextColor3=if isRoblox then Color3.fromRGB(255,220,75) else nil,Text="Złote jaja: —",
-	},root)
-	addTextStroke(self.goldenEggsLabel,2)
+
+	self.cashRateLabel = createGuiElement("TextLabel", {
+		Name = "CashRateLabel",
+		Size = isRoblox and UDim2.new(1, -48, 0, 22) or nil,
+		Position = isRoblox and UDim2.new(0, 48, 0, 68) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+		TextColor3 = isRoblox and Color3.fromRGB(165, 255, 135) or nil,
+		Text = "+$0/s",
+	}, bottomLeft)
+	addTextStroke(self.cashRateLabel, 2.0)
+
+	local diamondsPill = createGuiElement("Frame", {
+		Name = "DiamondsPillFrame",
+		Size = isRoblox and UDim2.new(0, 160, 0, 36) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 0, 104) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(20, 30, 48) or nil,
+		BackgroundTransparency = isRoblox and 0.25 or nil,
+		BorderSizePixel = 0,
+	}, root)
+	self.diamondsPillFrame = diamondsPill
+	addCornerAndStroke(diamondsPill, 10, Color3.fromRGB(80, 200, 255), 1.8)
+
+	self.diamondIcon = createGuiElement("ImageLabel", {
+		Name = "DiamondIcon",
+		Size = isRoblox and UDim2.new(0, 26, 0, 26) or nil,
+		Position = isRoblox and UDim2.new(0, 6, 0.5, -13) or nil,
+		BackgroundTransparency = 1,
+		Image = "rbxassetid://123463156806216",
+	}, diamondsPill)
+
+	self.goldenEggsLabel = createGuiElement("TextLabel", {
+		Name = "GoldenEggsLabel",
+		Size = isRoblox and UDim2.new(1, -38, 1, 0) or nil,
+		Position = isRoblox and UDim2.new(0, 36, 0, 0) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+		TextColor3 = isRoblox and Color3.fromRGB(200, 240, 255) or nil,
+		Text = "Diamenty: -",
+	}, diamondsPill)
+	addTextStroke(self.goldenEggsLabel, 2)
 
 	-- 4. Left-Side Green Studded Quick-Action Buttons (hidden by default per docs/ui/ui_design_specification.md to preserve clean view and mobile touch thumbstick zone)
 	local leftQuickCluster = createGuiElement("Frame", {
@@ -1486,38 +1822,65 @@ function HUD:_buildInterface()
 	end
 	self:_bindHatchStatusResponsive(root)
 
-	-- 7. Right-Side Framed Icon Buttons Dock (6 Buttons in PROD-03)
+	-- 7. Right-Side Framed Icon Buttons Dock (Touch-Friendly Square Icon Buttons)
+	-- Tactile square icon buttons from UiAssets pack with accessible MenuTitle attribute
+	local dockButtonsSpec = {
+		{ name = "ResearchMenuButton", title = "Badania", iconKey = "window.research", bg = Color3.fromRGB(32, 68, 140), action = function() self:toggleResearchModal() end },
+		{ name = "EpicResearchMenuButton", title = "Epickie", iconKey = "tab.ge", bg = Color3.fromRGB(115, 35, 155), action = function() self:toggleEpicResearchModal() end },
+		{ name = "HabitatsMenuButton", title = "Kurniki", iconKey = "window.habitats", bg = Color3.fromRGB(160, 80, 40), action = function() self:toggleHabitatsModal() end },
+		{ name = "VehiclesMenuButton", title = "Flota", iconKey = "window.fleet", bg = Color3.fromRGB(45, 175, 75), action = function() self:toggleVehiclesModal() end },
+		{ name = "PetsMenuButton", title = "Pety", iconKey = "window.pets", bg = Color3.fromRGB(150, 60, 190), hidden = true, action = function() self:togglePetsModal() end },
+		{ name = "ShopMenuButton", title = "Sklep", iconKey = "window.shop", bg = Color3.fromRGB(225, 155, 30), action = function() self:toggleShopModal() end },
+		{ name = "CalendarMenuButton", title = "Nagrody", iconKey = "window.calendar", bg = Color3.fromRGB(225, 75, 95), action = function() self:toggleCalendarModal() end },
+	}
+
+	local visibleButtonsCount = 0
+	for _, d in ipairs(dockButtonsSpec) do
+		if not (d.hidden == true) then
+			visibleButtonsCount += 1
+		end
+	end
+	local dockHeight = visibleButtonsCount * 64
 	local rightDock = createGuiElement("Frame", {
 		Name = "RightDock",
-		Size = isRoblox and UDim2.new(0, 80, 0, 440) or nil,
-		Position = isRoblox and UDim2.new(1, -92, 0.5, -220) or nil,
+		Size = isRoblox and UDim2.new(0, 70, 0, dockHeight) or nil,
+		Position = isRoblox and UDim2.new(1, -82, 0.5, -math.floor(dockHeight / 2)) or nil,
 		BackgroundTransparency = 1,
 	}, root)
 
-	-- Emoji removed from the dock menu as agreed (#82): the label text alone stays meaningful and
-	-- the genuine gvesster/StudUI icons (UiAssets) are the only imagery the migrated windows draw.
-	local dockButtonsSpec = {
-		{ name = "ResearchMenuButton", text = "Badania", bg = Color3.fromRGB(32, 68, 140), action = function() self:toggleResearchModal() end },
-		{ name = "HabitatsMenuButton", text = "Kurniki", bg = Color3.fromRGB(160, 80, 40), action = function() self:toggleHabitatsModal() end },
-		{ name = "VehiclesMenuButton", text = "Flota", bg = Color3.fromRGB(45, 175, 75), action = function() self:toggleVehiclesModal() end },
-		{ name = "PetsMenuButton", text = "Pety", bg = Color3.fromRGB(150, 60, 190), action = function() self:togglePetsModal() end },
-		{ name = "ShopMenuButton", text = "Sklep", bg = Color3.fromRGB(225, 155, 30), action = function() self:toggleShopModal() end },
-		{ name = "CalendarMenuButton", text = "Nagrody", bg = Color3.fromRGB(225, 75, 95), action = function() self:toggleCalendarModal() end },
-	}
-
+	local visibleIndex = 0
 	for i, dSpec in ipairs(dockButtonsSpec) do
+		local isVisible = not (dSpec.hidden == true)
+		local yPos = 0
+		if isVisible then
+			visibleIndex += 1
+			yPos = (visibleIndex - 1) * 64 + 4
+		end
+
 		local btn = createGuiElement("TextButton", {
 			Name = dSpec.name,
-			Size = isRoblox and UDim2.new(0, 72, 0, 64) or nil,
-			Position = isRoblox and UDim2.new(0, 4, 0, (i - 1) * 72) or nil,
+			Visible = isVisible,
+			Size = isRoblox and UDim2.new(0, 58, 0, 58) or nil,
+			Position = isRoblox and UDim2.new(0, 6, 0, yPos) or nil,
 			BackgroundColor3 = isRoblox and dSpec.bg or nil,
-			Font = isRoblox and Enum.Font.FredokaOne or nil,
-			TextScaled = true,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-			Text = dSpec.text,
+			AutoButtonColor = true,
+			Text = "",
 		}, rightDock)
-		addCornerAndStroke(btn, 10, isRoblox and Color3.fromRGB(18, 12, 10) or nil, 3.0)
-		addTextStroke(btn, 2.0)
+		addCornerAndStroke(btn, 12, isRoblox and Color3.fromRGB(18, 12, 10) or nil, 3.0)
+		if btn.SetAttribute then
+			btn:SetAttribute("MenuTitle", dSpec.title)
+		end
+
+		local iconId = (self.ui and self.ui:assetId(dSpec.iconKey)) or (UiAssets and UiAssets.images[dSpec.iconKey] and UiAssets.images[dSpec.iconKey].id) or ""
+		createGuiElement("ImageLabel", {
+			Name = "ButtonIcon",
+			Size = isRoblox and UDim2.new(0, 40, 0, 40) or nil,
+			Position = isRoblox and UDim2.new(0.5, -20, 0.5, -20) or nil,
+			BackgroundTransparency = 1,
+			Image = iconId,
+			ScaleType = isRoblox and Enum.ScaleType.Fit or nil,
+		}, btn)
+
 		if btn.Activated then
 			btn.Activated:Connect(function()
 				self:_playClick()
@@ -1526,6 +1889,7 @@ function HUD:_buildInterface()
 		end
 
 		if dSpec.name == "ResearchMenuButton" then self.researchToggleBtn = btn
+		elseif dSpec.name == "EpicResearchMenuButton" then self.epicResearchToggleBtn = btn
 		elseif dSpec.name == "HabitatsMenuButton" then self.habitatsToggleBtn = btn
 		elseif dSpec.name == "VehiclesMenuButton" then self.vehiclesToggleBtn = btn
 		elseif dSpec.name == "PetsMenuButton" then self.petsToggleBtn = btn
@@ -1555,6 +1919,7 @@ function HUD:_buildInterface()
 
 	-- 9. Research Modal Drawer (Multi-tier T1..T13 common + Epic research tab)
 	self:_buildResearchModal(root)
+	self:_buildEpicResearchModal(root)
 
 	-- 10. Pets Modal Drawer (Equipped slots 3/5, inventory, fusion)
 	self:_buildPetsModal(root)
@@ -1574,6 +1939,9 @@ function HUD:_buildInterface()
 	-- 14. Pet Incubator & Hatch Modal (PROD-07)
 	self:_buildPetHatchModal(root)
 	self:_buildHatchAnimationOverlay(root)
+
+	-- 15. Prestige & Rebirth Modal
+	self:_buildPrestigeModal(root)
 end
 
 -- Legacy contract kept for the existing UI suites: the desktop budget for a window is ~70% of the
@@ -1902,10 +2270,10 @@ function HUD:_buildResearchModal(root)
 	})
 	if isRoblox then tabsRow.CanvasSize = UDim2.new(0, 940, 0, 0) end
 
-	local tabNames = { "T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12", "T13", "EPICKIE" }
+	local tabNames = { "T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12", "T13" }
 	local tabOffset = 0
 	for idx, tabName in ipairs(tabNames) do
-		local tabWidth = if idx == 14 then 92 else 56
+		local tabWidth = 56
 		local tabBtn = self.ui:tabButton(tabsRow, {
 			name = "TierTab_" .. tabName, text = tabName,
 			size = { 0, tabWidth }, position = { 0, tabOffset, 0, 0 },
@@ -2004,6 +2372,174 @@ function HUD:_layoutResearchCard(item, layout)
 			item.buyButton.Size = UDim2.new(0, 130, 0, 44)
 			item.buyButton.Position = UDim2.new(1, -138, 0, 7)
 		end
+	end
+end
+
+
+function HUD:_buildEpicResearchModal(root)
+	local win = self.ui:window({
+		parent = root,
+		name = "EpicResearchModalFrame",
+		family = "shop",
+		title = "BADANIA EPICKIE",
+		subtitle = "Trwałe ulepszenia całej farmy za Diamenty",
+		designWidth = 920,
+		designHeight = 640,
+	})
+	local eFrame = win.frame
+	self.epicResearchModal = eFrame
+	self:_fitWindow(eFrame, win.designWidth, win.designHeight)
+	self.ui:closeButton(eFrame, function()
+		eFrame.Visible = false
+	end)
+
+	if isRoblox and typeof(eFrame) == "Instance" then
+		addCornerAndStroke(eFrame, 16, Color3.fromRGB(215, 120, 255), 2.5)
+		local stroke = eFrame:FindFirstChildOfClass("UIStroke")
+		if stroke then addPulseGlow(stroke, 0.1, 0.5) end
+	end
+
+	-- Golden Eggs Balance status pill
+	self.epicGePill = self.ui:pill(eFrame, {
+		name = "EpicGeBalancePill",
+		size = { 1, -28, 0, 36 },
+		position = { 0, 14, 0, 66 },
+		text = "Twoje Diamenty: 0 💎",
+		tone = "gold",
+		align = "Center",
+		maxTextSize = 18,
+		radius = 8,
+	})
+
+	-- Scrolling container with cards for all 24 epic researches
+	local scroll = self.ui:scroll(eFrame, {
+		name = "EpicResearchListContainer",
+		size = { 1, -28, 1, -118 },
+		position = { 0, 14, 0, 108 },
+		canvasHeight = #EPIC_RESEARCH_CATALOG * 92 + 12,
+		scrollBarColor = { 215, 120, 255 },
+	})
+	self.epicResearchListContainer = scroll
+	self.epicResearchCards = {}
+
+	local function getEpicRobuxTier(geCost: number): (string, number)
+		if geCost <= 50 then
+			return "epic_tier_1", 19
+		elseif geCost <= 200 then
+			return "epic_tier_2", 49
+		elseif geCost <= 1000 then
+			return "epic_tier_3", 99
+		else
+			return "epic_tier_4", 199
+		end
+	end
+
+	for i, item in ipairs(EPIC_RESEARCH_CATALOG) do
+		local card = self.ui:card(scroll, {
+			name = "EpicCard_" .. item.id,
+			family = "shop",
+			fill = { 44, 22, 54 },
+			top = { 74, 38, 90 },
+			border = { 90, 45, 110 },
+			size = { 1, -6, 0, 84 },
+			position = { 0, 0, 0, (i - 1) * 92 },
+		})
+
+		local title = self.ui:label(card, {
+			name = "Title",
+			size = { 0.54, 0, 0, 22 },
+			position = { 0.03, 0, 0, 8 },
+			text = item.name,
+			color = { 255, 235, 120 },
+			align = "Left",
+			textStroke = 1.8,
+			maxTextSize = 17,
+		})
+
+		local desc = self.ui:label(card, {
+			name = "Desc",
+			size = { 0.54, 0, 0, 26 },
+			position = { 0.03, 0, 0, 30 },
+			text = item.desc,
+			color = { 225, 225, 235 },
+			align = "Left",
+			textStroke = 1.4,
+			maxTextSize = 14,
+		})
+
+		local lvlLabel = self.ui:label(card, {
+			name = "LevelLabel",
+			size = { 0.24, 0, 0, 18 },
+			position = { 0.03, 0, 0, 58 },
+			text = "Poziom: 0 / " .. tostring(item.maxLevel),
+			color = { 180, 240, 180 },
+			align = "Left",
+			textStroke = 1.4,
+			maxTextSize = 13,
+		})
+
+		local track = createGuiElement("Frame", {
+			Name = "ProgressTrack",
+			Size = isRoblox and UDim2.new(0.28, 0, 0, 10) or nil,
+			Position = isRoblox and UDim2.new(0.28, 0, 0, 62) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(30, 15, 38) or nil,
+		}, card)
+		addCornerAndStroke(track, 4, nil, 0)
+
+		local fill = createGuiElement("Frame", {
+			Name = "ProgressFill",
+			Size = isRoblox and UDim2.new(0, 0, 1, 0) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(245, 158, 11) or nil,
+		}, track)
+		addCornerAndStroke(fill, 4, nil, 0)
+
+		local buyBtn = self.ui:button(card, {
+			name = "BuyEpicButton",
+			text = if UNSUPPORTED_EPIC_RESEARCH[item.id] then "WKRÓTCE" else formatCompact(item.basePriceGE) .. " 💎",
+			tone = if UNSUPPORTED_EPIC_RESEARCH[item.id] then "ghost" else "primary",
+			size = { 0.36, 0, 0, 48 },
+			position = { 0.60, 0, 0, 18 },
+			onClick = function()
+				if UNSUPPORTED_EPIC_RESEARCH[item.id] then return end
+				if type(self.onBuyEpicResearch) == "function" then
+					self.onBuyEpicResearch(item.id)
+				end
+			end,
+		})
+
+		local initTier, initRobux = getEpicRobuxTier(item.basePriceGE)
+		local cardEntry = nil
+		local buyRobuxBtn = self.ui:button(card, {
+			name = "BuyRobuxButton",
+			text = tostring(initRobux) .. " R$",
+			tone = "gold",
+			size = { 0.18, 0, 0, 48 },
+			position = { 0.79, 0, 0, 18 },
+			visible = false,
+			onClick = function()
+				local tId = (cardEntry and cardEntry.currentRobuxTier) or initTier
+				promptMarketplacePurchase(tId, self.onPurchaseProduct)
+			end,
+		})
+
+		if isRoblox then
+			bindBouncyButton(buyBtn)
+			if typeof(buyRobuxBtn) == "Instance" then buyRobuxBtn.Visible = false end
+		end
+
+		cardEntry = {
+			card = card,
+			title = title,
+			desc = desc,
+			lvlLabel = lvlLabel,
+			track = track,
+			fill = fill,
+			buyBtn = buyBtn,
+			buyRobuxBtn = buyRobuxBtn,
+			currentRobuxTier = initTier,
+			spec = item,
+		}
+		self.epicResearchCards[item.id] = cardEntry
 	end
 end
 
@@ -2148,11 +2684,14 @@ function HUD:_buildPetsModal(root)
 end
 
 function HUD:_buildShopModal(root)
-	-- Shared stud-style window (#82): gold shop family, same frame/header/close family.
+	-- Shared stud-style window (#82) with tabs for:
+	-- 1. Pakiety Diamentów (ShopCard_ge_pack_small / large, piggy_break)
+	-- 2. Wzmocnienia (BoostCard_*)
+	-- 3. Przepustki (PassCard_pro_permit / buy_max)
 	local win = self.ui:window({
 		parent = root, name = "ShopModalFrame", family = "shop",
-		title = "SKLEP ZŁOTYCH JAJ I PRZEPUSTEK",
-		designWidth = 520, designHeight = 520,
+		title = "SKLEP DIAMENTÓW I PRZEPUSTEK",
+		designWidth = 920, designHeight = 640,
 	})
 	local sFrame = win.frame
 	self.shopModal = sFrame
@@ -2161,32 +2700,63 @@ function HUD:_buildShopModal(root)
 		sFrame.Visible = false
 	end)
 
-	-- Tabs row: 1. Złote Jaja, 2. Wzmocnienia (Boosts), 3. Przepustki. 44px touch targets.
+	if isRoblox and typeof(sFrame) == "Instance" then
+		addCornerAndStroke(sFrame, 16, Color3.fromRGB(255, 215, 65), 2.5)
+		local stroke = sFrame:FindFirstChildOfClass("UIStroke")
+		if stroke then addPulseGlow(stroke, 0.1, 0.5) end
+	end
+
+	-- Top Hero Promo Banner: High-converting CTA to Tab 3 GamePasses
+	local heroBanner = self.ui:button(sFrame, {
+		name = "HeroPromoBanner",
+		tone = "boost",
+		size = { 1, -28, 0, 46 },
+		position = { 0, 14, 0, 64 },
+		text = "⭐ MEGA OFERTA: 2X DOCHÓD & PRZEPUSTKA PRO – ZWIĘKSZ ZYSKI JUŻ TERAZ! ⭐",
+		color = { 255, 240, 110 },
+		textStroke = 2.0,
+		maxTextSize = 18,
+		onClick = function()
+			self:selectShopTab(3)
+		end,
+	})
+	if isRoblox and typeof(heroBanner) == "Instance" then
+		addCornerAndStroke(heroBanner, 10, Color3.fromRGB(255, 215, 65), 2.0)
+		local stroke = heroBanner:FindFirstChildOfClass("UIStroke")
+		if stroke then addPulseGlow(stroke, 0.05, 0.6) end
+		addShimmerEffect(heroBanner)
+		bindBouncyButton(heroBanner)
+	end
+
+	-- Tabs row: 1. Diamenty, 2. Wzmocnienia (Boosts), 3. Przepustki. 44px touch targets.
 	local tabsRow = self.ui:card(sFrame, {
 		name = "ShopTabsRow", family = "shop",
 		fill = { 56, 32, 48 }, border = { 32, 16, 28 },
-		size = { 1, -28, 0, 44 }, position = { 0, 14, 0, 70 },
+		size = { 1, -28, 0, 46 }, position = { 0, 14, 0, 116 },
 	})
 
-	local sTabNames = { "Złote Jaja", "Wzmocnienia", "Przepustki" }
+	local sTabNames = { "Diamenty", "Wzmocnienia", "Przepustki" }
 	local sTabIcons = { "tab.ge", "tab.boosts", "tab.passes" }
 	for idx, sName in ipairs(sTabNames) do
 		local tabBtn = self.ui:tabButton(tabsRow, {
 			name = "ShopTab_" .. tostring(idx), text = sName,
-			size = { 0.32, 0, 0, 44 }, position = { (idx - 1) * 0.34, 0, 0, 0 },
+			size = { 0.32, 0, 0, 44 }, position = { (idx - 1) * 0.34, 0, 0, 1 },
 			height = 44, active = (idx == 1), iconKey = sTabIcons[idx],
 			onClick = function()
 				self:selectShopTab(idx)
 			end,
 		})
+		if isRoblox then
+			bindBouncyButton(tabBtn)
+		end
 		self.shopModalTabButtons[idx] = tabBtn
 	end
 
 	-- Content Container: a scroll area so long product lists never shrink their text.
 	local content = self.ui:scroll(sFrame, {
 		name = "ShopContentContainer",
-		size = { 1, -28, 1, -134 }, position = { 0, 14, 0, 124 },
-		canvasHeight = 3 * 82 + 8, scrollBarColor = { 255, 215, 65 },
+		size = { 1, -28, 1, -178 }, position = { 0, 14, 0, 168 },
+		canvasHeight = 4 * 132 + 20, scrollBarColor = { 255, 215, 65 },
 	})
 
 	-- Build static product cards for tab 1 (GE), tab 2 (Boosts), tab 3 (Passes)
@@ -2198,40 +2768,81 @@ function HUD:_buildShopProducts(container)
 	local tab1Frame = self.ui:card(container, {
 		name = "Tab1_GEPacks", family = "shop",
 		fill = { 56, 32, 48 }, border = { 32, 16, 28 },
-		visible = true, size = { 1, 0, 0, 3 * 82 + 8 }, position = { 0, 0, 0, 0 },
+		visible = true, size = { 1, 0, 0, 3 * 96 + 8 }, position = { 0, 0, 0, 0 },
 	})
 
 	local geProducts = {
-		{ id = "ge_pack_small", title = "Paczka Złotych Jaj (1,000 GE)", desc = "Zastrzyk Złotych Jaj na epickie badania i boosty", btnText = "KUP" },
-		{ id = "ge_pack_large", title = "Wielka Paka Złotych Jaj (10,000 GE)", desc = "Maksymalna wartość Złotych Jaj na badania", btnText = "KUP" },
-		{ id = "piggy_break", title = "Rozbij Skarbonkę (Break Piggy)", desc = "Wypłać wszystkie Złote Jaja zmagazynowane w Skarbonce", btnText = "ROZBIJ" },
+		{
+			id = "ge_pack_small",
+			title = "Paczka Diamentów (1,000 💎)",
+			badge = "[⚡ SZYBKI START]",
+			badgeColor = { 255, 215, 65 },
+			desc = "Zastrzyk Diamentów na epickie badania i boosty",
+			btnText = "KUP",
+		},
+		{
+			id = "ge_pack_large",
+			title = "Wielka Paka Diamentów (10,000 💎)",
+			badge = "[🔥 NAJLEPSZA WARTOŚĆ (+50% BONUS)]",
+			badgeColor = { 255, 140, 50 },
+			desc = "Maksymalna wartość Diamentów na badania",
+			btnText = "KUP",
+			isBestValue = true,
+		},
+		{
+			id = "piggy_break",
+			title = "Rozbij Skarbonkę (Break Piggy)",
+			badge = "[💎 BANK DIAMENTÓW]",
+			badgeColor = { 225, 120, 255 },
+			desc = "Wypłać wszystkie Diamenty zmagazynowane w Skarbonce",
+			btnText = "ROZBIJ",
+		},
 	}
 
 	for i, prod in ipairs(geProducts) do
 		local card = self.ui:card(tab1Frame, {
 			name = "ShopCard_" .. prod.id, family = "shop",
-			fill = { 78, 44, 66 }, top = { 110, 62, 92 }, border = { 36, 18, 30 },
-			size = { 1, 0, 0, 74 }, position = { 0, 0, 0, (i - 1) * 82 },
+			fill = if prod.isBestValue then { 86, 42, 74 } else { 74, 40, 64 },
+			top = if prod.isBestValue then { 124, 64, 104 } else { 106, 58, 90 },
+			border = if prod.isBestValue then { 255, 195, 45 } else { 36, 18, 30 },
+			size = { 1, 0, 0, 88 }, position = { 0, 0, 0, (i - 1) * 96 },
+		})
+
+		local badgeLbl = self.ui:label(card, {
+			name = "BadgeLabel", size = { 0.70, 0, 0, 18 }, position = { 0.03, 0, 0, 6 },
+			text = prod.badge, color = prod.badgeColor, align = "Left",
+			textStroke = 1.6, maxTextSize = 14,
 		})
 
 		local title = self.ui:label(card, {
-			name = "Title", size = { 0.70, 0, 0, 24 }, position = { 0.03, 0, 0, 8 },
+			name = "Title", size = { 0.70, 0, 0, 24 }, position = { 0.03, 0, 0, 26 },
 			text = prod.title, color = { 255, 235, 95 }, align = "Left",
 			textStroke = 1.8, maxTextSize = 18,
 		})
 
 		local desc = self.ui:label(card, {
-			name = "Desc", size = { 0.70, 0, 0, 32 }, position = { 0.03, 0, 0, 34 },
+			name = "Desc", size = { 0.70, 0, 0, 30 }, position = { 0.03, 0, 0, 52 },
 			text = prod.desc, color = { 240, 240, 240 }, align = "Left",
 			textStroke = 1.6, maxTextSize = 15,
 		})
+
 		local buyBtn = self.ui:button(card, {
-			name = "BuyProductButton", text = prod.btnText, tone = "primary",
-			size = { 0.24, 0, 0, 44 }, position = { 0.73, 0, 0, 15 },
+			name = "BuyProductButton", text = prod.btnText, tone = if prod.isBestValue then "gold" else "primary",
+			size = { 0.23, 0, 0, 50 }, position = { 0.74, 0, 0, 19 },
 			onClick = function()
 				promptMarketplacePurchase(prod.id, self.onPurchaseProduct)
 			end,
 		})
+
+		if isRoblox then
+			bindBouncyButton(buyBtn)
+			if prod.isBestValue then
+				addShimmerEffect(card)
+				local stroke = card:FindFirstChildOfClass("UIStroke")
+				if stroke then addPulseGlow(stroke, 0.05, 0.6) end
+			end
+		end
+
 		self.shopProductCards[prod.id] = card
 	end
 
@@ -2239,31 +2850,31 @@ function HUD:_buildShopProducts(container)
 	local tab2Frame = self.ui:card(container, {
 		name = "Tab2_Boosts", family = "shop",
 		fill = { 56, 32, 48 }, border = { 32, 16, 28 },
-		visible = false, size = { 1, 0, 0, #BOOSTS_CATALOG * 50 + 8 }, position = { 0, 0, 0, 0 },
+		visible = false, size = { 1, 0, 0, #BOOSTS_CATALOG * 56 + 8 }, position = { 0, 0, 0, 0 },
 	})
 
 	for i, bSpec in ipairs(BOOSTS_CATALOG) do
 		local card = self.ui:card(tab2Frame, {
 			name = "BoostCard_" .. bSpec.id, family = "shop",
 			fill = { 68, 38, 58 }, top = { 98, 56, 84 }, border = { 32, 16, 28 },
-			size = { 1, 0, 0, 46 }, position = { 0, 0, 0, (i - 1) * 50 },
+			size = { 1, 0, 0, 50 }, position = { 0, 0, 0, (i - 1) * 56 },
 		})
 
 		local title = self.ui:label(card, {
-			name = "Title", size = { 0.55, 0, 0, 46 }, position = { 0.02, 0, 0, 0 },
+			name = "Title", size = { 0.55, 0, 0, 50 }, position = { 0.02, 0, 0, 0 },
 			text = bSpec.name .. " (" .. bSpec.effect .. ")", color = { 255, 255, 255 },
 			align = "Left", textStroke = 1.5, maxTextSize = 16,
 		})
 
 		local priceLbl = self.ui:label(card, {
-			name = "Price", size = { 0.20, 0, 0, 46 }, position = { 0.58, 0, 0, 0 },
-			text = tostring(bSpec.priceGE) .. " GE", color = { 255, 215, 65 },
+			name = "Price", size = { 0.20, 0, 0, 50 }, position = { 0.58, 0, 0, 0 },
+			text = tostring(bSpec.priceGE) .. " 💎", color = { 255, 215, 65 },
 			align = "Center", textStroke = 1.5, maxTextSize = 16,
 		})
 
 		local buyBtn = self.ui:button(card, {
 			name = "BuyBoostButton", text = "KUP", tone = "primary",
-			size = { 0.18, 0, 0, 44 }, position = { 0.80, 0, 0, 1 },
+			size = { 0.19, 0, 0, 42 }, position = { 0.79, 0, 0, 4 },
 			textStroke = 1.5, maxTextSize = 16,
 			onClick = function()
 				if type(self.onBuyBoost) == "function" then
@@ -2271,6 +2882,11 @@ function HUD:_buildShopProducts(container)
 				end
 			end,
 		})
+
+		if isRoblox then
+			bindBouncyButton(buyBtn)
+		end
+
 		self.shopProductCards[bSpec.id] = card
 	end
 
@@ -2278,45 +2894,90 @@ function HUD:_buildShopProducts(container)
 	local tab3Frame = self.ui:card(container, {
 		name = "Tab3_GamePasses", family = "shop",
 		fill = { 56, 32, 48 }, border = { 32, 16, 28 },
-		visible = false, size = { 1, 0, 0, 2 * 120 + 8 }, position = { 0, 0, 0, 0 },
+		visible = false, size = { 1, 0, 0, 4 * 132 + 8 }, position = { 0, 0, 0, 0 },
 	})
 
-	local passes = { SHOP_PRODUCTS_CATALOG.pro_permit, SHOP_PRODUCTS_CATALOG.buy_max }
+	local passes = {
+		{
+			spec = SHOP_PRODUCTS_CATALOG.double_cash,
+			badge = "[⭐ NAJPOPULARNIEJSZE (2x KASA NA ZAWSZE)]",
+			badgeColor = { 255, 215, 65 },
+			isFeatured = true,
+		},
+		{
+			spec = SHOP_PRODUCTS_CATALOG.pro_permit,
+			badge = "[👑 VIP (STAŁA PRZEPUSTKA 10 SILOSÓW & 5 BOOSTÓW)]",
+			badgeColor = { 255, 175, 245 },
+			isFeatured = true,
+		},
+		{
+			spec = SHOP_PRODUCTS_CATALOG.auto_hatch,
+			badge = "[⏳ WKRÓTCE (AKTUALIZACJA V1.1)]",
+			badgeColor = { 120, 240, 255 },
+			isFeatured = false,
+		},
+		{
+			spec = SHOP_PRODUCTS_CATALOG.buy_max,
+			badge = "[⏳ WKRÓTCE (AKTUALIZACJA V1.1)]",
+			badgeColor = { 130, 255, 150 },
+			isFeatured = false,
+		},
+	}
+
 	for i, pass in ipairs(passes) do
 		local card = self.ui:card(tab3Frame, {
-			name = "PassCard_" .. pass.id, family = "shop",
-			fill = { 78, 44, 66 }, top = { 110, 62, 92 }, border = { 36, 18, 30 },
-			size = { 1, 0, 0, 110 }, position = { 0, 0, 0, (i - 1) * 120 },
+			name = "PassCard_" .. pass.spec.id, family = "shop",
+			fill = if pass.isFeatured then { 82, 42, 72 } else { 74, 40, 64 },
+			top = if pass.isFeatured then { 118, 62, 102 } else { 106, 58, 90 },
+			border = if pass.isFeatured then { 255, 205, 50 } else { 36, 18, 30 },
+			size = { 1, 0, 0, 122 }, position = { 0, 0, 0, (i - 1) * 132 },
+		})
+
+		local badgeLbl = self.ui:label(card, {
+			name = "BadgeLabel", size = { 0.70, 0, 0, 18 }, position = { 0.03, 0, 0, 6 },
+			text = pass.badge, color = pass.badgeColor, align = "Left",
+			textStroke = 1.6, maxTextSize = 14,
 		})
 
 		local title = self.ui:label(card, {
-			name = "Title", size = { 0.70, 0, 0, 24 }, position = { 0.03, 0, 0, 6 },
-			text = pass.name, color = { 255, 235, 95 }, align = "Left",
+			name = "Title", size = { 0.70, 0, 0, 24 }, position = { 0.03, 0, 0, 26 },
+			text = pass.spec.name, color = { 255, 235, 95 }, align = "Left",
 			textStroke = 1.8, maxTextSize = 18,
 		})
 
 		local desc = self.ui:label(card, {
-			name = "Desc", size = { 0.70, 0, 0, 42 }, position = { 0.03, 0, 0, 30 },
-			text = pass.desc, color = { 240, 240, 240 }, align = "Left",
+			name = "Desc", size = { 0.70, 0, 0, 36 }, position = { 0.03, 0, 0, 52 },
+			text = pass.spec.desc, color = { 240, 240, 240 }, align = "Left",
 			textStroke = 1.6, maxTextSize = 15,
 		})
 
-		if pass.notice then
+		if pass.spec.notice then
 			local noticeLbl = self.ui:label(card, {
-				name = "Notice", size = { 0.70, 0, 0, 28 }, position = { 0.03, 0, 0, 74 },
-				text = pass.notice, color = { 255, 175, 140 }, align = "Left",
+				name = "Notice", size = { 0.70, 0, 0, 26 }, position = { 0.03, 0, 0, 90 },
+				text = pass.spec.notice, color = { 255, 175, 140 }, align = "Left",
 				textStroke = 1.5, maxTextSize = 15,
 			})
 		end
 
+		local isPassDisabled = pass.spec.disabled == true
 		local buyBtn = self.ui:button(card, {
-			name = "BuyPassButton", text = "ODBLOKUJ", tone = "primary",
-			size = { 0.24, 0, 0, 44 }, position = { 0.73, 0, 0, 30 },
+			name = "BuyPassButton", text = if isPassDisabled then "WKRÓTCE" else "ODBLOKUJ", tone = if isPassDisabled then "ghost" else "primary",
+			size = { 0.23, 0, 0, 52 }, position = { 0.74, 0, 0, 34 },
 			onClick = function()
-				promptMarketplacePurchase(pass.id, self.onPurchaseProduct)
+				promptMarketplacePurchase(pass.spec.id, self.onPurchaseProduct)
 			end,
 		})
-		self.shopProductCards[pass.id] = card
+
+		if isRoblox then
+			bindBouncyButton(buyBtn)
+			if pass.isFeatured then
+				addShimmerEffect(card)
+				local stroke = card:FindFirstChildOfClass("UIStroke")
+				if stroke then addPulseGlow(stroke, 0.1, 0.6) end
+			end
+		end
+
+		self.shopProductCards[pass.spec.id] = card
 	end
 end
 
@@ -2468,13 +3129,13 @@ function HUD:_buildEggUpgradeModal(root)
 
 	self.eggUpgradeCurrentLabel = self.ui:label(eggModal, {
 		name = "CurrentEggLabel", size = { 1, -32, 0, 26 }, position = { 0, 16, 0, 74 },
-		text = "Aktualne: Jajo Jadalne (Edible)", color = { 255, 255, 255 },
+		text = "Aktualne: Jajo Kurze", color = { 255, 255, 255 },
 		textStroke = 1.8, maxTextSize = 18,
 	})
 
 	self.eggUpgradeNextLabel = self.ui:label(eggModal, {
 		name = "NextEggLabel", size = { 1, -32, 0, 26 }, position = { 0, 16, 0, 104 },
-		text = "Następne: Jajo Superfood", color = { 115, 245, 115 },
+		text = "Następne: Jajo Kacze", color = { 115, 245, 115 },
 		textStroke = 1.8, maxTextSize = 18,
 	})
 
@@ -2492,14 +3153,14 @@ function HUD:_buildEggUpgradeModal(root)
 
 	self.eggUpgradeReqFvLabel = self.ui:label(eggModal, {
 		name = "RequiredFvLabel", size = { 1, -32, 0, 24 }, position = { 0, 16, 0, 192 },
-		text = "Wymagane Farm Value: $68.0M", color = { 255, 185, 115 },
+		text = "Wymagane Farm Value: $5.0M", color = { 255, 185, 115 },
 		textStroke = 1.8, maxTextSize = 17,
 	})
 
 	-- Reset warning: a themed pill so the destructive note is unmistakable and readable.
 	self.eggUpgradeWarningLabel = self.ui:pill(eggModal, {
 		name = "WarningLabel", size = { 1, -32, 0, 52 }, position = { 0, 16, 0, 224 },
-		text = "Awans zresetuje bieżącą gotówkę, kurniki i pojazdy.\nPety, Złote Jaja i badania Epickie zostaną zachowane!",
+		text = "Awans zresetuje bieżącą gotówkę, kurniki i pojazdy.\nPety, Diamenty i badania Epickie zostaną zachowane!",
 		tone = "locked", align = "Center", wrapped = true,
 		maxTextSize = 15, radius = 8, transparency = 0.15,
 	})
@@ -2518,6 +3179,16 @@ function HUD:_buildEggUpgradeModal(root)
 		end,
 	})
 	self.eggUpgradeBtn = upgEggBtn
+
+	self.eggPrestigeBtn = self.ui:button(eggModal, {
+		name = "PrestigeFromEggButton", text = "✨ ODRÓDŹ FARMĘ (PRESTIŻ)", tone = "secondary",
+		size = { 1, -40, 0, 42 }, position = { 0, 20, 0, 350 },
+		textStroke = 2.0, maxTextSize = 16,
+		onClick = function()
+			eggModal.Visible = false
+			self:togglePrestigeModal(true)
+		end,
+	})
 end
 
 function HUD:_buildPetHatchModal(root)
@@ -2577,13 +3248,13 @@ function HUD:_buildPetHatchModal(root)
 	-- Cost label
 	self.ui:label(card, {
 		name = "EggCostLabel", size = { 1, -20, 0, 24 }, position = { 0, 10, 0, 198 },
-		text = "Koszt: 100 Złotych Jaj (GE)", color = { 255, 215, 65 },
+		text = "Koszt: 100 Diamentów (100 💎)", color = { 255, 215, 65 },
 		textStroke = 1.6, maxTextSize = 17,
 	})
 
 	-- Hatch Button
 	local hatchBtn = self.ui:button(hFrame, {
-		name = "HatchButton", text = "WYSIADUJ / INKUBUJ (100 GE)", tone = "primary",
+		name = "HatchButton", text = "WYSIADUJ / INKUBUJ (100 💎)", tone = "primary",
 		size = { 1, -28, 0, 52 }, position = { 0, 14, 1, -66 },
 		textStroke = 2.4, maxTextSize = 20,
 		onClick = function()
@@ -2707,6 +3378,206 @@ function HUD:_buildHatchAnimationOverlay(root)
 		zIndex = 54, textStroke = 2.0, maxTextSize = 17,
 	})
 	self.revealConfirmBtn = confirmBtn
+end
+
+function HUD:_buildPrestigeModal(root)
+	local modal = createGuiElement("Frame", {
+		Name = "PrestigeModal",
+		Visible = false,
+		Size = isRoblox and UDim2.new(0, 460, 0, 420) or nil,
+		Position = isRoblox and UDim2.new(0.5, -230, 0.5, -210) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(24, 16, 42) or nil,
+		BackgroundTransparency = 0.05,
+		BorderSizePixel = 0,
+		ZIndex = 50,
+	}, root)
+	self.prestigeModal = modal
+	self:_fitWindow(modal, 460, 420)
+	addCornerAndStroke(modal, 18, isRoblox and Color3.fromRGB(180, 80, 255) or nil, 3.5)
+
+	-- Header Frame
+	local header = createGuiElement("Frame", {
+		Name = "WindowHeader",
+		Size = isRoblox and UDim2.new(1, 0, 0, 52) or nil,
+		Position = isRoblox and UDim2.new(0, 0, 0, 0) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(48, 22, 78) or nil,
+		BorderSizePixel = 0,
+		ZIndex = 51,
+	}, modal)
+	addCornerAndStroke(header, 18, isRoblox and Color3.fromRGB(180, 80, 255) or nil, 2)
+
+	local titleLabel = createGuiElement("TextLabel", {
+		Name = "WindowTitle",
+		Size = isRoblox and UDim2.new(1, -70, 1, 0) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 0, 0) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(245, 220, 255) or nil,
+		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+		Text = "ODRODZENIE & PRESTIŻ",
+		ZIndex = 52,
+	}, header)
+	addTextStroke(titleLabel, 2.5)
+
+	-- Close Button
+	local closeBtn = createGuiElement("TextButton", {
+		Name = "CloseBtn",
+		Size = isRoblox and UDim2.new(0, 36, 0, 36) or nil,
+		Position = isRoblox and UDim2.new(1, -44, 0.5, -18) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(180, 40, 60) or nil,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "✕",
+		ZIndex = 52,
+	}, header)
+	addCornerAndStroke(closeBtn, 8, isRoblox and Color3.fromRGB(90, 20, 30) or nil, 2)
+	if closeBtn.Activated then
+		closeBtn.Activated:Connect(function()
+			self:_playClick()
+			modal.Visible = false
+		end)
+	end
+
+	-- 1. Current Crystals & Multiplier Card
+	local currentCard = createGuiElement("Frame", {
+		Name = "CurrentCard",
+		Size = isRoblox and UDim2.new(1, -32, 0, 76) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 0, 62) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(36, 20, 60) or nil,
+		BackgroundTransparency = 0.2,
+		ZIndex = 51,
+	}, modal)
+	addCornerAndStroke(currentCard, 12, isRoblox and Color3.fromRGB(120, 50, 180) or nil, 2)
+
+	self.prestigeCurrentCrystalsLabel = createGuiElement("TextLabel", {
+		Name = "CurrentCrystalsLabel",
+		Size = isRoblox and UDim2.new(1, -16, 0, 30) or nil,
+		Position = isRoblox and UDim2.new(0, 10, 0, 6) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(225, 140, 255) or nil,
+		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+		Text = "Posiadane Kryształy: 🟣 0",
+		ZIndex = 52,
+	}, currentCard)
+	addTextStroke(self.prestigeCurrentCrystalsLabel, 2.0)
+
+	self.prestigeCurrentBonusLabel = createGuiElement("TextLabel", {
+		Name = "CurrentBonusLabel",
+		Size = isRoblox and UDim2.new(1, -16, 0, 26) or nil,
+		Position = isRoblox and UDim2.new(0, 10, 0, 40) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 225, 100) or nil,
+		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+		Text = "Bonus do zarobków: +0% (+10% z każdego kryształu)",
+		ZIndex = 52,
+	}, currentCard)
+	addTextStroke(self.prestigeCurrentBonusLabel, 1.8)
+
+	-- 2. Pending Crystals Card
+	local pendingCard = createGuiElement("Frame", {
+		Name = "PendingCard",
+		Size = isRoblox and UDim2.new(1, -32, 0, 105) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 0, 146) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(48, 16, 80) or nil,
+		BackgroundTransparency = 0.1,
+		ZIndex = 51,
+	}, modal)
+	addCornerAndStroke(pendingCard, 14, isRoblox and Color3.fromRGB(220, 110, 255) or nil, 2.8)
+
+	local pendingHeaderLabel = createGuiElement("TextLabel", {
+		Name = "PendingHeaderLabel",
+		Size = isRoblox and UDim2.new(1, -16, 0, 22) or nil,
+		Position = isRoblox and UDim2.new(0, 8, 0, 8) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(200, 210, 240) or nil,
+		Text = "KRYSZTAŁY DO ODEBRANIA:",
+		ZIndex = 52,
+	}, pendingCard)
+	addTextStroke(pendingHeaderLabel, 1.5)
+
+	self.prestigePendingLabel = createGuiElement("TextLabel", {
+		Name = "PendingLabel",
+		Size = isRoblox and UDim2.new(1, -16, 0, 44) or nil,
+		Position = isRoblox and UDim2.new(0, 8, 0, 32) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(130, 250, 255) or nil,
+		Text = "+0 KRYSZTAŁÓW PRESTIŻU",
+		ZIndex = 52,
+	}, pendingCard)
+	addTextStroke(self.prestigePendingLabel, 2.8)
+
+	local pendingSubLabel = createGuiElement("TextLabel", {
+		Name = "PendingSubtextLabel",
+		Size = isRoblox and UDim2.new(1, -16, 0, 20) or nil,
+		Position = isRoblox and UDim2.new(0, 8, 0, 78) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(180, 230, 255) or nil,
+		Text = "Zwiększaj dochód farmy, aby zdobyć jeszcze więcej kryształów!",
+		ZIndex = 52,
+	}, pendingCard)
+	addTextStroke(pendingSubLabel, 1.4)
+
+	-- 3. Warning / Explanation Pill
+	local warningPill = createGuiElement("Frame", {
+		Name = "WarningPill",
+		Size = isRoblox and UDim2.new(1, -32, 0, 68) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 0, 258) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(32, 18, 30) or nil,
+		BackgroundTransparency = 0.25,
+		ZIndex = 51,
+	}, modal)
+	addCornerAndStroke(warningPill, 10, isRoblox and Color3.fromRGB(225, 80, 80) or nil, 1.8)
+
+	local warningLabel = createGuiElement("TextLabel", {
+		Name = "WarningText",
+		Size = isRoblox and UDim2.new(1, -16, 1, -8) or nil,
+		Position = isRoblox and UDim2.new(0, 8, 0, 4) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextWrapped = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 210, 210) or nil,
+		Text = "⚠️ Prestiż zresetuje: gotówkę, kurniki, pojazdy i stada kur.\n✨ ZACHOWUJESZ: Kryształy Prestiżu, Diamenty, Pety i Badania Epickie!",
+		ZIndex = 52,
+	}, warningPill)
+	addTextStroke(warningLabel, 1.6)
+
+	-- 4. Prestige Action Button
+	local prestigeActionBtn = createGuiElement("TextButton", {
+		Name = "PrestigeActionButton",
+		Size = isRoblox and UDim2.new(1, -32, 0, 54) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 0, 334) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(160, 45, 230) or nil,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "ODRÓDŹ FARMĘ (+0 KRYSZTAŁÓW)",
+		ZIndex = 52,
+	}, modal)
+	addCornerAndStroke(prestigeActionBtn, 14, isRoblox and Color3.fromRGB(240, 180, 255) or nil, 3.2)
+	addTextStroke(prestigeActionBtn, 2.6)
+	self.prestigeActionBtn = prestigeActionBtn
+
+	if prestigeActionBtn.Activated then
+		prestigeActionBtn.Activated:Connect(function()
+			self:_playClick()
+			if type(self.onPrestigeRequested) == "function" then
+				self.onPrestigeRequested()
+			end
+		end)
+	end
 end
 
 function HUD:playEggHatchAnimation(petData, onFinished)
@@ -2877,6 +3748,34 @@ function HUD:closeAllModals()
 	if self.shopModal then self.shopModal.Visible = false end
 	if self.calendarModal then self.calendarModal.Visible = false end
 	if self.eggUpgradeModal then self.eggUpgradeModal.Visible = false end
+	if self.epicResearchModal then self.epicResearchModal.Visible = false end
+	if self.prestigeModal then self.prestigeModal.Visible = false end
+end
+
+function HUD:toggleEpicResearchModal(forceState)
+	if not self.epicResearchModal then return end
+	local target = if forceState ~= nil then forceState else not self.epicResearchModal.Visible
+	self:closeAllModals()
+	self.epicResearchModal.Visible = target
+end
+
+function HUD:getEpicResearchModal()
+	return self.epicResearchModal
+end
+
+function HUD:togglePrestigeModal(forceState)
+	if not self.prestigeModal then return end
+	local target = if forceState ~= nil then forceState else not self.prestigeModal.Visible
+	self:closeAllModals()
+	self.prestigeModal.Visible = target
+	if target then
+		self:_playClick()
+		self:_updatePrestigeDisplay()
+	end
+end
+
+function HUD:getPrestigeModal()
+	return self.prestigeModal
 end
 
 function HUD:toggleHabitatsModal(forceState)
@@ -3173,7 +4072,7 @@ function HUD:update()
     self.fusionMaterialUids=self.fusionMaterialUids or {}
     local farm=(self.stateStore.getPresentationFarm or self.stateStore.getFarm)(self.stateStore)
     local progress=farm and farm.progress
-	if self.goldenEggsLabel then self.goldenEggsLabel.Text="Złote jaja: "..(if progress then formatCompact(progress.GE) else "—") end
+	if self.goldenEggsLabel then self.goldenEggsLabel.Text="Diamenty: "..(if progress then formatCompact(progress.GE) else "-") end
     if self.fusionProPermitBadge and progress then
         self.fusionProPermitBadge.Text=if progress.proBonusAvailable then "Pro +10 p.p.: aktywne" elseif progress.paidRandomPolicy=="unknown" then "Pro +10 p.p.: polityka nieznana" elseif not progress.proPermit then "Pro +10 p.p.: wymaga Pro" else "Pro +10 p.p.: niedostępne dla konta" end
     self._visiblePets=if progress then progress.pets else {}
@@ -3198,6 +4097,10 @@ function HUD:update()
 	-- 1. Balances & Global Rates: one named top panel, every value a rate in jaj/s.
 	if self.cashLabel ~= nil then
 		self.cashLabel.Text = HUD.formatCash(farm.cash)
+		if self.cashRateLabel ~= nil then
+			local incomeSec = if farm.cashIncomePerSecond ~= nil then HUD.formatCash(farm.cashIncomePerSecond) else "$0"
+			self.cashRateLabel.Text = "+" .. incomeSec .. "/s"
+		end
 	end
 	-- Production and sales are the per-second values of the authoritative view. A field the view does
 	-- not carry leaves the previous text alone instead of inventing a rate.
@@ -3286,9 +4189,13 @@ function HUD:update()
 
 	-- 5. Research Modal Multi-tier view
 	self:_updateResearchModal(farm)
+	self:_updateEpicResearchModal(farm)
 
 	-- 6. Egg Upgrade Modal Refresh
 	self:_updateEggUpgradeModal(farm)
+
+	-- 7. Prestige & Rebirth Display Refresh
+	self:_updatePrestigeDisplay(farm)
 end
 
 -- Time-dependent quote maintenance stays live without repainting the HUD.
@@ -3715,6 +4622,115 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 	end
 end
 
+function HUD:_updateEpicResearchModal(farm)
+	if not self.epicResearchModal or not farm then return end
+
+	local p = farm.progress
+	local geExact = (p and p.GE) or "0"
+	local geNum = 0
+	if self.codec and self.codec.ExactUInt then
+		local okDec, dec = pcall(self.codec.ExactUInt.decode, geExact)
+		if okDec and dec then
+			geNum = self.codec.ExactUInt.toSafeNumber(dec)
+		end
+	else
+		geNum = tonumber(geExact) or 0
+	end
+
+	if self.epicGePill then
+		self.epicGePill.Text = "Twoje Diamenty: " .. formatCompact(geNum) .. " 💎"
+	end
+
+	local epicProgress = (p and p.epic) or {}
+
+	local function getEpicRobuxTier(geCost: number): (string, number)
+		if geCost <= 50 then
+			return "epic_tier_1", 19
+		elseif geCost <= 200 then
+			return "epic_tier_2", 49
+		elseif geCost <= 1000 then
+			return "epic_tier_3", 99
+		else
+			return "epic_tier_4", 199
+		end
+	end
+
+	for _, item in ipairs(EPIC_RESEARCH_CATALOG) do
+		local cardData = self.epicResearchCards and self.epicResearchCards[item.id]
+		if cardData then
+			local curLvl = epicProgress[item.id]
+			if curLvl == nil and item.id == "cheaper_research" then
+				curLvl = epicProgress.lab_upgrade
+			end
+			curLvl = tonumber(curLvl) or 0
+
+			local maxLvl = item.maxLevel
+			local fraction = if maxLvl > 0 then math.clamp(curLvl / maxLvl, 0, 1) else 0
+
+			if cardData.fill and isRoblox then
+				cardData.fill.Size = UDim2.new(fraction, 0, 1, 0)
+			end
+
+			if cardData.buyRobuxBtn and isRoblox and typeof(cardData.buyRobuxBtn) == "Instance" then
+				cardData.buyRobuxBtn.Visible = false
+			end
+
+			if UNSUPPORTED_EPIC_RESEARCH[item.id] then
+				if cardData.lvlLabel then
+					cardData.lvlLabel.Text = "Wkrótce (Aktualizacja v1.1)"
+				end
+				if cardData.buyBtn then
+					cardData.buyBtn.Text = "WKRÓTCE"
+					cardData.buyBtn.Active = false
+					if isRoblox then
+						cardData.buyBtn.BackgroundColor3 = Color3.fromRGB(75, 85, 99)
+					end
+				end
+			elseif curLvl >= maxLvl then
+				if cardData.lvlLabel then
+					cardData.lvlLabel.Text = "Poziom: " .. tostring(curLvl) .. " / " .. tostring(maxLvl) .. " (MAX)"
+				end
+				if cardData.buyBtn then
+					cardData.buyBtn.Text = "MAX"
+					cardData.buyBtn.Active = false
+					if isRoblox then
+						cardData.buyBtn.BackgroundColor3 = Color3.fromRGB(75, 85, 99)
+					end
+				end
+				if cardData.buyRobuxBtn then
+					cardData.buyRobuxBtn.Text = "MAX"
+					cardData.buyRobuxBtn.Active = false
+					if isRoblox then
+						cardData.buyRobuxBtn.BackgroundColor3 = Color3.fromRGB(75, 85, 99)
+					end
+				end
+			else
+				local nextPrice = (item.prices and item.prices[curLvl + 1]) or item.basePriceGE
+				local tierId, robuxCost = getEpicRobuxTier(nextPrice)
+				if cardData.lvlLabel then
+					cardData.lvlLabel.Text = "Poziom: " .. tostring(curLvl) .. " / " .. tostring(maxLvl)
+				end
+				local canAfford = (geNum >= nextPrice)
+				if cardData.buyBtn then
+					cardData.buyBtn.Text = formatCompact(nextPrice) .. " 💎"
+					cardData.buyBtn.Active = canAfford
+					if isRoblox then
+						cardData.buyBtn.BackgroundColor3 = if canAfford then Color3.fromRGB(34, 197, 94) else Color3.fromRGB(156, 163, 175)
+					end
+				end
+				if cardData.buyRobuxBtn then
+					cardData.buyRobuxBtn.Text = tostring(robuxCost) .. " R$"
+					cardData.buyRobuxBtn.Active = true
+					if isRoblox then
+						cardData.buyRobuxBtn.BackgroundColor3 = Color3.fromRGB(245, 158, 11)
+					end
+					cardData.currentRobuxTier = tierId
+				end
+			end
+		end
+	end
+end
+
 function HUD:_updateEggUpgradeModal(farm)
 	if not self.eggUpgradeModal or not farm then return end
 
@@ -3723,7 +4739,8 @@ function HUD:_updateEggUpgradeModal(farm)
 	local curEgg = EGGS_DATA[curEggIdx] or EGGS_DATA[0]
 	local nextEgg = EGGS_DATA[nextEggIdx]
 
-	local approxFv = calculateClientFarmValue(farm)
+	local codec = self.codec
+	local approxFv = if farm.homeFV ~= nil then (if codec and codec.BigAmount then codec.BigAmount.decode(farm.homeFV) else tonumber(farm.homeFV) or 0) else calculateClientFarmValue(farm)
 	if self.eggUpgradeCurrentLabel then
 		self.eggUpgradeCurrentLabel.Text = string.format("🥚 Aktualne Jajo: %s ($%s)", curEgg.name, formatCompact(curEgg.eggValueBase))
 	end
@@ -3764,6 +4781,62 @@ function HUD:_updateEggUpgradeModal(farm)
 	end
 end
 
+local function calculateSoulEggsFormula(earnings: number, epicPrestigeBonusLevel: number?): number
+	if type(earnings) ~= "number" or earnings ~= earnings or earnings < 1 then return 0 end
+	local p = if earnings >= 1e60 then 0.21
+		elseif earnings >= 1e48 then 0.20
+		elseif earnings >= 1e39 then 0.19
+		elseif earnings >= 1e30 then 0.18
+		elseif earnings >= 1e21 then 0.17
+		elseif earnings >= 1e12 then 0.16
+		else 0.15
+	local baseSE = earnings ^ p
+	local epLevel = epicPrestigeBonusLevel or 0
+	return baseSE * (1 + 0.10 * epLevel)
+end
+
+function HUD:_updatePrestigeDisplay(farm)
+	farm = farm or (self.stateStore and (self.stateStore.getPresentationFarm or self.stateStore.getFarm)(self.stateStore))
+	if not farm then return end
+
+	local progress = farm.progress or {}
+	local cashStr = farm.cash or "0"
+	local codec = self.codec
+	local cashNum = if codec and codec.BigAmount then codec.BigAmount.decode(cashStr) else (tonumber(cashStr) or 0)
+	local seStr = progress.SE or "0"
+	local currentSE = if codec and codec.Real64 then codec.Real64.decode(seStr) else (tonumber(seStr) or 0)
+	local epic = progress.epic or {}
+	local epicBonusLvl = (epic.prestige_bonus or epic.epic_prestige_bonus) or 0
+	local soulFoodLvl = (epic.soul_eggs or epic.soul_food) or 0
+
+	local pendingSE = if progress.pendingSE ~= nil then (if codec and codec.Real64 then codec.Real64.decode(progress.pendingSE) else tonumber(progress.pendingSE) or 0) else calculateSoulEggsFormula(cashNum, epicBonusLvl)
+	local pendingInt = math.floor(pendingSE)
+
+	local bonusPerCrystal = 10 + soulFoodLvl
+	local totalBonusPercent = if progress.earningBonus ~= nil then (if codec and codec.Real64 then math.floor(codec.Real64.decode(progress.earningBonus)) else tonumber(progress.earningBonus) or 0) else math.floor(currentSE * bonusPerCrystal)
+
+	-- Update Bottom-Left HUD Rebirth Label
+	if self.rebirthLabel ~= nil then
+		local curEgg = EGGS_DATA[farm.eggIndex or 0]
+		local eggName = if curEgg then curEgg.name else "Kurze"
+		self.rebirthLabel.Text = string.format("🟣 %s Prestiż (+%s) • 🥚 %s", formatCompact(currentSE), formatCompact(pendingInt), eggName)
+	end
+
+	-- Update Prestige Modal if created
+	if self.prestigeCurrentCrystalsLabel then
+		self.prestigeCurrentCrystalsLabel.Text = "Posiadane Kryształy: 🟣 " .. formatCompact(currentSE)
+	end
+	if self.prestigeCurrentBonusLabel then
+		self.prestigeCurrentBonusLabel.Text = string.format("Bonus do zarobków: +%s%% (+%d%% z każdego kryształu)", formatCompact(totalBonusPercent), bonusPerCrystal)
+	end
+	if self.prestigePendingLabel then
+		self.prestigePendingLabel.Text = string.format("+%s KRYSZTAŁÓW PRESTIŻU", formatCompact(pendingInt))
+	end
+	if self.prestigeActionBtn then
+		self.prestigeActionBtn.Text = string.format("ODRÓDŹ FARMĘ (+%s KRYSZTAŁÓW)", formatCompact(pendingInt))
+	end
+end
+
 function HUD:onQuoteReceived(quoteView)
 	if type(quoteView) ~= "table" or quoteView.kind ~= "QuoteView" then
 		return
@@ -3799,7 +4872,7 @@ function HUD:onQuoteReceived(quoteView)
 				local reason = quoteView.blockedReason or "LOCKED"
 				item.statusLabel.Text = reason
 				if item.actionLabel then
-					item.actionLabel.Text = if reason == "INSUFFICIENT_CASH" then "ZA MAŁO $" elseif reason == "MAX_LEVEL" then "MAKS. POZ." elseif reason == "TIER_LOCKED" then "ZABLOKOWANE" else reason
+					item.actionLabel.Text = if reason == "INSUFFICIENT_CASH" then "ZA MAŁO $" elseif reason == "MAX_LEVEL" then "MAKS. POZ." elseif reason == "TIER_LOCKED" then "ZABLOKOWANE" elseif reason == "HYPERLOOP_LOCKED" then "WKRÓTCE (v1.1)" else reason
 					if reason == "INSUFFICIENT_CASH" then
 						item.actionLabel.Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil
 						item.actionLabel.Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil
@@ -3956,6 +5029,7 @@ end
 
 function HUD:getSessionStatus() return self.sessionStatus end
 function HUD:getCashText() return if self.cashLabel then self.cashLabel.Text else "" end
+function HUD:getCashRateText() return if self.cashRateLabel then self.cashRateLabel.Text else "" end
 function HUD:getProducedEggsText() return if self.producedEggsLabel then self.producedEggsLabel.Text else "" end
 function HUD:getSoldEggsText() return if self.soldEggsLabel then self.soldEggsLabel.Text else "" end
 function HUD:getShippingText() return if self.shippingLabel then self.shippingLabel.Text else "" end

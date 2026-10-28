@@ -97,7 +97,7 @@ worldBuilder:build()
 
 -- 4. Initialize Authoritative ServerBootstrap
 local configuredProducts={}
-for _,catalogId in {"pro_permit","buy_max","ge_pack_small","ge_pack_large"} do
+for _,catalogId in {"pro_permit","buy_max","double_cash","ge_pack_small","ge_pack_large"} do
     local id=script:GetAttribute(catalogId.."_PlatformId")
     if type(id)=="number" and id>0 and id%1==0 then
         Products.registerProductId(id,catalogId)
@@ -199,7 +199,7 @@ local function onPlayerAdded(player)
     local grantSession = server:getPlayer(pId)
     if server.purchasesEnabled then task.spawn(function()
         local passMapping={}
-        for _,catalogId in {"pro_permit","buy_max"} do
+        for _,catalogId in {"pro_permit","buy_max","double_cash"} do
             if configuredProducts[catalogId] then passMapping[configuredProducts[catalogId].platformId]=catalogId end
         end
 		for passId, catalogId in pairs(passMapping) do

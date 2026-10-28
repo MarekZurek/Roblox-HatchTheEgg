@@ -405,7 +405,7 @@ local function createEggUpgradePedestal(parent, pos, self)
 			Name = "CurrentEggLabel",
 			Size = UDim2.new(1, 0, 0.33, 0),
 			Position = UDim2.new(0, 0, 0, 0),
-			Text = "🥚 Aktualne: Jajo Jadalne (Edible)",
+			Text = "🥚 Aktualne: Jajo Kurze",
 			TextColor3 = Color3.fromRGB(255, 235, 100),
 			StrokeThickness = 2.8,
 		})
@@ -414,7 +414,7 @@ local function createEggUpgradePedestal(parent, pos, self)
 			Name = "NextEggLabel",
 			Size = UDim2.new(1, 0, 0.33, 0),
 			Position = UDim2.new(0, 0, 0.33, 0),
-			Text = "✨ Następne: Jajo Superfood",
+			Text = "✨ Następne: Jajo Kacze",
 			TextColor3 = Color3.fromRGB(115, 245, 115),
 			StrokeThickness = 2.8,
 		})
@@ -423,7 +423,7 @@ local function createEggUpgradePedestal(parent, pos, self)
 			Name = "RequiredFvLabel",
 			Size = UDim2.new(1, 0, 0.33, 0),
 			Position = UDim2.new(0, 0, 0.66, 0),
-			Text = "Wymagane FV: $68.0M",
+			Text = "Wymagane FV: $5.0M",
 			TextColor3 = Color3.fromRGB(255, 255, 255),
 			StrokeThickness = 2.8,
 		})
@@ -449,9 +449,9 @@ local function createEggUpgradePedestal(parent, pos, self)
 		if pedestal.Children then
 			table.insert(pedestal.Children, prompt)
 		end
-		local curLabel = { Text = "🥚 Aktualne: Jajo Jadalne (Edible)" }
-		local nextLabel = { Text = "✨ Następne: Jajo Superfood" }
-		local reqLabel = { Text = "Wymagane FV: $68.0M" }
+		local curLabel = { Text = "🥚 Aktualne: Jajo Kurze" }
+		local nextLabel = { Text = "✨ Następne: Jajo Kacze" }
+		local reqLabel = { Text = "Wymagane FV: $5.0M" }
 		if self and self.eggUpgradeBillboards then
 			table.insert(self.eggUpgradeBillboards, {
 				bb = { Name = "EggUpgradeBillboard" },

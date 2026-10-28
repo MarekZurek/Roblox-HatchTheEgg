@@ -7,7 +7,7 @@
 -- 3. StudUi:iconSlot / inlineIcon / closeButton draw nothing while a key is pending, keep the text
 --    fallback, and draw the genuine image only once an id is bound.
 -- 4. HUD wires UiAssets.images into its single StudUi instance; HUD:getAssetStatus() reports
---    manifestVersion = 1, mapped = 15, pending = 4, uploadPending = false, iconsCreated = 22.
+--    manifestVersion = 1, mapped = 15, pending = 4, uploadPending = false, iconsCreated = 24.
 -- 5. Migrated window headings/menu keep meaningful, emoji-free text, draw genuine IconSlot /
 --    IconImage / CloseIcon instances for bound keys, and the menu still opens the matching window.
 
@@ -235,7 +235,7 @@ do
 	eq(status.mapped, 15, "HUD reports 15 mapped asset keys")
 	eq(status.pending, 4, "HUD reports 4 optional pending asset keys")
 	eq(status.uploadPending, true, "HUD reports uploadPending == true while 4 optional keys are unuploaded")
-	eq(status.iconsCreated, 22, "HUD creates 22 icon instances across headers, tabs, close buttons and hatch card")
+	eq(status.iconsCreated, 24, "HUD creates 24 icon instances across headers, tabs, close buttons and hatch card")
 
 	-- Migrated headings stay meaningful, carry no emoji, and draw their bound header icon + close icon.
 	local windows = {
@@ -243,10 +243,11 @@ do
 		{ label = "Habitats", win = hud:getHabitatsModal(), title = "TWOJE KURNIKI (PARCELE 1-4)", key = "window.habitats" },
 		{ label = "Fleet", win = hud:getVehiclesModal(), title = "FLOTA TRANSPORTOWA (DO 17 POJAZDÓW)", key = "window.fleet" },
 		{ label = "Pets", win = hud:getPetsModal(), title = "MOJE PETY I EWOLUCJA FUZYJNA", key = "window.pets" },
-		{ label = "Shop", win = hud:getShopModal(), title = "SKLEP ZŁOTYCH JAJ I PRZEPUSTEK", key = "window.shop" },
+		{ label = "Shop", win = hud:getShopModal(), title = "SKLEP DIAMENTÓW I PRZEPUSTEK", key = "window.shop" },
 		{ label = "Daily/Trophies", win = hud:getCalendarModal(), title = "KALENDARZ NAGRÓD I TROFEA", key = "window.calendar" },
 		{ label = "EggUpgrade", win = hud:getEggUpgradeModal(), title = "STACJA BADAWCZA JAJ", key = "window.egg" },
 		{ label = "PetHatch", win = hud:getPetHatchModal(), title = "INKUBACJA & WYKLUWANIE JAJ", key = "window.hatch" },
+		{ label = "EpicResearch", win = hud:getEpicResearchModal(), title = "BADANIA EPICKIE", key = "window.shop" },
 	}
 	for _, w in ipairs(windows) do
 		ok(w.win ~= nil, w.label .. " window exists")
@@ -269,16 +270,28 @@ do
 		eq(closeBtn.Text, "", w.label .. " close button clears fallback X text when CloseIcon is drawn")
 	end
 
-	-- Menu labels keep their meaning (emoji removed) and still open the matching window.
-	eq(hud.researchToggleBtn.Text, "Badania", "Research menu label")
-	eq(hud.habitatsToggleBtn.Text, "Kurniki", "Habitats menu label")
-	eq(hud.vehiclesToggleBtn.Text, "Flota", "Fleet menu label")
-	eq(hud.petsToggleBtn.Text, "Pety", "Pets menu label")
-	eq(hud.shopToggleBtn.Text, "Sklep", "Shop menu label")
-	eq(hud.calendarToggleBtn.Text, "Nagrody", "Daily/Trophies menu label")
-	for _, btn in ipairs({ hud.researchToggleBtn, hud.habitatsToggleBtn, hud.vehiclesToggleBtn, hud.petsToggleBtn, hud.shopToggleBtn, hud.calendarToggleBtn }) do
-		ok(not hasEmoji(btn.Text), "menu label has no emoji: " .. btn.Text)
-		ok(not string.find(btn.Text, "\n", 1, true), "menu label is a single line: " .. btn.Text)
+	-- Menu dock buttons carry genuine icons, clear fallback text, and still open their matching windows.
+	local dockButtons = {
+		{ label = "Research", btn = hud.researchToggleBtn, key = "window.research", title = "Badania" },
+		{ label = "EpicResearch", btn = hud.epicResearchToggleBtn, key = "tab.ge", title = "Epickie" },
+		{ label = "Habitats", btn = hud.habitatsToggleBtn, key = "window.habitats", title = "Kurniki" },
+		{ label = "Fleet", btn = hud.vehiclesToggleBtn, key = "window.fleet", title = "Flota" },
+		{ label = "Pets", btn = hud.petsToggleBtn, key = "window.pets", title = "Pety" },
+		{ label = "Shop", btn = hud.shopToggleBtn, key = "window.shop", title = "Sklep" },
+		{ label = "Daily/Trophies", btn = hud.calendarToggleBtn, key = "window.calendar", title = "Nagrody" },
+	}
+
+	for _, d in ipairs(dockButtons) do
+		ok(d.btn ~= nil, d.label .. " dock button exists")
+		eq(d.btn.Text, "", d.label .. " button text is empty (icon only)")
+		if d.btn.GetAttribute then
+			eq(d.btn:GetAttribute("MenuTitle"), d.title, d.label .. " button has MenuTitle attribute")
+		end
+		local icon = d.btn:FindFirstChild("ButtonIcon")
+		ok(icon ~= nil, d.label .. " dock button has ButtonIcon child")
+		if icon then
+			eq(icon.Image, EXPECTED_BOUND_IDS[d.key], d.label .. " button icon uses uploaded rbxassetid")
+		end
 	end
 
 	eq(hud:getShopModal().Visible, false, "shop window starts hidden")

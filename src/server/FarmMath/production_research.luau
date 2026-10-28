@@ -131,7 +131,7 @@ function Module.new(codec, catalog, options)
  end
  function api.activeRCB(common,permanent,runningText)
   local r=api.productionContext(common,0,permanent)
-  return Hatching.rcb(codec,runningText or "0",r.rcbGrowthBase,r.rcbCap,1)
+  return if (r.rcbGrowthBase > 1 or r.rcbCap > 5) then r.rcbCap else 1
  end
 	function api.tierUnlocked(input, tier)
 		local points = levels(input)
@@ -185,7 +185,7 @@ function Module.new(codec, catalog, options)
 			population += p
 			if population > 9007199254740991 then fail("UNSAFE_TOTAL_POPULATION") end
 		end
-		local rcb = if state.rcbMultiplier == nil then Hatching.rcb(codec,state.runningCount or "0",r.rcbGrowthBase,r.rcbCap,1) else amount.validate(state.rcbMultiplier)
+		local rcb = if state.rcbMultiplier ~= nil then amount.validate(state.rcbMultiplier) else (if (r.rcbGrowthBase > 1 or r.rcbCap > 5) then r.rcbCap else 1)
 		if rcb < 1 then fail("INVALID_RCB") end
 		local producedRate = amount.multiply(population, r.layingPerChickenPerSecond)
 		local shippingRate = api.shippingPerSecond(state.commonLevels, state.vehicleTypes,state.permanent)

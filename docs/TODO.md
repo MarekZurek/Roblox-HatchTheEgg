@@ -4,6 +4,8 @@
 
 ## Bieżące zadanie
 
+- [x] **Audyt i oczyszczenie Sklepu Badań Epickich:** Usunięto odniesienia do rakiet i ekspedycji kosmicznych po artefakty (`afx_mission_time` -> *Szybkość Kursu Floty*, `afx_mission_capacity` -> *Logistyka i Magazyn Floty*) oraz dostosowano opisy badań wylęgu, mnożników i zniżek.
+- [x] **Rebranding waluty premium:** Oficjalną walutą premium są **Diamenty (Diamonds, 💎)**. Wszelkie odniesienia prezentacyjne w UI i dialogach stosują Diamenty (np. liczniki waluty `Diamenty: -`, koszty badań epickich `54 💎`, Sklep Diamentów i Przepustek, pakiety `1,000 💎` i `10,000 💎`). Wewnętrzny klucz profilu zachowuje identyfikator `profile.permanent.GE` dla pełnej wstecznej zgodności DataStore i logiki serwera.
 - [x] [Górny panel tempa](workflow/top_rates_panel_2026_10_26.md): trzy opisane wartości w jaj/s, skalowanie i safe area; lokalne testy i ograniczone Studio PASS, Cline/AGY; bez nowego commitu/pusha.
 - [x] [#81](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/81): sprawdzono rzeczywisty wpływ aktywnego RCB na gotówkę ([raport](workflow/rcb_income_81_2026_10_26.md), 212 asercji PASS + native Studio + QA AGY PASS; brak błędu runtime).
 - [x] [#82](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/82): wdrożono spójne 8 okien na StudUI Lite i 14 wgranych ikonach gvesster ([raport](workflow/asset_ui_82_2026_10_26.md), 240 asercji PASS + native Studio 320×640/640×360/1200×700 + QA AGY PASS).

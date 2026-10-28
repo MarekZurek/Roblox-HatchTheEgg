@@ -1,0 +1,64 @@
+# CCGS project configuration — single source of truth for HatchTheEgg (Roblox).
+# See .claude/docs/effects-map.md for full schema.
+
+schema_version: 1
+
+framework:
+  version: 1.2.0
+  last_upgraded: 2026-10-27
+
+game:
+  title: "HatchTheEgg"
+  genre: "Incremental / Tycoon / Simulation"
+
+platform:
+  multiplayer: true
+  online: true
+  targets: [PC, Mobile, Console]
+  primary_input: "Touch"
+  gamepad_support: "Full"
+  touch_support: "Full"
+  cert_tier: none
+
+engine:
+  name: "Roblox"
+  version: "Studio 2026 (Luau 0.600+)"
+  language: "Luau"
+  rendering: "Future"
+  physics: "Roblox PGS"
+
+specialists:
+  lead: "roblox-specialist"
+  code: "roblox-luau-specialist"
+  network: "roblox-network-specialist"
+  datastore: "roblox-datastore-specialist"
+  ui: "roblox-ui-specialist"
+  toolchain: "roblox-toolchain-specialist"
+  additional:
+    - "systems-designer"
+    - "economy-designer"
+    - "qa-lead"
+    - "lead-programmer"
+
+naming:
+  classes: PascalCase
+  variables: camelCase
+  constants: SCREAMING_SNAKE
+  signals: PascalCase
+  files: PascalCase
+  scenes: PascalCase
+
+commands:
+  build: "powershell -Command \"& .tools/rojo-7.4.4/rojo.exe build default.project.json --output build/HatchTheEgg.rbxlx\""
+  test: "powershell -File tools/test.ps1"
+  run: "python tools/sync_studio.py"
+  smoke: "powershell -Command \"& .tools/lune-0.8.9/lune.exe run tests/numeric/run.luau\""
+
+features:
+  session_state: on
+  token_budget_warn_at: 0.7
+  read_guard: on
+  read_guard_kb: 40
+
+updates:
+  check: false

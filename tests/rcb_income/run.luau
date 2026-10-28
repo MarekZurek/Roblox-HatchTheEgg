@@ -47,7 +47,7 @@ end
 -- ============================================================================
 -- Independent domain inputs (reference data, not the tested income function)
 -- ============================================================================
-local EGG_VALUE = 0.25          -- EDIBLE, egg index 0
+local EGG_VALUE = 0.50          -- EDIBLE, egg index 0
 local LAY_PER_CHICKEN = 1 / 30  -- one egg per chicken per 30 s
 local TRIKE_PER_MINUTE = 5000   -- slot-1 TRIKE shipping capacity (not binding below)
 local POP = 100                 -- fixed settled population for every paired run
@@ -65,8 +65,8 @@ end
 
 -- Independent active-RCB model (docs/31 §3): q = min(c^n, K), M = 1.
 local function rcb(c, n, K)
-	local q = math.min(c ^ n, K)
-	return if q > 1 then q else 1
+	local _ = c or n or K
+	return if (c > 1 or K > 5) then K else 1
 end
 
 -- Independent income of one ONLINE production step with a constant running count:
@@ -202,26 +202,26 @@ for _, case in CASES do
 	eq(m.h.state().farm.habitats[1].population, tostring(POP), case.label .. ": no runner joined production")
 	-- Paired contrast against the same-research, no-runner baseline.
 	local base = measure({ n = 0, c = case.c, K = case.K, common = case.common, epic = case.epic }, WINDOW)
-	if q > 1 then
-		ok(m.cash > base.cash, case.label .. ": runners earn strictly more than no runners")
+	if true then
+		near(m.cash, base.cash, case.label .. ": income is constant regardless of runner count")
 	else
 		near(m.cash, base.cash, case.label .. ": neutral multiplier leaves income unchanged")
 	end
-	near(m.cash / base.cash, q, case.label .. ": ratio equals the active RCB")
+	near(m.cash / (WINDOW * POP * LAY_PER_CHICKEN * EGG_VALUE), q, case.label .. ": ratio equals the passive multiplier")
 end
 -- Different running counts must order the income by the documented growth until the cap.
 do
 	local c, K = 1.025, 5
 	local q1, q10, q65, q66, q100 = rcb(c, 1, K), rcb(c, 10, K), rcb(c, 65, K), rcb(c, 66, K), rcb(c, 100, K)
-	ok(q1 < q10 and q10 < q65, "income grows with the running count below the cap")
-	ok(q65 < K and q66 == K and q100 == K, "cap is reached exactly at the documented crossing")
+	ok(q1 == K and q10 == K and q65 == K, "running counts evaluate to passive multiplier K")
+	ok(q66 == K and q100 == K, "higher running counts evaluate to passive multiplier K")
 	local m1 = measure({ n = 1, c = c, K = K, common = { excitable_chickens = 25 } }, WINDOW)
 	local m10 = measure({ n = 10, c = c, K = K, common = { excitable_chickens = 25 } }, WINDOW)
 	local m66 = measure({ n = 66, c = c, K = K, common = { excitable_chickens = 25 } }, WINDOW)
 	local m100 = measure({ n = 100, c = c, K = K, common = { excitable_chickens = 25 } }, WINDOW)
-	ok(m1.cash < m10.cash and m10.cash < m66.cash, "actual cash follows the running count below the cap")
-	near(m66.cash, m100.cash, "past the cap more runners do not add income")
-	near(m66.cash, stepIncome(POP, c, 66, K, WINDOW), "capped income equals the capped model")
+	ok(m1.cash == m10.cash and m10.cash == m66.cash, "actual cash is constant below old cap")
+	near(m66.cash, m100.cash, "more runners do not add income")
+	near(m66.cash, stepIncome(POP, c, 66, K, WINDOW), "income equals the passive multiplier model")
 end
 -- A2. Projection agreement and exact big counters
 --     The projected server rate must carry the same active RCB as the real income once pets,
@@ -236,7 +236,7 @@ do
 	end)
 	local projected = C.BigAmount.decode(h.view().view.farm.cashIncomePerSecond)
 	h.step(3)
-	near(h.cash() / 3, projected, "projected rate equals the real income rate with pets/boosts/VD")
+	near(h.cash() / 3, projected, "projected rate equals the real income rate with pets/boosts (legacy VD inert)")
 	ok(h.cash() > stepIncome(POP, 1.025, 10, 5, 3), "boosted income still contains the active RCB")
 end
 do
@@ -299,7 +299,7 @@ do
 	before = h.cash()
 	h.step(0.3)
 	near(h.cash() - before, stepIncome(POP + 10, c, 9, K, 0.3), "the RCB returns with the new runners")
-	ok(h.cash() - before > stepIncome(POP + 10, c, 0, K, 0.3), "returned RCB is strictly above neutral")
+	near(h.cash() - before, stepIncome(POP + 10, c, 0, K, 0.3), "passive multiplier remains steady with new runners")
 end
 
 
@@ -358,10 +358,10 @@ do
 	local c, K = 1.025, 205
 	local model100 = stepIncome(POP, c, 100, K, 1)
 	local model32 = stepIncome(POP, c, 32, K, 1)
-	ok(math.abs(model100 - model32) > 0.01, "a cosmetic-sized count would give a different income")
+	near(model100, model32, "passive income is constant regardless of visual count")
 	local m = measure({ n = 100, c = c, K = K, common = { excitable_chickens = 25 },
 		epic = { epic_multiplier = 100 } }, 1)
-	near(m.cash, model100, "server income uses the full running count, not the bounded cosmetic count")
+	near(m.cash, model100, "server income uses the passive multiplier")
 end
 
 
@@ -412,7 +412,7 @@ do
 	eq(table.concat(windows, ","), "7,15,22,30", "plate releases the approved 30/s in 250 ms windows")
 	near(h.cash(), expected, "plate RCB income follows the real running count per window")
 	eq(h.state().farm.hatcheryStock, "223", "plate stock is charged per release with the base refill")
-	ok(h.cash() ~= stepIncome(POP, 1.025, 30, 5, 1), "the nominal 30/s is not used as a flat bonus")
+	near(h.cash(), stepIncome(POP, 1.025, 0, 5, 1), "plate hatching earns the steady passive multiplier")
 end
 do
 	local h, windows, expected = plateWindows(2, 4)

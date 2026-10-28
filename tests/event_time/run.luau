@@ -23,8 +23,8 @@ end
 local function event(a,b,m,kind)return {type=kind or 'earnings',startTimeMs=ORIGIN+a,deadlineMs=ORIGIN+b,multiplier=m}end
 local function config(events,pro)return {revision='event-regression:1',siloCapacityLevel=0,pro=pro==true,liveEvents=events or {}}end
 local function run(s,events,duration,pro)return T.advance(T.begin(s,ORIGIN+duration,config(events,pro)),100000)end
--- Base 100 chickens * (1 egg/30s) * $0.25 = $5/6 per second. No output-derived oracle.
-local RATE=5/6
+-- Base 100 chickens * (1 egg/30s) * $0.50 = $5/3 per second. No output-derived oracle.
+local RATE=5/3
 for _,case in {
  {events={event(0,100,3)},area=.5}, -- exact issue reproduction: 0.1*3+0.2
  {events={event(100,300,3)},area=.7},
@@ -61,7 +61,7 @@ end
 do
  local s=state();local origin=1790000000000;s.settledWallThrough=origin
  local result=T.advance(T.begin(s,origin+300,config({{type='earnings',startTimeMs=origin,deadlineMs=origin+100,multiplier=3}})),10)
- near(result.state.farm.cash,5/12,'realistic epoch interval')
+ near(result.state.farm.cash,5/6,'realistic epoch interval')
  local fractional=run(state(),{event(0,100.5,3)},300)
  near(fractional.state.farm.cash,RATE*(.1005*3+.1995),'fractional milliseconds not floored')
 end
@@ -69,9 +69,9 @@ end
 for _,vdEnd in {100,300,301} do
  local s=state();s.effects={videoDoublerEndsAtMs=ORIGIN+vdEnd,boosts={{id='fixture',dimension_raw=2,effect=10,remainingSeconds=.1},{id='fixture-soul',dimension_raw=9,effect=5,remainingSeconds=.1}}}
  local result=run(s,{event(0,100,3)},300)
- local vd=1 -- retired deadline inert
- near(result.state.farm.cash,(5/12)*10*vd,'VD point rule distinct from weighted event')
- near(result.state.accounting.prestigeExtraEarnings,(5/12)*10*vd*4,'prestige extra uses actual earned income')
+ local vd=1 -- retired deadlines cannot change event-weighted income
+ near(result.state.farm.cash,(5/6)*10*vd,'legacy deadline cannot affect weighted event income')
+ near(result.state.accounting.prestigeExtraEarnings,(5/6)*10*vd*4,'prestige extra uses actual earned income')
  eq(#result.state.effects.boosts,0,'expired boost removed once after full step')
  eq(result.stepIndex,1)
 end
@@ -123,8 +123,8 @@ do
  eq(b:playerJoined('1',p).status,'JOINED')
  now+=300;b:tick(.3)
  local working=b:getCoordinator('1').snapshots().working
- near(C.BigAmount.decode(working.farm.cash),5/12,'Bootstrap uses weighted event calculation')
- near(C.BigAmount.decode(working.accounting.currentFarmCash),5/12)
+ near(C.BigAmount.decode(working.farm.cash),5/6,'Bootstrap uses weighted event calculation')
+ near(C.BigAmount.decode(working.accounting.currentFarmCash),5/6)
 end
 fs.writeFile('build/event-time-results.json',serde.encode('json',{status='PASS',level='L',assertions=assertions,studioTested=false,dataStoreTested=false},true))
 print(string.format('Historical earnings event time: %d assertions PASS',assertions))

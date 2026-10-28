@@ -1,6 +1,6 @@
 # Zatwierdzony podział produktów Roblox
 
-23.10.2026. **R — użytkownik zatwierdził mocne Pro, osobno Buy MAX i Auto-Hatch oraz powtarzalne zakupy GE i Piggy.** Dotyczy zawartości i podziału produktów; nie zatwierdza cen, parametrów odłożonego bilansu ani rozpoczęcia implementacji.
+23.10.2026. **R — użytkownik zatwierdził mocne Pro, osobno Buy MAX i Auto-Hatch oraz powtarzalne zakupy Diamentów (Diamonds, 💎; GE) i Skarbonki (Piggy).** Dotyczy zawartości i podziału produktów; nie zatwierdza cen, parametrów odłożonego bilansu ani rozpoczęcia implementacji.
 
 ## Produkty i uprawnienia — R
 
@@ -9,8 +9,8 @@
 | Pro Permit | Jednorazowy trwały gamepass; główna przepustka rozwoju farmy | Więcej dostępnych silosów, pełna jakość naliczania dochodu offline zamiast połowy, więcej miejsc aktywnych boostów. Dodatkowo rozszerzenie slotów petów i +10 punktów procentowych powodzenia łączenia (max 100%, bez kumulacji i dopłat do prób). |
 | Buy MAX | Osobny jednorazowy trwały gamepass, poza Pro | Szybki zakup maksymalnej dostępnej i opłacalnej środkami gracza liczby poziomów badań. Nie daje darmowych poziomów ani pominięcia bramek postępu. Szczegóły przycisków/UX nie są implementacją. |
 | Auto-Hatch kurczaków / Egg Bot | Osobny jednorazowy trwały gamepass, poza Pro | Automatyzuje przycisk ręcznej wylęgarni kurczaków. Nadal obowiązują jej pojemność, regeneracja, tempo i wolne miejsca kurników. Nie dodaje nowego mnożnika i nie oznacza automatycznego otwierania petów ani nowej produkcji offline. |
-| Pakiety GE | Powtarzalne zakupy | Przyznanie określonej ilości GE do wydania w zachowanych systemach. Ilości i ceny nie są zatwierdzone. |
-| Rozbicie Piggy | Powtarzalny zakup | Wypłata GE zgromadzonych w Piggy według ustalonych dla tego systemu reguł. Piggy jest źródłem wypłacanych GE, nie wydatkiem GE. Pojemność, wzrost i ceny pozostają odłożone. |
+| Pakiety Diamentów (Diamonds, 💎) | Powtarzalne zakupy | Przyznanie określonej ilości Diamentów (w kodzie i bazie zachowany klucz profilu profile.permanent.GE) do wydania w badaniach epickich, boostach i inkubacji. |
+| Rozbicie Skarbonki (Piggy) | Powtarzalny zakup | Wypłata Diamentów zgromadzonych w Skarbonce (Piggy) według ustalonych dla tego systemu reguł. Piggy jest źródłem wypłacanych Diamentów, nie ich wydatkiem. Pojemność, wzrost i ceny pozostają odłożone. |
 
 Pro ma być znaczącym rozszerzeniem możliwości i wygody, podobnie do roli Pro Permit w oryginale. Nie zawiera automatycznie Buy MAX i Auto-Hatch. Rozszerzenie petów jest częścią Pro; nie przyjęto osobnego +2 Pet Equip ani osobnego passa wyłącznie za +10 p.p. Posiadanie Buy MAX lub Auto-Hatch samo nie przyznaje Pro.
 

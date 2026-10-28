@@ -43,8 +43,8 @@ for _, legacy in {false, true} do
  eq(durable.entitlements.double_cash,true,'separate pass preserved')
  server:tick(3)
  local working=server:getCoordinator('1').snapshots().working
- near(C.BigAmount.decode(working.farm.cash),3.75,'30 hens * 1/30 eggs/s * $1.25 * 3s, no timed bonus')
- near(C.BigAmount.decode(working.accounting.currentFarmCash),3.75,'ledger matches cash')
+ near(C.BigAmount.decode(working.farm.cash),7.5,'30 hens * 1/30 eggs/s * $1.25 * 3s * 2x permanent pass, no timed bonus')
+ near(C.BigAmount.decode(working.accounting.currentFarmCash),7.5,'ledger matches cash')
  if legacy then eq(working.effects.videoDoublerEndsAtMs,90000000,'timer retained for compatibility') end
 end
 local hud=fs.readFile('src/client/HUD.luau')

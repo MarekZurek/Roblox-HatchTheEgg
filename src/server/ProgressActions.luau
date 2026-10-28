@@ -62,7 +62,7 @@ local function calculateProfileFarmValue(
 		if okEgg and resEgg then eggRow = resEgg end
 	end
 	local eggInfo = FvSe.EGGS[eggIndex]
-	local eggValueBase = if eggRow and eggRow.value then eggRow.value elseif eggInfo then eggInfo.eggValueBase else 0.25
+	local eggValueBase = if eggRow and eggRow.value then eggRow.value elseif eggInfo then eggInfo.eggValueBase else 0.50
 
 	-- Sum settled population across 4 habitats
 	local population = 0
@@ -97,7 +97,7 @@ local function calculateProfileFarmValue(
 	-- Research multipliers from Common
 	local r = productionMath.research(farm.common or {})
 	local researchEggLayingRateMult = r.layingPerChickenPerSecond * 30
-	local researchEggValueMult = r.eggValue / 0.25
+	local researchEggValueMult = r.eggValueMult or (r.eggValue / eggValueBase)
 	local researchIHRBase = r.internalHatcheryPerHabPerMinute
 
 	-- Epic research safe reading (docs/27 §4.2, docs/05 §4)

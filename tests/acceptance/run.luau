@@ -459,7 +459,7 @@ end
 setScenario("A04")
 do
 	local dt = 0.3 -- Invariant: simulation steps enforce dt <= 0.3s
-	local eggVal = 0.25 -- base egg value ($0.25)
+	local eggVal = 0.50 -- base egg value ($0.50)
 	local layingRatePerHen = 1 / 30 -- base egg laying rate (1/30 eggs/s)
 	-- 1 Trike (type 0): 5,000 eggs/min = 5000 / 60 eggs/s = 83.33333333333333 eggs/s
 	-- In dt = 0.3s: fleet capacity = (5000 / 60) * 0.3 = 25.0 eggs.
@@ -470,7 +470,7 @@ do
 	-- 120 hens @ (1/30) eggs/s = 4.0 eggs/s produced.
 	-- In dt = 0.3s: 1.2 eggs produced.
 	-- Fleet shipping capacity in 0.3s = 25.0 eggs.
-	-- All produced eggs are sold: soldEggs = 1.2, cash = 1.2 * 0.25 = $0.30.
+	-- All produced eggs are sold: soldEggs = 1.2, cash = 1.2 * 0.50 = $0.60.
 	local stateAbove = {
 		commonLevels = {},
 		habitatTypes = { 0, false, false, false },
@@ -481,7 +481,7 @@ do
 	local stepAbove = ProductionMath.productionStep(stateAbove, dt)
 	approxEq(stepAbove.producedEggs, 120 * layingRatePerHen * dt, 1e-6, "A04.1: Produced eggs for 120 hens in dt=0.3s")
 	approxEq(stepAbove.soldEggs, 120 * layingRatePerHen * dt, 1e-6, "A04.1: Sold eggs matches produced eggs when transport > production")
-	approxEq(stepAbove.cashIncome, (120 * layingRatePerHen * dt) * eggVal, 1e-6, "A04.1: Cash income = 1.2 * $0.25 = $0.30")
+	approxEq(stepAbove.cashIncome, (120 * layingRatePerHen * dt) * eggVal, 1e-6, "A04.1: Cash income = 1.2 * $0.50 = $0.60")
 	ok(shippingCapacityInDt > stepAbove.producedEggs, "A04.1: Confirmed transport > production")
 
 	-- Case 2: Transport == Produkcja (Transport exactly equal to production)
@@ -490,7 +490,7 @@ do
 	-- In dt = 0.3s: producedEggs = 1000 * (1/12) * 0.3 = 25.0 eggs.
 	-- Fleet shipping capacity in 0.3s (1 Trike) = (5000 / 60) * 0.3 = 25.0 eggs.
 	-- Transport (25.0) == Production (25.0).
-	-- Produced == Shipping: soldEggs = 25.0, cash = 25.0 * 0.25 = $6.25.
+	-- Produced == Shipping: soldEggs = 25.0, cash = 25.0 * 0.50 = $12.50.
 	local stateEqual = {
 		commonLevels = { comfy_nests = 15 },
 		habitatTypes = { 1, 1, 1, 1 }, -- 4 SHACKs
@@ -501,7 +501,7 @@ do
 	local stepEqual = ProductionMath.productionStep(stateEqual, dt)
 	approxEq(stepEqual.producedEggs, shippingCapacityInDt, 1e-6, "A04.2: Produced eggs matches shipping capacity (25.0)")
 	approxEq(stepEqual.soldEggs, shippingCapacityInDt, 1e-6, "A04.2: Sold eggs matches produced eggs and shipping capacity (25.0)")
-	approxEq(stepEqual.cashIncome, shippingCapacityInDt * eggVal, 1e-6, "A04.2: Cash income = 25.0 * $0.25 = $6.25")
+	approxEq(stepEqual.cashIncome, shippingCapacityInDt * eggVal, 1e-6, "A04.2: Cash income = 25.0 * $0.50 = $12.50")
 
 	-- Case 3: Transport < Produkcja (Transport below production - BOTTLENECK)
 	-- With comfy_nests = 50, laying rate is (1 + 5.0)/30 = 6/30 = 0.2 eggs/s per hen.
@@ -509,7 +509,7 @@ do
 	-- In dt = 0.3s: producedEggs = 2000 * 0.2 * 0.3 = 120.0 eggs.
 	-- Fleet shipping capacity in 0.3s (1 Trike) = 25.0 eggs.
 	-- Bottleneck active: soldEggs = min(120.0, 25.0) = 25.0 eggs!
-	-- Cash income is strictly limited to shipping capacity * eggVal ($6.25), NOT produced * eggVal ($30.00).
+	-- Cash income is strictly limited to shipping capacity * eggVal ($12.50), NOT produced * eggVal ($60.00).
 	local stateBelow = {
 		commonLevels = { comfy_nests = 50 },
 		habitatTypes = { 1, 1, 1, 1 }, -- 4 SHACKs
@@ -520,7 +520,7 @@ do
 	local stepBelow = ProductionMath.productionStep(stateBelow, dt)
 	approxEq(stepBelow.producedEggs, 120.0, 1e-6, "A04.3: Produced eggs is 120.0")
 	approxEq(stepBelow.soldEggs, shippingCapacityInDt, 1e-6, "A04.3: Sold eggs constrained by fleet shipping rate: min(production, transport)")
-	approxEq(stepBelow.cashIncome, shippingCapacityInDt * eggVal, 1e-6, "A04.3: Cash income limited strictly by transport capacity ($6.25)")
+	approxEq(stepBelow.cashIncome, shippingCapacityInDt * eggVal, 1e-6, "A04.3: Cash income limited strictly by transport capacity ($12.50)")
 	ok(stepBelow.soldEggs < stepBelow.producedEggs, "A04.3: Confirmed soldEggs < producedEggs")
 	ok(stepBelow.cashIncome < stepBelow.producedEggs * eggVal, "A04.3: Income is lower than unconstrained production")
 end

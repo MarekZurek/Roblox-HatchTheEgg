@@ -63,8 +63,8 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
  end
  local function validateConfig(c)
   assert(type(c)=="table" and type(c.revision)=="string" and #c.revision>0 and type(c.pro)=="boolean","Timeline/INVALID_CONFIG")
-  for k in c do assert(k=="revision" or k=="pro" or k=="siloCapacityLevel" or k=="liveEvents" or k=="holdContext" or k=="selectionSeed","Timeline/UNSUPPORTED_EFFECT") end
-  integer(c.siloCapacityLevel)
+  for k in c do assert(k=="revision" or k=="pro" or k=="siloCapacityLevel" or k=="liveEvents" or k=="holdContext" or k=="selectionSeed" or k=="double_cash","Timeline/UNSUPPORTED_EFFECT") end
+  integer(c.siloCapacityLevel); if c.double_cash~=nil then assert(type(c.double_cash)=="boolean","Timeline/INVALID_DOUBLE_CASH") end
   if c.liveEvents~=nil then assert(type(c.liveEvents)=="table","Timeline/INVALID_EVENTS") end
   if c.selectionSeed~=nil then integer(c.selectionSeed);assert(c.selectionSeed>0 and c.selectionSeed<4294967296,"Timeline/INVALID_SEED") end
   if c.holdContext~=nil then
@@ -184,6 +184,9 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
    local eventAverage=EffectsManager.averageEarningsEventMultiplier(cp.config.liveEvents,cp.startInstantMs,cp.elapsedSeconds,dt)
    local earningsMultiplier=A.multiply(mults.effectiveEarningsBoost,eventAverage)
    local income=A.multiply(baseIncome,earningsMultiplier)
+   if (cp.state.entitlements and cp.state.entitlements.double_cash == true) or (cp.config and cp.config.double_cash == true) then
+    income=A.multiply(income,2)
+   end
    f.cash=A.add(f.cash,income)
    local accounting=cp.state.accounting
    accounting.currentFarmCash=A.add(accounting.currentFarmCash,income)

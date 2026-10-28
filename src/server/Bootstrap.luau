@@ -595,6 +595,7 @@ function ServerBootstrap:_simulationAdvance(playerSession, profile, request)
 			siloCapacityLevel = self.productionMath.progression(profile.permanent).siloCapacityLevel,
    liveEvents = self.data.copy(self.liveEvents),
 			pro = if (profile.entitlements and profile.entitlements.pro_permit == true) then true else ((self.config and self.config.pro) or false),
+			double_cash = (profile.entitlements and profile.entitlements.double_cash == true) or false,
 		}
 		local runtime=playerSession.hatchingRuntime
         if runtime.held then
@@ -680,7 +681,7 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
         if not self.purchasesEnabled and (op.kind=="PurchaseProduct" or op.kind=="PlatformPurchase" or op.kind=="ConfirmPurchase" or op.kind=="GrantEntitlement") then
             return {profile=candidateProfile,terminalStatus="REJECTED",result={errorCode="LOCAL_PAYMENTS_DISABLED"},validate=function()return false,"LOCAL_PAYMENTS_DISABLED" end}
         end
-        local connected={ClaimDailyGift=true,ClaimTrophy=true,FusePets=true,BuyBoost=true,PurchaseProduct=true}
+        local connected={ClaimDailyGift=true,ClaimTrophy=true,FusePets=true,BuyBoost=true,PurchaseProduct=true,BuyEpicResearch=true}
         if connected[op.kind] then
             local draft=self.data.copy(candidateProfile)
             local args=op.args or {}
@@ -756,6 +757,50 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
                         else code=preview.error end
                     else code="POLICY_UNAVAILABLE" end
                 end
+            elseif op.kind == "BuyEpicResearch" then
+                local researchId = args.researchId
+                local canonicalId = if researchId == "lab_upgrade" then "cheaper_research"
+                    elseif researchId == "epic_int_hatchery" then "epic_internal_incubators"
+                    elseif researchId == "silo_quality" then "epic_silo_quality"
+                    elseif researchId == "internal_hatchery_calm" then "int_hatch_calm"
+                    elseif researchId == "soul_food" then "soul_eggs"
+                    elseif researchId == "epic_comfy_nests" then "epic_egg_laying"
+                    elseif researchId == "transportation_fleet" then "transportation_lobbyist"
+                    elseif researchId == "afx_ship_capacity" then "afx_mission_capacity"
+                    else researchId
+
+                local okCatalog, row = pcall(function()
+                    return self.catalog.getEpic(canonicalId)
+                end)
+                if not okCatalog or not row or type(researchId) ~= "string" then
+                    code = "UNSUPPORTED_RESEARCH"
+                else
+                    draft.permanent.epic = draft.permanent.epic or {}
+                    local curLvl = draft.permanent.epic[canonicalId] or draft.permanent.epic[researchId] or 0
+                    if curLvl >= row.maxLevel then
+                        code = "MAX_LEVEL"
+                    else
+                        local priceNum = row.prices[curLvl + 1]
+                        local costGE = self.codec.ExactUInt.fromSafeNumber(priceNum)
+                        local currentGE = self.codec.ExactUInt.decode(draft.permanent.GE or "0")
+                        if self.codec.ExactUInt.compare(currentGE, costGE) < 0 then
+                            code = "INSUFFICIENT_GE"
+                        else
+                            local totalSpent = self.codec.ExactUInt.decode(draft.permanent.totalGESpent or "0")
+                            draft.permanent.GE = self.codec.ExactUInt.encode(self.codec.ExactUInt.subtract(currentGE, costGE))
+                            draft.permanent.totalGESpent = self.codec.ExactUInt.encode(self.codec.ExactUInt.add(totalSpent, costGE))
+                            draft.permanent.epic[canonicalId] = curLvl + 1
+                            if researchId ~= canonicalId then
+                                draft.permanent.epic[researchId] = curLvl + 1
+                            end
+                            ok = true
+                            result.success = true
+                            result.researchId = researchId
+                            result.level = curLvl + 1
+                            result.costGE = self.codec.ExactUInt.encode(costGE)
+                        end
+                    end
+                end
             end
             if not ok then return {profile=candidateProfile,terminalStatus="REJECTED",result={errorCode=code or "OPERATION_REJECTED"},validate=function()return false,code end} end
             return {profile=draft,terminalStatus="APPLIED",result=result,validate=function(fresh)
@@ -803,6 +848,12 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 			elseif entId == "buy_max" then
 				candidateProfile.entitlements.buy_max = true
 				candidateProfile.entitlements.buy_max_effective_at = nowMs
+			elseif entId == "double_cash" then
+				candidateProfile.entitlements.double_cash = true
+				candidateProfile.entitlements.double_cash_effective_at = nowMs
+			elseif entId == "auto_hatch" then
+				candidateProfile.entitlements.auto_hatch = true
+				candidateProfile.entitlements.auto_hatch_effective_at = nowMs
 			end
 			return {
 				profile = candidateProfile,
@@ -1197,7 +1248,7 @@ end
 
 function ServerBootstrap:grantEntitlement(playerId, entitlementId, _legacyOpts)
 	if not self.purchasesEnabled then return false, "LOCAL_PAYMENTS_DISABLED" end
-	if entitlementId ~= "pro_permit" and entitlementId ~= "buy_max" then return false, "UNKNOWN_ENTITLEMENT" end
+	if entitlementId ~= "pro_permit" and entitlementId ~= "buy_max" and entitlementId ~= "double_cash" then return false, "UNKNOWN_ENTITLEMENT" end
 	local pId = tostring(playerId)
 	local playerSession = self.players[pId]
 	if not playerSession then

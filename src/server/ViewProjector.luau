@@ -91,6 +91,7 @@ local ActionReference=if isStudio then require(script.Parent.ActionReferenceData
 local ProgressActions=if isStudio then require(script.Parent.ProgressActions) else require("./ProgressActions")
 local Products=if isStudio then require(script.Parent.platform.products) else require("./platform/products")
 local FarmActions=if isStudio then require(script.Parent.FarmActions) else require("./FarmActions")
+local FvSe=if isStudio then require(script.Parent.FarmMath.fv_se) else require("./FarmMath/fv_se")
 local ViewProjector = {}
 ViewProjector.__index = ViewProjector
 ViewProjector.ALL_COMMON_RESEARCH_IDS = ALL_COMMON_RESEARCH_IDS
@@ -222,6 +223,9 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
  local boosts=Effects.calculateMultipliers(effects,farm,serverObservedAt,self.liveEvents,{boostBoostMult=pets.boostBoostMult})
  local activeRCB=productionMath.activeRCB(commonLevels,profile.permanent,farm.runningCount or "0")
  local cashIncomePerSecondNum=codec.BigAmount.multiply(codec.BigAmount.multiply(codec.BigAmount.multiply(codec.BigAmount.multiply(soldEggsPerSecondNum,r.eggValue),activeRCB),r.mysticalMultiplier),boosts.earningsMultiplier)
+ if profile and profile.entitlements and profile.entitlements.double_cash == true then
+  cashIncomePerSecondNum = codec.BigAmount.multiply(cashIncomePerSecondNum, 2)
+ end
 
 	-- Hatchery
 	local hatcheryStock = farm.hatcheryStock or "250"
@@ -304,6 +308,20 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
         local calendar={};local cycle=math.floor((profile.rewards.numDailyGiftsCollected or 0)/28)
         local fvOk,homeFV=pcall(ProgressActions.calculateProfileFarmValue,profile,catalog,productionMath)
         if not fvOk or profile.farm.isContract then homeFV=nil end
+        if homeFV ~= nil then ownFarm.homeFV = codec.BigAmount.encode(homeFV) end
+        local pendingOk, pendingSE = pcall(ProgressActions.calculatePendingSoulEggs, profile)
+        local pendingSEStr = if pendingOk and pendingSE ~= nil then codec.Real64.encode(pendingSE) else nil
+        local permanent = profile.permanent or {}
+        local epic = permanent.epic or {}
+        local soulFoodLvl = (epic.soul_eggs or epic.soul_food) or 0
+        local prophecyBonusLvl = epic.prophecy_bonus or 0
+        local se = codec.Real64.decode(permanent.SE or "0")
+        local pe = codec.ExactUInt.toSafeNumber(codec.ExactUInt.decode(permanent.PE or "0"))
+        local ebOk, earningBonusPct = pcall(function()
+            local eb = FvSe.calculateEarningBonus(se, pe, soulFoodLvl, prophecyBonusLvl)
+            return eb * 100
+        end)
+        local earningBonusStr = if ebOk and earningBonusPct ~= nil then codec.Real64.encode(earningBonusPct) else nil
         for day=1,28 do
             local reward=Calendar.resolveReward(cycle*28+day-1,ActionReference.calendar,homeFV)
             table.insert(calendar,{day=day,available=reward~=nil,rewardType=if reward then reward.rewardType else "Unavailable",amount=codec.BigAmount.encode(if reward then reward.amountNumber else 0)})
@@ -318,10 +336,11 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
         for key,value in profile.rewards.trophies or {} do if value==true then table.insert(claimed,key) end end;table.sort(claimed)
         local paidAllowed=Products.readPaidRandomPolicy(self.paidRandomAllowed,profile.meta.playerId)
         ownFarm.progress={issuedDrones=drones,ordinaryOffers=offers,GE=profile.permanent.GE,SE=profile.permanent.SE,PE=profile.permanent.PE,
-            proPermit=profile.entitlements.pro_permit==true,proBonusAvailable=Products.isProBonusAvailable(profile,paidAllowed),
+            proPermit=profile.entitlements.pro_permit==true,doubleCash=profile.entitlements.double_cash==true,autoHatch=profile.entitlements.auto_hatch==true,proBonusAvailable=Products.isProBonusAvailable(profile,paidAllowed),
             paidRandomPolicy=if paidAllowed==nil then "unknown" elseif paidAllowed then "allowed" else "restricted",
             numDailyGiftsCollected=profile.rewards.numDailyGiftsCollected or 0,lastCalendarDayUtc=profile.rewards.lastCalendarDayUtc or -1,
-            pets=pets,equipped=deepCopy(profile.inventory.equipped),trophies=claimed,calendar=calendar,shellScripts=profile.permanent.shellScripts or "0"}
+            pets=pets,equipped=deepCopy(profile.inventory.equipped),trophies=claimed,calendar=calendar,shellScripts=profile.permanent.shellScripts or "0",epic=deepCopy((profile.permanent and profile.permanent.epic) or {}),
+            pendingSE=pendingSEStr,earningBonus=earningBonusStr}
     end
     local commitRevision = (profile.meta and profile.meta.revision) or "0"
 	local configRev = (profile.meta and profile.meta.configRevision) or self.configRevision

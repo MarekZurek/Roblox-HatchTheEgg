@@ -230,7 +230,7 @@ do
 	-- Measure production with comfy_nests level 1:
 	-- Base egg laying rate is 1/30 eggs/s per hen.
 	-- comfy_nests level 1 grants eggLayingRateMult = 1.1 (10% more eggs: 1.1 / 30 eggs/s).
-	-- In 10 seconds with 1 hen: 10 * (1.1 / 30) eggs * $0.25/egg = ~$0.0916667 cash (vs $0.0833333 without upgrade)
+	-- In 10 seconds with 1 hen: 10 * (1.1 / 30) eggs * $0.50/egg = ~$0.1833333 cash (vs $0.1666667 without upgrade)
 	local cashBefore = BigAmount.decode(sPostBuy.working.farm.cash)
 	local revBefore = BigAmount.decode(sPostBuy.working.accounting.currentFarmCash)
 
@@ -240,8 +240,8 @@ do
 	local cashAfter = BigAmount.decode(sPostTick.working.farm.cash)
 	local revAfter = BigAmount.decode(sPostTick.working.accounting.currentFarmCash)
 
-	local expectedIncome = 10 * (1.1 / 30) * 0.25
-	local baseIncome = 10 * (1.0 / 30) * 0.25
+	local expectedIncome = 10 * (1.1 / 30) * 0.50
+	local baseIncome = 10 * (1.0 / 30) * 0.50
 	approxEq(revAfter - revBefore, expectedIncome, 1e-4, "Earned production with comfy_nests level 1")
 	approxEq(cashAfter - cashBefore, expectedIncome, 1e-4, "Wallet increased by comfy_nests level 1 production")
 	ok(revAfter - revBefore > baseIncome, "Production rate is strictly greater than base level 0 rate")

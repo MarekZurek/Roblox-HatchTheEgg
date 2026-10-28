@@ -107,7 +107,7 @@ Klucz trwałej deduplikacji pozostaje (playerId,operationId). Kanoniczne argumen
 | Postęp | ChangeEgg: targetEggId; Prestige: potwierdzona intencja, bez liczby SE | FV, dostępność, naliczenie i całą macierz resetu. |
 | Pety | EquipPet: petUid, slotId; UnequipPet: slotId; SetPetLock: petUid, boolean; FusePets: baseUid, materialUids, targetVariant, quoteId | Własność, zgodność, lock/wyposażenie, szansę, gwarancję i zużycie. Brak automatycznej podmiany listy. |
 | Boosty i VD | ActivateBoost: boostId; ActivateDoubler: quoteId, financing | Sztuki, dostępność/sloty, czas, prawo UTC i cenę. Pro nie jest drugim mnożnikiem VD. |
-| Nagrody | ClaimCalendar bez dowolnego numeru nagrody; ClaimTrophy: eggId, thresholdId; ClaimOffer: offerId, quoteId, financing wyłącznie free/GE; DismissOffer: offerId | Następną należną nagrodę, znaczniki, stały wynik oferty i rezerwacje. Robux rozpoczyna PreparePurchase, nie ClaimOffer. |
+| Nagrody | ClaimCalendar bez dowolnego numeru nagrody; ClaimTrophy: eggId, thresholdId; ClaimOffer: offerId, quoteId, financing wyłącznie free/Diamenty (GE); DismissOffer: offerId | Następną należną nagrodę, znaczniki, stały wynik oferty i rezerwacje. Robux rozpoczyna PreparePurchase, nie ClaimOffer. |
 | Dron | ClaimDrone: droneInstanceId | Czy serwer utworzył uprawnionego drona, jego stan, kwalifikację trafienia i jeden wynik. Brak kwoty, typu elity lub znacznika czasu od klienta. |
 | Zakupy platformowe | PreparePurchase: productId, quoteId i kontekst celu; dla prezentu obowiązkowo offerId oraz financing=Robux; później wyłącznie podgląd/status zamówienia | Dostępność, rzeczywistą korzyść, orderId i związanie z potwierdzeniem platformy. Brak komendy GrantPurchase. |
 

@@ -423,6 +423,7 @@ do
 	-- Initial state
 	eq(hud:getSessionStatus(), "CONNECTING", "Initial HUD status is CONNECTING")
 	eq(hud:getCashText(), "$0", "Default cash before snapshot is $0")
+	eq(hud:getCashRateText(), "+$0/s", "Default cash rate before snapshot is +$0/s")
 
 	-- 4.1 Apply StateSnapshot
 	local snap = makeTestSnapshot({
@@ -446,6 +447,7 @@ do
 	-- Verify HUD elements updated
 	eq(hud:getSessionStatus(), "READY", "Status is READY after snapshot")
 	eq(hud:getCashText(), "$5.42M", "Cash formatted as $5.42M")
+	eq(hud:getCashRateText(), "+$500/s", "Cash rate formatted as +$500/s")
 	eq(hud:getProducedEggsText(), "24.5K jaj/s", "Produced eggs 24.5K jaj/s")
 	eq(hud:getSoldEggsText(), "20K jaj/s", "Sold eggs 20K jaj/s")
 	eq(hud:getShippingText(), "20K jaj/s", "Transport limit 1.2M/min -> 20K jaj/s")
@@ -896,7 +898,7 @@ do
 	-- Check tier tabs count: 14 (T1..T13 + EPICKIE)
 	local tabsRow = resModal:FindFirstChild("TierTabsRow")
 	ok(tabsRow ~= nil, "TierTabsRow exists")
-	eq(#tabsRow:GetChildren(), 14, "14 tabs present (T1..T13 + EPICKIE)")
+	eq(#tabsRow:GetChildren(), 13, "13 tabs present (T1..T13)")
 
 	-- Check initial selected tier is 1
 	eq(hud:getCurrentResearchTier(), 1, "Initial selected tier is 1")
@@ -927,9 +929,20 @@ do
 	eq(lockBanner.Visible, false, "TierLockBanner is hidden for Tier 1")
 
 	-- Select EPICKIE tab (tab 14)
-	hud:selectResearchTier(14)
-	eq(hud:getCurrentResearchTier(), 14, "Selected tier is 14 (EPICKIE)")
-	eq(lockBanner.Visible, false, "Lock banner hidden on EPICKIE tab")
+	-- Dedicated Epic Research Modal
+	hud:toggleEpicResearchModal(true)
+	local epicModal = hud:getEpicResearchModal()
+	ok(epicModal ~= nil, "EpicResearchModal created")
+	eq(epicModal.Visible, true, "EpicResearchModal opened")
+	local gePill = epicModal:FindFirstChild("EpicGeBalancePill")
+	ok(gePill ~= nil, "EpicGeBalancePill exists")
+	local epicContainer = epicModal:FindFirstChild("EpicResearchListContainer")
+	ok(epicContainer ~= nil, "EpicResearchListContainer exists")
+	eq(#epicContainer:GetChildren(), 23, "All 23 active epic research cards present")
+	hud:closeAllModals()
+	eq(epicModal.Visible, false, "closeAllModals closes EpicResearchModal")
+
+
 
 	hud:destroy()
 end
@@ -1077,6 +1090,11 @@ do
 	proCard:FindFirstChild("BuyPassButton").Activated:Fire()
 	eq(purchasedProduct, "pro_permit", "pro_permit buy button fired onPurchaseProduct")
 
+	local autoHatchCard = cont:FindFirstChild("Tab3_GamePasses"):FindFirstChild("PassCard_auto_hatch")
+	ok(autoHatchCard ~= nil, "PassCard_auto_hatch exists")
+	autoHatchCard:FindFirstChild("BuyPassButton").Activated:Fire()
+	eq(purchasedProduct, "auto_hatch", "auto_hatch buy button fired onPurchaseProduct")
+
 	hud:destroy()
 end
 
@@ -1210,9 +1228,20 @@ do
 	eq(calModal.Visible, true, "CalendarModal opened")
 	eq(shopModal.Visible, false, "ShopModal closed")
 
+	-- 14.6b Epic Research Modal & Dual Buttons (GE & Robux)
+	hud:toggleEpicResearchModal(true)
+	local epicModal = hud:getEpicResearchModal()
+	ok(epicModal ~= nil, "EpicResearchModal created")
+	eq(epicModal.Visible, true, "EpicResearchModal opened")
+	local epicCard = hud.epicResearchCards and hud.epicResearchCards["hold_to_hatch"]
+	ok(epicCard ~= nil, "hold_to_hatch card exists")
+	ok(epicCard.buyBtn ~= nil, "buyBtn exists")
+	ok(epicCard.buyRobuxBtn ~= nil, "buyRobuxBtn exists")
+
 	-- 14.7 closeAllModals closes everything
 	hud:closeAllModals()
 	eq(calModal.Visible, false, "CalendarModal closed via closeAllModals")
+	eq(epicModal.Visible, false, "EpicResearchModal closed via closeAllModals")
 
 	hud:destroy()
 end

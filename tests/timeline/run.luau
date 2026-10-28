@@ -20,8 +20,8 @@ local function cfg(pro)return {revision="neutral:1",siloCapacityLevel=0,pro=pro 
 local function all(s,ms,c)return T.advance(T.begin(s,ms,c or cfg()),100000)end
 local original=state();local before=D.fingerprint(original)
 local cp=T.begin(original,2000,cfg());eq(cp.mode,"ONLINE");eq(cp.productionSeconds,1);eq(cp.stepIndex,0)
-local mid=T.advance(cp,1);eq(mid.phase,"AFTER_PRODUCTION");eq(mid.stepDt,.3);eq(mid.elapsedSeconds,0);eq(mid.state.farm.cash,10.25)
-eq(mid.state.accounting.currentFarmCash,100.25);eq(mid.state.accounting.lastBaseEarnings,120);eq(mid.state.accounting.lastCashEarned,50.25)
+local mid=T.advance(cp,1);eq(mid.phase,"AFTER_PRODUCTION");eq(mid.stepDt,.3);eq(mid.elapsedSeconds,0);eq(mid.state.farm.cash,10.5)
+eq(mid.state.accounting.currentFarmCash,100.5);eq(mid.state.accounting.lastBaseEarnings,120);eq(mid.state.accounting.lastCashEarned,50.5)
 eq(mid.state.accounting.prestigeSessionArchivedCash,20);eq(mid.state.accounting.prestigeExtraEarnings,30)
 local saved=serde.decode("json",serde.encode("json",T.encodeCheckpoint(mid)))
 local resumed=T.advance(T.decodeCheckpoint(saved),100)
@@ -35,7 +35,7 @@ eq(D.fingerprint(sliced),D.fingerprint(uninterrupted))
 eq(D.fingerprint(T.advance(sliced,10)),D.fingerprint(sliced))
 -- Independent 0.3,0.3,0.3,remaining reference operations, not output-derived expectations.
 local remaining=1;local cash=10;local stock=0
-while remaining>0 do local dt=math.min(remaining,.3);cash+=math.min((100*(1/30))*dt,(500/60)*dt)*.25;stock=math.min(250,stock+3*dt);remaining-=dt end
+while remaining>0 do local dt=math.min(remaining,.3);cash+=math.min((100*(1/30))*dt,(500/60)*dt)*.50;stock=math.min(250,stock+3*dt);remaining-=dt end
 eq(uninterrupted.state.farm.cash,cash);eq(uninterrupted.state.farm.hatcheryStock,stock)
 -- Exact threshold: short reconnect produces without silos; away zero cap closes whole period and groups.
 local zero=state();zero.farm.siloOwned=0
@@ -54,8 +54,8 @@ end
 local arriving=T.advance(T.begin(grouped(1.3),1600,cfg()),1)
 eq(arriving.state.farm.cash,10);eq(arriving.state.farm.habitats[1].population,"0")
 arriving=T.advance(arriving,1);eq(arriving.state.farm.habitats[1].population,"1");eq(arriving.state.farm.runningCount,"0")
-arriving=T.advance(arriving,1);eq(arriving.state.farm.cash,10+(1/30*.3*.25))
-local ready=all(grouped(1),1300);eq(ready.state.farm.cash,10+(1/30*.3*.25))
+arriving=T.advance(arriving,1);eq(arriving.state.farm.cash,10+(1/30*.3*.50))
+local ready=all(grouped(1),1300);eq(ready.state.farm.cash,10+(1/30*.3*.50))
 local awayGroup=grouped(100);awayGroup.farm.siloOwned=0;local closed=all(awayGroup,61001)
 eq(closed.state.farm.habitats[1].population,"1");eq(closed.state.farm.runningCount,"0");eq(closed.state.farm.cash,10)
 -- Common IHR rate is 2/min at level1; growth affects following production only.

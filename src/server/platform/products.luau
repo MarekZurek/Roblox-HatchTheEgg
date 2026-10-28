@@ -72,7 +72,7 @@ local CATALOG: { [string]: ProductDef } = table.freeze({
 		productId = "pro_permit",
 		productType = "gamepass",
 		availableAtLaunch = true,
-		name = "Pro Permit",
+		name = "Przepustka PRO",
 	}),
 	buy_max = table.freeze({
 		productId = "buy_max",
@@ -80,32 +80,62 @@ local CATALOG: { [string]: ProductDef } = table.freeze({
 		availableAtLaunch = true,
 		name = "Buy MAX Research",
 	}),
+	double_cash = table.freeze({
+		productId = "double_cash",
+		productType = "gamepass",
+		availableAtLaunch = true,
+		name = "2x Cash (Double Cash)",
+	}),
 	ge_pack_small = table.freeze({
 		productId = "ge_pack_small",
 		productType = "developer_product",
 		availableAtLaunch = true,
 		defaultGEAmount = 1000,
-		name = "Small Golden Egg Pack",
+		name = "Mała Paczka Diamentów (1,000 💎)",
 	}),
 	ge_pack_large = table.freeze({
 		productId = "ge_pack_large",
 		productType = "developer_product",
 		availableAtLaunch = true,
 		defaultGEAmount = 10000,
-		name = "Large Golden Egg Pack",
+		name = "Duża Paczka Diamentów (10,000 💎)",
 	}),
 	piggy_break = table.freeze({
 		productId = "piggy_break",
 		productType = "developer_product",
 		availableAtLaunch = true,
 		requiresPiggy = true,
-		name = "Break Piggy Bank",
+		name = "Rozbicie Skarbonki Diamentów",
 	}),
 	auto_hatch = table.freeze({
 		productId = "auto_hatch",
 		productType = "gamepass",
-		availableAtLaunch = false, -- Out of launch scope (docs/26 L15)
-		name = "Auto-Hatch Bot",
+		availableAtLaunch = true,
+		name = "Auto-Wylęg (Auto-Hatch)",
+	}),
+	epic_tier_1 = table.freeze({
+		productId = "epic_tier_1",
+		productType = "developer_product",
+		availableAtLaunch = false,
+		name = "Badanie Epickie (Tier 1 - 19 R$)",
+	}),
+	epic_tier_2 = table.freeze({
+		productId = "epic_tier_2",
+		productType = "developer_product",
+		availableAtLaunch = false,
+		name = "Badanie Epickie (Tier 2 - 49 R$)",
+	}),
+	epic_tier_3 = table.freeze({
+		productId = "epic_tier_3",
+		productType = "developer_product",
+		availableAtLaunch = false,
+		name = "Badanie Epickie (Tier 3 - 99 R$)",
+	}),
+	epic_tier_4 = table.freeze({
+		productId = "epic_tier_4",
+		productType = "developer_product",
+		availableAtLaunch = false,
+		name = "Badanie Epickie (Tier 4 - 199 R$)",
 	}),
 	vip = table.freeze({
 		productId = "vip",
@@ -130,6 +160,18 @@ local PRODUCT_ID_TO_CATALOG_ID: { [any]: string } = {
 	["2001"] = "pro_permit",
 	[2002] = "buy_max",
 	["2002"] = "buy_max",
+	[2003] = "double_cash",
+	["2003"] = "double_cash",
+	[2004] = "auto_hatch",
+	["2004"] = "auto_hatch",
+	[3001] = "epic_tier_1",
+	["3001"] = "epic_tier_1",
+	[3002] = "epic_tier_2",
+	["3002"] = "epic_tier_2",
+	[3003] = "epic_tier_3",
+	["3003"] = "epic_tier_3",
+	[3004] = "epic_tier_4",
+	["3004"] = "epic_tier_4",
 
 	-- Identity lookup for catalog string keys
 	["ge_pack_small"] = "ge_pack_small",
@@ -137,6 +179,12 @@ local PRODUCT_ID_TO_CATALOG_ID: { [any]: string } = {
 	["piggy_break"] = "piggy_break",
 	["pro_permit"] = "pro_permit",
 	["buy_max"] = "buy_max",
+	["double_cash"] = "double_cash",
+	["auto_hatch"] = "auto_hatch",
+	["epic_tier_1"] = "epic_tier_1",
+	["epic_tier_2"] = "epic_tier_2",
+	["epic_tier_3"] = "epic_tier_3",
+	["epic_tier_4"] = "epic_tier_4",
 }
 
 -- Reverse mapping from catalog IDs to default Roblox Asset/Product IDs
@@ -146,6 +194,12 @@ local CATALOG_ID_TO_PRODUCT_ID: { [string]: number } = {
 	piggy_break = 1003,
 	pro_permit = 2001,
 	buy_max = 2002,
+	double_cash = 2003,
+	auto_hatch = 2004,
+	epic_tier_1 = 3001,
+	epic_tier_2 = 3002,
+	epic_tier_3 = 3003,
+	epic_tier_4 = 3004,
 }
 
 local function resolveCatalogId(externalId: any): string?
@@ -234,12 +288,24 @@ local function previewPurchase(
 		end
 		paidBonusAvailable = playerContext.paidRandomAllowed == true
 		if paidBonusAvailable then
-			desc = "Pro Permit: 10 silos, 1.0x away rate, 5 boost slots, 5 pet slots, and +10 p.p. pet fusion chance."
+			desc = "Stała Przepustka PRO: 10 silosów (do 24h działania offline z badaniami), 5 aktywnych boostów i +10 p.p. szansy fuzji petów."
 		else
-			desc = "Pro Permit: 10 silos, 1.0x away rate, 5 boost slots, and 5 pet slots. Note: Paid random chance modifier (+10 p.p.) is disabled for your account."
+			desc = "Stała Przepustka PRO: 10 silosów (do 24h działania offline z badaniami) i 5 aktywnych boostów. Note: Paid random chance modifier is disabled for your account."
 		end
 	elseif resolvedId == "buy_max" then
 		desc = "Buy MAX Research: fast research purchase shortcut. Does not grant Pro Permit."
+	elseif resolvedId == "double_cash" then
+		desc = "2x Cash (Double Cash): permanent x2 multiplier to all egg income."
+	elseif resolvedId == "auto_hatch" then
+		desc = "Auto-Wylęg (Auto-Hatch): automatyczny, ciągły wylęg kurczaków bez klikania."
+	elseif string.sub(resolvedId, 1, 9) == "epic_tier" then
+		desc = "Bezpośrednie odblokowanie Badania Epickiego za Robuxy."
+	elseif resolvedId == "ge_pack_small" then
+		desc = "Mała Paczka Diamentów (1,000 💎): natychmiast zasila stan konta 1,000 Diamentami."
+	elseif resolvedId == "ge_pack_large" then
+		desc = "Duża Paczka Diamentów (10,000 💎): natychmiast zasila stan konta 10,000 Diamentami."
+	elseif resolvedId == "piggy_break" then
+		desc = "Rozbicie Skarbonki Diamentów: wypłaca wszystkie zebrane Diamenty ze Skarbonki."
 	end
 
 	return {
@@ -367,6 +433,14 @@ local function confirmPurchase(
 	elseif productId == "buy_max" then
 		profile.entitlements.buy_max = true
 		profile.entitlements.buy_max_effective_at = nowMs
+	elseif productId == "double_cash" then
+		profile.entitlements.double_cash = true
+		profile.entitlements.double_cash_effective_at = nowMs
+	elseif productId == "auto_hatch" then
+		profile.entitlements.auto_hatch = true
+		profile.entitlements.auto_hatch_effective_at = nowMs
+	elseif string.sub(productId, 1, 9) == "epic_tier" then
+		-- Developer product for epic research purchased
 	elseif productId == "piggy_break" then
 		profile.piggy = profile.piggy or {}
 		local rawAmount = profile.piggy.rawAmount or 0

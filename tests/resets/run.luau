@@ -198,13 +198,13 @@ do
 	local p = createTestProfile()
 	-- Farm Value on fresh Edible profile: ~13 732
 	local fv = ProgressActions.calculateProfileFarmValue(p)
-	near(fv, 13732.00679132647, 1e-6, "profile FV on fresh farm matches empty edible reference")
+	near(fv, 27464.01358265294, 1e-6, "profile FV on fresh farm matches empty edible reference")
 
 	-- 3.1 Advance threshold for SUPERFOOD (index 1) is 68,000,000
 	local canAdvance, reason, curFv = ProgressActions.canUpgradeEgg(p, 1)
 	eq(canAdvance, false, "cannot advance to Superfood on fresh farm")
 	eq(reason, "FV_TOO_LOW", "reason is FV_TOO_LOW")
-	near(curFv, 13732.00679132647, 1e-6, "current FV returned")
+	near(curFv, 27464.01358265294, 1e-6, "current FV returned")
 
 	-- 3.2 applyUpgradeEgg rejection when FV is too low
 	local opBadFv = { kind = "UpgradeEgg", operationId = "op-up-1", expectedRevision = "0", args = { targetEggIndex = 1 } }
@@ -253,7 +253,7 @@ do
 	p.accounting.lastBaseEarnings = BigAmount.encode(10000)
 
 	local boostedFV = ProgressActions.calculateProfileFarmValue(p)
-	ok(boostedFV >= 68000000, "boosted FV qualifies for Superfood (index 1)")
+	ok(boostedFV >= 5000000, "boosted FV qualifies for Kacze (index 1)")
 
 	local canAdv, blk, fv = ProgressActions.canUpgradeEgg(p, 1)
 	eq(canAdv, true, "canUpgradeEgg to Superfood is true")
@@ -784,12 +784,12 @@ do
 	-- Update billboards from farmView
 	world:updateFromFarmView({ eggIndex = 0, habitats = {}, common = {} }, Catalog)
 	ok(#world.eggUpgradeBillboards >= 1, "at least 1 egg upgrade billboard registered")
-	eq(world.eggUpgradeBillboards[1].curLabel.Text, "🥚 Aktualne: EDIBLE")
-	eq(world.eggUpgradeBillboards[1].nextLabel.Text, "✨ Następne: SUPERFOOD")
+	eq(world.eggUpgradeBillboards[1].curLabel.Text, "🥚 Aktualne: KURZE")
+	eq(world.eggUpgradeBillboards[1].nextLabel.Text, "✨ Następne: KACZE")
 
 	-- Update for max egg (18)
 	world:updateFromFarmView({ eggIndex = 18, habitats = {}, common = {} }, Catalog)
-	eq(world.eggUpgradeBillboards[1].curLabel.Text, "🥚 Aktualne: ENLIGHTENMENT (MAX)")
+	eq(world.eggUpgradeBillboards[1].curLabel.Text, "🥚 Aktualne: ASTRALNEGO LEWIATANA (MAX)")
 	eq(world.eggUpgradeBillboards[1].nextLabel.Text, "🎉 Osiągnięto Oświecenie (MAX)!")
 
 	-- 7.5 Client HUD Modal & ClientBootstrap Verification

@@ -29,15 +29,7 @@ end
 do
 	local p = makeProfile()
 
-	-- Auto-Hatch and VIP are blocked at launch
-	local prevAuto = Products.previewPurchase(p, "auto_hatch")
-	eq(prevAuto.isAvailable, false, "auto_hatch unavailable at launch")
-	eq(prevAuto.error, "PRODUCT_UNAVAILABLE_AT_LAUNCH", "auto_hatch error")
-
-	local okPrepAuto, _, errPrepAuto = Products.preparePurchase(p, "auto_hatch", "tok_auto", 1000)
-	eq(okPrepAuto, false, "prepare auto_hatch fails")
-	eq(errPrepAuto, "PRODUCT_UNAVAILABLE_AT_LAUNCH", "prepare auto_hatch error")
-
+	-- VIP is blocked at launch
 	local prevVIP = Products.previewPurchase(p, "vip")
 	eq(prevVIP.isAvailable, false, "vip unavailable at launch")
 	eq(prevVIP.error, "PRODUCT_UNAVAILABLE_AT_LAUNCH", "vip error")
@@ -56,6 +48,20 @@ do
 	eq(okConfBM, true, "confirm buy_max")
 	eq(p.entitlements.buy_max, true, "buy_max entitlement granted")
 	eq(p.entitlements.pro_permit, nil, "pro_permit NOT granted by buy_max")
+
+	-- double_cash grants 2x income entitlement
+	local okPrepDC, prevDC = Products.preparePurchase(p, "double_cash", "tok_dc", 1100)
+	eq(okPrepDC, true, "prepare double_cash")
+	local okConfDC, resDC = Products.confirmPurchase(p, "tok_dc", nil, 1150)
+	eq(okConfDC, true, "confirm double_cash")
+	eq(p.entitlements.double_cash, true, "double_cash entitlement granted")
+
+	-- auto_hatch grants auto_hatch entitlement
+	local okPrepAH, prevAH = Products.preparePurchase(p, "auto_hatch", "tok_ah", 1200)
+	eq(okPrepAH, true, "prepare auto_hatch")
+	local okConfAH, resAH = Products.confirmPurchase(p, "tok_ah", nil, 1250)
+	eq(okConfAH, true, "confirm auto_hatch")
+	eq(p.entitlements.auto_hatch, true, "auto_hatch entitlement granted")
 
 	-- Cannot re-purchase already owned gamepass
 	local prevBM2 = Products.previewPurchase(p, "buy_max")
@@ -204,12 +210,24 @@ do
 	eq(Products.resolveCatalogId(1003), "piggy_break", "1003 maps to piggy_break")
 	eq(Products.resolveCatalogId(2001), "pro_permit", "2001 maps to pro_permit")
 	eq(Products.resolveCatalogId(2002), "buy_max", "2002 maps to buy_max")
+	eq(Products.resolveCatalogId(2003), "double_cash", "2003 maps to double_cash")
+	eq(Products.resolveCatalogId(2004), "auto_hatch", "2004 maps to auto_hatch")
+	eq(Products.resolveCatalogId(3001), "epic_tier_1", "3001 maps to epic_tier_1")
+	eq(Products.resolveCatalogId(3002), "epic_tier_2", "3002 maps to epic_tier_2")
+	eq(Products.resolveCatalogId(3003), "epic_tier_3", "3003 maps to epic_tier_3")
+	eq(Products.resolveCatalogId(3004), "epic_tier_4", "3004 maps to epic_tier_4")
 
 	eq(Products.resolveProductId("ge_pack_small"), 1001, "ge_pack_small maps to 1001")
 	eq(Products.resolveProductId("ge_pack_large"), 1002, "ge_pack_large maps to 1002")
 	eq(Products.resolveProductId("piggy_break"), 1003, "piggy_break maps to 1003")
 	eq(Products.resolveProductId("pro_permit"), 2001, "pro_permit maps to 2001")
 	eq(Products.resolveProductId("buy_max"), 2002, "buy_max maps to 2002")
+	eq(Products.resolveProductId("double_cash"), 2003, "double_cash maps to 2003")
+	eq(Products.resolveProductId("auto_hatch"), 2004, "auto_hatch maps to 2004")
+	eq(Products.resolveProductId("epic_tier_1"), 3001, "epic_tier_1 maps to 3001")
+	eq(Products.resolveProductId("epic_tier_2"), 3002, "epic_tier_2 maps to 3002")
+	eq(Products.resolveProductId("epic_tier_3"), 3003, "epic_tier_3 maps to 3003")
+	eq(Products.resolveProductId("epic_tier_4"), 3004, "epic_tier_4 maps to 3004")
 
 	-- Register custom external product ID
 	Products.registerProductId(987654, "ge_pack_large")
@@ -330,6 +348,12 @@ do
 	eq(okBM, true, "grantEntitlement buy_max succeeds")
 	snap = server:getCoordinator("7701"):snapshots().durable
 	eq(snap.entitlements.buy_max, true, "buy_max entitlement active")
+
+	-- Test 6b: GamePass Double Cash grant
+	local okDC, _ = server:grantEntitlement("7701", "double_cash")
+	eq(okDC, true, "grantEntitlement double_cash succeeds")
+	snap = server:getCoordinator("7701"):snapshots().durable
+	eq(snap.entitlements.double_cash, true, "double_cash entitlement active")
 
 	-- Test 7: Large GE pack (10,000 GE) receipt
 	local receiptLarge = {

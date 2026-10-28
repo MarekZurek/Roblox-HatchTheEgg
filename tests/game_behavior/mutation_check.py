@@ -110,7 +110,7 @@ MUTANTS=[
   'researchMaxRCBBase = r.rcbCap - 5 + (catalog.epicEffects("epic_multiplier",epic.epic_multiplier or 0).onscreenChickenMultMax or 0),',
   'researchMaxRCBBase = 0,'),
  ('epic_discounts_ignored','src/server/FarmActions.luau',
-  'return catalog.epicEffects(spec[1], epic[spec[1]] or 0)[spec[2]] or 1',
+  'return catalog.epicEffects(spec[1], lvl)[spec[2]] or 1',
   'return 1'),
  ('reset_stops_hold_before_commit','src/server/Bootstrap.luau',
   'local outcome=ProgressActions.apply(candidateProfile,op,deps)',

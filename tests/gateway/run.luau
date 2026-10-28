@@ -116,9 +116,9 @@ do
 	-- shippingPerMinute = 5000 -> shippingPerSecond = 5000/60 = 83.333333333333329
 	-- soldEggsPerSecond = min(10, 83.333333333333329) = 10
 	eq(farm.soldEggsPerSecond, "10")
-	-- nutritional_sup = 2 -> eggValue = 0.25 * (1 + 0.25*2) = 0.25 * 1.5 = 0.375
-	-- cashIncomePerSecond = 10 * 0.375 = 3.75
-	eq(farm.cashIncomePerSecond, "3.75")
+	-- nutritional_sup = 2 -> eggValue = 0.50 * (1 + 0.25*2) = 0.50 * 1.5 = 0.75
+	-- cashIncomePerSecond = 10 * 0.75 = 7.5
+	eq(farm.cashIncomePerSecond, "7.5")
 
 	-- Common research list: exactly 56 entries
 	eq(#farm.common, 56, "Must contain all 56 research items")

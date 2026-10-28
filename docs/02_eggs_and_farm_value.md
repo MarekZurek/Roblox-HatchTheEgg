@@ -12,8 +12,8 @@ Wartość bazowa jaja determinuje przychód generowany przez każde pojedyncze z
 
 | ID konfiguracji | Gatunek | Wartość jaja | FV odkrycia | FV awansu |
 |---:|---|---:|---:|---:|
-| 1 | EDIBLE | 0.25 | 0 | 0 |
-| 2 | SUPERFOOD | 1.25 | 10000000 | 68000000 |
+| 1 | EDIBLE (Kurze) | 0.50 | 0 | 0 |
+| 2 | SUPERFOOD (Kacze) | 1.25 | 1000000 | 5000000 |
 | 3 | MEDICAL | 6.25 | 840000000 | 5300000000 |
 | 4 | ROCKET FUEL | 30 | 38000000000 | 240000000000 |
 | 5 | SUPER MATERIAL | 150 | 2.7e+13 | 1.7e+14 |
@@ -62,7 +62,7 @@ Nie pomijać wartości bazowej jaja ani bazowego tempa 1/30. Człon przyszłego 
 
 Uzupełnienie dla petów: [rozdział 16](16_pet_stacking_offline_and_package_schedule.md) potwierdza wybór `totalHabCapacityOf(..., true)` w FV. Jest to pojemność z ResearchEngine, a nie pełna pojemność GDR z wyposażeniem. Bonusów wartości jaj, znoszenia, IHR i pojemności petów nie dopisujemy bezpośrednio do wejść tego wzoru. Wpływ przez faktycznie zmienioną populację pozostaje zachowany.
 
-Kontrakty mają osobną gałąź K=6000, Virtue/Enlightenment K=3600. Warianty te wymagają osobnych scenariuszy integracyjnych. Pusta farma Edible z Coop=250 bez bonusów: FV około **13 732.0067913**.
+Kontrakty mają osobną gałąź K=6000, Virtue/Enlightenment K=3600. Warianty te wymagają osobnych scenariuszy integracyjnych. Pusta farma Edible z Coop=250 bez bonusów: FV około **27 464.01358265** (przy wartości bazowej $0.50).
 
 ## 3. Mechanika Przejścia na Wyższe Jajo (Egg Transition)
 
