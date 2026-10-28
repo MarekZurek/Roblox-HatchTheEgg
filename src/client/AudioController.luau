@@ -12,8 +12,9 @@ end)
 
 local DEFAULT_SFX_ASSETS: { [string]: string } = table.freeze({
 	cluck = "rbxassetid://9114223170",
-	coin = "rbxassetid://9069609203",
-	pop = "rbxassetid://9069609204",
+	-- Free Creator Store Audio assets; validated by tests/audio/studio_asset_check.luau.
+	coin = "rbxassetid://135483737426662", -- Coin Collect (G00byBBQSauce)
+	pop = "rbxassetid://140323850218372", -- Pop Sound Effect (Siegegeddon)
 	click = "rbxassetid://6895079853",
 	fanfare = "rbxassetid://9069609206",
 })

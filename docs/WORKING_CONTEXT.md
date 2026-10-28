@@ -1,5 +1,9 @@
 # Bieżący kontekst — 28.10.2026
 
+**Audio prezentów — 28.10.2026:** [naprawione coin/pop i native Studio FAIL→PASS](workflow/gift_audio_2026_10_28.md). Stare ID9069609203/9069609204 wskazywały Place; zastąpiono je darmowymi Audio135483737426662/140323850218372. Naturalny odbiór prezentu wywołał jedną parę poprawnie odtwarzanych efektów, bez błędów ładowania. Test odtwarzania native + dwie mutacje starych ID; Lune UI452/gift_drops103 PASS, build43+2 PASS. Własny Play zakończony, sondy usunięte, Studio Edit/local memory. Bez publikacji Roblox.
+
+**Prezenty — odbiór Studio 28.10.2026:** [lokalny Play na kodzie d570beb](workflow/ground_gifts_studio_2026_10_28.md) potwierdził naturalne pojawianie, brak odbioru w powietrzu, odbiór przez podejście po lądowaniu i wygaśnięcie po 15s na ziemi (model usunięty 46ms po terminie). Jeden serwer/klient, UseLocalMemoryStore=true. Własny Play zakończony, sondy usunięte, źródła45/45 zgodne z HEAD; Studio pozostawione w Edit. Konsola wykazała błędne typy assetów dźwiękowych9069609203/9069609204. Bez publikacji ani testu chmury.
+
 **Prezenty spadające — 28.10.2026:** [generator, serwerowy odbiór po lądowaniu,15s na ziemi i regresje](workflow/ground_gifts_2026_10_28.md). Klikanie jest wycofane; oferty2+1 zachowują swoje reguły.
 
 **Wzmocnienie testów po review — 28.10.2026:** [naprawa oczekiwań, izolacja mutacji i dowody FAIL→PASS](workflow/test_oracle_repairs_2026_10_28.md). Bieżące opisy RCB dotyczą stałego mnożnika badań; mechaniki gry i dane referencyjne bez zmian.

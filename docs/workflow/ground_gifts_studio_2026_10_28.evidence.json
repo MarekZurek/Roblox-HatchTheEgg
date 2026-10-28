@@ -1,0 +1,280 @@
+{
+  "schema": 1,
+  "date": "2026-10-28",
+  "sourceCommit": "d570bebabcdd18aa002d3c9a035d19aad7847819",
+  "studio": "ca4e8128-68e6-4bfe-8747-467e992ac59a",
+  "serverCount": 1,
+  "clientCount": 1,
+  "mode": "Studio Play / UseLocalMemoryStore=true / PlaceId=0",
+  "randomness": "unchanged production math.random; natural generator",
+  "instrumentation": "Appended bounded observers to Main server/client. Character repositioned for expiry and pre-land proximity; Humanoid:MoveTo after landing in approach case. No reward injection, clock override, RNG override or rule replacement. Removed after Play.",
+  "server": {
+    "count": 3,
+    "events": [
+      {
+        "created": 1793219041073,
+        "id": "gift-1-1793219041073-1",
+        "event": "spawn",
+        "at": 1793219041078,
+        "landed": 1793219043573,
+        "position": {
+          "y": 1.15,
+          "x": 12,
+          "z": 18
+        },
+        "cash": "0",
+        "fixed": {
+          "formattedAmount": "1.0985605596759453",
+          "type": "Cash",
+          "amount": "1.0985605596759453"
+        },
+        "expires": 1793219058573,
+        "n": 1
+      },
+      {
+        "at": 1793219043620,
+        "claimed": false,
+        "id": "gift-1-1793219041073-1",
+        "event": "landWindow",
+        "cash": "0"
+      },
+      {
+        "id": "gift-1-1793219041073-1",
+        "claimed": false,
+        "event": "expired",
+        "at": 1793219058586
+      },
+      {
+        "created": 1793219075388,
+        "id": "gift-1-1793219075387-2",
+        "event": "spawn",
+        "at": 1793219075419,
+        "landed": 1793219077888,
+        "position": {
+          "y": 1.15,
+          "x": 12,
+          "z": 18
+        },
+        "cash": "0",
+        "fixed": {
+          "formattedAmount": "1.0985605596759453",
+          "type": "Cash",
+          "amount": "1.0985605596759453"
+        },
+        "expires": 1793219092888,
+        "n": 2
+      },
+      {
+        "id": "gift-1-1793219075387-2",
+        "claimed": false,
+        "event": "underInAir",
+        "at": 1793219075419
+      },
+      {
+        "at": 1793219077935,
+        "airUnclaimedSamples": 40,
+        "claimed": false,
+        "id": "gift-1-1793219075387-2",
+        "event": "landWindow",
+        "cash": "0"
+      },
+      {
+        "at": 1793219078001,
+        "id": "gift-1-1793219075387-2",
+        "cash": "1.0985605596759453",
+        "event": "claimed",
+        "reward": {
+          "formattedAmount": "1.0985605596759453",
+          "type": "Cash",
+          "amount": "1.0985605596759453"
+        }
+      },
+      {
+        "id": "gift-1-1793219075387-2",
+        "claimed": true,
+        "event": "expired",
+        "at": 1793219092918
+      },
+      {
+        "created": 1793219119302,
+        "id": "gift-1-1793219119301-3",
+        "event": "spawn",
+        "at": 1793219119353,
+        "landed": 1793219121802,
+        "position": {
+          "y": 1.15,
+          "x": 0,
+          "z": 18
+        },
+        "cash": "1.0985605596759453",
+        "fixed": {
+          "formattedAmount": "1.0985605596759453",
+          "type": "Cash",
+          "amount": "1.0985605596759453"
+        },
+        "expires": 1793219136802,
+        "n": 3
+      },
+      {
+        "at": 1793219121851,
+        "claimed": false,
+        "id": "gift-1-1793219119301-3",
+        "event": "landWindow",
+        "cash": "1.0985605596759453"
+      },
+      {
+        "id": "gift-1-1793219119301-3",
+        "claimed": false,
+        "event": "walkToGift",
+        "at": 1793219122817
+      },
+      {
+        "at": 1793219125016,
+        "id": "gift-1-1793219119301-3",
+        "cash": "2.1971211193518907",
+        "event": "claimed",
+        "reward": {
+          "formattedAmount": "1.0985605596759453",
+          "type": "Cash",
+          "amount": "1.0985605596759453"
+        }
+      },
+      {
+        "id": "gift-1-1793219119301-3",
+        "claimed": true,
+        "event": "expired",
+        "at": 1793219136833
+      }
+    ],
+    "started": 1793219028576
+  },
+  "client": {
+    "events": [
+      {
+        "at": 1793219041170,
+        "start": 1793219041073,
+        "clickHandlers": 0,
+        "model": "Workspace.HatchTheEggVisualActors.Drone_gift-1-1793219041073-1",
+        "id": "gift-1-1793219041073-1",
+        "expires": 1793219058573,
+        "event": "visible",
+        "shootResult": false
+      },
+      {
+        "at": 1793219043636,
+        "hasModel": true,
+        "id": "gift-1-1793219041073-1",
+        "landedAt": 1793219043573,
+        "event": "landed",
+        "subtitle": "[PODBIEGNIJ BY PODNIEŚĆ] (15s...)"
+      },
+      {
+        "id": "gift-1-1793219041073-1",
+        "event": "gone",
+        "at": 1793219058619
+      },
+      {
+        "at": 1793219075486,
+        "start": 1793219075388,
+        "clickHandlers": 0,
+        "model": "Workspace.HatchTheEggVisualActors.Drone_gift-1-1793219075387-2",
+        "id": "gift-1-1793219075387-2",
+        "expires": 1793219092888,
+        "event": "visible",
+        "shootResult": false
+      },
+      {
+        "at": 1793219077952,
+        "hasModel": true,
+        "id": "gift-1-1793219075387-2",
+        "landedAt": 1793219077888,
+        "event": "landed",
+        "subtitle": "[PODBIEGNIJ BY PODNIEŚĆ] (15s...)"
+      },
+      {
+        "id": "gift-1-1793219075387-2",
+        "event": "gone",
+        "at": 1793219078018
+      },
+      {
+        "at": 1793219119391,
+        "start": 1793219119302,
+        "clickHandlers": 0,
+        "model": "Workspace.HatchTheEggVisualActors.Drone_gift-1-1793219119301-3",
+        "id": "gift-1-1793219119301-3",
+        "expires": 1793219136802,
+        "event": "visible",
+        "shootResult": false
+      },
+      {
+        "at": 1793219121867,
+        "hasModel": true,
+        "id": "gift-1-1793219119301-3",
+        "landedAt": 1793219121802,
+        "event": "landed",
+        "subtitle": "[PODBIEGNIJ BY PODNIEŚĆ] (15s...)"
+      },
+      {
+        "id": "gift-1-1793219119301-3",
+        "event": "gone",
+        "at": 1793219125032
+      }
+    ]
+  },
+  "results": [
+    {
+      "n": 1,
+      "id": "gift-1-1793219041073-1",
+      "descentMs": 2500,
+      "groundWindowMs": 15000,
+      "observedVisualGroundMs": 14983,
+      "disappearanceVsExpiryMs": 46,
+      "claimVsLandingMs": null,
+      "claimed": false,
+      "preLandingUnclaimedSamples": null
+    },
+    {
+      "n": 2,
+      "id": "gift-1-1793219075387-2",
+      "descentMs": 2500,
+      "groundWindowMs": 15000,
+      "observedVisualGroundMs": 66,
+      "disappearanceVsExpiryMs": -14870,
+      "claimVsLandingMs": 113,
+      "claimed": true,
+      "preLandingUnclaimedSamples": 40
+    },
+    {
+      "n": 3,
+      "id": "gift-1-1793219119301-3",
+      "descentMs": 2500,
+      "groundWindowMs": 15000,
+      "observedVisualGroundMs": 3165,
+      "disappearanceVsExpiryMs": -11770,
+      "claimVsLandingMs": 3214,
+      "claimed": true,
+      "preLandingUnclaimedSamples": null
+    }
+  ],
+  "console": [
+    {
+      "type": "text",
+      "text": "[HatchTheEgg Server] Explicit Studio memory mode: no persistence; platform purchases disabled.\nContentId: rbxassetid://9069609204 failed due to: Asset type does not match requested type\nContentId: rbxassetid://9069609204 failed due to: Asset type does not match requested type\nContentId: rbxassetid://9069609204 failed due to: Asset type does not match requested type\nFailed to load sound rbxassetid://9069609204: Asset type does not match requested type\nContentId: rbxassetid://9069609203 failed due to: Asset type does not match requested type\nContentId: rbxassetid://9069609203 failed due to: Asset type does not match requested type\nContentId: rbxassetid://9069609203 failed due to: Asset type does not match requested type\nFailed to load sound rbxassetid://9069609203: Asset type does not match requested type\nContentId: rbxassetid://9069609203 failed due to: Asset type does not match requested type\nContentId: rbxassetid://9069609203 failed due to: Asset type does not match requested type\nContentId: rbxassetid://9069609203 failed due to: Asset type does not match requested type\nFailed to load sound rbxassetid://9069609203: Asset type does not match requested type\nContentId: rbxassetid://9069609204 failed due to: Asset type does not match requested type\nContentId: rbxassetid://9069609204 failed due to: Asset type does not match requested type\nContentId: rbxassetid://9069609204 failed due to: Asset type does not match requested type\nFailed to load sound rbxassetid://9069609204: Asset type does not match requested type"
+    }
+  ],
+  "cleanup": [
+    {
+      "type": "text",
+      "text": "{\"localMemory\":true,\"verified\":45,\"probeRemoved\":true,\"httpEnabled\":false}"
+    }
+  ],
+  "probes": {
+    "server": "\n-- TEMPORARY LOCAL STUDIO OBSERVER\ntask.spawn(function()\n local H=game:GetService(\"HttpService\")\n local q={events={},started=server.clock.utcNowMs(),count=0};local seen={};local moved=false\n local function emit(e) table.insert(q.events,e);script:SetAttribute(\"GiftQA\",H:JSONEncode(q)) end\n script:SetAttribute(\"GiftProbeReady\",true)\n for i=1,5000 do\n  local now=server.clock.utcNowMs()\n  for id,session in server.players do\n   local p=activePlayerObjects[id]\n   if p and p.Character then\n    if not moved then p.Character:PivotTo(CFrame.new(0,4,-12));moved=true end\n    local snap=session.coordinator.snapshots();local profile=snap.working or snap.durable\n    for gid,g in profile.rewards.droneSpawns or {} do\n     local row=seen[gid]\n     if not row then\n      q.count+=1;row={n=q.count};seen[gid]=row\n      emit({event=\"spawn\",id=gid,n=row.n,at=now,created=g.createdAtMs,landed=g.landedAtMs,expires=g.expiresAtMs,position=g.position,fixed=g.fixedReward,cash=profile.farm.cash})\n      if row.n==2 then p.Character:PivotTo(CFrame.new(g.position.x,4,g.position.z));emit({event=\"underInAir\",id=gid,at=now,claimed=g.claimed}) end\n     end\n     if row.n==2 and now<g.landedAtMs and not g.claimed then row.airSamples=(row.airSamples or 0)+1 end\n     if now>=g.landedAtMs and not row.land then\n      row.land=true;emit({event=\"landWindow\",id=gid,at=now,claimed=g.claimed,airUnclaimedSamples=row.airSamples,cash=profile.farm.cash})\n     end\n     if row.n==3 and now>=g.landedAtMs+1000 and not row.walk then\n      row.walk=true;p.Character:FindFirstChildOfClass(\"Humanoid\"):MoveTo(Vector3.new(g.position.x,3,g.position.z));emit({event=\"walkToGift\",id=gid,at=now,claimed=g.claimed})\n     end\n     if g.claimed and not row.claim then\n      row.claim=true;emit({event=\"claimed\",id=gid,at=now,reward=g.reward,cash=profile.farm.cash})\n      if row.n==2 then p.Character:PivotTo(CFrame.new(0,4,-12)) end\n     end\n     if now>=g.expiresAtMs and not row.exp then row.exp=true;emit({event=\"expired\",id=gid,at=now,claimed=g.claimed}) end\n    end\n   end\n  end\n  task.wait(.05)\n end\n q.complete=true;script:SetAttribute(\"GiftQA\",H:JSONEncode(q))\nend)\n",
+    "client": "\n-- TEMPORARY LOCAL STUDIO OBSERVER\ntask.spawn(function()\n local H=game:GetService(\"HttpService\");local q={events={}};local seen={}\n local function emit(e) table.insert(q.events,e);script:SetAttribute(\"GiftQA\",H:JSONEncode(q)) end\n script:SetAttribute(\"GiftProbeReady\",true)\n for i=1,7000 do\n  local pres=client:getPresentation();local now=DateTime.now().UnixTimestampMillis;local active={}\n  for id,d in pres._activeDrones do\n   active[id]=true\n   if not seen[id] then\n    seen[id]={};local clicks=0;for _,v in d.model:GetDescendants() do if v:IsA(\"ClickDetector\") or v:IsA(\"ProximityPrompt\") then clicks+=1 end end\n    emit({event=\"visible\",id=id,at=now,start=d.startInstantMs,expires=d.expiresAtMs,model=d.model:GetFullName(),clickHandlers=clicks,shootResult=pres:shootDrone(id,true)})\n   end\n   if d.landed and not seen[id].land then\n    seen[id].land=true;local sub=d.model:FindFirstChild(\"Subtitle\",true)\n    emit({event=\"landed\",id=id,at=now,landedAt=d.landedAtMs,hasModel=d.model.Parent~=nil,subtitle=sub and sub.Text})\n   end\n  end\n  for id,row in seen do if not active[id] and not row.gone then row.gone=true;emit({event=\"gone\",id=id,at=now}) end end\n  task.wait(.03)\n end\n q.complete=true;script:SetAttribute(\"GiftQA\",H:JSONEncode(q))\nend)\n"
+  },
+  "limitations": [
+    "One local player; no cloud persistence, multiplayer, mobile layout acceptance or publish.",
+    "Console reports sound assets 9069609203 and 9069609204 have incompatible asset type.",
+    "Expiry forbids collection at exact deadline; physical removal observed on client refresh."
+  ]
+}

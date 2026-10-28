@@ -1,0 +1,119 @@
+{
+  "date": "2026-10-28",
+  "baseCommit": "d570bebabcdd18aa002d3c9a035d19aad7847819",
+  "scope": "coin/pop asset replacement, native Studio audio and actual ground gift pickup",
+  "oldAssets": [
+    {
+      "id": "9069609203",
+      "actualAssetType": 9,
+      "expectedAssetType": 3
+    },
+    {
+      "id": "9069609204",
+      "actualAssetType": 9,
+      "expectedAssetType": 3
+    }
+  ],
+  "nativeAssets": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"corrected\":{\"sounds\":{\"1\":{\"played\":true,\"assetName\":\"Coin Collect\",\"loaded\":true,\"duration\":0.8740136054421769,\"assetType\":3,\"maxPosition\":0.874,\"name\":\"coin\",\"lifetime\":0.8837481000082335,\"id\":\"rbxassetid://135483737426662\"},\"2\":{\"played\":true,\"assetName\":\"Pop Sound Effect\",\"loaded\":true,\"duration\":0.20156462585034014,\"assetType\":3,\"maxPosition\":0.192,\"name\":\"pop\",\"lifetime\":0.18542660000093748,\"id\":\"rbxassetid://140323850218372\"}}},\"mutations\":{\"1\":{\"fault\":\"coin\",\"error\":\"AssistantCommand:57: AssistantCommand:18: coin: expected Audio asset, got type 9\\nAssistantCommand:18\\nAssistantCommand:13\\nAssistantCommand:65\\n\",\"passed\":false},\"2\":{\"fault\":\"pop\",\"error\":\"AssistantCommand:57: AssistantCommand:18: pop: expected Audio asset, got type 9\\nAssistantCommand:18\\nAssistantCommand:13\\nAssistantCommand:65\\n\",\"passed\":false}}}"
+      }
+    ],
+    "isError": false
+  },
+  "giftServer": {
+    "events": [
+      {
+        "id": "gift-1-1793219553833-1",
+        "kind": "spawn",
+        "at": 1793219553886,
+        "landed": 1793219556334
+      },
+      {
+        "id": "gift-1-1793219553833-1",
+        "kind": "walk",
+        "at": 1793219556882
+      },
+      {
+        "at": 1793219559032,
+        "id": "gift-1-1793219553833-1",
+        "kind": "claimed",
+        "cash": "1.0985605596759453",
+        "reward": {
+          "formattedAmount": "1.0985605596759453",
+          "type": "Cash",
+          "amount": "1.0985605596759453"
+        }
+      }
+    ]
+  },
+  "giftClient": {
+    "sounds": [
+      {
+        "removed": true,
+        "groupVolume": 0.800000011920929,
+        "loaded": true,
+        "maxPosition": 0.192,
+        "at": 1793219559033,
+        "name": "SFX_pop",
+        "volume": 1,
+        "maxLoudness": 380.5769383907318,
+        "id": "rbxassetid://140323850218372"
+      },
+      {
+        "removed": true,
+        "groupVolume": 0.800000011920929,
+        "loaded": true,
+        "maxPosition": 0.874,
+        "at": 1793219559033,
+        "name": "SFX_coin",
+        "volume": 1,
+        "maxLoudness": 78.65545898675919,
+        "id": "rbxassetid://135483737426662"
+      }
+    ],
+    "popups": [
+      {
+        "id": "gift-1-1793219553833-1",
+        "at": 1793219559032,
+        "reward": {
+          "formattedAmount": "1.0985605596759453",
+          "type": "Cash",
+          "amount": 1.0985605596759453
+        }
+      }
+    ],
+    "cash": "1.0985605596759453"
+  },
+  "console": {
+    "content": [
+      {
+        "type": "text",
+        "text": "[HatchTheEgg Server] Explicit Studio memory mode: no persistence; platform purchases disabled."
+      }
+    ],
+    "isError": false
+  },
+  "cleanup": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"audioFixture\":false,\"localMemory\":true,\"clientEnabled\":true,\"verifiedTouchedSources\":3,\"http\":false}"
+      }
+    ],
+    "isError": false
+  },
+  "method": {
+    "mode": "Studio Memory, PlaceId0, 1 server/1 client",
+    "isolatedCheck": "Client Main disabled only for isolated audio check; fresh module clones; cleanup then restore Main.",
+    "giftCheck": "Production generator, original RNG/clock. Temporary observers read actual audio and server coordinator; Humanoid:MoveTo after landing; no reward injection.",
+    "serverProbe": "\n-- TEMPORARY GIFT AUDIO MOVEMENT/STATE OBSERVER\ntask.spawn(function()\n local H=game:GetService(\"HttpService\");local q={events={}};local seen={};local moved=false\n for i=1,2000 do\n  local now=server.clock.utcNowMs()\n  for id,session in server.players do\n   local p=activePlayerObjects[id];if not p or not p.Character then continue end\n   if not moved then p.Character:PivotTo(CFrame.new(0,4,-12));moved=true end\n   local snap=session.coordinator.snapshots();local profile=snap.working or snap.durable\n   for gid,g in profile.rewards.droneSpawns or {} do\n    local row=seen[gid]\n    if not row then row={};seen[gid]=row;table.insert(q.events,{kind=\"spawn\",id=gid,landed=g.landedAtMs,at=now}) end\n    if not row.walk and now>=g.landedAtMs+500 then row.walk=true;p.Character:FindFirstChildOfClass(\"Humanoid\"):MoveTo(Vector3.new(g.position.x,3,g.position.z));table.insert(q.events,{kind=\"walk\",id=gid,at=now}) end\n    if g.claimed and not row.claim then row.claim=true;table.insert(q.events,{kind=\"claimed\",id=gid,at=now,reward=g.reward,cash=profile.farm.cash}) end\n   end\n  end\n  script:SetAttribute(\"GiftAudioQA\",H:JSONEncode(q));task.wait(.05)\n end\nend)\n",
+    "clientProbe": "\n-- TEMPORARY GIFT AUDIO OBSERVER\ntask.spawn(function()\n local q={sounds={},popups={}};local H=game:GetService(\"HttpService\")\n audio._sfxGroup.ChildAdded:Connect(function(s)\n  if not s:IsA(\"Sound\") or (s.Name~=\"SFX_pop\" and s.Name~=\"SFX_coin\") then return end\n  local row={name=s.Name,id=s.SoundId,at=DateTime.now().UnixTimestampMillis,loaded=false,maxPosition=0,maxLoudness=0,volume=s.Volume,groupVolume=audio._sfxGroup.Volume}\n  table.insert(q.sounds,row)\n  task.spawn(function()\n   for i=1,250 do\n    if not s.Parent then row.removed=true;break end\n    row.loaded=row.loaded or s.IsLoaded;row.maxPosition=math.max(row.maxPosition,s.TimePosition);row.maxLoudness=math.max(row.maxLoudness,s.PlaybackLoudness)\n    task.wait(.01)\n   end\n  end)\n end)\n serverToClient.OnClientEvent:Connect(function(m) if type(m)==\"table\" and m.kind==\"DroneRewardPopup\" then table.insert(q.popups,{id=m.droneId,at=DateTime.now().UnixTimestampMillis,reward=m.reward}) end end)\n for i=1,1200 do local f=client:getFarm();q.cash=f and f.cash;script:SetAttribute(\"GiftAudioQA\",H:JSONEncode(q));task.wait(.1) end\nend)\n"
+  },
+  "limits": [
+    "No human listening evaluation or system output recording; playback cursor and nonzero decoded PlaybackLoudness confirmed.",
+    "No cloud, published universe permission test, purchases or publishing."
+  ]
+}
