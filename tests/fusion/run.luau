@@ -424,6 +424,17 @@ end
 -- ============================================================================
 -- Section 11: Save Results and Report
 -- ============================================================================
+-- docs/22 D01: a 0% recipe cannot succeed, including the lowest possible RNG draw.
+-- INTERNAL fixture, not approved launch chances.
+do
+ local inv=makeInventory();for _,uid in {'zero-base','zero-a','zero-b'} do addPet(inv,uid) end
+ local ok,res=Fusion.executeFusion(inv,'zero-base',{'zero-a','zero-b'},false,{golden={requiredMaterials=2,baseChance=0,guaranteeThreshold=3}},0)
+ eq(ok,true,'SPEC/zero chance execution accepted')
+ eq(res.success,false,'SPEC/zero chance cannot succeed')
+ eq(inv.pets['zero-base'].variant,'normal','SPEC/zero chance preserves base')
+ eq(inv.guarantees['farmer_dog:1:golden'],1,'SPEC/zero chance records failure')
+ eq(inv.pets['zero-a'],nil,'SPEC/zero chance consumes material')
+end
 fs.writeFile("build/fusion-results.json", serde.encode("json", {
 	status = "PASS",
 	level = "L",

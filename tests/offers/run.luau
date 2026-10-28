@@ -210,6 +210,12 @@ do
 
 	-- Re-reserve and confirm claim
 	Offers.reserveOffer(state, "ord_res", "token_confirm")
+	local badConfirm,badResult=Offers.confirmReservedClaim(state,'ord_res','wrong_token',profile)
+ eq(badConfirm,false,'SPEC/confirm wrong token rejected')
+ eq(badResult.error,'TOKEN_MISMATCH','SPEC/confirm mismatch reason')
+ eq(off.status,'RESERVED','SPEC/bad confirm retains reservation')
+ eq(off.reservationToken,'token_confirm','SPEC/bad confirm retains owner token')
+ eq(profile.inventory.boosts['tachyon_prism_orange'],nil,'SPEC/bad confirm grants nothing')
 	local okConf, resConf = Offers.confirmReservedClaim(state, "ord_res", "token_confirm", profile)
 	eq(okConf, true, "confirm reserved claim")
 	eq(resConf.success, true, "claim success")
@@ -240,12 +246,20 @@ do
 	local ok2 = Offers.claimOffer(state, "b_boost", 1000, profile)
 	eq(ok2, true, "claim Boost on Enlightenment")
 	eq(profile.inventory.boosts["jimbos_orange"], 1, "boost item stored in inventory")
+ eq(#((profile.effects or {}).boosts or {}),0,'SPEC/boost reward never auto-activates')
 	eq(#(profile.inventory.equipped or {}), 0, "equipped intact")
 end
 
 -- ============================================================================
 -- Section 6: Output Results JSON
 -- ============================================================================
+do
+ local state=Offers.createOffersState();local p=makeProfile(1000);p.effects={boosts={}}
+ Offers.createOffer(state,'inventory-only','ordinary',{rewardType='Boost',amount='1',amountNumber=1,boostId='jimbos_orange'},1000)
+ eq(Offers.claimOffer(state,'inventory-only',1000,p),true,'SPEC/ordinary boost reward claimed')
+ eq(p.inventory.boosts.jimbos_orange,1,'SPEC/ordinary boost in inventory')
+ eq(#p.effects.boosts,0,'SPEC/boost reward never auto-activates')
+end
 fs.writeFile("build/offers-results.json", serde.encode("json", {
 	status = "PASS",
 	level = "L",

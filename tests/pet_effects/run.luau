@@ -500,6 +500,10 @@ do
 		Equipment.equipPet(inv, "test_" .. t.species)
 		local m = Equipment.calculatePetMultipliers(inv, { eggIndex = 0 })
 		near(m[t.stat], t.expected, 1e-12, "default catalog bonus for " .. t.species)
+        -- docs/16 section1: dimensions are independent; each archetype has one effect.
+        for _,stat in {'eggValueMult','layingRateMult','ihrMult','habCapacityMult','eliteChanceMult','prestigeEarningsMult','boostBoostMult'} do
+         if stat~=t.stat then eq(m[stat],1,'SPEC/pet unrelated dimension '..t.species..'/'..stat) end
+        end
 	end
 end
 

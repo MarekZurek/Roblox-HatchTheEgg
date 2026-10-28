@@ -44,6 +44,9 @@ try {
     $taskSuite = 'fresh_cash_purchases'
     & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
     if ($LASTEXITCODE -ne 0) { throw 'Fresh cash purchase regressions failed.' }
+    $taskSuite = 'gift_drops'
+    & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run tests/gift_drops/run.luau
+    if ($LASTEXITCODE -ne 0) { throw 'Ground gift regressions failed.' }
     $taskSuite = 'remaining_fixes'
     & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
     if ($LASTEXITCODE -ne 0) { throw 'Remaining fixes regressions failed.' }
@@ -58,6 +61,10 @@ try {
         if ($LASTEXITCODE -ne 0) { throw ('Tests failed: ' + $taskSuite) }
     }
     if ($MutationChecks) {
+        & $PythonExecutable tests/gift_drops/mutation_check.py
+        if ($LASTEXITCODE -ne 0) { throw 'Ground gift mutation checks failed.' }
+        & $PythonExecutable tests/gift_drops/verify_evidence.py
+        if ($LASTEXITCODE -ne 0) { throw 'Ground gift evidence verification failed.' }
         & $PythonExecutable tests/game_behavior/mutation_check.py
         if ($LASTEXITCODE -ne 0) { throw 'Behavior mutation checks failed.' }
         & $PythonExecutable tests/fresh_cash_purchases/mutation_check.py

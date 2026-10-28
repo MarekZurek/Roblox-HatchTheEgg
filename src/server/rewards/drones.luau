@@ -33,13 +33,22 @@ export type DroneReward = {
 	formattedAmount: string?,
 }
 
+-- New managed records persist monetary tokens; the returned popup reward remains numeric.
+export type StoredGiftReward = {type: 'GE' | 'Cash', amount: string, formattedAmount: string?}
+
 export type DroneSpawn = {
 	spawnId: string,
 	createdAtMs: number,
 	expiresAtMs: number,
 	isElite: boolean,
 	claimed: boolean,
-	reward: DroneReward?,
+	reward: (DroneReward | StoredGiftReward)?,
+ kind: string?,
+ landedAtMs: number?,
+ position: {x: number, y: number, z: number}?,
+ fixedReward: StoredGiftReward?,
+ ownerId: string?,
+ terms: any?,
 }
 
 export type DroneConfig = {
@@ -187,6 +196,23 @@ local function claimDrone(
 	if type(profile) ~= "table" then
 		return false, "INVALID_PROFILE"
 	end
+
+ -- Managed gifts have a fixed outcome frozen at issue; only delivery occurs here.
+ if spawn.kind=='GROUND_GIFT' then
+  if nowMs<spawn.landedAtMs or nowMs>=spawn.expiresAtMs then return false,'GIFT_NOT_ON_GROUND' end
+  if spawn.fixedReward then
+   local stored=spawn.fixedReward
+   local value=if stored.type=='GE' then ExactUInt.toSafeNumber(ExactUInt.decode(stored.amount)) else BigAmount.decode(stored.amount)
+   local reward={type=stored.type,amount=value,formattedAmount=stored.formattedAmount}
+   if reward.type=='GE' then
+    profile.permanent.GE=ExactUInt.encode(ExactUInt.add(ExactUInt.decode(profile.permanent.GE),ExactUInt.fromSafeNumber(reward.amount)))
+   else
+    profile.farm.cash=BigAmount.encode(BigAmount.add(BigAmount.decode(profile.farm.cash),reward.amount))
+    profile.accounting.lastCashEarned=BigAmount.encode(BigAmount.add(BigAmount.decode(profile.accounting.lastCashEarned or '0'),reward.amount))
+   end
+   spawn.claimed=true;spawn.reward=stored;return true,reward
+  end
+ end
 
 	-- 1. Reward Type Determination (docs/06 §2)
 	local isGE = false

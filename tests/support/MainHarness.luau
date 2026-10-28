@@ -83,7 +83,13 @@ local function runMain(options)
   DateTime={now=function()return {UnixTimestampMillis=options.nowMs or 1000000}end},os={clock=function()return h.elapsed end},
   typeof=function(v)return if v==gameObject then 'Instance' else typeof(v)end,
   Instance={new=node},warn=function(message)table.insert(h.warnings,message)end,print=function()end,
-  task={spawn=function(fn,...)table.insert(h.jobs,{fn=fn,args=table.pack(...)})end,defer=function(fn,...)table.insert(h.jobs,{fn=fn,args=table.pack(...)})end,wait=function()error('test must not run background loops')end},
+  task={spawn=function(fn,...)table.insert(h.jobs,{fn=fn,args=table.pack(...)})end,defer=function(fn,...)table.insert(h.jobs,{fn=fn,args=table.pack(...)})end,wait=function(seconds)
+    h.waitCalls=(h.waitCalls or 0)+1
+    if options.loopSeconds and seconds and seconds<=1 and options.loopSeconds>=seconds then
+     options.loopSeconds-=seconds;h.elapsed+=seconds;return seconds
+    end
+    error('TEST_LOOP_STOP: test must not run unbounded background loops')
+   end},
   require=function(module)
    if module=='bootstrap' then return {new=function(deps)
     h.constructs+=1;h.constructorMode=deps.storageMode

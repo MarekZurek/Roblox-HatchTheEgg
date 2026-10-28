@@ -109,6 +109,8 @@ local Equipment = resolve(function()
 	return script.Parent.pets.equipment
 end, "./pets/equipment")
 
+local GiftDrops = resolve(function() return script.Parent.GiftDrops end, './GiftDrops')
+
 -- Numeric accounting fields that decode/encode to BigAmount
 local NUMERIC_ACCOUNTING = table.freeze({
 	"prestigeSessionArchivedCash",
@@ -403,6 +405,8 @@ function ServerBootstrap.new(deps)
         paidRandomAllowed = deps.paidRandomAllowed,
 	}, ServerBootstrap)
 
+ self._giftNotifications={}
+ if deps.giftDrops then self.giftDrops=GiftDrops.new(deps.giftDrops) end
 	return self
 end
 
@@ -881,6 +885,18 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
     local terms=op.args.terms
     local spawn=Drones.createDroneSpawn(id,now,terms.config,draft,terms.petEliteMult,terms.rollElite)
     spawn.ownerId=pId;spawn.terms=self.data.copy(terms)
+    if terms.groundGift then
+     spawn.kind='GROUND_GIFT';spawn.position=self.data.copy(terms.position)
+     spawn.landedAtMs=now+GiftDrops.DESCENT_MS
+     spawn.expiresAtMs=spawn.landedAtMs+GiftDrops.GROUND_MS
+     local rewardProfile=self.data.copy(draft);local preview=self.data.copy(spawn)
+     local accepted,reward=Drones.claimDrone(preview,spawn.landedAtMs,rewardProfile,terms.config,terms.rolls,terms.farmValue,terms.curve0FarmValue)
+     assert(accepted,'INVALID_GIFT_REWARD');spawn.fixedReward=self.data.copy(reward)
+     spawn.fixedReward.amount=if reward.type=='GE' then self.codec.ExactUInt.encode(self.codec.ExactUInt.fromSafeNumber(reward.amount)) else self.codec.BigAmount.encode(reward.amount)
+     for oldId,old in records do
+      if old.kind=='GROUND_GIFT' and old.expiresAtMs<=now then records[oldId]=nil end
+     end
+    end
     records[id]=spawn;draft.rewards.droneSpawns=records
    else
     local state=draft.rewards.offers or Offers.createOffersState()
@@ -890,7 +906,7 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
     draft.rewards.offers=state
    end
    return {profile=draft,result={id=id},validate=function()return true end}
-  elseif op.kind == "HitDrone" then
+  elseif op.kind == "HitDrone" or op.kind == "CollectGift" then
    local id=op.args.droneId
    local original=candidateProfile.rewards.droneSpawns and candidateProfile.rewards.droneSpawns[id]
    local function reject(code)
@@ -900,6 +916,11 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
    if original.ownerId~=pId then return reject("SPAWN_NOT_OWNED") end
    local now=self.clock.utcNowMs()
    if now<original.createdAtMs then return reject("SPAWN_NOT_ACTIVE") end
+   if original.kind=='GROUND_GIFT' then
+    if op.kind~='CollectGift' then return reject('PICKUP_SERVER_ONLY') end
+    if now<original.landedAtMs or now>=original.expiresAtMs then return reject('GIFT_NOT_ON_GROUND') end
+    if not self.giftDrops or not GiftDrops.inRange(self.giftDrops.observe(pId),original.position) then return reject('GIFT_TOO_FAR') end
+   elseif op.kind=='CollectGift' then return reject('NOT_A_GROUND_GIFT') end
    local draft=self.data.copy(candidateProfile)
    local spawn=draft.rewards.droneSpawns[id]
    local terms=spawn.terms
@@ -907,6 +928,9 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
    if not ok then return reject(reward) end
    return {profile=draft,result={droneId=id,reward=reward},validate=function(fresh,at)
     local saved=fresh.rewards.droneSpawns and fresh.rewards.droneSpawns[id]
+    if saved and saved.kind=='GROUND_GIFT' then
+     if at<saved.landedAtMs or at>=saved.expiresAtMs or not self.giftDrops or not GiftDrops.inRange(self.giftDrops.observe(pId),saved.position) then return false,'GIFT_NOT_AVAILABLE' end
+    end
     return saved~=nil and saved.ownerId==pId and not saved.claimed and at>=saved.createdAtMs and at<=saved.expiresAtMs,"SPAWN_NOT_ACTIVE"
    end}
   elseif op.kind == "ClaimOffer" then
@@ -1346,6 +1370,27 @@ function ServerBootstrap:issueDrone(playerId,id,terms)
  return self:_issueOperation(playerId,"IssueDrone",{id=id,terms=fixed})
 end
 
+function ServerBootstrap:giftDropTerms(playerId,position,draw)
+ local s=self.players[playerId].coordinator.snapshots();local p=s.working or s.durable
+ local base=self.data.copy(p);base.farm.eggIndex=0
+ local pets=Equipment.calculatePetMultipliers(p.inventory,p.farm)
+ return {groundGift=true,position=self.data.copy(position),
+  farmValue=ProgressActions.calculateProfileFarmValue(p,self.catalog,self.productionMath),
+  curve0FarmValue=ProgressActions.calculateProfileFarmValue(base,self.catalog,self.productionMath),
+  petEliteMult=pets.eliteChanceMult,rollElite=draw(),rolls={u1=draw(),u2=draw()},
+  config={epicDroneRewardsLvl=(p.permanent.epic or {}).drone_rewards or 0}}
+end
+function ServerBootstrap:collectGift(playerId,id)
+ local session=self.players[tostring(playerId)]
+ if not session or not validId(id) then return false,'INVALID_REQUEST' end
+ local revision=session.coordinator.snapshots().durable.meta.revision
+ local ok,result=self:_rewardOperation(playerId,'CollectGift',{droneId=id},'collect-'..id..'-r'..revision)
+ return ok,if ok then result.reward else result
+end
+function ServerBootstrap:takeGiftNotifications()
+ local result=self._giftNotifications;self._giftNotifications={};return result
+end
+
 function ServerBootstrap:issueOffer(playerId,id,channel,reward,costGE)
  if not validId(id) or (channel~="ordinary" and channel~="bonus") then return false,"INVALID_REQUEST" end
  local ok,fixed=pcall(self.data.copy,reward)
@@ -1539,6 +1584,7 @@ function ServerBootstrap:tick(dtSeconds, nowMs)
 			end
 		end
 	end
+ if self.giftDrops then self.giftDrops:step(self) end
 end
 
 function ServerBootstrap:getCoordinator(playerId)

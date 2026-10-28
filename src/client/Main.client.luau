@@ -6,7 +6,7 @@
 -- 3. Connects 3D Physical Pressure Plate, Studded Step-On Buy Pads, and ProximityPrompts
 --    to authoritative client intents (plate observation, BuyHabitat, BuyResearch). Vehicle
 --    purchases happen only through the existing fleet panel, never through a world pad (#80).
--- 4. Drives 60 FPS 3D Chicken route interpolation and flying Drones.
+-- 4. Drives 60 FPS 3D Chicken route interpolation and server-issued falling gifts.
 
 local isRoblox = (typeof(game) == "Instance")
 if not isRoblox then
@@ -18,7 +18,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local ProximityPromptService = game:GetService("ProximityPromptService")
-local UserInputService = game:GetService("UserInputService")
 
 local ClientBootstrap = require(script.Parent.Bootstrap)
 local TutorialController = require(script.Parent.onboarding.TutorialController)
@@ -439,38 +438,8 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt, playerWhoTrigger
 	end
 end)
 
--- PROD-06: Connect RoutePresentation droneShot event to client:hitDrone
-if client:getPresentation() and type(client:getPresentation().on) == "function" then
-	client:getPresentation():on("droneShot", function(droneId)
-		client:hitDrone(droneId)
-	end)
-end
+-- Gift pickup is server-observed proximity after landing; visuals send no claim input.
 
--- PROD-06: Raycasting click/tap to shoot down overhead Drones
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-	if gameProcessed then return end
-	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		local cam = Workspace.CurrentCamera
-		if cam then
-			local ray = cam:ViewportPointToRay(input.Position.X, input.Position.Y)
-			local raycastParams = RaycastParams.new()
-			raycastParams.FilterType = Enum.RaycastFilterType.Include
-			if chickensContainer then
-				raycastParams.FilterDescendantsInstances = { chickensContainer }
-			end
-			local hit = Workspace:Raycast(ray.Origin, ray.Direction * 600, raycastParams)
-			if hit and hit.Instance then
-				local droneModel = hit.Instance:FindFirstAncestorWhichIsA("Model")
-				if droneModel and string.sub(droneModel.Name, 1, 6) == "Drone_" then
-					local droneId = string.sub(droneModel.Name, 7)
-					client:getPresentation():shootDrone(droneId)
-				end
-			end
-		end
-	end
-end)
-
--- ============================================================================
 -- Wire 3D Step-On Pressure Plate & Studded Buy Pads + 60 FPS Presentation Loop
 -- ============================================================================
 

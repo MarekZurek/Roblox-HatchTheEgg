@@ -1,0 +1,566 @@
+{
+  "status": "PASS_LOCAL_ONLY",
+  "scope": "22 selected semantic faults; not exhaustive coverage",
+  "python": "3.12.14",
+  "lune": {
+    "version": "0.11.1",
+    "url": "https://github.com/lune-org/lune/releases/download/v0.11.1/lune-0.11.1-windows-x86_64.zip",
+    "archiveSha256": "83f1dc29d9e35c494907521f2ca6561f6c204fdf6f1b06525d2e9fdd1e6b4301",
+    "executableSha256": "95f4a457317237516c347745bf363aa63dd30c97105c9595e6b8914b29267fdb"
+  },
+  "date": "2026-10-28",
+  "baseRevision": "34f77932ea115651e27a047c810e59fb4c8fd758",
+  "commands": [
+    "<python> tests/gift_drops/mutation_check.py",
+    "<python> tests/gift_drops/verify_evidence.py"
+  ],
+  "mutants": [
+    {
+      "name": "generator_disabled",
+      "suite": "gift_drops",
+      "faults": [
+        [
+          "src/server/GiftDrops.luau",
+          "if self.generate and now>=row.nextAt",
+          "if false and now>=row.nextAt"
+        ]
+      ],
+      "expectedFailure": "SPEC/generator issues from tick",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\generator_disabled\\tests/gift_drops/run:8: SPEC/generator issues from tick expected table got nil",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "15bda203da4f0e0b27dd361842416006c384cd10721d8c23efd428df556826bb",
+      "sourceSha256": {
+        "src/server/GiftDrops.luau": "6e138fdfe453f20369645caf00156c33772abc659aef2de7e553f5bad510e227"
+      },
+      "inputTreeSha256": "43474ba67ffcb7cad767aef4af70d51cae6041ddb3d6260461013a0349f19e05",
+      "state": "KILLED"
+    },
+    {
+      "name": "pickup_loop_disabled",
+      "suite": "gift_drops",
+      "faults": [
+        [
+          "src/server/GiftDrops.luau",
+          "if now>=gift.landedAtMs and GiftDrops.inRange(self.observe(id),gift.position) then",
+          "if false then"
+        ]
+      ],
+      "expectedFailure": "SPEC/server proximity automatically awards gift",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\pickup_loop_disabled\\tests/gift_drops/run:8: SPEC/server proximity automatically awards gift expected 16 got 10",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "15bda203da4f0e0b27dd361842416006c384cd10721d8c23efd428df556826bb",
+      "sourceSha256": {
+        "src/server/GiftDrops.luau": "6e138fdfe453f20369645caf00156c33772abc659aef2de7e553f5bad510e227"
+      },
+      "inputTreeSha256": "43474ba67ffcb7cad767aef4af70d51cae6041ddb3d6260461013a0349f19e05",
+      "state": "KILLED"
+    },
+    {
+      "name": "stack_live_gifts",
+      "suite": "gift_drops",
+      "faults": [
+        [
+          "src/server/GiftDrops.luau",
+          "and not hasLive and self.observe(id)~=nil",
+          "and self.observe(id)~=nil"
+        ]
+      ],
+      "expectedFailure": "SPEC/no stacked live gifts",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\stack_live_gifts\\tests/gift_drops/run:8: SPEC/no stacked live gifts expected 1 got 2",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "15bda203da4f0e0b27dd361842416006c384cd10721d8c23efd428df556826bb",
+      "sourceSha256": {
+        "src/server/GiftDrops.luau": "6e138fdfe453f20369645caf00156c33772abc659aef2de7e553f5bad510e227"
+      },
+      "inputTreeSha256": "43474ba67ffcb7cad767aef4af70d51cae6041ddb3d6260461013a0349f19e05",
+      "state": "KILLED"
+    },
+    {
+      "name": "main_generator_not_enabled",
+      "suite": "gift_drops",
+      "faults": [
+        [
+          "src/server/Main.server.luau",
+          "giftDrops={observe=giftPosition},",
+          "-- Gift generator omitted"
+        ]
+      ],
+      "expectedFailure": "SPEC/production entrypoint enables gifts",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\main_generator_not_enabled\\tests/gift_drops/run:8: SPEC/production entrypoint enables gifts expected true got false",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "15bda203da4f0e0b27dd361842416006c384cd10721d8c23efd428df556826bb",
+      "sourceSha256": {
+        "src/server/Main.server.luau": "3342f210045476455b9e35cc803f0f9c21d1977cda40f127a09a1b09ba750ec7"
+      },
+      "inputTreeSha256": "43474ba67ffcb7cad767aef4af70d51cae6041ddb3d6260461013a0349f19e05",
+      "state": "KILLED"
+    },
+    {
+      "name": "main_tick_missing",
+      "suite": "gift_drops",
+      "faults": [
+        [
+          "src/server/Main.server.luau",
+          "server:tick(0.5)",
+          "-- Missing production tick"
+        ]
+      ],
+      "expectedFailure": "SPEC/production loop generates gifts",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\main_tick_missing\\tests/gift_drops/run:8: SPEC/production loop generates gifts expected true got false",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "15bda203da4f0e0b27dd361842416006c384cd10721d8c23efd428df556826bb",
+      "sourceSha256": {
+        "src/server/Main.server.luau": "3342f210045476455b9e35cc803f0f9c21d1977cda40f127a09a1b09ba750ec7"
+      },
+      "inputTreeSha256": "43474ba67ffcb7cad767aef4af70d51cae6041ddb3d6260461013a0349f19e05",
+      "state": "KILLED"
+    },
+    {
+      "name": "main_dead_character_allowed",
+      "suite": "gift_drops",
+      "faults": [
+        [
+          "src/server/Main.server.luau",
+          "if not humanoid or humanoid.Health<=0 or not root then return nil end",
+          "if not humanoid or not root then return nil end"
+        ]
+      ],
+      "expectedFailure": "SPEC/production dead character has no pickup position",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\main_dead_character_allowed\\tests/gift_drops/run:8: SPEC/production dead character has no pickup position expected nil got table: 0x0000022492f39ef0",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "15bda203da4f0e0b27dd361842416006c384cd10721d8c23efd428df556826bb",
+      "sourceSha256": {
+        "src/server/Main.server.luau": "3342f210045476455b9e35cc803f0f9c21d1977cda40f127a09a1b09ba750ec7"
+      },
+      "inputTreeSha256": "43474ba67ffcb7cad767aef4af70d51cae6041ddb3d6260461013a0349f19e05",
+      "state": "KILLED"
+    },
+    {
+      "name": "main_popup_missing",
+      "suite": "gift_drops",
+      "faults": [
+        [
+          "src/server/Main.server.luau",
+          "serverToClient:FireClient(player,{kind='DroneRewardPopup',droneId=notice.id,reward=notice.reward})",
+          "local ignored=notice"
+        ]
+      ],
+      "expectedFailure": "SPEC/production sends one confirmed pickup popup",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\main_popup_missing\\tests/gift_drops/run:8: SPEC/production sends one confirmed pickup popup expected 1 got 0",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "15bda203da4f0e0b27dd361842416006c384cd10721d8c23efd428df556826bb",
+      "sourceSha256": {
+        "src/server/Main.server.luau": "3342f210045476455b9e35cc803f0f9c21d1977cda40f127a09a1b09ba750ec7"
+      },
+      "inputTreeSha256": "43474ba67ffcb7cad767aef4af70d51cae6041ddb3d6260461013a0349f19e05",
+      "state": "KILLED"
+    },
+    {
+      "name": "airborne_pickup",
+      "suite": "gift_drops",
+      "faults": [
+        [
+          "src/server/Bootstrap.luau",
+          "if now<original.landedAtMs or now>=original.expiresAtMs then",
+          "if now>=original.expiresAtMs then"
+        ],
+        [
+          "src/server/Bootstrap.luau",
+          "if at<saved.landedAtMs or at>=saved.expiresAtMs or not self.giftDrops or",
+          "if at>=saved.expiresAtMs or not self.giftDrops or"
+        ],
+        [
+          "src/server/rewards/drones.luau",
+          "if nowMs<spawn.landedAtMs or nowMs>=spawn.expiresAtMs then",
+          "if nowMs>=spawn.expiresAtMs then"
+        ]
+      ],
+      "expectedFailure": "SPEC/no airborne collection",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\airborne_pickup\\tests/gift_drops/run:8: SPEC/no airborne collection expected false got true",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "15bda203da4f0e0b27dd361842416006c384cd10721d8c23efd428df556826bb",
+      "sourceSha256": {
+        "src/server/Bootstrap.luau": "4f0827e2f4769521383dab4f5b300fa623f00b03e07fd2a6a8e0199858312eb6",
+        "src/server/rewards/drones.luau": "371b04b465c5d0001d37755cf6130f0c553d5c8ab2cc7708bdc9fbd7dd719ec6"
+      },
+      "inputTreeSha256": "43474ba67ffcb7cad767aef4af70d51cae6041ddb3d6260461013a0349f19e05",
+      "state": "KILLED"
+    },
+    {
+      "name": "distance_ignored",
+      "suite": "gift_drops",
+      "faults": [
+        [
+          "src/server/GiftDrops.luau",
+          "<= GiftDrops.PICKUP_RADIUS^2",
+          "<= 600^2"
+        ]
+      ],
+      "expectedFailure": "SPEC/outside pickup radius",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\distance_ignored\\tests/gift_drops/run:8: SPEC/outside pickup radius expected false got true",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "15bda203da4f0e0b27dd361842416006c384cd10721d8c23efd428df556826bb",
+      "sourceSha256": {
+        "src/server/GiftDrops.luau": "6e138fdfe453f20369645caf00156c33772abc659aef2de7e553f5bad510e227"
+      },
+      "inputTreeSha256": "43474ba67ffcb7cad767aef4af70d51cae6041ddb3d6260461013a0349f19e05",
+      "state": "KILLED"
+    },
+    {
+      "name": "commit_position_not_checked",
+      "suite": "gift_drops",
+      "faults": [
+        [
+          "src/server/Bootstrap.luau",
+          "not GiftDrops.inRange(self.giftDrops.observe(pId),saved.position)",
+          "false"
+        ]
+      ],
+      "expectedFailure": "SPEC/fresh validation move",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\commit_position_not_checked\\tests/gift_drops/run:8: SPEC/fresh validation move expected false got true",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "15bda203da4f0e0b27dd361842416006c384cd10721d8c23efd428df556826bb",
+      "sourceSha256": {
+        "src/server/Bootstrap.luau": "4f0827e2f4769521383dab4f5b300fa623f00b03e07fd2a6a8e0199858312eb6"
+      },
+      "inputTreeSha256": "43474ba67ffcb7cad767aef4af70d51cae6041ddb3d6260461013a0349f19e05",
+      "state": "KILLED"
+    },
+    {
+      "name": "commit_expiry_not_checked",
+      "suite": "gift_drops",
+      "faults": [
+        [
+          "src/server/Bootstrap.luau",
+          "if at<saved.landedAtMs or at>=saved.expiresAtMs or not self.giftDrops or",
+          "if not self.giftDrops or"
+        ]
+      ],
+      "expectedFailure": "SPEC/fresh validation expire",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\commit_expiry_not_checked\\tests/gift_drops/run:8: SPEC/fresh validation expire expected false got true",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "15bda203da4f0e0b27dd361842416006c384cd10721d8c23efd428df556826bb",
+      "sourceSha256": {
+        "src/server/Bootstrap.luau": "4f0827e2f4769521383dab4f5b300fa623f00b03e07fd2a6a8e0199858312eb6"
+      },
+      "inputTreeSha256": "43474ba67ffcb7cad767aef4af70d51cae6041ddb3d6260461013a0349f19e05",
+      "state": "KILLED"
+    },
+    {
+      "name": "gift_paid_twice",
+      "suite": "gift_drops",
+      "faults": [
+        [
+          "src/server/rewards/drones.luau",
+          "if spawn.claimed == true then",
+          "if false then"
+        ],
+        [
+          "src/server/Bootstrap.luau",
+          "saved.ownerId==pId and not saved.claimed and at>=saved.createdAtMs",
+          "saved.ownerId==pId and at>=saved.createdAtMs"
+        ]
+      ],
+      "expectedFailure": "SPEC/duplicate cannot credit twice",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\gift_paid_twice\\tests/gift_drops/run:8: SPEC/duplicate cannot credit twice expected 16 got 22",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "15bda203da4f0e0b27dd361842416006c384cd10721d8c23efd428df556826bb",
+      "sourceSha256": {
+        "src/server/rewards/drones.luau": "371b04b465c5d0001d37755cf6130f0c553d5c8ab2cc7708bdc9fbd7dd719ec6",
+        "src/server/Bootstrap.luau": "4f0827e2f4769521383dab4f5b300fa623f00b03e07fd2a6a8e0199858312eb6"
+      },
+      "inputTreeSha256": "43474ba67ffcb7cad767aef4af70d51cae6041ddb3d6260461013a0349f19e05",
+      "state": "KILLED"
+    },
+    {
+      "name": "frozen_reward_recomputed",
+      "suite": "gift_drops",
+      "faults": [
+        [
+          "src/server/rewards/drones.luau",
+          "if spawn.fixedReward then",
+          "if false then"
+        ]
+      ],
+      "expectedFailure": "SPEC/issued reward stays fixed after spending change",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\frozen_reward_recomputed\\tests/gift_drops/run:8: SPEC/issued reward stays fixed after spending change expected 6 got 24",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "15bda203da4f0e0b27dd361842416006c384cd10721d8c23efd428df556826bb",
+      "sourceSha256": {
+        "src/server/rewards/drones.luau": "371b04b465c5d0001d37755cf6130f0c553d5c8ab2cc7708bdc9fbd7dd719ec6"
+      },
+      "inputTreeSha256": "43474ba67ffcb7cad767aef4af70d51cae6041ddb3d6260461013a0349f19e05",
+      "state": "KILLED"
+    },
+    {
+      "name": "visual_expires_before_server",
+      "suite": "gift_drops",
+      "faults": [
+        [
+          "src/client/RoutePresentation.luau",
+          "local expiresAtMs = if trajectory and trajectory.expiresAtMs then trajectory.expiresAtMs else startInstantMs+math.floor(descentDuration*1000)+15000",
+          "local expiresAtMs = (if trajectory and trajectory.expiresAtMs then trajectory.expiresAtMs else startInstantMs+math.floor(descentDuration*1000)+15000)-2500"
+        ]
+      ],
+      "expectedFailure": "SPEC/projected gift lives to server deadline",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\visual_expires_before_server\\tests/gift_drops/run:8: SPEC/projected gift lives to server deadline expected true got false",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "15bda203da4f0e0b27dd361842416006c384cd10721d8c23efd428df556826bb",
+      "sourceSha256": {
+        "src/client/RoutePresentation.luau": "7d4a113f79499be415cb024f6488a8cc802395ce069b80c14f6ac51c9cd5e591"
+      },
+      "inputTreeSha256": "43474ba67ffcb7cad767aef4af70d51cae6041ddb3d6260461013a0349f19e05",
+      "state": "KILLED"
+    },
+    {
+      "name": "click_changes_visual",
+      "suite": "gift_drops",
+      "faults": [
+        [
+          "src/client/RoutePresentation.luau",
+          "return false\nend\n\nfunction RoutePresentation:updateDrones",
+          "return self:claimDroneVisual(_droneId)\nend\n\nfunction RoutePresentation:updateDrones"
+        ]
+      ],
+      "expectedFailure": "SPEC/visual click cannot collect",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\click_changes_visual\\tests/gift_drops/run:8: SPEC/visual click cannot collect expected false got true",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "15bda203da4f0e0b27dd361842416006c384cd10721d8c23efd428df556826bb",
+      "sourceSha256": {
+        "src/client/RoutePresentation.luau": "7d4a113f79499be415cb024f6488a8cc802395ce069b80c14f6ac51c9cd5e591"
+      },
+      "inputTreeSha256": "43474ba67ffcb7cad767aef4af70d51cae6041ddb3d6260461013a0349f19e05",
+      "state": "KILLED"
+    },
+    {
+      "name": "native_click_detector_returns",
+      "suite": "gift_drops",
+      "faults": [
+        [
+          "src/client/RoutePresentation.luau",
+          "-- Cosmetic only; no click, touch or prompt claim callback.",
+          "-- Cosmetic only; no click, touch or prompt claim callback.\n        local cd=Instance.new('ClickDetector');cd.Parent=box"
+        ]
+      ],
+      "expectedFailure": "SPEC/no native click detector",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\native_click_detector_returns\\tests/gift_drops/run:8: SPEC/no native click detector expected nil got table: 0x000001c7b2af3c00",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "15bda203da4f0e0b27dd361842416006c384cd10721d8c23efd428df556826bb",
+      "sourceSha256": {
+        "src/client/RoutePresentation.luau": "7d4a113f79499be415cb024f6488a8cc802395ce069b80c14f6ac51c9cd5e591"
+      },
+      "inputTreeSha256": "43474ba67ffcb7cad767aef4af70d51cae6041ddb3d6260461013a0349f19e05",
+      "state": "KILLED"
+    },
+    {
+      "name": "profile_accepts_wrong_window",
+      "suite": "gift_drops",
+      "faults": [
+        [
+          "src/server/ProfileSchema.luau",
+          "spawn.landedAtMs==spawn.createdAtMs+2500 and spawn.expiresAtMs==spawn.landedAtMs+15000",
+          "true"
+        ]
+      ],
+      "expectedFailure": "SPEC/schema rejects wrong ground lifetime",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\profile_accepts_wrong_window\\tests/gift_drops/run:8: SPEC/schema rejects wrong ground lifetime expected false got true",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "15bda203da4f0e0b27dd361842416006c384cd10721d8c23efd428df556826bb",
+      "sourceSha256": {
+        "src/server/ProfileSchema.luau": "78bacc359bdab3431e2bc0f6c8c282ffdc3c799839982abb05bcc88b8adc4363"
+      },
+      "inputTreeSha256": "43474ba67ffcb7cad767aef4af70d51cae6041ddb3d6260461013a0349f19e05",
+      "state": "KILLED"
+    },
+    {
+      "name": "wire_accepts_wrong_window",
+      "suite": "gift_drops",
+      "faults": [
+        [
+          "src/shared/ProtocolSchemas.luau",
+          "if v.position==nil or v.landedAtMs~=v.createdAtMs+2500 or v.expiresAtMs~=v.landedAtMs+15000 then fail() end",
+          "if false then fail() end"
+        ]
+      ],
+      "expectedFailure": "SPEC/wire rejects wrong ground lifetime",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\wire_accepts_wrong_window\\tests/gift_drops/run:8: SPEC/wire rejects wrong ground lifetime expected false got true",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "15bda203da4f0e0b27dd361842416006c384cd10721d8c23efd428df556826bb",
+      "sourceSha256": {
+        "src/shared/ProtocolSchemas.luau": "44e0dffe568909764753167e8eafb704de550649611d78ffcb5088254595c18a"
+      },
+      "inputTreeSha256": "43474ba67ffcb7cad767aef4af70d51cae6041ddb3d6260461013a0349f19e05",
+      "state": "KILLED"
+    },
+    {
+      "name": "offer_wrong_token",
+      "suite": "offers",
+      "faults": [
+        [
+          "src/server/rewards/offers.luau",
+          "if offer.reservationToken ~= reservationToken then\n\t\treturn false, { success = false, error = \"TOKEN_MISMATCH\", isFree = false }",
+          "if false then\n\t\treturn false, { success = false, error = \"TOKEN_MISMATCH\", isFree = false }"
+        ]
+      ],
+      "expectedFailure": "SPEC/confirm wrong token rejected",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\offer_wrong_token\\tests/offers/run:11: SPEC/confirm wrong token rejected: true != false",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "96044b39a8c7dcc7d0b237531cbc2075a9a15ff73fb70aaa08360b3a72287bf8",
+      "sourceSha256": {
+        "src/server/rewards/offers.luau": "499c25b2069c5f48ac27003a58880971950d233960af2af1836d4968212edbad"
+      },
+      "inputTreeSha256": "b5d031cc217b17067ec75d59e6ea87e43b98872ce45d7bbeb9e7524a03010dfb",
+      "state": "KILLED"
+    },
+    {
+      "name": "offer_auto_boost",
+      "suite": "offers",
+      "faults": [
+        [
+          "src/server/rewards/offers.luau",
+          "profile.inventory.boosts[bId] = curCount + math.max(1, math.floor(reward.amountNumber))",
+          "profile.inventory.boosts[bId] = curCount + math.max(1, math.floor(reward.amountNumber))\n        profile.effects=profile.effects or {};profile.effects.boosts={{id=bId,remainingSeconds=\"100\"}}"
+        ]
+      ],
+      "expectedFailure": "SPEC/boost reward never auto-activates",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\offer_auto_boost\\tests/offers/run:11: SPEC/boost reward never auto-activates: 1 != 0",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "96044b39a8c7dcc7d0b237531cbc2075a9a15ff73fb70aaa08360b3a72287bf8",
+      "sourceSha256": {
+        "src/server/rewards/offers.luau": "499c25b2069c5f48ac27003a58880971950d233960af2af1836d4968212edbad"
+      },
+      "inputTreeSha256": "b5d031cc217b17067ec75d59e6ea87e43b98872ce45d7bbeb9e7524a03010dfb",
+      "state": "KILLED"
+    },
+    {
+      "name": "fusion_zero_chance",
+      "suite": "fusion",
+      "faults": [
+        [
+          "src/server/pets/fusion.luau",
+          "(actualRoll < preview.finalChance)",
+          "(actualRoll <= preview.finalChance)"
+        ]
+      ],
+      "expectedFailure": "SPEC/zero chance cannot succeed",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\fusion_zero_chance\\tests/fusion/run:10: SPEC/zero chance cannot succeed: true != false",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "4ed433fba6dd9443dbdb00fd1b716d86e9e9f6c1dea18de22291416962f1cc85",
+      "sourceSha256": {
+        "src/server/pets/fusion.luau": "80db419efe0dc516ea377f5b0987abef71cf49859730b1d2484d63442541a0da"
+      },
+      "inputTreeSha256": "ff461b565cbbeaab3e4a20a9b4449fa415c2e6dc3cf19af7737225cfdc8d83c7",
+      "state": "KILLED"
+    },
+    {
+      "name": "alien_extra_stat",
+      "suite": "pet_effects",
+      "faults": [
+        [
+          "src/server/pets/equipment.luau",
+          "id = \"alien_clucker\",\n\t\tstat = \"boostBoostMult\",\n\t\tbaseBonus = 0.5,",
+          "id = \"alien_clucker\",\n\t\tstat = \"boostBoostMult\",\n\t\tbaseBonus = 0.5,\n        bonuses={boostBoostMult=0.5,eliteChanceMult=0.5},"
+        ]
+      ],
+      "expectedFailure": "SPEC/pet unrelated dimension alien_clucker/eliteChanceMult",
+      "failure": "<repo>\\build\\ground-gift-mutations-b2b96a8b\\alien_extra_stat\\tests/pet_effects/run:10: SPEC/pet unrelated dimension alien_clucker/eliteChanceMult: 1.5 != 1",
+      "exits": {
+        "baseline": 0,
+        "mutant": 1,
+        "corrected": 0
+      },
+      "testSha256": "00a8a319e1c0d92db92b846cf7f0d94464e53a7ee2cec6bea801fb3cf35e37bd",
+      "sourceSha256": {
+        "src/server/pets/equipment.luau": "bedd7dc2d34de16663000cf75a5a89cdca1843a02ec5e6a36d3530bf3af095e2"
+      },
+      "inputTreeSha256": "5e328b54ac5b848f47b2481455e62ea4e59a6cb453051bdb5247d6b669033c80",
+      "state": "KILLED"
+    }
+  ],
+  "studioTested": false,
+  "cloudTested": false
+}

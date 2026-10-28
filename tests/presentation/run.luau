@@ -586,49 +586,14 @@ end
 do
 	local pres = RoutePresentation.new()
 
-	-- 8.1 Spawn Drone along 3D Bezier curve
-	local droneId = "drone_test_bezier_1"
-	local entry = pres:spawnDrone(droneId, false, 10000, 10.0)
-	ok(entry ~= nil, "Drone spawned")
-	eq(entry.droneId, droneId, "Drone id")
-	eq(entry.falling, false, "Initial drone is flying, not falling")
-	ok(entry.p0 ~= nil and entry.p1 ~= nil and entry.p2 ~= nil and entry.p3 ~= nil, "Cubic Bezier control points exist")
-	ok(entry.p1.y > entry.p0.y, "Cubic Bezier p1 altitude rises above ground")
-
-	-- Update at t = 15000 (midpoint)
-	pres:update(15000)
-	local activeDrone = pres:getDrone(droneId)
-	ok(activeDrone ~= nil, "Drone still active at midpoint")
-	ok(activeDrone.currentPosition.y > 15.0, "Drone flying high overhead along curve")
-
-	-- 8.2 Shoot Drone Down
-	local shotFired = false
-	pres:on("droneShot", function(id)
-		if id == droneId then shotFired = true end
-	end)
-
-	local okShoot = pres:shootDrone(droneId)
-	eq(okShoot, true, "shootDrone returns true")
-	eq(shotFired, true, "droneShot event emitted")
-	eq(activeDrone.falling, true, "Drone falling state active")
-
-	-- Simulate falling physics over multiple frames
-	local clickTriggered = false
-	activeDrone.onClicked = function(id)
-		if id == droneId then clickTriggered = true end
-	end
-
-	local simTime = 15000
-	for _ = 1, 30 do
-		simTime += 50
-		pres:update(simTime, 0.05)
-		if not pres:getDrone(droneId) then
-			break
-		end
-	end
-
-	eq(pres:getDrone(droneId), nil, "Drone removed from active presentation upon ground impact")
-	eq(clickTriggered, true, "onClicked callback triggered on ground impact")
+ -- User decision 2026-10-28: descend2.5s, stay15s, no click pickup.
+ local droneId='ground-gift';local entry=pres:spawnDrone(droneId,false,10000)
+ pres:update(12499);eq(entry.landed,false,'SPEC/gift still descending')
+ pres:update(12500);eq(entry.landed,true,'SPEC/gift landed in Lune and Roblox')
+ eq(entry.landedAtMs,12500,'SPEC/authoritative landing time')
+ eq(pres:shootDrone(droneId),false,'SPEC/gift ignores click')
+ pres:update(27499);ok(pres:getDrone(droneId)~=nil,'SPEC/gift lives full15s on ground')
+ pres:update(27500);eq(pres:getDrone(droneId),nil,'SPEC/gift expires at15s on ground')
 
 	-- 8.3 ClientBootstrap Intent Wiring
 	local sentWire = nil

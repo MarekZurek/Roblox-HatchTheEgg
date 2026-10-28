@@ -1,5 +1,7 @@
 # Bieżący kontekst — 28.10.2026
 
+**Prezenty spadające — 28.10.2026:** [generator, serwerowy odbiór po lądowaniu,15s na ziemi i regresje](workflow/ground_gifts_2026_10_28.md). Klikanie jest wycofane; oferty2+1 zachowują swoje reguły.
+
 **Wzmocnienie testów po review — 28.10.2026:** [naprawa oczekiwań, izolacja mutacji i dowody FAIL→PASS](workflow/test_oracle_repairs_2026_10_28.md). Bieżące opisy RCB dotyczą stałego mnożnika badań; mechaniki gry i dane referencyjne bez zmian.
 
 **Testy i workflow Roblox — 28.10.2026:** [kontrakt niezależnych oczekiwań i regresji](workflow/ROBLOX_TESTING_CONTRACT.md) wymaga źródła ze specyfikacji oraz poprawnego FAIL na błędnym zachowaniu → PASS po naprawie. [Wzmocnienie komunikatu FV i skilli](workflow/spec_testing_hardening_2026_10_28.md) ma lokalny dowód wykrycia wcześniej przechodzącej mutacji. Bez zmiany mechanik gry.

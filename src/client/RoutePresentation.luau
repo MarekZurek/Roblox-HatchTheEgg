@@ -819,8 +819,9 @@ end
 
 function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startInstantMs: number, durationSeconds: number?, onClicked: ((string) -> ())?, trajectory: any?)
 	local durSec = durationSeconds or 15.0
-	local descentDuration = if isRoblox then 2.5 else durSec
-	local groundDuration = math.max(0, durSec - (if isRoblox then 2.5 else 0))
+	local descentDuration = if trajectory and trajectory.landedAtMs then (trajectory.landedAtMs-startInstantMs)/1000 else 2.5
+	local groundDuration = 15
+ local expiresAtMs = if trajectory and trajectory.expiresAtMs then trajectory.expiresAtMs else startInstantMs+math.floor(descentDuration*1000)+15000
 
 	-- 3D Bezier trajectory: parachute drop down to random farm ground point
 	local p0, p1, p2, p3
@@ -847,6 +848,10 @@ function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startI
 		p3 = createPoint(targetX, 1.15, targetZ)
 	end
 
+	if trajectory and trajectory.position then
+  local pos=trajectory.position;p3=createPoint(pos.x,pos.y,pos.z)
+  p0=createPoint(pos.x,48,pos.z);p1=createPoint(pos.x,50,pos.z);p2=createPoint(pos.x,20,pos.z)
+ end
 	local startPos = p0
 	local endPos = p3
 
@@ -991,39 +996,7 @@ function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startI
 		local st2 = Instance.new("UIStroke")
 		st2.Thickness = 2.0; st2.Color = Color3.fromRGB(20, 10, 5); st2.Parent = subLbl
 
-		-- Pickup via Touched (physical contact by character)
-		box.Touched:Connect(function(hit)
-			if not hit then return end
-			local Players = game:GetService("Players")
-			local lp = Players.LocalPlayer
-			if lp and lp.Character and hit:IsDescendantOf(lp.Character) then
-				self:shootDrone(droneId, true)
-			end
-		end)
-
-		-- Pickup via ProximityPrompt
-		local prompt = Instance.new("ProximityPrompt")
-		prompt.Name = "GiftPrompt"
-		prompt.ObjectText = if isElite then "👑 Złoty Prezent" else "🎁 Prezent"
-		prompt.ActionText = "Podnieś"
-		prompt.HoldDuration = 0
-		prompt.MaxActivationDistance = 12
-		prompt.RequiresLineOfSight = false
-		prompt.Parent = box
-		prompt.Triggered:Connect(function(player)
-			local Players = game:GetService("Players")
-			if player == Players.LocalPlayer then
-				self:shootDrone(droneId, true)
-			end
-		end)
-
-		-- Pickup via ClickDetector
-		local cd = Instance.new("ClickDetector")
-		cd.MaxActivationDistance = 14
-		cd.Parent = box
-		cd.MouseClick:Connect(function()
-			self:shootDrone(droneId, true)
-		end)
+        -- Cosmetic only; no click, touch or prompt claim callback.
 
 		if self.container then
 			model.Parent = self.container
@@ -1040,7 +1013,7 @@ function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startI
 		droneId = droneId,
 		isElite = isElite == true,
 		startInstantMs = startInstantMs,
-		durationSeconds = durSec, expiresAtMs = startInstantMs + math.floor(durSec * 1000),
+		durationSeconds = durSec, expiresAtMs = expiresAtMs,
 		descentDuration = descentDuration,
 		groundDuration = groundDuration,
 		landed = false,
@@ -1062,107 +1035,33 @@ function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startI
 	return entry
 end
 
-function RoutePresentation:shootDrone(droneId: string, instant: boolean?)
-	local d = self._activeDrones[droneId]
-	if not d or d.claimed or d.falling then return false end
-
-	self:_emit("droneShot", droneId)
-
-	if d.landed or instant == true then
-		if d.onClicked then
-			d.onClicked(droneId)
-		end
-		self:claimDroneVisual(droneId)
-		return true
-	end
-
-	d.falling = true
-	d.fallVelocity = 8
-	if isRoblox and typeof(d.model) == "Instance" then
-		local para = d.model:FindFirstChild("GiftParachute")
-		if para then para:Destroy() end
-		local bb = d.model:FindFirstChildWhichIsA("BillboardGui", true)
-		if bb then bb:Destroy() end
-		local box = d.model:FindFirstChild("GiftBoxPart")
-		if box and box:IsA("BasePart") then
-			box.Color = Color3.fromRGB(120, 120, 120)
-		end
-	end
-	return true
+-- Compatibility shim: stale click callers cannot collect a gift.
+function RoutePresentation:shootDrone(_droneId: string, _instant: boolean?)
+ return false
 end
 
-function RoutePresentation:updateDrones(nowMs: number, dtSeconds: number?)
-	local dt = dtSeconds or 0.033
-	local finished = {}
-	for droneId, d in pairs(self._activeDrones) do
-		if d.falling then
-			d.fallVelocity = (d.fallVelocity or 0) + 70 * dt
-			local curY = d.currentPosition.y - d.fallVelocity * dt
-			d.currentPosition = createPoint(d.currentPosition.x, curY, d.currentPosition.z)
-			applyModelPosition(d.model, d.currentPosition)
-			if curY <= 1.15 then
-				d.currentPosition = createPoint(d.currentPosition.x, 1.15, d.currentPosition.z)
-				applyModelPosition(d.model, d.currentPosition)
-				table.insert(finished, { droneId = droneId, shot = true })
-			end
-		elseif d.landed then
-			local elapsedSec = (nowMs - (d.landedAtMs or nowMs)) / 1000
-			local remainingSec = math.max(0, math.ceil(((d.expiresAtMs or (d.startInstantMs + d.durationSeconds * 1000)) - nowMs) / 1000))
-			if isRoblox and typeof(d.model) == "Instance" then
-				local sub = d.model:FindFirstChild("Subtitle", true)
-				if sub and sub:IsA("TextLabel") then
-					sub.Text = string.format("[PODBIEGNIJ BY PODNIEŚĆ] (%ds...)", remainingSec)
-				end
-			end
-			if nowMs >= (d.expiresAtMs or (d.startInstantMs + d.durationSeconds * 1000)) or elapsedSec >= d.groundDuration then
-				table.insert(finished, { droneId = droneId, shot = false })
-			end
-		else
-			local alpha = math.clamp((nowMs - d.startInstantMs) / (d.descentDuration * 1000), 0, 1)
-			local pos
-			if d.p0 and d.p1 and d.p2 and d.p3 then
-				pos = bezierCubic(d.p0, d.p1, d.p2, d.p3, alpha)
-			else
-				pos = lerpPoint(d.startPos, d.endPos, alpha)
-			end
-			local swayX = if isRoblox then math.sin(alpha * math.pi * 6) * 0.8 else 0
-			local swayZ = if isRoblox then math.cos(alpha * math.pi * 6) * 0.8 else 0
-			d.currentPosition = createPoint(pos.x + swayX, pos.y, pos.z + swayZ)
-			applyModelPosition(d.model, d.currentPosition)
-			if alpha >= 1 then
-				if isRoblox then
-					d.landed = true
-					d.landedAtMs = nowMs
-					local para = d.model:FindFirstChild("GiftParachute")
-					if para then para:Destroy() end
-					spawnArrivalPuff(d.currentPosition, self.container)
-					local sub = d.model:FindFirstChild("Subtitle", true)
-					if sub and sub:IsA("TextLabel") then
-						local remainingOnLand = math.max(0, math.ceil(((d.expiresAtMs or (d.startInstantMs + d.durationSeconds * 1000)) - nowMs) / 1000))
-						sub.Text = string.format("[PODBIEGNIJ BY PODNIEŚĆ] (%ds...)", remainingOnLand)
-					end
-				else
-					table.insert(finished, { droneId = droneId, shot = false })
-				end
-			end
-		end
-	end
-
-	for _, item in ipairs(finished) do
-		local d = self._activeDrones[item.droneId]
-		if d then
-			if item.shot then
-				if d.onClicked then
-					d.onClicked(item.droneId)
-				end
-				self:claimDroneVisual(item.droneId)
-			else
-				spawnArrivalPuff(d.currentPosition, self.container)
-				destroyModel(d.model)
-				self._activeDrones[item.droneId] = nil
-			end
-		end
-	end
+function RoutePresentation:updateDrones(nowMs: number, _dtSeconds: number?)
+ local finished={}
+ for id,d in self._activeDrones do
+  if nowMs>=d.expiresAtMs then table.insert(finished,id)
+  else
+   local alpha=math.clamp((nowMs-d.startInstantMs)/(d.descentDuration*1000),0,1)
+   d.currentPosition=bezierCubic(d.p0,d.p1,d.p2,d.p3,alpha)
+   applyModelPosition(d.model,d.currentPosition)
+   if alpha>=1 and not d.landed then
+    d.landed=true;d.landedAtMs=d.startInstantMs+d.descentDuration*1000
+    if isRoblox then
+     local para=d.model:FindFirstChild('GiftParachute');if para then para:Destroy() end
+     spawnArrivalPuff(d.currentPosition,self.container)
+    end
+   end
+   if d.landed and isRoblox then
+    local sub=d.model:FindFirstChild('Subtitle',true)
+    if sub then sub.Text=string.format('[PODBIEGNIJ BY PODNIEŚĆ] (%ds...)',math.ceil((d.expiresAtMs-nowMs)/1000)) end
+   end
+  end
+ end
+ for _,id in finished do self:removeDroneVisual(id) end
 end
 
 function RoutePresentation:removeDroneVisual(droneId)

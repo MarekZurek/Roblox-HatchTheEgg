@@ -413,7 +413,7 @@ function ClientBootstrap:_syncIssuedDrones(nowMs)
   if nowMs and nowMs<spawn.expiresAtMs then
    current[spawn.id]=true
    if not self._issuedDroneIds[spawn.id] and self.routePresentation then
-    self.routePresentation:spawnDrone(spawn.id,spawn.elite,spawn.createdAtMs,(spawn.expiresAtMs-spawn.createdAtMs)/1000)
+    self.routePresentation:spawnDrone(spawn.id,spawn.elite,spawn.createdAtMs,(spawn.expiresAtMs-spawn.createdAtMs)/1000,nil,{landedAtMs=spawn.landedAtMs,expiresAtMs=spawn.expiresAtMs,position=spawn.position})
    end
   end
  end

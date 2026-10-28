@@ -88,6 +88,17 @@ local function preflight(value)
 	walk(value, 0)
 end
 
+local function coordinate(v)
+ if type(v)~='number' or v~=v or math.abs(v)>1000 then fail() end
+end
+local checkGiftView=record({id=id,elite=function(v) if type(v)~="boolean" then fail() end end,createdAtMs=instant,expiresAtMs=instant},{landedAtMs=instant,position=record({x=coordinate,y=coordinate,z=coordinate})})
+local function giftView(v)
+ checkGiftView(v)
+ if v.landedAtMs~=nil or v.position~=nil then
+  if v.position==nil or v.landedAtMs~=v.createdAtMs+2500 or v.expiresAtMs~=v.landedAtMs+15000 then fail() end
+ end
+end
+
 function ProtocolSchemas.new(codec)
 	assert(codec.VERSION == 1, "ProtocolSchemas requires NumericCodec v1")
 	local function numeric(coder)
@@ -154,7 +165,7 @@ function ProtocolSchemas.new(codec)
 	local publicFields = { eggIndex = index, population = exact, habitats = array(visibleHabitat, 4, "slotId"), vehicles = array(vehicle, 17, "slotId") }
 	local progress = record({GE=exact,SE=amount,PE=exact,numDailyGiftsCollected=instant,lastCalendarDayUtc=integer(-1,9007199254740991),
         pets=array(record({uid=id,speciesId=id,tier=integer(1,65535),variant=id,locked=boolean,equipped=boolean}),32),
-        equipped=array(id,5), trophies=array(id,95)}, {issuedDrones=array(record({id=id,elite=boolean,createdAtMs=instant,expiresAtMs=instant}),4096),ordinaryOffers=array(record({id=id,rewardType=id,amount=amount}),2),proPermit=boolean,doubleCash=boolean,autoHatch=boolean,proBonusAvailable=boolean,paidRandomPolicy=enum({unknown=true,allowed=true,restricted=true}),shellScripts=exact,calendar=array(record({day=integer(1,28),available=boolean,rewardType=id,amount=amount}),28),epic=function(v) if type(v)~="table" then fail() end for k,val in v do id(k); index(val) end end,pendingSE=amount,earningBonus=amount})
+        equipped=array(id,5), trophies=array(id,95)}, {issuedDrones=array(giftView,4096),ordinaryOffers=array(record({id=id,rewardType=id,amount=amount}),2),proPermit=boolean,doubleCash=boolean,autoHatch=boolean,proBonusAvailable=boolean,paidRandomPolicy=enum({unknown=true,allowed=true,restricted=true}),shellScripts=exact,calendar=array(record({day=integer(1,28),available=boolean,rewardType=id,amount=amount}),28),epic=function(v) if type(v)~="table" then fail() end for k,val in v do id(k); index(val) end end,pendingSE=amount,earningBonus=amount})
     local ownView, publicView = record(ownFields,{progress=progress,homeFV=amount}), record(publicFields)
     local ownDeltaFields=table.clone(ownFields);ownDeltaFields.progress=progress;ownDeltaFields.homeFV=amount
 	local function view(value)

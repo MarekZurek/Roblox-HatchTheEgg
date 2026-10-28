@@ -298,7 +298,9 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
         local drones,offers={},{}
         for id,spawn in profile.rewards.droneSpawns or {} do
             if spawn.ownerId==profile.meta.playerId and not spawn.claimed and serverObservedAt<spawn.expiresAtMs then
-                table.insert(drones,{id=id,elite=spawn.isElite,createdAtMs=spawn.createdAtMs,expiresAtMs=spawn.expiresAtMs})
+                local view={id=id,elite=spawn.isElite,createdAtMs=spawn.createdAtMs,expiresAtMs=spawn.expiresAtMs}
+                if spawn.kind=='GROUND_GIFT' then view.landedAtMs=spawn.landedAtMs;view.position=deepCopy(spawn.position) end
+                table.insert(drones,view)
             end
         end
         for id,offer in (profile.rewards.offers and profile.rewards.offers.ordinary) or {} do

@@ -188,11 +188,12 @@ do
  local view=h.messages[#h.messages].message.view.farm.progress
  eq(view.issuedDrones[1].id,'main-drone');eq(view.ordinaryOffers[1].id,'main-parcel')
  h.remote({protocolVersion=1,kind='HitDrone',droneId=view.issuedDrones[1].id})
+ eq(h.profile().permanent.GE,'10','SPEC/click ingress grants no gift; current ground-gift contract')
  h.remote({protocolVersion=1,kind='ClaimOffer',offerId=view.ordinaryOffers[1].id})
- eq(h.profile().permanent.GE,'16','actual Main ingress pays issued records')
+ eq(h.profile().permanent.GE,'13','Main pays only the separate3GE parcel')
  h.remote({protocolVersion=1,kind='HitDrone',droneId='main-drone'})
  h.remote({protocolVersion=1,kind='ClaimOffer',offerId='main-parcel'})
- eq(h.profile().permanent.GE,'16','actual Main ingress cannot pay twice')
+ eq(h.profile().permanent.GE,'13','Main cannot pay parcel twice or accept gift clicks')
 end
 -- Weighted sharing chooses one free target, and the RNG/hold cursor survives every phase.
 do

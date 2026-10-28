@@ -48,6 +48,15 @@ function Schema.new(codec)
 			for id,spawn in p.rewards.droneSpawns do
 				assert(type(id)=="string" and type(spawn)=="table" and spawn.spawnId==id and spawn.ownerId==playerId,"INVALID_DRONE_OWNER")
 				instant(spawn.createdAtMs);instant(spawn.expiresAtMs)
+                if spawn.kind~=nil then
+                 assert(spawn.kind=='GROUND_GIFT','INVALID_GIFT_KIND');instant(spawn.landedAtMs)
+                 assert(spawn.landedAtMs==spawn.createdAtMs+2500 and spawn.expiresAtMs==spawn.landedAtMs+15000,'INVALID_GIFT_WINDOW')
+                 assert(type(spawn.position)=='table','INVALID_GIFT_POSITION')
+                 assert(type(spawn.fixedReward)=='table' and (spawn.fixedReward.type=='GE' or spawn.fixedReward.type=='Cash'),'INVALID_GIFT_REWARD')
+                 local amount=spawn.fixedReward.amount;assert(type(amount)=='string','INVALID_GIFT_REWARD')
+                 if spawn.fixedReward.type=='GE' then uint(amount) else A.decode(amount) end
+                 for _,k in {'x','y','z'} do local n=spawn.position[k];assert(type(n)=='number' and n==n and math.abs(n)<=1000,'INVALID_GIFT_POSITION') end
+                end
 				assert(spawn.expiresAtMs>=spawn.createdAtMs and type(spawn.claimed)=="boolean" and type(spawn.isElite)=="boolean" and type(spawn.terms)=="table","INVALID_DRONE_RECORD")
 			end
 		end

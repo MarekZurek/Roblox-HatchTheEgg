@@ -105,7 +105,18 @@ for _,catalogId in {"pro_permit","buy_max","double_cash","ge_pack_small","ge_pac
     end
 end
 local policyByPlayer={}
+local activePlayerObjects = {} -- [pId] = Player
+local function giftPosition(id)
+ local player=activePlayerObjects[id]
+ if not player or player.Parent~=Players or not player.Character then return nil end
+ local humanoid=player.Character:FindFirstChildOfClass('Humanoid')
+ local root=player.Character:FindFirstChild('HumanoidRootPart')
+ if not humanoid or humanoid.Health<=0 or not root then return nil end
+ local p=root.Position
+ return {x=p.X,y=p.Y,z=p.Z}
+end
 local server = ServerBootstrap.new({
+    giftDrops={observe=giftPosition},
     storageMode = storageMode,
     isStudio = studio,
     platformProducts=configuredProducts,
@@ -117,7 +128,7 @@ local server = ServerBootstrap.new({
 	store = persistentStore,
 })
 
-local activePlayerObjects = {} -- [pId] = Player
+
 local joining, pendingBootstrap, refusedPlayers = {}, {}, {}
 
 local function syncWorldAndDelta(pId, playerObj)
@@ -259,17 +270,8 @@ clientToServer.OnServerEvent:Connect(function(player, message)
 
 	-- PROD-06: 3D Diegetic Actors Intents (HitDrone and ClaimOffer)
 	if message.kind == "HitDrone" then
-		local droneId = message.droneId
-		local okHit, reward = server:handleRewardRequest(pId, message)
-		if okHit and reward then
-			serverToClient:FireClient(player, {
-				kind = "DroneRewardPopup",
-				droneId = droneId,
-				reward = reward,
-			})
-			syncWorldAndDelta(pId, player)
-		end
-		return
+        -- Gift collection is server-observed proximity only.
+        return
 	elseif message.kind == "ClaimOffer" then
 		local offerId = message.offerId
 		local okClaim, resClaim = server:handleRewardRequest(pId, message)
@@ -376,6 +378,10 @@ task.spawn(function()
 	while true do
 		task.wait(0.5)
 		server:tick(0.5)
+        for _,notice in server:takeGiftNotifications() do
+         local player=activePlayerObjects[notice.playerId]
+         if player and player.Parent==Players then serverToClient:FireClient(player,{kind='DroneRewardPopup',droneId=notice.id,reward=notice.reward}) end
+        end
 		for pId, playerObj in pairs(activePlayerObjects) do
 			syncWorldAndDelta(pId, playerObj)
 		end
