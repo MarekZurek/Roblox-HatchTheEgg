@@ -8,7 +8,7 @@
 - [x] [#98](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/98): Dedykowane okno prestiżu z pełnym zestawieniem korzyści i widocznym dostępem w UI — kod i testy L gotowe; **do dokończenia:** weryfikacja w Studio ([raport](workflow/issues_96_98_2026_10_29.md)).
 - [x] [#97](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/97): Zaokrąglanie kwot gotówki (Cash) do 2 miejsc po przecinku w całej grze i nagrodach z dronów — kod i testy L gotowe; **do dokończenia:** weryfikacja w Studio ([raport](workflow/issues_96_98_2026_10_29.md)).
 - [x] [#96](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/96): Zweryfikować i ujednolicić oznaczenie nagród z prezentów i dronów: "GE" -> "Diamenty" (💎) — kod i testy L gotowe; **do dokończenia:** weryfikacja w Studio ([raport](workflow/issues_96_98_2026_10_29.md)).
-- [ ] [#95](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/95): Usunąć modele silosów z mapy 3D farmy (`FarmPlotBuilder.luau`).
+- [x] [#95](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/95): Usunąć modele silosów z mapy 3D farmy (`FarmPlotBuilder.luau`) — usunięto `_buildSiloTower`, `SILO_POSITIONS` i aktualizacje etykiet silosów; zachowano puste kolekcje `getSilos()`/`getSiloLabels()` dla kompatybilności API; testy `tests/presentation/run.luau` (425 asercji PASS L).
 - [ ] [#92](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/92): Aktywacja boostów z ekwipunku gracza oraz wpięcie sklepu boostów.
 
 

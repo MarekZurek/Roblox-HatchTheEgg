@@ -5,7 +5,7 @@
 -- - Main Hatchery with physical floor Pressure Plate,
 -- - 4 Habitat Plots at canonical coordinates with reactive BillboardGuis & ProximityPrompts,
 -- - Step-On Studded Buy Pads for habitats & research (no vehicle pads: fleet panel only),
--- - Red-and-White Silo Tower with SurfaceGui, Shipping Depot with vehicles, Research Lab Stall,
+-- - Shipping Depot with vehicles, Research Lab Stall,
 -- - Non-colliding low-poly farm trees & clouds (CanCollide=false, CanTouch=false, CanQuery=false).
 --
 -- CRITICAL ARCHITECTURAL INVARIANT:
@@ -825,7 +825,6 @@ function FarmPlotBuilder.new(deps)
 		eggUpgradePedestal = nil,
 		eggUpgradePrompt = nil,
 		eggUpgradeBillboards = {},
-		siloSurfaceLabel = nil,
 		siloModels = {},
 		siloLabels = {},
 		deliveryTruckModel = nil,
@@ -885,9 +884,6 @@ function FarmPlotBuilder:build()
 
 	-- 6. 4 Habitat Plots, BillboardGuis, ProximityPrompts & Step-On Buy Pads
 	self:_buildHabitats(worldFolder)
-
-	-- 7. Classic Red-and-White Silo Tower with SurfaceGui
-	self:_buildSiloTower(worldFolder)
 
 	-- 8. Shipping Depot & Fleet Parking (vehicle purchases stay in the fleet panel, no buy pads)
 	self:_buildShippingDepot(worldFolder)
@@ -1400,97 +1396,6 @@ function FarmPlotBuilder:_buildHabitats(worldFolder)
 	end
 end
 
-local SILO_POSITIONS = table.freeze({
-	[1] = { x = -54, z = 54 },
-	[2] = { x = -54, z = 42 },
-	[3] = { x = -54, z = 30 },
-	[4] = { x = -54, z = 18 },
-	[5] = { x = -54, z = 6 },
-	[6] = { x = -66, z = 54 },
-	[7] = { x = -66, z = 42 },
-	[8] = { x = -66, z = 30 },
-	[9] = { x = -66, z = 18 },
-	[10] = { x = -66, z = 6 },
-})
-
-function FarmPlotBuilder:_buildSiloTower(worldFolder)
-	for i = 1, 10 do
-		local siloPos = SILO_POSITIONS[i]
-		local sx, sy, sz = siloPos.x, 0, siloPos.z
-
-		local siloModel
-		if isRoblox then
-			siloModel = Instance.new("Model")
-			siloModel.Name = "SiloTower_" .. tostring(i)
-			siloModel.Parent = worldFolder
-		else
-			siloModel = { Name = "SiloTower_" .. tostring(i), Children = {} }
-		end
-
-		-- Red & White Silo Rings (exact style from Screenshot 2!)
-		for ring = 1, 7 do
-			local ringColor = if ring % 2 == 1 then rgb(235, 55, 65) else rgb(255, 250, 245)
-			makePart({
-				Name = "SiloStripe_" .. ring,
-				Shape = isRoblox and Enum.PartType.Cylinder or nil,
-				Size = v3(3.4, 9, 9),
-				CFrame = isRoblox and (CFrame.new(sx, sy + (ring - 0.5) * 3.4, sz) * CFrame.Angles(0, 0, math.rad(90))) or nil,
-				Position = v3(sx, sy + (ring - 0.5) * 3.4, sz),
-				Color = ringColor,
-				CanCollide = true,
-			}, siloModel, false)
-		end
-
-		-- Silo Dome Cap
-		makePart({
-			Name = "SiloDome",
-			Shape = isRoblox and Enum.PartType.Ball or nil,
-			Size = v3(9.5, 7.5, 9.5),
-			Position = v3(sx, sy + 24.5, sz),
-			Color = rgb(105, 58, 30),
-		}, siloModel, true)
-
-		-- Digital SurfaceGui Display Board on the front of the Silo facing +X (farm center)
-		local displayBoard = makePart({
-			Name = "SiloDisplayBoard",
-			Size = v3(7.5, 4.0, 0.8),
-			Position = v3(sx + 4.8, sy + 7.5, sz),
-			CFrame = isRoblox and (CFrame.new(sx + 4.8, sy + 7.5, sz) * CFrame.Angles(0, math.rad(90), 0)) or nil,
-			Color = rgb(32, 20, 14),
-			CanCollide = false,
-		}, siloModel, true)
-
-		local timerLabel
-		if isRoblox then
-			local sgui = Instance.new("SurfaceGui")
-			sgui.Name = "SiloSurfaceGui"
-			sgui.Face = Enum.NormalId.Front
-			sgui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-			sgui.PixelsPerStud = 40
-			sgui.Parent = displayBoard
-
-			timerLabel = makeOutlinedText(sgui, {
-				Name = "TimerLabel",
-				Size = UDim2.new(1, 0, 1, 0),
-				Text = string.format("🌾 SILOS #%d\nOFFLINE: 01:00:00\nSTATUS: %s", i, if i == 1 then "AKTYWNY" else "ZABLOKOWANY"),
-				TextColor3 = if i == 1 then Color3.fromRGB(95, 255, 110) else Color3.fromRGB(220, 160, 80),
-				StrokeThickness = 2.5,
-			})
-		else
-			timerLabel = {
-				Name = "TimerLabel",
-				Text = string.format("🌾 SILOS #%d\nOFFLINE: 01:00:00\nSTATUS: %s", i, if i == 1 then "AKTYWNY" else "ZABLOKOWANY"),
-			}
-		end
-
-		self.siloModels[i] = siloModel
-		self.siloLabels[i] = timerLabel
-		if i == 1 then
-			self.siloSurfaceLabel = timerLabel
-		end
-	end
-end
-
 function FarmPlotBuilder:_buildShippingDepot(worldFolder)
 	local depotModel
 	if isRoblox then
@@ -1851,41 +1756,6 @@ function FarmPlotBuilder:updateFromFarmView(farmView, catalog)
 				if entry.reqLabel then
 					entry.reqLabel.Text = "Brak dalszych jaj"
 				end
-			end
-		end
-	end
-
-	-- 4. Update Silos Display (PROD-06)
-	local silosOwned = 1
-	if farmView and (farmView.siloOwned or farmView.silosOwned) then
-		silosOwned = farmView.siloOwned or farmView.silosOwned
-	end
-
-	local awaySecRemaining = 0
-	if timelineView and timelineView.awayRemainingSeconds then
-		awaySecRemaining = timelineView.awayRemainingSeconds
-	elseif farmView and farmView.awayRemainingSeconds then
-		awaySecRemaining = farmView.awayRemainingSeconds
-	else
-		awaySecRemaining = silosOwned * 3600
-	end
-
-	local hours = math.floor(awaySecRemaining / 3600)
-	local mins = math.floor((awaySecRemaining % 3600) / 60)
-	local secs = math.floor(awaySecRemaining % 60)
-	local timeStr = string.format("%02d:%02d:%02d", hours, mins, secs)
-
-	for i, lbl in ipairs(self.siloLabels or {}) do
-		if i <= silosOwned then
-			lbl.Text = string.format("🌾 SILOS #%d\nOFFLINE: %s\nSTATUS: AKTYWNY", i, timeStr)
-			if isRoblox and typeof(lbl) == "Instance" then
-				lbl.TextColor3 = Color3.fromRGB(95, 255, 110)
-			end
-		else
-			local req = if i > 2 then "(Wymaga Pro Permit)" else "(Do kupienia)"
-			lbl.Text = string.format("🔒 SILOS #%d\nZABLOKOWANY\n%s", i, req)
-			if isRoblox and typeof(lbl) == "Instance" then
-				lbl.TextColor3 = Color3.fromRGB(220, 160, 80)
 			end
 		end
 	end

@@ -538,32 +538,26 @@ do
 	local world = FarmPlotBuilder.new()
 	world:build()
 
-	-- 7.1 Verify 10 Physical Silos
+	-- 7.1 Spec: docs/workflow/issue_remove_silos_map.md (#95) — 3D silo towers removed after Decision R.
 	local silos = world:getSilos()
-	ok(silos ~= nil, "Silos list exists")
-	eq(#silos, 10, "Dedicated plot accommodates exactly 10 silos for Pro Permit")
+	ok(silos ~= nil, "getSilos returns a table for API compatibility")
+	eq(#silos, 0, "No 3D silo models generated on the farm island (#95)")
 
 	local siloLabels = world:getSiloLabels()
-	ok(siloLabels ~= nil, "Silo SurfaceGui labels list exists")
-	eq(#siloLabels, 10, "10 Silo SurfaceGui countdown timer labels exist")
+	ok(siloLabels ~= nil, "getSiloLabels returns a table for API compatibility")
+	eq(#siloLabels, 0, "No Silo SurfaceGui labels generated (#95)")
 
-	-- 7.2 Update Silos from FarmView with 2 owned silos (Free Permit baseline)
-	world:updateFromFarmView({ eggIndex = 0, silosOwned = 2, habitats = {}, common = {} }, Catalog)
-	ok(string.find(siloLabels[1].Text, "SILOS #1") ~= nil, "Silo 1 header")
-	ok(string.find(siloLabels[1].Text, "AKTYWNY") ~= nil, "Silo 1 active")
-	ok(string.find(siloLabels[1].Text, "02:00:00") ~= nil, "Silo 1 has 2 hours offline protection")
-	ok(string.find(siloLabels[2].Text, "SILOS #2") ~= nil, "Silo 2 header")
-	ok(string.find(siloLabels[2].Text, "AKTYWNY") ~= nil, "Silo 2 active")
-	ok(string.find(siloLabels[3].Text, "ZABLOKOWANY") ~= nil, "Silo 3 locked")
-	ok(string.find(siloLabels[3].Text, "Wymaga Pro Permit") ~= nil, "Silo 3 locked note")
-	ok(string.find(siloLabels[10].Text, "ZABLOKOWANY") ~= nil, "Silo 10 locked")
-
-	-- 7.3 Update Silos with 10 owned silos (Pro Permit Variant A)
-	world:updateFromFarmView({ eggIndex = 0, silosOwned = 10, habitats = {}, common = {} }, Catalog)
-	for i = 1, 10 do
-		ok(string.find(siloLabels[i].Text, "AKTYWNY") ~= nil, string.format("Silo %d active with Pro Permit", i))
-		ok(string.find(siloLabels[i].Text, "10:00:00") ~= nil, string.format("Silo %d shows 10h timer", i))
+	local hasSiloChild = false
+	for _, child in ipairs((world.worldFolder and world.worldFolder.Children) or {}) do
+		if type(child) == "table" and type(child.Name) == "string" and string.find(child.Name, "Silo", 1, true) then
+			hasSiloChild = true
+		end
 	end
+	eq(hasSiloChild, false, "No SiloTower_* instances remain in HatchTheEggWorld (#95)")
+
+	-- 7.2 updateFromFarmView safely ignores legacy silosOwned field
+	world:updateFromFarmView({ eggIndex = 0, silosOwned = 2, habitats = {}, common = {} }, Catalog)
+	eq(#world:getSilos(), 0, "updateFromFarmView does not recreate silos")
 
 	-- 7.4 Delivery Truck & 2+1 Parcel
 	local truck = world:getDeliveryTruck()
