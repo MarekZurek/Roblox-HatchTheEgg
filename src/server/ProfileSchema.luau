@@ -54,6 +54,13 @@ function Schema.new(codec)
 		if p.effects.videoDoublerEndsAtMs~=nil then instant(p.effects.videoDoublerEndsAtMs) end
 		if p.effects.videoDoubler~=nil then instant(p.effects.videoDoubler.endsAtMs) end
 		if p.inventory.petSequence~=nil then uint(p.inventory.petSequence) end
+		if p.inventory.boosts~=nil then
+			assert(type(p.inventory.boosts)=="table","INVALID_INVENTORY_BOOSTS")
+			for k,v in p.inventory.boosts do
+				assert(type(k)=="string" and #k>0,"INVALID_BOOST_ID")
+				if type(v)=="string" then uint(v) else assert(type(v)=="number" and v>=0 and v%1==0,"INVALID_BOOST_COUNT") end
+			end
+		end
 		if p.rewards.droneSpawns~=nil then
 			assert(type(p.rewards.droneSpawns)=="table","INVALID_DRONE_REGISTRY")
 			for id,spawn in p.rewards.droneSpawns do

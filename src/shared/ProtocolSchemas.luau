@@ -127,6 +127,7 @@ function ProtocolSchemas.new(codec)
         UnequipPet = record({ slotIndex = integer(1,5) }),
         TogglePetLock = record({ petUid = id }),
         BuyBoost = record({ boostId = id }),
+        ActivateBoost = record({ boostId = id }),
         PurchaseProduct = record({ productId = id }),
         BuyEpicResearch = record({ researchId = id }),
         BuyEpicRobux = record({ researchId = id }),
@@ -166,7 +167,7 @@ function ProtocolSchemas.new(codec)
 	local publicFields = { eggIndex = index, population = exact, habitats = array(visibleHabitat, 4, "slotId"), vehicles = array(vehicle, 17, "slotId") }
 	local progress = record({GE=exact,SE=amount,PE=exact,numDailyGiftsCollected=instant,lastCalendarDayUtc=integer(-1,9007199254740991),
         pets=array(record({uid=id,speciesId=id,tier=integer(1,65535),variant=id,locked=boolean,equipped=boolean}),32),
-        equipped=array(id,5), trophies=array(id,95)}, {epicRobuxOffers=array(record({researchId=id,productId=id,nominalPriceRobux=instant,configured=boolean,credits=exact}),32,"researchId"),issuedDrones=array(giftView,4096),ordinaryOffers=array(record({id=id,rewardType=id,amount=amount}),2),proPermit=boolean,doubleCash=boolean,autoHatch=boolean,proBonusAvailable=boolean,paidRandomPolicy=enum({unknown=true,allowed=true,restricted=true}),shellScripts=exact,calendar=array(record({day=integer(1,28),available=boolean,rewardType=id,amount=amount}),28),epic=function(v) if type(v)~="table" then fail() end for k,val in v do id(k); index(val) end end,pendingSE=amount,earningBonus=amount,earningBonusAfter=amount,prestigeEventMult=amount})
+        equipped=array(id,5), trophies=array(id,95)}, {epicRobuxOffers=array(record({researchId=id,productId=id,nominalPriceRobux=instant,configured=boolean,credits=exact}),32,"researchId"),issuedDrones=array(giftView,4096),ordinaryOffers=array(record({id=id,rewardType=id,amount=amount}),2),proPermit=boolean,doubleCash=boolean,autoHatch=boolean,proBonusAvailable=boolean,paidRandomPolicy=enum({unknown=true,allowed=true,restricted=true}),shellScripts=exact,calendar=array(record({day=integer(1,28),available=boolean,rewardType=id,amount=amount}),28),epic=function(v) if type(v)~="table" then fail() end for k,val in v do id(k); index(val) end end,pendingSE=amount,earningBonus=amount,earningBonusAfter=amount,prestigeEventMult=amount,boostInventory=function(v) if type(v)~="table" then fail() end for k,val in v do id(k); exact(val) end end,activeBoosts=array(record({id=id,remainingSeconds=amount},{effect=amount,dimension=index}),5)})
     local ownView, publicView = record(ownFields,{progress=progress,homeFV=amount}), record(publicFields)
     local ownDeltaFields=table.clone(ownFields);ownDeltaFields.progress=progress;ownDeltaFields.homeFV=amount
 	local function view(value)
@@ -218,14 +219,15 @@ function ProtocolSchemas.new(codec)
 				BuyEpicResearch = record({ terminalStatus = literal("APPLIED"), actionKind = literal("BuyEpicResearch"), success = boolean, researchId = id, level = index, costGE = exact }),
 				BuyEpicRobux = record({terminalStatus=literal("APPLIED"),actionKind=literal("BuyEpicRobux"),success=boolean,researchId=id,level=index,productId=id,platformId=instant,productType=literal("developer_product"),granted=boolean,description=function(v)if type(v)~="string" then fail() end end}),
 			}
-            local connected = {ClaimDailyGift=true,ClaimTrophy=true,FusePets=true,EquipPet=true,UnequipPet=true,TogglePetLock=true,BuyBoost=true,PurchaseProduct=true}
+            local connected = {ClaimDailyGift=true,ClaimTrophy=true,FusePets=true,EquipPet=true,UnequipPet=true,TogglePetLock=true,BuyBoost=true,ActivateBoost=true,PurchaseProduct=true}
             if connected[value.actionKind] then
                 record({terminalStatus=literal("APPLIED"),actionKind=id}, {
                     success=boolean, outcome=enum({SUCCESS=true,FAILURE=true}),
                     rewardType=id, amount=amount, day=index, cycle=index,
                     petUid=id, locked=boolean, productId=id, platformId=instant,
                     productType=enum({gamepass=true,developer_product=true}), description=function(v) if type(v)~="string" then fail() end end,
-                    paidBonusAvailable=boolean
+                    paidBonusAvailable=boolean,
+                    boostId=id, remainingSeconds=amount, effect=amount, dimension=index
                 })(value)
                 return
             end

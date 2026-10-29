@@ -168,6 +168,7 @@ function ClientBootstrap.new(deps)
 			hud.onBuyEpicResearch = function(researchId) self:buyEpicResearch(researchId) end
 		end
 		hud.onBuyEpicRobux = function(researchId) self:buyEpicRobux(researchId) end
+		if hud.onActivateBoost == nil then hud.onActivateBoost = function(boostId) self:activateBoost(boostId) end end
 	end
 
 	self:_setupEventBindings()
@@ -352,6 +353,7 @@ function ClientBootstrap:equipPet(petId,_slotIndex,callback) return self:_comman
 function ClientBootstrap:unequipPet(slotIndex,callback) return self:_command("UnequipPet",{slotIndex=slotIndex},callback) end
 function ClientBootstrap:togglePetLock(petId,callback) return self:_command("TogglePetLock",{petUid=petId},callback) end
 function ClientBootstrap:buyBoost(boostId,callback) return self:_command("BuyBoost",{boostId=boostId},callback) end
+function ClientBootstrap:activateBoost(boostId,callback) return self:_command("ActivateBoost",{boostId=boostId},callback) end
 function ClientBootstrap:purchaseProduct(productId,callback) return self:_command("PurchaseProduct",{productId=productId},callback) end
 function ClientBootstrap:prestige(callback) return self:_command("Prestige",{},callback) end
 function ClientBootstrap:buyEpicResearch(researchId,callback) return self:_command("BuyEpicResearch",{researchId=researchId},callback) end

@@ -11,16 +11,16 @@ local isRoblox, SoundService = pcall(function()
 end)
 
 local DEFAULT_SFX_ASSETS: { [string]: string } = table.freeze({
-	cluck = "rbxassetid://9114223170",
+	cluck = "rbxasset://sounds/electronicpingshort.wav",
 	-- Free Creator Store Audio assets; validated by tests/audio/studio_asset_check.luau.
 	coin = "rbxassetid://135483737426662", -- Coin Collect (G00byBBQSauce)
 	pop = "rbxassetid://140323850218372", -- Pop Sound Effect (Siegegeddon)
 	click = "rbxassetid://6895079853",
-	fanfare = "rbxassetid://9069609206",
+	fanfare = "rbxasset://sounds/victory.wav",
 })
 
 local DEFAULT_BGM_ASSETS: { [string]: string } = table.freeze({
-	farm_bgm = "rbxassetid://9069609200",
+	farm_bgm = "",
 })
 
 export type AudioControllerOptions = {

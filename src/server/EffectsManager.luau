@@ -55,6 +55,7 @@ local BOOST_CATALOG: { [string]: BoostCatalogItem } = table.freeze({
 	boost_beacon_orange = table.freeze({ id = "boost_beacon_orange", dimension_raw = 7, durationSeconds = 600.0, effect = 50.0 }),
 
 	-- Dimension 9: Soul Beacon (prestige earnings)
+	soul_beacon = table.freeze({ id = "soul_beacon", dimension_raw = 9, durationSeconds = 1800.0, effect = 5.0 }),
 	soul_beacon_blue_v2 = table.freeze({ id = "soul_beacon_blue_v2", dimension_raw = 9, durationSeconds = 1800.0, effect = 5.0 }),
 	soul_beacon_purple_v2 = table.freeze({ id = "soul_beacon_purple_v2", dimension_raw = 9, durationSeconds = 1200.0, effect = 50.0 }),
 	soul_beacon_orange = table.freeze({ id = "soul_beacon_orange", dimension_raw = 9, durationSeconds = 600.0, effect = 500.0 }),
@@ -132,6 +133,7 @@ local function calculateMultipliers(
 	local eventEarningsMult = 1.0
 	local eventIHRMult = 1.0
 	local eventPrestigeMult = 1.0
+	local eventBoostDurationMult = 1.0
 
 	if liveEvents then
 		for _, ev in liveEvents do
@@ -143,6 +145,8 @@ local function calculateMultipliers(
 					eventIHRMult *= mult
 				elseif ev.type == "prestige-boost" or ev.type == "prestige" then
 					eventPrestigeMult *= mult
+				elseif ev.type == "boost-duration" then
+					eventBoostDurationMult *= mult
 				end
 			end
 		end
@@ -167,6 +171,7 @@ local function calculateMultipliers(
 		eventEarningsMult = eventEarningsMult,
 		eventIHRMult = eventIHRMult,
 		eventPrestigeMult = eventPrestigeMult,
+		eventBoostDurationMult = eventBoostDurationMult,
 	}
 end
 
@@ -247,6 +252,8 @@ end
 
 -- Activates a boost from inventory into effects.boosts (docs/11 §4).
 -- Slot limit: 2 standard, 5 Pro permit.
+-- Supports both numeric inventory counts and canonical ExactUInt string counts.
+-- Instant cash boosts (dimension_raw == 10) consume 1 inventory unit and return the entry without occupying a timed slot.
 local function activateBoost(
 	effects: any,
 	inventory: any,
@@ -254,21 +261,22 @@ local function activateBoost(
 	catalog: any?,
 	nowMs: number,
 	durationMult: number?,
-	permitLevel: number?
+	permitLevel: number?,
+	farm: any?
 ): (boolean, any)
 	assert(type(effects) == "table", "EffectsManager/INVALID_EFFECTS")
 	assert(type(inventory) == "table", "EffectsManager/INVALID_INVENTORY")
 	assert(type(boostId) == "string", "EffectsManager/INVALID_BOOST_ID")
 
-	effects.boosts = effects.boosts or {}
-	local maxSlots = if (permitLevel or 0) >= 1 then 5 else 2
-	if #effects.boosts >= maxSlots then
-		return false, "MAX_ACTIVE_BOOSTS"
+	if farm and (farm.eggIndex or 0) == 18 then
+		return false, "BOOSTS_DISABLED"
 	end
 
 	inventory.boosts = inventory.boosts or {}
-	local available = inventory.boosts[boostId] or 0
-	if available < 1 then
+	local rawAvailable = inventory.boosts[boostId]
+	local isStringCount = (type(rawAvailable) == "string")
+	local available = if isStringCount then (tonumber(rawAvailable) or 0) else (rawAvailable or 0)
+	if type(available) ~= "number" or available < 1 or available % 1 ~= 0 then
 		return false, "INSUFFICIENT_INVENTORY"
 	end
 
@@ -278,10 +286,22 @@ local function activateBoost(
 		return false, "UNKNOWN_BOOST"
 	end
 
-	inventory.boosts[boostId] = available - 1
+	local isInstantCash = (def.dimension_raw == 10 or (def.durationSeconds or 0) <= 0)
+	effects.boosts = effects.boosts or {}
+	local maxSlots = if (permitLevel or 0) >= 1 then 5 else 2
+	if not isInstantCash and #effects.boosts >= maxSlots then
+		return false, "MAX_ACTIVE_BOOSTS"
+	end
+
+	local nextCount = available - 1
+	if isStringCount then
+		inventory.boosts[boostId] = tostring(nextCount)
+	else
+		inventory.boosts[boostId] = nextCount
+	end
 
 	local durMult = durationMult or 1.0
-	local durationSeconds = def.durationSeconds * durMult
+	local durationSeconds = (def.durationSeconds or 0) * durMult
 
 	local entry: ActiveBoost = {
 		id = boostId,
@@ -291,7 +311,9 @@ local function activateBoost(
 		activatedAtMs = nowMs,
 	}
 
-	table.insert(effects.boosts, entry)
+	if not isInstantCash then
+		table.insert(effects.boosts, entry)
+	end
 	return true, entry
 end
 

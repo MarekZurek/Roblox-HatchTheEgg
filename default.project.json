@@ -9,6 +9,7 @@
       "$className": "Lighting",
       "$ignoreUnknownInstances": true,
       "$properties": {
+        "Technology": "Voxel",
         "LightingStyle": "Soft",
         "PrioritizeLightingQuality": false,
         "GlobalShadows": true

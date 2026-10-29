@@ -346,12 +346,41 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
         end
         for key,value in profile.rewards.trophies or {} do if value==true then table.insert(claimed,key) end end;table.sort(claimed)
         local paidAllowed=Products.readPaidRandomPolicy(self.paidRandomAllowed,profile.meta.playerId)
+        local boostInventory = {}
+        for bId, bCount in (profile.inventory and profile.inventory.boosts) or {} do
+            if type(bId) == "string" then
+                if type(bCount) == "string" then
+                    local okDec, dec = pcall(codec.ExactUInt.decode, bCount)
+                    if okDec then
+                        boostInventory[bId] = codec.ExactUInt.encode(dec)
+                    end
+                elseif type(bCount) == "number" and bCount >= 0 and bCount % 1 == 0 then
+                    boostInventory[bId] = codec.ExactUInt.encode(codec.ExactUInt.fromSafeNumber(bCount))
+                end
+            end
+        end
+        local activeBoosts = {}
+        for i, b in effects.boosts or {} do
+            if i > 5 then break end
+            if type(b) == "table" and type(b.id) == "string" and type(b.remainingSeconds) == "number" and b.remainingSeconds >= 0 then
+                local def = Effects.BOOST_CATALOG[b.id]
+                local effNum = b.effect or b.multiplier or (def and def.effect)
+                local dimNum = b.dimension_raw or (def and def.dimension_raw)
+                local entry = {
+                    id = b.id,
+                    remainingSeconds = codec.Real64.encode(b.remainingSeconds),
+                }
+                if type(effNum) == "number" then entry.effect = codec.Real64.encode(effNum) end
+                if type(dimNum) == "number" and dimNum >= 0 and dimNum % 1 == 0 then entry.dimension = dimNum end
+                table.insert(activeBoosts, entry)
+            end
+        end
         ownFarm.progress={epicRobuxOffers=EpicPurchases.offers(profile,catalog,self.epicProducts),issuedDrones=drones,ordinaryOffers=offers,GE=profile.permanent.GE,SE=profile.permanent.SE,PE=profile.permanent.PE,
             proPermit=profile.entitlements.pro_permit==true,doubleCash=profile.entitlements.double_cash==true,autoHatch=profile.entitlements.auto_hatch==true,proBonusAvailable=Products.isProBonusAvailable(profile,paidAllowed),
             paidRandomPolicy=if paidAllowed==nil then "unknown" elseif paidAllowed then "allowed" else "restricted",
             numDailyGiftsCollected=profile.rewards.numDailyGiftsCollected or 0,lastCalendarDayUtc=profile.rewards.lastCalendarDayUtc or -1,
             pets=pets,equipped=deepCopy(profile.inventory.equipped),trophies=claimed,calendar=calendar,shellScripts=profile.permanent.shellScripts or "0",epic=deepCopy((profile.permanent and profile.permanent.epic) or {}),
-            pendingSE=pendingSEStr,earningBonus=earningBonusStr,earningBonusAfter=earningBonusAfterStr,prestigeEventMult=codec.Real64.encode(prestigeEventMult)}
+            pendingSE=pendingSEStr,earningBonus=earningBonusStr,earningBonusAfter=earningBonusAfterStr,prestigeEventMult=codec.Real64.encode(prestigeEventMult),boostInventory=boostInventory,activeBoosts=activeBoosts}
     end
     local commitRevision = (profile.meta and profile.meta.revision) or "0"
 	local configRev = (profile.meta and profile.meta.configRevision) or self.configRevision

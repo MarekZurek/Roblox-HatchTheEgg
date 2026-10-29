@@ -195,7 +195,14 @@ local function applyRewardToProfile(profile: any, reward: OfferReward)
 		profile.inventory.boosts = profile.inventory.boosts or {}
 		local bId = reward.boostId or "unknown_boost"
 		local curCount = profile.inventory.boosts[bId] or 0
-		profile.inventory.boosts[bId] = curCount + math.max(1, math.floor(reward.amountNumber))
+		local addCount = math.max(1, math.floor(reward.amountNumber))
+		if type(curCount) == "string" then
+			local curUInt = ExactUInt.decode(curCount)
+			local addUInt = ExactUInt.fromSafeNumber(addCount)
+			profile.inventory.boosts[bId] = ExactUInt.encode(ExactUInt.add(curUInt, addUInt))
+		else
+			profile.inventory.boosts[bId] = curCount + addCount
+		end
 	end
 end
 

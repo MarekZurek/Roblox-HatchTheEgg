@@ -1522,4 +1522,46 @@ do
  hud:destroy()
 end
 
+-- #92: Shop boosts inventory, active slots, and activation action wiring
+do
+	local transport = ClientTransport.new({ protocol = Protocol, wire = function() end })
+	local store = ClientStateStore.new({ transport = transport, codec = C })
+	local controllers = IntentControllers.new({ transport = transport, stateStore = store, codec = C })
+	local activatedBoost = nil
+	local hud = HUD.new({ stateStore = store, intentControllers = controllers, codec = C, onActivateBoost = function(bId) activatedBoost = bId end })
+	hud:_updateShopModal({ eggIndex = 0, progress = { proPermit = false, boostInventory = { jimbos_blue_v2 = "2", blank_check = "1" }, activeBoosts = {} } })
+	local jimbosCard = hud.shopProductCards["jimbos_blue_v2"]
+	ok(jimbosCard ~= nil, "jimbos_blue_v2 card exists")
+	eq(jimbosCard:FindFirstChild("OwnedCount").Text, "Posiadane: 2", "owned count displayed from boostInventory")
+	local actBtn = jimbosCard:FindFirstChild("ActivateBoostButton")
+	ok(actBtn ~= nil, "ActivateBoostButton exists on boost card")
+	eq(actBtn.Active, true, "ActivateBoostButton enabled when owned > 0 and slot available")
+	eq(actBtn.Text, "AKTYWUJ", "ActivateBoostButton label is AKTYWUJ")
+	actBtn.Activated:Fire()
+	eq(activatedBoost, "jimbos_blue_v2", "ActivateBoostButton triggers onActivateBoost")
+	-- Slot limit reached (2/2 standard) disables timed boosts, but allows instant cash boost (blank_check)
+	activatedBoost = nil
+	hud:_updateShopModal({ eggIndex = 0, progress = { proPermit = false, boostInventory = { jimbos_blue_v2 = "1", blank_check = "1" }, activeBoosts = { { id = "jimbos_blue_v2", remainingSeconds = "600" }, { id = "jimbos_orange", remainingSeconds = "300" } } } })
+	ok(string.find(hud.activeBoostsSummaryLabel.Text, "2 / 2", 1, true) ~= nil, "activeBoostsSummaryLabel shows 2 / 2 slots")
+	eq(actBtn.Active, false, "timed boost disabled when 2/2 slots full")
+	eq(actBtn.Text, "LIMIT", "timed boost button shows LIMIT when slots full")
+	actBtn.Activated:Fire()
+	eq(activatedBoost, nil, "disabled ActivateBoostButton does not fire callback")
+	local blankCard = hud.shopProductCards["blank_check"]
+	local blankActBtn = blankCard:FindFirstChild("ActivateBoostButton")
+	eq(blankActBtn.Active, true, "instant cash boost remains activatable when timed slots are full")
+	blankActBtn.Activated:Fire()
+	eq(activatedBoost, "blank_check", "instant cash boost fires onActivateBoost")
+	-- Enlightenment (eggIndex == 18) disables all boost activations
+	activatedBoost = nil
+	hud:_updateShopModal({ eggIndex = 18, progress = { proPermit = true, boostInventory = { jimbos_blue_v2 = "3", blank_check = "1" }, activeBoosts = {} } })
+	eq(actBtn.Active, false, "timed boost disabled on Enlightenment")
+	eq(actBtn.Text, "WYŁĄCZONE", "button shows WYŁĄCZONE on Enlightenment")
+	eq(blankActBtn.Active, false, "instant cash boost disabled on Enlightenment")
+	actBtn.Activated:Fire()
+	blankActBtn.Activated:Fire()
+	eq(activatedBoost, nil, "no boost activation on Enlightenment")
+	hud:destroy()
+end
+
 print(string.format("HUD and IntentControllers: %d assertions PASS", assertions))

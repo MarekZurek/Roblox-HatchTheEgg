@@ -699,7 +699,7 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
         if not self.purchasesEnabled and (op.kind=="PurchaseProduct" or op.kind=="PlatformPurchase" or op.kind=="ConfirmPurchase" or op.kind=="GrantEntitlement") then
             return {profile=candidateProfile,terminalStatus="REJECTED",result={errorCode="LOCAL_PAYMENTS_DISABLED"},validate=function()return false,"LOCAL_PAYMENTS_DISABLED" end}
         end
-        local connected={ClaimDailyGift=true,ClaimTrophy=true,FusePets=true,BuyBoost=true,PurchaseProduct=true,BuyEpicResearch=true,BuyEpicRobux=true}
+        local connected={ClaimDailyGift=true,ClaimTrophy=true,FusePets=true,BuyBoost=true,ActivateBoost=true,PurchaseProduct=true,BuyEpicResearch=true,BuyEpicRobux=true}
         if connected[op.kind] then
             local draft=self.data.copy(candidateProfile)
             local args=op.args or {}
@@ -760,6 +760,73 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
                         draft.permanent.totalGESpent=U.encode(U.add(U.decode(draft.permanent.totalGESpent),cost))
                         draft.inventory.boosts[args.boostId]=U.encode(U.add(U.decode(draft.inventory.boosts[args.boostId] or "0"),U.decode("1")))
                         ok=true
+                    end
+                end
+            elseif op.kind=="ActivateBoost" then
+                local boostId=args.boostId
+                local def=(self.boostCatalog and self.boostCatalog[boostId]) or Effects.BOOST_CATALOG[boostId]
+                local nowMs=self.clock.utcNowMs()
+                local decodedEff=decodeEffects(draft.effects,self.codec,self.data)
+                local permitLevel=if draft.entitlements and draft.entitlements.pro_permit==true then 1 else 0
+                local pets=Equipment.calculatePetMultipliers(draft.inventory,draft.farm)
+                local mults=Effects.calculateMultipliers(decodedEff,draft.farm,nowMs,self.liveEvents,{boostBoostMult=pets.boostBoostMult})
+                local durMult=mults.eventBoostDurationMult or 1.0
+                if not def then
+                    code="UNKNOWN_BOOST"
+                elseif (draft.farm and draft.farm.eggIndex==18) then
+                    code="BOOSTS_DISABLED"
+                elseif def.dimension_raw==10 and draft.farm and draft.farm.isContract then
+                    code="HOME_FARM_REQUIRED"
+                else
+                    draft.inventory=draft.inventory or {}
+                    draft.inventory.boosts=draft.inventory.boosts or {}
+                    local U=self.codec.ExactUInt
+                    local rawCount=draft.inventory.boosts[boostId] or "0"
+                    if type(rawCount)=="number" then rawCount=U.encode(U.fromSafeNumber(rawCount)) end
+                    local curCount=U.decode(rawCount)
+                    local one=U.decode("1")
+                    if U.compare(curCount,one)<0 then
+                        code="INSUFFICIENT_INVENTORY"
+                    elseif def.dimension_raw~=10 and (def.durationSeconds or 0)>0 and #(decodedEff.boosts or {})>=(if permitLevel>=1 then 5 else 2) then
+                        code="MAX_ACTIVE_BOOSTS"
+                    else
+                        local homeFV
+                        if def.dimension_raw==10 then
+                            local fvOk,fvVal=pcall(ProgressActions.calculateProfileFarmValue,draft,self.catalog,self.productionMath)
+                            if not fvOk or fvVal==nil then
+                                code="HOME_FARM_REQUIRED"
+                            else
+                                homeFV=self.codec.BigAmount.validate(fvVal)
+                            end
+                        end
+                        if homeFV~=nil or def.dimension_raw~=10 then
+                            draft.inventory.boosts[boostId]=U.encode(U.subtract(curCount,one))
+                            local entry
+                            local invProxy={boosts={[boostId]=1}}
+                            ok,entry=Effects.activateBoost(decodedEff,invProxy,boostId,self.boostCatalog,nowMs,durMult,permitLevel,draft.farm)
+                            if not ok then
+                                code=entry
+                            else
+                                draft.effects=encodeEffects(decodedEff,self.codec,self.data)
+                                result.boostId=boostId
+                                result.remainingSeconds=self.codec.Real64.encode(entry.remainingSeconds or 0)
+                                result.effect=self.codec.Real64.encode(entry.effect or 1.0)
+                                result.dimension=entry.dimension_raw or 0
+                                if def.dimension_raw==10 and homeFV~=nil then
+                                    local A=self.codec.BigAmount
+                                    local addCash=A.multiply(def.effect or 0,homeFV)
+                                    draft.farm.cash=A.encode(A.add(A.decode(draft.farm.cash or "0"),addCash))
+                                    draft.accounting.lastCashEarned=A.encode(A.add(A.decode(draft.accounting.lastCashEarned or "0"),addCash))
+                                    draft.accounting.currentFarmCash=A.encode(A.add(A.decode(draft.accounting.currentFarmCash or "0"),addCash))
+                                    local prestigeMultiplier=A.multiply(mults.effectivePrestigeBoost,pets.prestigeEarningsMult)
+                                    if prestigeMultiplier>1.0 then
+                                        local extra=A.multiply(addCash,prestigeMultiplier-1.0)
+                                        draft.accounting.prestigeExtraEarnings=A.encode(A.add(A.decode(draft.accounting.prestigeExtraEarnings or "0"),extra))
+                                    end
+                                    result.amount=A.encode(addCash)
+                                end
+                            end
+                        end
                     end
                 end
             elseif op.kind=="BuyEpicRobux" then

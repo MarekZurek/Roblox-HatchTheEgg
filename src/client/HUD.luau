@@ -49,10 +49,7 @@ local UiAssets = resolveModule(function()
 	return script.Parent.ui.UiAssets
 end, "./ui/UiAssets")
 
-
--- ============================================================================
 -- Presentation-Only Numeric Formatting
--- ============================================================================
 
 local SUFFIXES = table.freeze({
 	{ 1e15, "q" },
@@ -153,7 +150,6 @@ function HUD.formatRate(selfOrAmount, maybeAmountOrUnit, maybeUnit)
 	return formatCompact(amount) .. unit
 end
 
--- ============================================================================
 -- Top Rates Panel Formatting
 -- The three former bare top numbers become one named panel: Produkcja, Sprzedaż and
 -- Limit transportu. Every value is a rate in Polish "jaj/s".
@@ -162,7 +158,6 @@ end
 -- through the same BigAmount codec as the view: 5000/min renders as "83.33 jaj/s", not "5000/s".
 -- Formatting is presentation-only, the input farm view is only read and never mutated, and a missing
 -- authoritative field yields no text at all instead of an invented rate.
--- ============================================================================
 
 HUD.RATES_HEADINGS = table.freeze({ "Produkcja", "Sprzedaż", "Limit transportu" })
 HUD.RATES_CAPTION = "Transport określa maksymalną sprzedaż"
@@ -201,11 +196,9 @@ function HUD.formatTransportRate(selfOrCodec, maybeCodecOrPerMinute, maybePerMin
 	return rateText(HUD.transportRatePerSecond(codec, shippingPerMinute))
 end
 
--- ============================================================================
 -- Hatch Status Helpers (#77)
 -- The blocked decision is presentation of the authoritative farm view only. Counts stay exact
 -- uint64 values: tonumber would round population/reservations above 2^53 and change the answer.
--- ============================================================================
 
 HUD.HATCH_STATUS_FULL = "CAPACITY_FULL"
 HUD.HATCH_STATUS_STOCK = "NO_STOCK"
@@ -233,9 +226,7 @@ local function habitatHasVacancy(codec, habitat)
 	return U.compare(inTransit, U.subtract(capacity, population)) < 0
 end
 
--- ============================================================================
 -- Reference Catalogs & Display Data
--- ============================================================================
 
 -- User-visible habitat type names (#78): index 0 => "Tier 1" ... index 18 => "Tier 19".
 -- Only presentation changes here: internal catalog names, IDs and prices stay untouched, and an
@@ -679,14 +670,28 @@ local EPIC_RESEARCH_CATALOG = table.freeze({
 })
 
 local BOOSTS_CATALOG = table.freeze({
-	{ id = "jimbos_blue_v2", name = "Worek Złotego Ziarna (3x)", priceGE = 50, duration = "20 min", effect = "3x Dochód" },
-	{ id = "jimbos_purple_v2", name = "Karmnik Obfitości (10x)", priceGE = 150, duration = "15 min", effect = "10x Dochód" },
-	{ id = "jimbos_orange", name = "Eliksir Złotego Ziarna (50x)", priceGE = 2500, duration = "10 min", effect = "50x Dochód" },
-	{ id = "tachyon_prism_blue_v2", name = "Cieplarka Promiennikowa", priceGE = 50, duration = "10 min", effect = "10x Wylęg" },
-	{ id = "tachyon_prism_blue_big", name = "Inkubator Przemysłowy", priceGE = 500, duration = "4 godz", effect = "10x Wylęg" },
-	{ id = "soul_beacon", name = "Mistyczny Rezonator", priceGE = 1000, duration = "30 min", effect = "5x Kryształów Prestiżu" },
-	{ id = "blank_check", name = "Zastrzyk Gotówki", priceGE = 750, duration = "Natychmiast", effect = "Zastrzyk Gotówki" },
-	{ id = "money_printer", name = "Wielki Zastrzyk Gotówki", priceGE = 2500, duration = "Natychmiast", effect = "Wielki Zastrzyk Gotówki" },
+	{ id = "jimbos_blue_v2", name = "Worek Złotego Ziarna (3x)", priceGE = 50, duration = "20 min", effect = "3x Dochód", dimension = 2 },
+	{ id = "jimbos_purple_v2", name = "Karmnik Obfitości (10x)", priceGE = 150, duration = "15 min", effect = "10x Dochód", dimension = 2 },
+	{ id = "jimbos_purple_big", name = "Wielki Karmnik Obfitości (10x)", priceGE = 500, duration = "3 godz", effect = "10x Dochód", dimension = 2 },
+	{ id = "jimbos_orange", name = "Eliksir Złotego Ziarna (50x)", priceGE = 2500, duration = "10 min", effect = "50x Dochód", dimension = 2 },
+	{ id = "jimbos_orange_big", name = "Wielki Eliksir Ziarna (50x)", priceGE = 7500, duration = "2 godz", effect = "50x Dochód", dimension = 2 },
+	{ id = "tachyon_prism_blue_v2", name = "Cieplarka Promiennikowa", priceGE = 50, duration = "10 min", effect = "10x Wylęg", dimension = 4 },
+	{ id = "tachyon_prism_blue_big", name = "Inkubator Przemysłowy", priceGE = 500, duration = "4 godz", effect = "10x Wylęg", dimension = 4 },
+	{ id = "tachyon_prism_purple_v2", name = "Pryzmat Tachionowy (100x)", priceGE = 500, duration = "10 min", effect = "100x Wylęg", dimension = 4 },
+	{ id = "tachyon_prism_purple_big", name = "Wielki Pryzmat Tachionowy (100x)", priceGE = 2000, duration = "2 godz", effect = "100x Wylęg", dimension = 4 },
+	{ id = "tachyon_prism_orange", name = "Legendarny Pryzmat (1000x)", priceGE = 12000, duration = "10 min", effect = "1000x Wylęg", dimension = 4 },
+	{ id = "tachyon_prism_orange_big", name = "Najwyższy Pryzmat (1000x)", priceGE = 25000, duration = "1 godz", effect = "1000x Wylęg", dimension = 4 },
+	{ id = "boost_beacon_blue", name = "Wzmacniacz Boostów (2x)", priceGE = 1000, duration = "30 min", effect = "2x Boosty", dimension = 7 },
+	{ id = "boost_beacon_blue_big", name = "Wielki Wzmacniacz Boostów (5x)", priceGE = 7500, duration = "1 godz", effect = "5x Boosty", dimension = 7 },
+	{ id = "boost_beacon_purple", name = "Epicki Wzmacniacz Boostów (10x)", priceGE = 8000, duration = "10 min", effect = "10x Boosty", dimension = 7 },
+	{ id = "boost_beacon_orange", name = "Legendarny Wzmacniacz (50x)", priceGE = 50000, duration = "10 min", effect = "50x Boosty", dimension = 7 },
+	{ id = "soul_beacon", name = "Mistyczny Rezonator", priceGE = 1000, duration = "30 min", effect = "5x Kryształów Prestiżu", dimension = 9 },
+	{ id = "soul_beacon_blue_v2", name = "Rezonator Dusz (5x)", priceGE = 1000, duration = "30 min", effect = "5x Kryształów Prestiżu", dimension = 9 },
+	{ id = "soul_beacon_purple_v2", name = "Epicki Rezonator Dusz (50x)", priceGE = 2000, duration = "20 min", effect = "50x Kryształów Prestiżu", dimension = 9 },
+	{ id = "soul_beacon_orange", name = "Legendarny Rezonator Dusz (500x)", priceGE = 10000, duration = "10 min", effect = "500x Kryształów Prestiżu", dimension = 9 },
+	{ id = "subsidy_application", name = "Dotacja Rolnicza (10% FV)", priceGE = 200, duration = "Natychmiast", effect = "+10% Farm Value", dimension = 10 },
+	{ id = "blank_check", name = "Zastrzyk Gotówki", priceGE = 750, duration = "Natychmiast", effect = "Zastrzyk Gotówki", dimension = 10 },
+	{ id = "money_printer", name = "Wielki Zastrzyk Gotówki", priceGE = 2500, duration = "Natychmiast", effect = "Wielki Zastrzyk Gotówki", dimension = 10 },
 })
 
 local SHOP_PRODUCTS_CATALOG = table.freeze({
@@ -720,8 +725,6 @@ local SHOP_PRODUCTS_CATALOG = table.freeze({
 	},
 })
 
-
-
 local TROPHY_POPULATION_TIERS = table.freeze({
 	{ tier = 1, name = "Brąz", pop = 10000000, icon = "🥉" },
 	{ tier = 2, name = "Srebro", pop = 50000000, icon = "🥈" },
@@ -752,10 +755,7 @@ local EGGS_DATA = table.freeze({
 	[18] = { index = 18, name = "Astralnego Lewiatana", eggValueBase = 1e-7, advanceFV = 3.6e65 },
 })
 
-
--- ============================================================================
 -- GUI Instance Helpers (Studio & Lune Mock)
--- ============================================================================
 
 local isRoblox = (typeof(Instance) == "table" and type(Instance.new) == "function")
 local Color3 = if isRoblox and typeof(Color3) == "table" then Color3 else {
@@ -1076,9 +1076,7 @@ local function promptMarketplacePurchase(productId, onPurchaseProductCallback)
 	end
 end
 
--- ============================================================================
 -- HUD Constructor & Initialization
--- ============================================================================
 
 function HUD.new(deps)
 	assert(type(deps) == "table", "INVALID_DEPS")
@@ -1115,6 +1113,7 @@ function HUD.new(deps)
 		onUnequipPet = deps.onUnequipPet,
 		onTogglePetLock = deps.onTogglePetLock,
 		onBuyBoost = deps.onBuyBoost,
+		onActivateBoost = deps.onActivateBoost,
 		onPurchaseProduct = deps.onPurchaseProduct,
 		audioController = deps.audioController,
 		onToggleAudio = deps.onToggleAudio,
@@ -1200,6 +1199,7 @@ function HUD.new(deps)
 		shopModalTabButtons = {},
 		selectedShopTab = 1,
 		shopProductCards = {},
+		activeBoostsSummaryLabel = nil,
 
 		calendarModal = nil,
 		calendarTabButtons = {},
@@ -2050,7 +2050,6 @@ function HUD:_bindTopHeaderResponsive(root)
 	resize()
 end
 
-
 function HUD:_buildHabitatsModal(root)
 	-- Shared stud-style window (#82): thick border, coloured header, 44px close button.
 	local win = self.ui:window({
@@ -2337,7 +2336,6 @@ function HUD:_layoutResearchCard(item, layout)
 	end
 end
 
-
 function HUD:_buildEpicResearchModal(root)
 	local win = self.ui:window({
 		parent = root,
@@ -2383,7 +2381,6 @@ function HUD:_buildEpicResearchModal(root)
 	})
 	self.epicResearchListContainer = scroll
 	self.epicResearchCards = {}
-
 
 	for i, item in ipairs(EPIC_RESEARCH_CATALOG) do
 		local card = self.ui:card(scroll, {
@@ -2795,35 +2792,60 @@ function HUD:_buildShopProducts(container)
 		self.shopProductCards[prod.id] = card
 	end
 
-	-- Tab 2: Boosts (scrolling list, 44px buy buttons)
+	-- Tab 2: Boosts (scrolling list, 44px buy & activate buttons)
 	local tab2Frame = self.ui:card(container, {
 		name = "Tab2_Boosts", family = "shop",
 		fill = { 56, 32, 48 }, border = { 32, 16, 28 },
-		visible = false, size = { 1, 0, 0, #BOOSTS_CATALOG * 56 + 8 }, position = { 0, 0, 0, 0 },
+		visible = false, size = { 1, 0, 0, #BOOSTS_CATALOG * 56 + 48 }, position = { 0, 0, 0, 0 },
+	})
+
+	self.activeBoostsSummaryLabel = self.ui:label(tab2Frame, {
+		name = "ActiveBoostsSummary", size = { 0.96, 0, 0, 34 }, position = { 0.02, 0, 0, 4 },
+		text = "Aktywne boosty: 0 / 2", color = { 255, 235, 115 },
+		align = "Left", textStroke = 1.5, maxTextSize = 15,
 	})
 
 	for i, bSpec in ipairs(BOOSTS_CATALOG) do
 		local card = self.ui:card(tab2Frame, {
 			name = "BoostCard_" .. bSpec.id, family = "shop",
 			fill = { 68, 38, 58 }, top = { 98, 56, 84 }, border = { 32, 16, 28 },
-			size = { 1, 0, 0, 50 }, position = { 0, 0, 0, (i - 1) * 56 },
+			size = { 1, 0, 0, 50 }, position = { 0, 0, 0, 42 + (i - 1) * 56 },
 		})
 
 		local title = self.ui:label(card, {
-			name = "Title", size = { 0.55, 0, 0, 50 }, position = { 0.02, 0, 0, 0 },
+			name = "Title", size = { 0.36, 0, 0, 50 }, position = { 0.02, 0, 0, 0 },
 			text = bSpec.name .. " (" .. bSpec.effect .. ")", color = { 255, 255, 255 },
-			align = "Left", textStroke = 1.5, maxTextSize = 16,
+			align = "Left", textStroke = 1.5, maxTextSize = 15,
+		})
+
+		local ownedLbl = self.ui:label(card, {
+			name = "OwnedCount", size = { 0.14, 0, 0, 50 }, position = { 0.39, 0, 0, 0 },
+			text = "Posiadane: 0", color = { 215, 240, 255 },
+			align = "Center", textStroke = 1.4, maxTextSize = 13,
 		})
 
 		local priceLbl = self.ui:label(card, {
-			name = "Price", size = { 0.20, 0, 0, 50 }, position = { 0.58, 0, 0, 0 },
+			name = "Price", size = { 0.12, 0, 0, 50 }, position = { 0.54, 0, 0, 0 },
 			text = tostring(bSpec.priceGE) .. " 💎", color = { 255, 215, 65 },
-			align = "Center", textStroke = 1.5, maxTextSize = 16,
+			align = "Center", textStroke = 1.5, maxTextSize = 15,
+		})
+
+		local activateBtn
+		activateBtn = self.ui:button(card, {
+			name = "ActivateBoostButton", text = "BRAK", tone = "disabled", active = false,
+			size = { 0.15, 0, 0, 42 }, position = { 0.67, 0, 0, 4 },
+			textStroke = 1.5, maxTextSize = 14,
+			onClick = function()
+				if not activateBtn.Active then return end
+				if type(self.onActivateBoost) == "function" then
+					self.onActivateBoost(bSpec.id)
+				end
+			end,
 		})
 
 		local buyBtn = self.ui:button(card, {
 			name = "BuyBoostButton", text = "KUP", tone = "primary",
-			size = { 0.19, 0, 0, 42 }, position = { 0.79, 0, 0, 4 },
+			size = { 0.15, 0, 0, 42 }, position = { 0.83, 0, 0, 4 },
 			textStroke = 1.5, maxTextSize = 16,
 			onClick = function()
 				if type(self.onBuyBoost) == "function" then
@@ -2833,6 +2855,7 @@ function HUD:_buildShopProducts(container)
 		})
 
 		if isRoblox then
+			bindBouncyButton(activateBtn)
 			bindBouncyButton(buyBtn)
 		end
 
@@ -3700,9 +3723,7 @@ function HUD:playEggHatchAnimation(petData, onFinished)
 	end
 end
 
--- ============================================================================
 -- Modals Visibility & Mutual Exclusivity
--- ============================================================================
 
 function HUD:closeAllModals()
 	if self.habitatsModal then self.habitatsModal.Visible = false end
@@ -3894,9 +3915,7 @@ function HUD:selectCalendarTab(tabIndex)
 	end
 end
 
--- ============================================================================
 -- State & Subscriptions
--- ============================================================================
 
 function HUD:_setupSubscriptions()
 	if self.stateStore ~= nil and type(self.stateStore.onStatusChanged) == "function" then
@@ -3933,9 +3952,7 @@ function HUD:updateStatus(newStatus)
 	end
 end
 
--- ============================================================================
 -- Hatch Status (#77): blocked state derived from the authoritative farm view
--- ============================================================================
 
 -- Returns the blocked reason (or nil).
 -- Capacity full wins over a low stock when both are true. Empty slots stay empty and are not
@@ -4162,6 +4179,9 @@ function HUD:update()
 
 	-- 7. Prestige & Rebirth Display Refresh
 	self:_updatePrestigeDisplay(farm)
+
+	-- 8. Shop Boosts Inventory & Active Slots Refresh
+	self:_updateShopModal(farm)
 end
 
 -- Time-dependent quote maintenance stays live without repainting the HUD.
@@ -4607,7 +4627,6 @@ function HUD:_updateEpicResearchModal(farm)
 
 	local epicProgress = (p and p.epic) or {}
 
-
 	for _, item in ipairs(EPIC_RESEARCH_CATALOG) do
 		local cardData = self.epicResearchCards and self.epicResearchCards[item.id]
 		if cardData then
@@ -4734,7 +4753,6 @@ function HUD:_updateEggUpgradeModal(farm)
 	end
 end
 
-
 function HUD:_updatePrestigeDisplay(farm)
 	farm = farm or (self.stateStore and (self.stateStore.getPresentationFarm or self.stateStore.getFarm)(self.stateStore))
 	if not farm then return end
@@ -4784,6 +4802,74 @@ function HUD:_updatePrestigeDisplay(farm)
 	if self.prestigeActionBtn then
 		self.prestigeActionBtn.Active = pendingSE ~= nil
 		self.prestigeActionBtn.Text = string.format("ODRÓDŹ FARMĘ (+%s KRYSZTAŁÓW)", pendingText)
+	end
+end
+
+function HUD:_updateShopModal(farm)
+	if not self.shopModal or not farm then return end
+	local progress = farm.progress or {}
+	local codec = self.codec
+	local boostInv = progress.boostInventory or {}
+	local activeBoosts = progress.activeBoosts or {}
+	local maxSlots = if progress.proPermit == true then 5 else 2
+	local isEnlightenment = (farm.eggIndex == 18)
+
+	if self.activeBoostsSummaryLabel then
+		if isEnlightenment then
+			self.activeBoostsSummaryLabel.Text = string.format("Aktywne boosty: %d / %d (Wstrzymane na Oświeceniu)", #activeBoosts, maxSlots)
+		elseif #activeBoosts == 0 then
+			self.activeBoostsSummaryLabel.Text = string.format("Aktywne boosty: 0 / %d", maxSlots)
+		else
+			local parts = {}
+			for _, b in ipairs(activeBoosts) do
+				local rem = if type(b.remainingSeconds) == "string" and codec and codec.Real64 then codec.Real64.decode(b.remainingSeconds) else (tonumber(b.remainingSeconds) or 0)
+				local mins = math.max(0, math.ceil(rem / 60))
+				table.insert(parts, string.format("%s (%dm)", tostring(b.id), mins))
+			end
+			self.activeBoostsSummaryLabel.Text = string.format("Aktywne boosty: %d / %d • %s", #activeBoosts, maxSlots, table.concat(parts, ", "))
+		end
+	end
+
+	for _, bSpec in ipairs(BOOSTS_CATALOG) do
+		local card = self.shopProductCards and self.shopProductCards[bSpec.id]
+		if card then
+			local rawOwned = boostInv[bSpec.id] or "0"
+			local ownedNum = 0
+			if type(rawOwned) == "string" and codec and codec.ExactUInt then
+				local okDec, dec = pcall(codec.ExactUInt.decode, rawOwned)
+				if okDec and dec then
+					ownedNum = codec.ExactUInt.toSafeNumber(dec)
+				end
+			else
+				ownedNum = tonumber(rawOwned) or 0
+			end
+
+			local ownedLbl = card:FindFirstChild("OwnedCount")
+			if ownedLbl then
+				ownedLbl.Text = string.format("Posiadane: %s", formatCompact(ownedNum))
+			end
+
+			local activateBtn = card:FindFirstChild("ActivateBoostButton")
+			if activateBtn then
+				local isInstant = (bSpec.dimension == 10)
+				local slotsFull = (not isInstant) and (#activeBoosts >= maxSlots)
+				local canActivate = (ownedNum > 0) and (not isEnlightenment) and (not slotsFull)
+				activateBtn.Active = canActivate
+				if isEnlightenment then
+					activateBtn.Text = "WYŁĄCZONE"
+					self.ui:setButtonTone(activateBtn, "disabled")
+				elseif ownedNum <= 0 then
+					activateBtn.Text = "BRAK"
+					self.ui:setButtonTone(activateBtn, "disabled")
+				elseif slotsFull then
+					activateBtn.Text = "LIMIT"
+					self.ui:setButtonTone(activateBtn, "disabled")
+				else
+					activateBtn.Text = "AKTYWUJ"
+					self.ui:setButtonTone(activateBtn, "boost")
+				end
+			end
+		end
 	end
 end
 
@@ -4868,9 +4954,7 @@ function HUD:onQuoteReceived(quoteView)
 	end
 end
 
--- ============================================================================
 -- Intent Actions
--- ============================================================================
 
 function HUD:pressHatch(callback)
 	if self.audioController and type(self.audioController.playSFX) == "function" then
@@ -4973,9 +5057,7 @@ function HUD:buyResearch(researchId, callback)
 	end
 end
 
--- ============================================================================
 -- Accessors for Verification & Tests
--- ============================================================================
 
 function HUD:getSessionStatus() return self.sessionStatus end
 function HUD:getCashText() return if self.cashLabel then self.cashLabel.Text else "" end

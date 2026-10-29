@@ -40,8 +40,6 @@ def collect_scripts():
                     inst_name = f[:-12]
                 elif f == "init.luau":
                     class_name = "ModuleScript"
-                    # init.luau defines the folder itself as a ModuleScript
-                    # but in Roblox Rojo convention, parent folder is the ModuleScript
                     inst_name = None
                 else:
                     class_name = "ModuleScript"
@@ -82,15 +80,15 @@ def run_sync_server():
             pass
             
     server = http.server.HTTPServer(("127.0.0.1", 28989), SyncHandler)
-    server.timeout = 120.0
     print(f"Collected {len(scripts)} scripts ({len(payload)} bytes). Ready on port 28989.")
     return server
 
 if __name__ == "__main__":
     server = run_sync_server()
-    # Handle single request
-    t = threading.Thread(target=server.handle_request)
-    t.start()
-    t.join(120.0)
-    server.server_close()
-    print("Sync server finished.")
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        server.server_close()
+        print("Sync server finished.")

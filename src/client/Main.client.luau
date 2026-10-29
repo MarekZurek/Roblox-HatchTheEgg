@@ -207,6 +207,7 @@ if hud then
 	end
 	hud.onBuyBoost = function(boostId)
 		client:buyBoost(boostId)
+		end; hud.onActivateBoost = function(boostId) client:activateBoost(boostId)
 	end
 	hud.onPurchaseProduct = function(productId)
 		client:purchaseProduct(productId)

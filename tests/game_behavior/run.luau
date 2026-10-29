@@ -307,6 +307,130 @@ for _,population in {0,1,30,100,10000} do
  h.client:destroy()
 end
 
+-- #92: Boost activation from inventory, slot limits, idempotency, Enlightenment gate, decay, and real simulation effects.
+do
+ local h=harness(function(p)
+  p.farm.habitats[1].population='30'
+  p.farm.habitats[1].typeIndex=18
+  p.inventory.boosts={jimbos_blue_v2='2',tachyon_prism_blue_v2='1',boost_beacon_blue='1',soul_beacon_blue_v2='1',blank_check='1',subsidy_application='1',money_printer='1'}
+ end)
+ local view0=h.client:getStore():getFarm()
+ eq(view0.progress.boostInventory.jimbos_blue_v2,'2','initial boost inventory projected')
+ eq(#view0.progress.activeBoosts,0,'initially 0 active boosts')
+ local baseRate=C.BigAmount.decode(view0.cashIncomePerSecond)
+ near(baseRate,0.5,'base income 1 egg/s * 0.50 = 0.50/s')
+
+ -- Activate jimbos_blue_v2 (3x earnings, 1200s) via HUD button
+ local jimbosCard=h.client.hud.shopProductCards['jimbos_blue_v2']
+ jimbosCard:FindFirstChild('ActivateBoostButton').Activated:Fire()
+ h.expect(h.client.hud.lastActionResult,'APPLIED')
+ eq(h.profile().inventory.boosts.jimbos_blue_v2,'1','1 boost consumed from inventory')
+ eq(#h.profile().effects.boosts,1,'1 active boost in profile.effects.boosts')
+ eq(h.profile().effects.boosts[1].id,'jimbos_blue_v2')
+ near(C.Real64.decode(h.profile().effects.boosts[1].remainingSeconds),1200.0,'1200s duration stored')
+
+ local view1=h.client:getStore():getFarm()
+ eq(view1.progress.boostInventory.jimbos_blue_v2,'1','updated inventory projected')
+ eq(#view1.progress.activeBoosts,1,'1 active boost projected')
+ near(C.BigAmount.decode(view1.cashIncomePerSecond),1.5,'income rate tripled by 3x Jimbo boost')
+
+ -- Replay the exact ActivateBoost packet: must not consume another unit or add a second slot
+ local activatePacket=nil
+ for i=#h.sent,1,-1 do
+  if h.sent[i].kind=='ActivateBoost' then activatePacket=h.sent[i];break end
+ end
+ eq(activatePacket~=nil,true,'ActivateBoost packet sent')
+ local replay=h.server:dispatch('1',activatePacket)
+ eq(replay.status,'REPLAYED','duplicate operationId is replayed')
+ eq(h.profile().inventory.boosts.jimbos_blue_v2,'1','replay did not consume a second boost')
+ eq(#h.profile().effects.boosts,1,'replay did not add a second active slot')
+
+ -- Activate 2nd boost: boost_beacon_blue (2x boost beacon, 1800s)
+ local r2=h.call('activateBoost','boost_beacon_blue');h.expect(r2,'APPLIED')
+ eq(h.profile().inventory.boosts.boost_beacon_blue,'0')
+ eq(#h.profile().effects.boosts,2,'2 active boosts on standard permit')
+ local view2=h.client:getStore():getFarm()
+ near(C.BigAmount.decode(view2.cashIncomePerSecond),3.0,'Jimbo 3x * Beacon 2x = 6x * 0.50 = 3.0/s')
+
+ -- 3rd timed boost rejected on standard permit (MAX_ACTIVE_BOOSTS), zero inventory consumed
+ h.expect(h.call('activateBoost','jimbos_blue_v2'),'REJECTED','MAX_ACTIVE_BOOSTS')
+ eq(h.profile().inventory.boosts.jimbos_blue_v2,'1','rejected activation consumes 0 inventory')
+ eq(#h.profile().effects.boosts,2)
+
+ -- Unavailable boost rejected (INSUFFICIENT_INVENTORY)
+ h.expect(h.call('activateBoost','boost_beacon_blue'),'REJECTED','INSUFFICIENT_INVENTORY')
+ eq(h.profile().inventory.boosts.boost_beacon_blue,'0')
+
+ -- Instant cash boost (blank_check = 1.0 * homeFV) works even when timed slots are full (2/2) and does not occupy a timed slot!
+ local fvBefore=C.BigAmount.decode(h.client:getStore():getFarm().homeFV)
+ eq(fvBefore>0,true,'homeFV is positive')
+ local cashBefore=C.BigAmount.decode(h.profile().farm.cash)
+ local rCash=h.call('activateBoost','blank_check');h.expect(rCash,'APPLIED')
+ eq(h.profile().inventory.boosts.blank_check,'0','blank_check consumed')
+ eq(#h.profile().effects.boosts,2,'instant cash boost does not occupy a timed slot')
+ near(C.BigAmount.decode(h.profile().farm.cash),cashBefore+fvBefore,'blank_check added 1.0 * homeFV to farm.cash')
+ near(C.BigAmount.decode(h.profile().accounting.currentFarmCash),cashBefore+fvBefore,'blank_check added to currentFarmCash')
+
+ -- Step simulation by 0.3s: verify boosted cash production and boost timer decay
+ local cashPreTick=C.BigAmount.decode(h.profile().farm.cash)
+ h.now+=300;h.elapsed+=0.3;h.server:tick(0.3)
+ local working=h.server:getCoordinator('1').snapshots().working
+ near(C.BigAmount.decode(working.farm.cash),cashPreTick+3.0*0.3,'tick produced 6x boosted cash (3.0/s * 0.3s)')
+ near(C.Real64.decode(working.effects.boosts[1].remainingSeconds),1199.7,'Jimbo timer decayed by 0.3s')
+
+ -- Advance past Jimbo expiry (1200s total, < 15s steps so budget=100 completes each tick synchronously): after 1200.1s Jimbo expires and is removed, Beacon remains
+ for _=1,80 do
+  h.now+=15000;h.elapsed+=15;h.server:tick(15)
+ end
+ h.now+=1000;h.elapsed+=1;h.server:tick(1)
+ working=h.server:getCoordinator('1').snapshots().working
+ eq(#working.effects.boosts,1,'expired Jimbo removed when remainingSeconds < 0')
+ eq(working.effects.boosts[1].id,'boost_beacon_blue','1800s Beacon still active')
+ h.client:destroy()
+end
+
+-- #92: Pro Permit allows up to 5 active boosts, Soul Beacon + Instant Cash credits prestigeExtraEarnings, and Enlightenment blocks activation.
+do
+ local h=harness(function(p)
+  p.entitlements.pro_permit=true
+  p.farm.habitats[1].population='100'
+  p.farm.habitats[1].typeIndex=18
+  p.inventory.boosts={
+   jimbos_blue_v2='3',
+   tachyon_prism_blue_v2='2',
+   soul_beacon_blue_v2='1',
+   money_printer='1',
+  }
+ end)
+ h.expect(h.call('activateBoost','jimbos_blue_v2'),'APPLIED')
+ h.expect(h.call('activateBoost','jimbos_blue_v2'),'APPLIED')
+ h.expect(h.call('activateBoost','tachyon_prism_blue_v2'),'APPLIED')
+ h.expect(h.call('activateBoost','tachyon_prism_blue_v2'),'APPLIED')
+ h.expect(h.call('activateBoost','soul_beacon_blue_v2'),'APPLIED')
+ eq(#h.profile().effects.boosts,5,'Pro permit allows 5 active boosts')
+ h.expect(h.call('activateBoost','jimbos_blue_v2'),'REJECTED','MAX_ACTIVE_BOOSTS')
+ eq(h.profile().inventory.boosts.jimbos_blue_v2,'1','6th timed boost rejected without consuming inventory')
+
+ -- With Soul Beacon (5x prestige earnings) active, money_printer (5x FV) adds 5*FV to currentFarmCash and 5*FV*(5-1) = 20*FV to prestigeExtraEarnings
+ local fv=C.BigAmount.decode(h.client:getStore():getFarm().homeFV)
+ h.expect(h.call('activateBoost','money_printer'),'APPLIED')
+ near(C.BigAmount.decode(h.profile().farm.cash),5*fv,'money_printer grants 5x homeFV')
+ near(C.BigAmount.decode(h.profile().accounting.currentFarmCash),5*fv,'currentFarmCash updated by 5x homeFV')
+ near(C.BigAmount.decode(h.profile().accounting.prestigeExtraEarnings),20*fv,'prestigeExtraEarnings updated by 5x homeFV * (5 - 1)')
+ h.client:destroy()
+
+ -- Enlightenment (eggIndex == 18) rejects boost activation with BOOSTS_DISABLED and zero inventory loss
+ local hEnl=harness(function(p)
+  p.farm.eggIndex=18
+  p.inventory.boosts={jimbos_blue_v2='2',blank_check='1'}
+ end)
+ hEnl.expect(hEnl.call('activateBoost','jimbos_blue_v2'),'REJECTED','BOOSTS_DISABLED')
+ hEnl.expect(hEnl.call('activateBoost','blank_check'),'REJECTED','BOOSTS_DISABLED')
+ eq(hEnl.profile().inventory.boosts.jimbos_blue_v2,'2','Enlightenment rejection preserves timed boost inventory')
+ eq(hEnl.profile().inventory.boosts.blank_check,'1','Enlightenment rejection preserves instant cash boost inventory')
+ hEnl.client:destroy()
+end
+
 fs.writeFile('build/game-behavior-results.json',serde.encode('json',{status='PASS_L',assertions=assertions,
  oracle='docs + independent reference JSON + conservation/temporal invariants',studioTested=false,realPurchasesTested=false}))
 print('Game behavior acceptance: '..assertions..' assertions PASS')
