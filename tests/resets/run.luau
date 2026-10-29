@@ -198,13 +198,13 @@ do
 	local p = createTestProfile()
 	-- Farm Value on fresh Edible profile: ~13 732
 	local fv = ProgressActions.calculateProfileFarmValue(p)
-	near(fv, 27464.01358265294, 1e-6, "profile FV on fresh farm matches empty edible reference")
+	near(fv, 54928.02716530588, 1e-6, "profile FV on fresh farm matches empty edible reference")
 
 	-- 3.1 Advance threshold for SUPERFOOD (index 1) is 68,000,000
 	local canAdvance, reason, curFv = ProgressActions.canUpgradeEgg(p, 1)
 	eq(canAdvance, false, "cannot advance to Superfood on fresh farm")
 	eq(reason, "FV_TOO_LOW", "reason is FV_TOO_LOW")
-	near(curFv, 27464.01358265294, 1e-6, "current FV returned")
+	near(curFv, 54928.02716530588, 1e-6, "current FV returned")
 
 	-- 3.2 applyUpgradeEgg rejection when FV is too low
 	local opBadFv = { kind = "UpgradeEgg", operationId = "op-up-1", expectedRevision = "0", args = { targetEggIndex = 1 } }
@@ -801,7 +801,7 @@ do
 			return {
 				eggIndex = 0,
 				cash = "1000",
-				homeFV = "5000000", -- authoritative eligible preview; wallet is not FV
+				homeFV = "250000000", -- authoritative eligible preview; wallet is not FV
 				habitats = { { slotId = 1, population = "250", capacity = "250" } },
 				fleet = { shippingPerMinute = "5000", vehicles = {} },
 				common = {},

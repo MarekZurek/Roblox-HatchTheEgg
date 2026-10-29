@@ -19,7 +19,7 @@ for _, legacy in {false, true} do
  local server = B.new({initialNowMs=10000000})
  local p = S.createReference('1', 10000000)
  p.farm.habitats[1].population='30'
- p.farm.eggIndex=1 -- fixed $1.25 fixture, independent of unrelated first-egg balance edits
+ p.farm.eggIndex=1 -- fixed $3.00 fixture, independent of unrelated first-egg balance edits
  p.permanent.GE='100000'
  p.permanent.totalGESpent='123'
  p.entitlements.double_cash=true -- distinct pass must survive unchanged
@@ -51,8 +51,8 @@ for _, legacy in {false, true} do
  eq(durable.entitlements.double_cash,true,'separate pass preserved')
  server:tick(3)
  local working=server:getCoordinator('1').snapshots().working
- near(C.BigAmount.decode(working.farm.cash),7.5,'30 hens * 1/30 eggs/s * $1.25 * 3s * 2x permanent pass, no timed bonus')
- near(C.BigAmount.decode(working.accounting.currentFarmCash),7.5,'ledger matches cash')
+ near(C.BigAmount.decode(working.farm.cash),18.0,'30 hens * 1/30 eggs/s * $3.00 * 3s * 2x permanent pass, no timed bonus')
+ near(C.BigAmount.decode(working.accounting.currentFarmCash),18.0,'ledger matches cash')
  if legacy then eq(working.effects.videoDoublerEndsAtMs,90000000,'timer retained for compatibility') end
 end
 local hud=fs.readFile('src/client/HUD.luau')

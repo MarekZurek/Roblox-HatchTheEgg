@@ -12,7 +12,7 @@
     {
       "index": 0,
       "name": "EDIBLE",
-      "value": 0.5,
+      "value": 1.0,
       "targetPopulation": 4000,
       "trophySoulEggRewards": [
         2000000,
@@ -46,7 +46,7 @@
     {
       "index": 1,
       "name": "SUPERFOOD",
-      "value": 1.25,
+      "value": 3.0,
       "targetPopulation": 10000,
       "trophySoulEggRewards": [
         1000000,
@@ -80,7 +80,7 @@
     {
       "index": 2,
       "name": "MEDICAL",
-      "value": 6.25,
+      "value": 10.0,
       "targetPopulation": 20000,
       "trophySoulEggRewards": [
         600000,
@@ -114,7 +114,7 @@
     {
       "index": 3,
       "name": "ROCKET FUEL",
-      "value": 30.0,
+      "value": 40.0,
       "targetPopulation": 60000,
       "trophySoulEggRewards": [
         300000,
@@ -148,7 +148,7 @@
     {
       "index": 4,
       "name": "SUPER MATERIAL",
-      "value": 150.0,
+      "value": 160.0,
       "targetPopulation": 150000,
       "trophySoulEggRewards": [
         150000,
@@ -250,7 +250,7 @@
     {
       "index": 7,
       "name": "CRISPR",
-      "value": 12500.0,
+      "value": 15000.0,
       "targetPopulation": 5000000,
       "trophySoulEggRewards": [
         35000,
@@ -284,7 +284,7 @@
     {
       "index": 8,
       "name": "TACHYON",
-      "value": 50000.0,
+      "value": 60000.0,
       "targetPopulation": 20000000,
       "trophySoulEggRewards": [
         25000,
@@ -318,7 +318,7 @@
     {
       "index": 9,
       "name": "GRAVITON",
-      "value": 175000.0,
+      "value": 250000.0,
       "targetPopulation": 80000000,
       "trophySoulEggRewards": [
         10000,
@@ -352,7 +352,7 @@
     {
       "index": 10,
       "name": "DILITHIUM",
-      "value": 525000.0,
+      "value": 1000000.0,
       "targetPopulation": 300000000,
       "trophySoulEggRewards": [
         0,
@@ -386,7 +386,7 @@
     {
       "index": 11,
       "name": "PRODIGY",
-      "value": 1500000.0,
+      "value": 5000000.0,
       "targetPopulation": 1000000000,
       "trophySoulEggRewards": [
         0,
@@ -420,7 +420,7 @@
     {
       "index": 12,
       "name": "TERRAFORM",
-      "value": 10000000.0,
+      "value": 25000000.0,
       "targetPopulation": 5000000000,
       "trophySoulEggRewards": [
         0,
@@ -454,7 +454,7 @@
     {
       "index": 13,
       "name": "ANTIMATTER",
-      "value": 1000000000.0,
+      "value": 2500000000.0,
       "targetPopulation": 25000000000,
       "trophySoulEggRewards": [
         0,
@@ -590,7 +590,7 @@
     {
       "index": 17,
       "name": "UNIVERSE",
-      "value": 100000000000000.0,
+      "value": 150000000000000.0,
       "targetPopulation": 30000000000000,
       "trophySoulEggRewards": [
         0,

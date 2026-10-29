@@ -22,25 +22,25 @@ with open(ROOT / "docs" / "reference_data" / "infrastructure.json", "r", encodin
 TIER_THRESHOLDS = [0, 30, 80, 160, 280, 400, 520, 650, 800, 980, 1185, 1390, 1655]
 
 EGGS = [
-    {"index": 0, "name": "Kurze (Edible)", "value": 0.50, "advanceFV": 0},
-    {"index": 1, "name": "Kacze (Superfood)", "value": 1.25, "advanceFV": 5e6},
-    {"index": 2, "name": "Gęsie (Medical)", "value": 6.25, "advanceFV": 5.3e9},
-    {"index": 3, "name": "Indycze (Rocket Fuel)", "value": 30.0, "advanceFV": 2.4e11},
-    {"index": 4, "name": "Strusie (Super Material)", "value": 150.0, "advanceFV": 1.7e14},
-    {"index": 5, "name": "Pawie (Fusion)", "value": 700.0, "advanceFV": 5e16},
-    {"index": 6, "name": "Pingwinie (Quantum)", "value": 3000.0, "advanceFV": 2.3e19},
-    {"index": 7, "name": "Krucze (Immortal)", "value": 12500.0, "advanceFV": 9.4e22},
-    {"index": 8, "name": "Orle (Tachyon)", "value": 50000.0, "advanceFV": 1.7e26},
-    {"index": 9, "name": "Kazuara (Dilithium)", "value": 175000.0, "advanceFV": 9.8e29},
-    {"index": 10, "name": "Pterodaktyla (Prodigy)", "value": 525000.0, "advanceFV": 4.8e33},
-    {"index": 11, "name": "Raptora (Terraform)", "value": 1.5e6, "advanceFV": 1.6e37},
-    {"index": 12, "name": "Tyranozaura (Antimatter)", "value": 1.0e7, "advanceFV": 2.0e40},
-    {"index": 13, "name": "Gryfa (Dark Matter)", "value": 1.0e9, "advanceFV": 1.3e44},
-    {"index": 14, "name": "Hydry (A.I.)", "value": 1.0e11, "advanceFV": 1.2e48},
-    {"index": 15, "name": "Bazyliszka (Nebula)", "value": 1.0e12, "advanceFV": 3.2e52},
-    {"index": 16, "name": "Feniksa (Universe)", "value": 1.5e13, "advanceFV": 2.0e56},
-    {"index": 17, "name": "Smocze (Enlightenment)", "value": 1.0e14, "advanceFV": 4.0e60},
-    {"index": 18, "name": "Astralny Lewiatan", "value": 1e-7, "advanceFV": 3.6e65},
+    {"index": 0, "name": "Kurze (Edible)", "value": 1.00, "advanceFV": 0},
+    {"index": 1, "name": "Kacze (Superfood)", "value": 3.00, "advanceFV": 2.5e8},
+    {"index": 2, "name": "Gęsie (Medical)", "value": 10.00, "advanceFV": 1.0e10},
+    {"index": 3, "name": "Indycze (Rocket Fuel)", "value": 40.00, "advanceFV": 5.0e11},
+    {"index": 4, "name": "Strusie (Super Material)", "value": 160.00, "advanceFV": 5.0e14},
+    {"index": 5, "name": "Pawie (Fusion)", "value": 700.00, "advanceFV": 1.0e17},
+    {"index": 6, "name": "Pingwinie (Quantum)", "value": 3000.00, "advanceFV": 5.0e19},
+    {"index": 7, "name": "Krucze (Immortal)", "value": 15000.00, "advanceFV": 2.5e23},
+    {"index": 8, "name": "Orle (Tachyon)", "value": 60000.00, "advanceFV": 5.0e26},
+    {"index": 9, "name": "Kazuara (Dilithium)", "value": 250000.00, "advanceFV": 2.5e30},
+    {"index": 10, "name": "Pterodaktyla (Prodigy)", "value": 1000000.00, "advanceFV": 1.0e34},
+    {"index": 11, "name": "Raptora (Terraform)", "value": 5000000.00, "advanceFV": 5.0e37},
+    {"index": 12, "name": "Tyranozaura (Antimatter)", "value": 25000000.00, "advanceFV": 5.0e41},
+    {"index": 13, "name": "Gryfa (Dark Matter)", "value": 2500000000.00, "advanceFV": 2.5e45},
+    {"index": 14, "name": "Hydry (A.I.)", "value": 100000000000.00, "advanceFV": 2.5e49},
+    {"index": 15, "name": "Bazyliszka (Nebula)", "value": 1000000000000.00, "advanceFV": 1.0e53},
+    {"index": 16, "name": "Feniksa (Universe)", "value": 15000000000000.00, "advanceFV": 2.5e57},
+    {"index": 17, "name": "Smocze (Enlightenment)", "value": 150000000000000.00, "advanceFV": 5.0e61},
+    {"index": 18, "name": "Astralny Lewiatan", "value": 1e-7, "advanceFV": 5.0e65},
 ]
 
 HABITATS = INFRA_DATA["habitats"]
@@ -328,6 +328,15 @@ def run_f2p_sim(sessions_per_day=1, active_mins_per_session=20, max_days=35):
 
 if __name__ == "__main__":
     m1, p1, se1 = run_f2p_sim(sessions_per_day=1, active_mins_per_session=20, max_days=35)
+    print("--- 1x 20 min/dzień ---")
+    print(f"Total prestiges: {p1}, SE: {se1:.2e}")
+    for idx in sorted(m1.keys()):
+        print(f"Egg {idx:2d} ({EGGS[idx]['name']:<25}): {m1[idx]['time_desc']}, SE: {m1[idx]['se']:.1f}, FV: {m1[idx]['fv']:.2e}")
+
     m2, p2, se2 = run_f2p_sim(sessions_per_day=2, active_mins_per_session=10, max_days=35)
+    print("\n--- 2x 10 min/dzień ---")
+    print(f"Total prestiges: {p2}, SE: {se2:.2e}")
+    for idx in sorted(m2.keys()):
+        print(f"Egg {idx:2d} ({EGGS[idx]['name']:<25}): {m2[idx]['time_desc']}, SE: {m2[idx]['se']:.1f}, FV: {m2[idx]['fv']:.2e}")
     
-    print("Simulations complete.")
+    print("\nSimulations complete.")

@@ -92,11 +92,11 @@ do
 	local h=harness();seed(h)
 	local s=memory(h.handle.snapshot)
 	local a=T.advance(T.begin(s,h.now+1000,config),100)
-	eq(a.done,true);eq(a.state.farm.cash,10.500000000000002)
-	eq(a.state.accounting.currentFarmCash,100.50000000000001)
+	eq(a.done,true);eq(a.state.farm.cash,11.000000000000002)
+	eq(a.state.accounting.currentFarmCash,100.99999999999999)
 	eq(a.state.accounting.prestigeSessionArchivedCash,200)
 	eq(a.state.accounting.prestigeExtraEarnings,7)
-	eq(a.state.accounting.lastBaseEarnings,300.45000000000005,"manager runs before final 0.1sec production")
+	eq(a.state.accounting.lastBaseEarnings,300.9,"manager runs before final 0.1sec production")
 	local sliced=T.advance(T.begin(s,h.now+1000,config),1)
 	eq(sliced.done,false);eq(sliced.phase,"AFTER_PRODUCTION")
 	local halfway=serde.decode("json",serde.encode("json",T.encodeCheckpoint(sliced)))
@@ -111,7 +111,7 @@ do
 	eq(c.submit(operation("timeline"),{targetMs=h.now+1000,budget=100}).status,"PENDING")
 	eq(c.drain().results[1].status,"APPLIED")
 	local p=h.records[h.handle.key]
-	eq(p.farm.cash,C.BigAmount.encode(10.500000000000002));eq(p.accounting.currentFarmCash,C.BigAmount.encode(100.50000000000001))
+	eq(p.farm.cash,C.BigAmount.encode(11.000000000000002));eq(p.accounting.currentFarmCash,C.BigAmount.encode(100.99999999999999))
 	eq(p.timeline.settledWallThrough,h.now+1000);eq(p.meta.revision,"1")
 	eq(p.operations.timeline.result.accepted,true)
 	local writes=h.updates
@@ -128,7 +128,7 @@ do
 	h.loseResponse=true
 	eq(c.drain().results[1].status,"UNKNOWN");eq(calls,1)
 	eq(c.snapshots().working,nil);eq(c.snapshots().ready,false)
-	eq(h.records[h.handle.key].farm.cash,C.BigAmount.encode(10.500000000000002))
+	eq(h.records[h.handle.key].farm.cash,C.BigAmount.encode(11.000000000000002))
 	eq(h.records[h.handle.key].timeline.settledWallThrough,h.now+1000)
 	eq(c.submit(operation("other","1")).status,"NOT_ACCEPTED")
 	local writes=h.updates
@@ -136,7 +136,7 @@ do
 	h.advance(120000)
 	eq(c.recover("lost").status,"ACQUIRED")
 	eq(c.submit(operation("lost","999")).status,"REPLAYED");eq(calls,1)
-	eq(h.records[h.handle.key].farm.cash,C.BigAmount.encode(10.500000000000002))
+	eq(h.records[h.handle.key].farm.cash,C.BigAmount.encode(11.000000000000002))
 	eq(c.snapshots().queued,0)
 end
 -- A real saved AFTER_PRODUCTION checkpoint resumes under a new lease owner.
@@ -157,7 +157,7 @@ do
 	eq(saved.timeline.settledWallThrough,h.now,"partial state does not advance wall cursor")
 	local cp=T.decodeCheckpoint(saved.timeline.integrationCheckpoint)
 	eq(cp.phase,"AFTER_PRODUCTION");eq(cp.mode,"AWAY");eq(cp.done,false)
-	eq(saved.farm.cash,C.BigAmount.encode(10.075),"exactly one half-rate 0.3sec production phase")
+	eq(saved.farm.cash,C.BigAmount.encode(10.15),"exactly one half-rate 0.3sec production phase")
 	eq(c.release().status,"PENDING");eq(c.drain().results[1].status,"RELEASED")
 	local reopened=h.repo.acquire("1");eq(reopened.status,"ACQUIRED");h.handle=reopened.handle
 	local nextActor=actor(h)

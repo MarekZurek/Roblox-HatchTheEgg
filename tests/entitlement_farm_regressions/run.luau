@@ -98,7 +98,7 @@ for _,committed in {false,true} do
 end
 -- #72: independent closed-form FV. Only the maximum bonus dimension counts,
 -- not current running chickens, clucking growth, pet equipment or active boosts.
-local baseFV=50*1200*(1/30)*.50*(250^.6)
+local baseFV=50*1200*(1/30)*1.00*(250^.6)
 for _,case in {{common={},epic={},cap=0},{common={coordinated_clucking=50},epic={},cap=10},
  {common={coordinated_clucking=50,motivational_clucking=2},epic={},cap=11},
  {common={coordinated_clucking=50},epic={epic_multiplier=3,epic_clucking=10},cap=16}} do
@@ -112,7 +112,7 @@ do
  local h=harness(function(p)p.farm.common.coordinated_clucking=50;p.rewards.numDailyGiftsCollected=3 end)
  local gift=h.cmd('ClaimDailyGift',{},'rcb-calendar')
  eq(gift.status,'APPLIED');near(C.BigAmount.decode(gift.result.amount),baseFV*11^.25*.5,'28-day cash resolver uses corrected FV')
- local p=S.createReference('1',ORIGIN);p.permanent.SE='1000'
+ local p=S.createReference('1',ORIGIN);p.permanent.SE='25000'
  eq(P.canUpgradeEgg(p,1),false);p.farm.common.coordinated_clucking=50
  eq(P.canUpgradeEgg(p,1),true,'existing egg threshold uses max RCB')
 end

@@ -61,7 +61,7 @@ end
 local function expectedFV(se,pe,soulFood,epicMultiplier)
  -- Calendar day 11 grants Epic Multiplier: its cap is +2 per level, so
  -- the documented FV factor is (1 + 2*level)^0.25 on this empty farm.
- return 50*1200*(1+se*(.1+.01*soulFood)*1.05^pe)*(1/30)*.50*250^.6*(1+2*(epicMultiplier or 0))^.25
+ return 50*1200*(1+se*(.1+.01*soulFood)*1.05^pe)*(1/30)*1.00*250^.6*(1+2*(epicMultiplier or 0))^.25
 end
 
 -- Exact uint64, including above 2^53, persists through prestige and old profiles.
@@ -156,7 +156,7 @@ do
  local h=create(function(p)p.rewards.numDailyGiftsCollected=3;p.permanent.SE='1000000000'end)
  local old=C.BigAmount.decode(h.state:getFarm().progress.calendar[4].amount)
  eq(h.command('UpgradeEgg',{targetEggIndex=1}).status,'APPLIED')
- local amount=.5*(50*1800*(1+1000000000*.1)*(1/30)*1.25*250^.6)
+ local amount=.5*(50*1800*(1+1000000000*.1)*(1/30)*3.00*250^.6)
  local r=h.claim();eq(r.status,'APPLIED');near(C.BigAmount.decode(r.result.amount),amount)
  near(C.BigAmount.decode(h.profile().farm.cash),amount);eq(amount>old,true)
 end

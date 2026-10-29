@@ -303,7 +303,7 @@ for _,population in {0,1,30,100,10000} do
  local h=harness(function(p)p.farm.habitats[1].population=tostring(population);p.farm.habitats[1].typeIndex=18 end)
  h.now+=300;h.elapsed+=.3;h.server:tick(.3)
  local working=h.server:getCoordinator('1').snapshots().working
- near(C.BigAmount.decode(working.farm.cash),math.min(population/30,5000/60)*.3*.50,'shipping capped before valuing eggs')
+ near(C.BigAmount.decode(working.farm.cash),math.min(population/30,5000/60)*.3*1.0,'shipping capped before valuing eggs')
  h.client:destroy()
 end
 
@@ -318,7 +318,7 @@ do
  eq(view0.progress.boostInventory.jimbos_blue_v2,'2','initial boost inventory projected')
  eq(#view0.progress.activeBoosts,0,'initially 0 active boosts')
  local baseRate=C.BigAmount.decode(view0.cashIncomePerSecond)
- near(baseRate,0.5,'base income 1 egg/s * 0.50 = 0.50/s')
+ near(baseRate,1.0,'base income 1 egg/s * 1.00 = 1.00/s')
 
  -- Activate jimbos_blue_v2 (3x earnings, 1200s) via HUD button
  local jimbosCard=h.client.hud.shopProductCards['jimbos_blue_v2']
@@ -332,7 +332,7 @@ do
  local view1=h.client:getStore():getFarm()
  eq(view1.progress.boostInventory.jimbos_blue_v2,'1','updated inventory projected')
  eq(#view1.progress.activeBoosts,1,'1 active boost projected')
- near(C.BigAmount.decode(view1.cashIncomePerSecond),1.5,'income rate tripled by 3x Jimbo boost')
+ near(C.BigAmount.decode(view1.cashIncomePerSecond),3.0,'income rate tripled by 3x Jimbo boost')
 
  -- Replay the exact ActivateBoost packet: must not consume another unit or add a second slot
  local activatePacket=nil
@@ -350,7 +350,7 @@ do
  eq(h.profile().inventory.boosts.boost_beacon_blue,'0')
  eq(#h.profile().effects.boosts,2,'2 active boosts on standard permit')
  local view2=h.client:getStore():getFarm()
- near(C.BigAmount.decode(view2.cashIncomePerSecond),3.0,'Jimbo 3x * Beacon 2x = 6x * 0.50 = 3.0/s')
+ near(C.BigAmount.decode(view2.cashIncomePerSecond),6.0,'Jimbo 3x * Beacon 2x = 6x * 1.00 = 6.0/s')
 
  -- 3rd timed boost rejected on standard permit (MAX_ACTIVE_BOOSTS), zero inventory consumed
  h.expect(h.call('activateBoost','jimbos_blue_v2'),'REJECTED','MAX_ACTIVE_BOOSTS')
@@ -375,7 +375,7 @@ do
  local cashPreTick=C.BigAmount.decode(h.profile().farm.cash)
  h.now+=300;h.elapsed+=0.3;h.server:tick(0.3)
  local working=h.server:getCoordinator('1').snapshots().working
- near(C.BigAmount.decode(working.farm.cash),cashPreTick+3.0*0.3,'tick produced 6x boosted cash (3.0/s * 0.3s)')
+ near(C.BigAmount.decode(working.farm.cash),cashPreTick+6.0*0.3,'tick produced 6x boosted cash (6.0/s * 0.3s)')
  near(C.Real64.decode(working.effects.boosts[1].remainingSeconds),1199.7,'Jimbo timer decayed by 0.3s')
 
  -- Advance past Jimbo expiry (1200s total, < 15s steps so budget=100 completes each tick synchronously): after 1200.1s Jimbo expires and is removed, Beacon remains

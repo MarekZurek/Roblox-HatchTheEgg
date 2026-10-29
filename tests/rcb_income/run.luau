@@ -36,7 +36,7 @@ end
 -- ============================================================================
 -- Independent domain inputs (reference data, not the tested income function)
 -- ============================================================================
-local EGG_VALUE = 0.50          -- EDIBLE, egg index 0
+local EGG_VALUE = 1.00          -- EDIBLE, egg index 0
 local LAY_PER_CHICKEN = 1 / 30  -- one egg per chicken per 30 s
 local TRIKE_PER_MINUTE = 5000   -- slot-1 TRIKE shipping capacity (not binding below)
 local POP = 100                 -- fixed settled population for every paired run

@@ -153,14 +153,14 @@ for _,case in {
  local h=harness(function(p)rcbProfile(p,case.n,case.common,case.epic)end)
  local view=h.server:dispatch('1',{protocolVersion=1,kind='Bootstrap',requestId='rcb-view'})
  local multiplier=case.k
- near(C.BigAmount.decode(view.view.farm.cashIncomePerSecond),(5/3)*multiplier,'HUD uses constant research multiplier')
+ near(C.BigAmount.decode(view.view.farm.cashIncomePerSecond),(10/3)*multiplier,'HUD uses constant research multiplier')
  h.step(.3)
- near(C.BigAmount.decode(h.state().farm.cash),.50*multiplier,'step begins with running population')
+ near(C.BigAmount.decode(h.state().farm.cash),1.00*multiplier,'step begins with running population')
  eq(h.state().farm.runningCount,'0','arrival closes running group after production')
  local before=C.BigAmount.decode(h.state().farm.cash)
  h.step(.3)
  local sold=math.min((100+case.n)/30,5000/60)
- near(C.BigAmount.decode(h.state().farm.cash)-before,sold*.50*.3*multiplier,'passive multiplier retained after arrival')
+ near(C.BigAmount.decode(h.state().farm.cash)-before,sold*1.00*.3*multiplier,'passive multiplier retained after arrival')
 end
 -- RCB composes once with existing pets/boosts (legacy VD inert) and the historical earnings event.
 do
@@ -171,7 +171,7 @@ do
   p.effects={videoDoublerEndsAtMs=ORIGIN+1000,boosts={{id='jimbos_blue_v2',remainingSeconds='10'},{id='soul_beacon_blue_v2',remainingSeconds='10'}}}
  end,{{type='earnings',multiplier=3,startTimeMs=ORIGIN,deadlineMs=ORIGIN+100}})
  h.step(.3)
- local income=.50*5*1.5*3*(5/3) -- retired VD has no factor
+ local income=1.00*5*1.5*3*(5/3) -- retired VD has no factor
  near(C.BigAmount.decode(h.state().farm.cash),income,'passive multiplier composed exactly once')
  near(C.BigAmount.decode(h.state().accounting.prestigeExtraEarnings),income*4,'actual earnings feed Soul Beacon accumulator')
 end
@@ -190,14 +190,14 @@ do
  local whole=T.advance(cp,100);local sliced=cp
  while not sliced.done do sliced=T.decodeCheckpoint(serde.decode('json',serde.encode('json',T.encodeCheckpoint(T.advance(sliced,1))))) end
  eq(D.fingerprint(sliced),D.fingerprint(whole),'checkpoint round trips match uninterrupted constant multiplier')
- near(whole.state.farm.cash,.50*5+(110/30)*.50*.3*5)
+ near(whole.state.farm.cash,1.00*5+(110/30)*1.00*.3*5)
  eq(whole.state.farm.runningCount,'0')
  eq(D.fingerprint(T.advance(sliced,10)),D.fingerprint(sliced),'completed checkpoint does not repeat income')
 end
 -- Away settles runners before production and retains the passive research multiplier.
 do
  local h=harness(function(p)rcbProfile(p,10)end);h.step(61)
- near(C.BigAmount.decode(h.state().farm.cash),(110/30)*.50*61*.5*5,'away mode retains passive multiplier')
+ near(C.BigAmount.decode(h.state().farm.cash),(110/30)*1.00*61*.5*5,'away mode retains passive multiplier')
  eq(h.state().farm.runningCount,'0')
 end
 fs.writeFile('build/session-prestige-rcb-results.json',serde.encode('json',{status='PASS',level='L',assertions=assertions,studioTested=false,dataStoreTested=false},true))

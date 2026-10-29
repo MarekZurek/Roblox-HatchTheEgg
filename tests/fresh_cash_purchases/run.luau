@@ -55,25 +55,25 @@ end
 local research={researchId='comfy_nests',mode='single'}
 do
 	local h=harness();h.step(20)
-	near(C.BigAmount.decode(h.state().working.farm.cash),6,'18 hens earn $6 in 20s')
+	near(C.BigAmount.decode(h.state().working.farm.cash),12,'18 hens earn $12 in 20s')
 	eq(h.cash(),0,'income is not checkpointed')
 	local q=h.quote('BuyResearch',research);eq(q.available,true,'quote sees new earnings')
 	local packet=h.packet(q,'spend-earned')
 	local result=h.send(packet)
 	eq(result.status,'APPLIED','spend new earnings without a checkpoint')
-	near(h.cash(),6-0.50260546768497227,'one income credit minus one research cost')
+	near(h.cash(),12-0.50260546768497227,'one income credit minus one research cost')
 	eq(h.records['player:1'].farm.common.comfy_nests,1,'research granted once')
-	near(C.BigAmount.decode(h.records['player:1'].accounting.currentFarmCash),6,'spending does not reduce earned accumulator')
+	near(C.BigAmount.decode(h.records['player:1'].accounting.currentFarmCash),12,'spending does not reduce earned accumulator')
 	local saved=D.fingerprint(h.records['player:1']);local writes=h.writes
 	packet.expectedRevision='999';packet.requestId='retry-new-request'
 	eq(h.send(packet).status,'REPLAYED','old revision returns saved result')
 	eq(h.writes,writes,'replay does not write')
 	eq(D.fingerprint(h.records['player:1']),saved,'replay does not debit or credit again')
 	h.step(10)
-	near(C.BigAmount.decode(h.state().working.farm.cash),6-0.50260546768497227+3.3,'only next 10s accrue at upgraded rate')
+	near(C.BigAmount.decode(h.state().working.farm.cash),12-0.50260546768497227+6.6,'only next 10s accrue at upgraded rate')
 	local _,cp=h.b:checkpointPlayer('1');eq(cp.status,'APPLIED','later checkpoint succeeds')
-	near(h.cash(),6-0.50260546768497227+3.3,'checkpoint cannot replay old income')
-	near(C.BigAmount.decode(h.records['player:1'].accounting.currentFarmCash),9.3,'earned accumulator conserved')
+	near(h.cash(),12-0.50260546768497227+6.6,'checkpoint cannot replay old income')
+	near(C.BigAmount.decode(h.records['player:1'].accounting.currentFarmCash),18.6,'earned accumulator conserved')
 end
 
 local DOMAIN={'farm','accounting','permanent','inventory','effects','timeline','rewards','piggy','entitlements'}
@@ -86,8 +86,8 @@ do
 	local q=h.quote('BuyResearch',research);eq(q.available,true)
 	h.now+=500
 	eq(h.send(h.packet(q,'between-ticks')).status,'APPLIED')
-	near(h.cash(),1.35-C.BigAmount.decode(q.cashCost),'4.5 seconds credited once')
-	near(C.BigAmount.decode(h.records['player:1'].accounting.currentFarmCash),1.35)
+	near(h.cash(),2.7-C.BigAmount.decode(q.cashCost),'4.5 seconds credited once')
+	near(C.BigAmount.decode(h.records['player:1'].accounting.currentFarmCash),2.7)
 	eq(h.records['player:1'].timeline.settledWallThrough,ORIGIN+4500)
 	h.settle()
 	near(C.BigAmount.decode(h.state().working.farm.cash),h.cash(),'same instant cannot produce twice')
@@ -136,9 +136,9 @@ do
 	eq(h.send(p1).status,'APPLIED')
 	local q2=h.quote('BuyResearch',{researchId='nutritional_sup',mode='single'})
 	eq(q2.available,true);local p2=h.packet(q2,'second');eq(h.send(p2).status,'APPLIED')
-	local remaining=6-C.BigAmount.decode(q1.cashCost)-C.BigAmount.decode(q2.cashCost)
+	local remaining=12-C.BigAmount.decode(q1.cashCost)-C.BigAmount.decode(q2.cashCost)
 	near(h.cash(),remaining,'sequential debits conserve total income')
-	near(C.BigAmount.decode(h.records['player:1'].accounting.currentFarmCash),6)
+	near(C.BigAmount.decode(h.records['player:1'].accounting.currentFarmCash),12)
 	local saved=D.copy(h.records['player:1'])
 	local stale=D.copy(p1);stale.operationId='stale-new-id';stale.requestId='stale-request'
 	eq(h.send(stale).result.errorCode,'STALE_REVISION','new intent cannot reuse old revision')
@@ -149,7 +149,7 @@ end
 
 -- A real affordability rejection retains uncheckpointed income and timeline.
 do
-	local h=harness();h.step(1)
+	local h=harness();h.step(0.5)
 	local before=h.state().working
 	local q=h.quote('BuyResearch',research);eq(q.available,false)
 	local packet=h.packet(q,'insufficient');local result=h.send(packet)
@@ -159,12 +159,12 @@ do
 	eq(h.records['player:1'].farm.common.comfy_nests,nil,'no grant on rejection')
 	local _,cp=h.b:checkpointPlayer('1');eq(cp.status,'APPLIED')
 	sameDomain(h.records['player:1'],before,'checkpoint saves rejected purchase progress')
-	h.step(19)
+	h.step(19.5)
 	local fresh=h.quote('BuyResearch',research);eq(fresh.available,true)
 	eq(h.send(h.packet(fresh,'new-decision')).status,'APPLIED')
-	near(h.cash(),6-C.BigAmount.decode(fresh.cashCost),'new decision spends once')
+	near(h.cash(),12-C.BigAmount.decode(fresh.cashCost),'new decision spends once')
 	eq(h.send(packet).status,'REPLAYED','old rejection cannot turn into a charge')
-	near(h.cash(),6-C.BigAmount.decode(fresh.cashCost))
+	near(h.cash(),12-C.BigAmount.decode(fresh.cashCost))
 end
 
 -- UpdateAsync-style callback repeats rebase from the durable input each time.
@@ -174,8 +174,8 @@ for _,fault in {'retryCallback','retryAfterCommit'} do
 	h[fault]=true
 	local result=h.send(packet)
 	eq(result.status,if fault=='retryAfterCommit' then 'REPLAYED' else 'APPLIED',fault)
-	near(h.cash(),6-C.BigAmount.decode(q.cashCost),'retry has one credit and debit')
-	near(C.BigAmount.decode(h.records['player:1'].accounting.currentFarmCash),6)
+	near(h.cash(),12-C.BigAmount.decode(q.cashCost),'retry has one credit and debit')
+	near(C.BigAmount.decode(h.records['player:1'].accounting.currentFarmCash),12)
 	eq(h.records['player:1'].farm.common.comfy_nests,1)
 	eq(h.state().durable.farm.cash,h.records['player:1'].farm.cash,'actor adopts confirmed callback result')
 end
@@ -185,7 +185,7 @@ do
 	local h=harness();h.step(20)
 	local q=h.quote('BuyResearch',research);local packet=h.packet(q,'lost-ack')
 	h.loseAck=true;eq(h.send(packet).status,'UNKNOWN')
-	local saved=D.copy(h.records['player:1']);near(h.cash(),6-C.BigAmount.decode(q.cashCost))
+	local saved=D.copy(h.records['player:1']);near(h.cash(),12-C.BigAmount.decode(q.cashCost))
 	eq(h.state().working,nil,'unconfirmed state is hidden')
 	local actor=h.b:getCoordinator('1')
 	eq(actor.query('lost-ack').status,'REPLAYED','query finds committed result')
@@ -217,11 +217,11 @@ for _,fault in {'failBefore','defer'} do
 	eq(h.cash(),0,'late callback cannot write after fence')
 	eq(h.records['player:1'].farm.common.comfy_nests,nil,'no late grant')
 	h.settle()
-	near(C.BigAmount.decode(h.state().working.farm.cash),42,'140s recomputed once from saved boundary')
+	near(C.BigAmount.decode(h.state().working.farm.cash),84,'140s recomputed once from saved boundary')
 	local fresh=h.quote('BuyResearch',research)
 	eq(h.send(h.packet(fresh,'explicit-new-'..fault)).status,'APPLIED')
-	near(h.cash(),42-C.BigAmount.decode(fresh.cashCost),'recovery saves time and charge once')
-	near(C.BigAmount.decode(h.records['player:1'].accounting.currentFarmCash),42)
+	near(h.cash(),84-C.BigAmount.decode(fresh.cashCost),'recovery saves time and charge once')
+	near(C.BigAmount.decode(h.records['player:1'].accounting.currentFarmCash),84)
 	eq(h.records['player:1'].timeline.settledWallThrough,h.now,'saved simulation cursor advances once')
 end
 

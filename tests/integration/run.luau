@@ -240,8 +240,8 @@ do
 	local cashAfter = BigAmount.decode(sPostTick.working.farm.cash)
 	local revAfter = BigAmount.decode(sPostTick.working.accounting.currentFarmCash)
 
-	local expectedIncome = 10 * (1.1 / 30) * 0.50
-	local baseIncome = 10 * (1.0 / 30) * 0.50
+	local expectedIncome = 10 * (1.1 / 30) * 1.00
+	local baseIncome = 10 * (1.0 / 30) * 1.00
 	approxEq(revAfter - revBefore, expectedIncome, 1e-4, "Earned production with comfy_nests level 1")
 	approxEq(cashAfter - cashBefore, expectedIncome, 1e-4, "Wallet increased by comfy_nests level 1 production")
 	ok(revAfter - revBefore > baseIncome, "Production rate is strictly greater than base level 0 rate")

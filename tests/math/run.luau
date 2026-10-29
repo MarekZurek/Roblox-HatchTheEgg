@@ -14,11 +14,11 @@ end
 local function reject(fn) assertions += 1; eq(pcall(fn), false) end
 local n = M.research({})
 eq(n.commonPoints,0);eq(n.refillPerSecond,3);eq(n.hatcheryCapacity,250)
-eq(n.internalHatcheryPerHabPerMinute,0);eq(n.eggValue,0.50);eq(n.layingPerChickenPerSecond,1/30)
+eq(n.internalHatcheryPerHabPerMinute,0);eq(n.eggValue,1.0);eq(n.layingPerChickenPerSecond,1/30)
 -- Independent per-level formulas from the seven documented reference dimensions.
 local rules = {
 	comfy_nests={50,"layingPerChickenPerSecond",function(l) return (1+0.1*l)/30 end},
-	nutritional_sup={40,"eggValue",function(l) return 0.50*(1+0.25*l) end},
+	nutritional_sup={40,"eggValue",function(l) return 1.0*(1+0.25*l) end},
 	better_incubators={15,"refillPerSecond",function(l) return 3*(1+0.1*l) end},
 	hab_capacity1={8,"habCapacityMult",function(l) return 1+0.05*l end},
 	internal_hatchery1={10,"internalHatcheryPerHabPerMinute",function(l) return 2*l end},
@@ -58,7 +58,7 @@ reject(function() M.tierUnlocked({},13) end)
 local rMultiLay = M.research({comfy_nests = 1, hen_house_ac = 1})
 near(rMultiLay.layingPerChickenPerSecond, (1.1 * 1.05) / 30)
 local rMultiVal = M.research({nutritional_sup = 1, bigger_eggs = 1})
-near(rMultiVal.eggValue, 0.50 * (1.25 * 2.0))
+near(rMultiVal.eggValue, 1.0 * (1.25 * 2.0))
 local rFleet = M.research({vehicle_reliablity = 1})
 eq(rFleet.maxFleetSize, 5)
 near(M.shippingPerSecond({vehicle_reliablity = 1}, {0, 0, 0, 0, 0}), (5000 * 5) / 60)
@@ -72,15 +72,15 @@ eq(M.shippingPerSecond({},{}),0)
 local state={commonLevels={},habitatTypes={0,false,false,false},settledPopulation={"100","0","0","0"},vehicleTypes={0},rcbMultiplier=1}
 local before=serde.encode("json",state)
 local step=M.productionStep(state,0.3)
-near(step.producedEggs,1);near(step.soldEggs,1);near(step.cashIncome,0.50)
+near(step.producedEggs,1);near(step.soldEggs,1);near(step.cashIncome,1.0)
 eq(step.usedSettledPopulation,100);eq(step.populationConversion,"EXACT_SAFE_INTEGER")
 eq(serde.encode("json",state),before)
 state.reservedInTransit={"150","0","0","0"}
-near(M.productionStep(state,0.3).cashIncome,0.50) -- in-flight does not lay eggs
-state.rcbMultiplier=5;near(M.productionStep(state,0.3).cashIncome,2.50)
+near(M.productionStep(state,0.3).cashIncome,1.0) -- in-flight does not lay eggs
+state.rcbMultiplier=5;near(M.productionStep(state,0.3).cashIncome,5.0)
 state.commonLevels={comfy_nests=50};state.habitatTypes={1,1,1,1};state.settledPopulation={"500","500","500","500"}
 step=M.productionStep(state,0.3)
-near(step.producedEggs,120);near(step.soldEggs,25);near(step.cashIncome,62.50)
+near(step.producedEggs,120);near(step.soldEggs,25);near(step.cashIncome,125.0)
 state.vehicleTypes={};eq(M.productionStep(state,0.3).soldEggs,0)
 eq(M.productionStep(state,0).cashIncome,0)
 state.vehicleTypes={0};state.rcbMultiplier=1
@@ -88,7 +88,7 @@ state.vehicleTypes={0};state.rcbMultiplier=1
 local edgeDt=0.29999999999999993
 step=M.productionStep(state,edgeDt)
 eq(step.soldEggs,(5000/60)*edgeDt)
-eq(step.cashIncome,((5000/60)*edgeDt)*0.50)
+eq(step.cashIncome,((5000/60)*edgeDt)*1.0)
 for _,bad in {-1,math.huge,0/0,0.30000000000000004} do reject(function() M.productionStep(state,bad) end) end
 state.settledPopulation[1]="501";reject(function() M.productionStep(state,0.3) end)
 state.settledPopulation[1]="9007199254740992";reject(function() M.productionStep(state,0.3) end)
