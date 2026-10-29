@@ -20,6 +20,8 @@ local Availability = resolve(function()
  return game:GetService("ReplicatedStorage").HatchTheEgg.Shared.FeatureAvailability
 end, "../shared/FeatureAvailability")
 
+local EpicPurchases = resolve(function() return script.Parent.EpicPurchases end,"./EpicPurchases")
+local EpicPricing = resolve(function() return game:GetService("ReplicatedStorage").HatchTheEgg.Shared.EpicPricing end,"../shared/EpicPricing")
 local NumericCodec = resolve(function()
 	return game:GetService("ReplicatedStorage").HatchTheEgg.Shared.NumericCodec
 end, "../shared/NumericCodec")
@@ -288,6 +290,13 @@ ServerBootstrap.__index = ServerBootstrap
 
 function ServerBootstrap.new(deps)
 	deps = deps or {}
+	local configuredIds={}
+	for key,spec in deps.platformProducts or {} do
+		if type(spec)=="table" and type(spec.platformId)=="number" and spec.platformId>0 then
+			assert(not configuredIds[spec.platformId],"DUPLICATE_PLATFORM_PRODUCT")
+			configuredIds[spec.platformId]=key
+		end
+	end
 	local storageMode = deps.storageMode or (if isStudio then "PERSISTENT" else "INTERNAL_TEST_ONLY")
 	assert(storageMode == "PERSISTENT" or storageMode == "STUDIO_MEMORY" or storageMode == "INTERNAL_TEST_ONLY", "INVALID_STORAGE_MODE")
 	if storageMode == "PERSISTENT" then
@@ -315,6 +324,7 @@ function ServerBootstrap.new(deps)
 	local configRevision = deps.configRevision or "first-farm-neutral:1"
 
 	local viewProjector = deps.viewProjector or ViewProjector.new({
+  epicProducts = if storageMode=="STUDIO_MEMORY" then {} else deps.platformProducts or {},
   paidRandomAllowed = deps.paidRandomAllowed,
   liveEvents = deps.liveEvents or {},
 		codec = codec,
@@ -689,7 +699,7 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
         if not self.purchasesEnabled and (op.kind=="PurchaseProduct" or op.kind=="PlatformPurchase" or op.kind=="ConfirmPurchase" or op.kind=="GrantEntitlement") then
             return {profile=candidateProfile,terminalStatus="REJECTED",result={errorCode="LOCAL_PAYMENTS_DISABLED"},validate=function()return false,"LOCAL_PAYMENTS_DISABLED" end}
         end
-        local connected={ClaimDailyGift=true,ClaimTrophy=true,FusePets=true,BuyBoost=true,PurchaseProduct=true,BuyEpicResearch=true}
+        local connected={ClaimDailyGift=true,ClaimTrophy=true,FusePets=true,BuyBoost=true,PurchaseProduct=true,BuyEpicResearch=true,BuyEpicRobux=true}
         if connected[op.kind] then
             local draft=self.data.copy(candidateProfile)
             local args=op.args or {}
@@ -752,6 +762,13 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
                         ok=true
                     end
                 end
+            elseif op.kind=="BuyEpicRobux" then
+                if not self.purchasesEnabled then code="LOCAL_PAYMENTS_DISABLED"
+                else
+                    local prepared,preview=EpicPurchases.prepare(draft,args.researchId,self.catalog,self.platformProducts)
+                    ok=prepared
+                    if ok then for k,v in preview do result[k]=v end else code=preview end
+                end
             elseif op.kind=="PurchaseProduct" then
                 local spec=self.platformProducts[args.productId]
                 if spec and type(spec.platformId)=="number" and spec.platformId>0 and spec.platformId%1==0 and spec.platformId<=9007199254740991 then
@@ -790,7 +807,7 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
                     if curLvl >= row.maxLevel then
                         code = "MAX_LEVEL"
                     else
-                        local priceNum = row.prices[curLvl + 1]
+                        local priceNum = EpicPricing.ge(row.prices[curLvl + 1])
                         local costGE = self.codec.ExactUInt.fromSafeNumber(priceNum)
                         local currentGE = self.codec.ExactUInt.decode(draft.permanent.GE or "0")
                         if self.codec.ExactUInt.compare(currentGE, costGE) < 0 then
@@ -840,7 +857,15 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 			local receiptInfo = op.args and op.args.receiptInfo
 			local nowMs = self.clock.utcNowMs()
 			local isPiggyEnabled = (self.config and self.config.isPiggyEnabled ~= false)
-			local ok, res = Products.confirmPurchase(candidateProfile, pToken, receiptInfo, nowMs, isPiggyEnabled,{paidRandomAllowed=Products.readPaidRandomPolicy(self.paidRandomAllowed,playerId)})
+			local epicProduct=false
+			for _,id in EpicPricing.productIds do if receiptInfo and self.platformProducts[id] and self.platformProducts[id].platformId==receiptInfo.ProductId then epicProduct=true end end
+			local ok,res
+			if epicProduct then
+				ok,res=EpicPurchases.receive(candidateProfile,pToken,receiptInfo,self.platformProducts,nowMs)
+				if not ok then res={error=res} end
+			else
+				ok,res=Products.confirmPurchase(candidateProfile, pToken, receiptInfo, nowMs, isPiggyEnabled,{paidRandomAllowed=Products.readPaidRandomPolicy(self.paidRandomAllowed,playerId)})
+			end
 			return {
 				profile = candidateProfile,
 				result = res,

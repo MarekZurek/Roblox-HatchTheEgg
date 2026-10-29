@@ -38,6 +38,8 @@ local Availability = resolveModule(function()
  return game:GetService("ReplicatedStorage").HatchTheEgg.Shared.FeatureAvailability
 end, "../shared/FeatureAvailability")
 
+local EpicPricing = resolveModule(function() return game:GetService("ReplicatedStorage").HatchTheEgg.Shared.EpicPricing end, "../shared/EpicPricing")
+
 local StudUi = resolveModule(function()
 	return script.Parent.ui.StudUi
 end, "./ui/StudUi")
@@ -677,12 +679,12 @@ local EPIC_RESEARCH_CATALOG = table.freeze({
 })
 
 local BOOSTS_CATALOG = table.freeze({
-	{ id = "jimbos_blue_v2", name = "Pasza Jimbosa (3x)", priceGE = 50, duration = "20 min", effect = "3x Dochód" },
-	{ id = "jimbos_purple_v2", name = "Pasza Premium (10x)", priceGE = 150, duration = "15 min", effect = "10x Dochód" },
-	{ id = "jimbos_orange", name = "Najlepsza Pasza (50x)", priceGE = 2500, duration = "10 min", effect = "50x Dochód" },
-	{ id = "tachyon_prism_blue_v2", name = "Pryzmat Tachionowy", priceGE = 50, duration = "10 min", effect = "10x Wylęg" },
-	{ id = "tachyon_prism_blue_big", name = "Wielki Pryzmat", priceGE = 500, duration = "4 godz", effect = "10x Wylęg" },
-	{ id = "soul_beacon", name = "Latarnia Prestiżu", priceGE = 1000, duration = "30 min", effect = "5x Kryształów Prestiżu" },
+	{ id = "jimbos_blue_v2", name = "Worek Złotego Ziarna (3x)", priceGE = 50, duration = "20 min", effect = "3x Dochód" },
+	{ id = "jimbos_purple_v2", name = "Karmnik Obfitości (10x)", priceGE = 150, duration = "15 min", effect = "10x Dochód" },
+	{ id = "jimbos_orange", name = "Eliksir Złotego Ziarna (50x)", priceGE = 2500, duration = "10 min", effect = "50x Dochód" },
+	{ id = "tachyon_prism_blue_v2", name = "Cieplarka Promiennikowa", priceGE = 50, duration = "10 min", effect = "10x Wylęg" },
+	{ id = "tachyon_prism_blue_big", name = "Inkubator Przemysłowy", priceGE = 500, duration = "4 godz", effect = "10x Wylęg" },
+	{ id = "soul_beacon", name = "Mistyczny Rezonator", priceGE = 1000, duration = "30 min", effect = "5x Kryształów Prestiżu" },
 	{ id = "blank_check", name = "Zastrzyk Gotówki", priceGE = 750, duration = "Natychmiast", effect = "Zastrzyk Gotówki" },
 	{ id = "money_printer", name = "Wielki Zastrzyk Gotówki", priceGE = 2500, duration = "Natychmiast", effect = "Wielki Zastrzyk Gotówki" },
 })
@@ -695,7 +697,7 @@ local SHOP_PRODUCTS_CATALOG = table.freeze({
 		id = "pro_permit",
 		name = "Przepustka PRO",
 		kind = "gamepass",
-		desc = "Stała Przepustka PRO: 10 silosów (do 24h działania offline z badaniami), 5 aktywnych boostów i +10 p.p. szansy fuzji petów.",
+		desc = "Stała Przepustka PRO: 18h działania offline (zamiast 6h), 5 aktywnych boostów i +10 p.p. szansy fuzji petów.",
 		notice = "*Uwaga: Zgodnie z regulacjami dotyczącymi płatnych losowych mechanik, bonus +10 p.p. do fuzji jest dostępny tylko w uprawnionych regionach.",
 	},
 	auto_hatch = {
@@ -2330,7 +2332,7 @@ function HUD:_buildEpicResearchModal(root)
 		name = "EpicResearchModalFrame",
 		family = "shop",
 		title = "BADANIA EPICKIE",
-		subtitle = "Trwałe ulepszenia całej farmy za Diamenty",
+		subtitle = "Diamenty lub Robux. *Cena końcowa w oknie Roblox.",
 		designWidth = 920,
 		designHeight = 640,
 	})
@@ -2432,9 +2434,9 @@ function HUD:_buildEpicResearchModal(root)
 
 		local buyBtn = self.ui:button(card, {
 			name = "BuyEpicButton",
-			text = if UNSUPPORTED_EPIC_RESEARCH[item.id] then "WKRÓTCE" else formatCompact(item.basePriceGE) .. " 💎",
+			text = if UNSUPPORTED_EPIC_RESEARCH[item.id] then "WKRÓTCE" else formatCompact(EpicPricing.ge(item.basePriceGE)) .. " 💎",
 			tone = if UNSUPPORTED_EPIC_RESEARCH[item.id] then "ghost" else "primary",
-			size = { 0.36, 0, 0, 48 },
+			size = { 0.17, 0, 0, 48 },
 			position = { 0.60, 0, 0, 18 },
 			onClick = function()
 				if UNSUPPORTED_EPIC_RESEARCH[item.id] then return end
@@ -2452,7 +2454,9 @@ function HUD:_buildEpicResearchModal(root)
 			position = { 0.79, 0, 0, 18 },
 			visible = false,
 			onClick = function()
-				return -- Epic Robux unavailable; no purchasable quote exists
+				if UNSUPPORTED_EPIC_RESEARCH[item.id] then return end
+                local offer=self._epicRobuxOffers and self._epicRobuxOffers[item.id]
+                if offer and offer.configured and type(self.onBuyEpicRobux)=="function" then self.onBuyEpicRobux(item.id) end
 			end,
 		})
 
@@ -2839,7 +2843,7 @@ function HUD:_buildShopProducts(container)
 		},
 		{
 			spec = SHOP_PRODUCTS_CATALOG.pro_permit,
-			badge = "[👑 VIP (STAŁA PRZEPUSTKA 10 SILOSÓW & 5 BOOSTÓW)]",
+			badge = "[👑 VIP (18H OFFLINE & 5 BOOSTÓW)]",
 			badgeColor = { 255, 175, 245 },
 			isFeatured = true,
 		},
@@ -4186,10 +4190,17 @@ function HUD:_updateVehiclesModal(farm)
 				local vCap = if vIdx~=nil then VEHICLE_CAPACITIES[vIdx] or 0 else 0
 				slotData.titleLabel.Text = string.format("Slot #%d: %s", slotId, vName)
 				slotData.capLabel.Text = string.format("Wydajność: %s jaj/min", formatCompact(vCap))
-				slotData.upgBtn.Text = if upgrade then HUD.formatCash(upgrade.price) elseif vIdx==11 then "MAX" else "…"
-				slotData.priceLabel.Text = if upgrade then "Następny pojazd" elseif vIdx==11 then "" else "Dane z serwera"
-				slotData.upgBtn.Active = upgrade~=nil and upgrade.available
-				if isRoblox then slotData.upgBtn.BackgroundColor3 = Color3.fromRGB(95, 235, 45) end
+				if upgrade and upgrade.blockedReason == "HYPERLOOP_LOCKED" then
+					slotData.upgBtn.Text = "WKRÓTCE"
+					slotData.priceLabel.Text = "EGG TO THE MOON 🚀"
+					slotData.upgBtn.Active = false
+					if isRoblox then slotData.upgBtn.BackgroundColor3 = Color3.fromRGB(120, 120, 120) end
+				else
+					slotData.upgBtn.Text = if upgrade then HUD.formatCash(upgrade.price) elseif vIdx==11 then "MAX" else "…"
+					slotData.priceLabel.Text = if upgrade then "Następny pojazd" elseif vIdx==11 then "" else "Dane z serwera"
+					slotData.upgBtn.Active = upgrade~=nil and upgrade.available
+					if isRoblox then slotData.upgBtn.BackgroundColor3 = if (upgrade and upgrade.available) then Color3.fromRGB(95, 235, 45) else Color3.fromRGB(120, 120, 120) end
+				end
 			else
 				slotData.titleLabel.Text = string.format("Slot #%d: Zablokowany", slotId)
 				slotData.capLabel.Text = "Dodatkowe miejsce floty"
@@ -4547,6 +4558,8 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 end
 
 function HUD:_updateEpicResearchModal(farm)
+    self._epicRobuxOffers={}
+    for _,offer in (farm and farm.progress and farm.progress.epicRobuxOffers) or {} do self._epicRobuxOffers[offer.researchId]=offer end
 	if not self.epicResearchModal or not farm then return end
 
 	local p = farm.progress
@@ -4584,8 +4597,11 @@ function HUD:_updateEpicResearchModal(farm)
 				cardData.fill.Size = UDim2.new(fraction, 0, 1, 0)
 			end
 
-			if cardData.buyRobuxBtn and isRoblox and typeof(cardData.buyRobuxBtn) == "Instance" then
-				cardData.buyRobuxBtn.Visible = false
+			if cardData.buyRobuxBtn then
+				local offer=self._epicRobuxOffers[item.id]
+                cardData.buyRobuxBtn.Visible = not UNSUPPORTED_EPIC_RESEARCH[item.id] and curLvl<maxLvl
+                cardData.buyRobuxBtn.Active = offer~=nil and offer.configured
+                cardData.buyRobuxBtn.Text = if not offer or not offer.configured then "WKRÓTCE" elseif offer.credits~="0" then "UŻYJ" else tostring(offer.nominalPriceRobux).." R$*"
 			end
 
 			if UNSUPPORTED_EPIC_RESEARCH[item.id] then
@@ -4618,7 +4634,7 @@ function HUD:_updateEpicResearchModal(farm)
 					end
 				end
 			else
-				local nextPrice = (item.prices and item.prices[curLvl + 1]) or item.basePriceGE
+				local nextPrice = EpicPricing.ge((item.prices and item.prices[curLvl + 1]) or item.basePriceGE)
 				if cardData.lvlLabel then
 					cardData.lvlLabel.Text = "Poziom: " .. tostring(curLvl) .. " / " .. tostring(maxLvl)
 				end
@@ -4631,8 +4647,6 @@ function HUD:_updateEpicResearchModal(farm)
 					end
 				end
 				if cardData.buyRobuxBtn then
-					cardData.buyRobuxBtn.Text = "WKRÓTCE"
-					cardData.buyRobuxBtn.Active = false
 					if isRoblox then
 						cardData.buyRobuxBtn.BackgroundColor3 = Color3.fromRGB(245, 158, 11)
 					end
@@ -4769,7 +4783,7 @@ function HUD:onQuoteReceived(quoteView)
 				local reason = quoteView.blockedReason or "LOCKED"
 				item.statusLabel.Text = reason
 				if item.actionLabel then
-					item.actionLabel.Text = if reason == "INSUFFICIENT_CASH" then "ZA MAŁO $" elseif reason == "MAX_LEVEL" then "MAKS. POZ." elseif reason == "TIER_LOCKED" then "ZABLOKOWANE" elseif reason == "HYPERLOOP_LOCKED" then "WKRÓTCE (v1.1)" else reason
+					item.actionLabel.Text = if reason == "INSUFFICIENT_CASH" then "ZA MAŁO $" elseif reason == "MAX_LEVEL" then "MAKS. POZ." elseif reason == "TIER_LOCKED" then "ZABLOKOWANE" elseif reason == "HYPERLOOP_LOCKED" then "WKRÓTCE: EGG TO THE MOON 🚀" else reason
 					if reason == "INSUFFICIENT_CASH" then
 						item.actionLabel.Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil
 						item.actionLabel.Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil

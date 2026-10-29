@@ -180,7 +180,7 @@ do
 	assertTrue(fs.isFile(mappingPath), "Rojo mapping results file exists")
 	local mapping = serde.decode("json", fs.readFile(mappingPath))
 	assertEq(mapping.status, "PASS_STATIC_BUILD", "Rojo build status is PASS_STATIC_BUILD")
-	assertEq(#mapping.modules, 43, "43 modules including server GiftDrops")
+	assertEq(#mapping.modules, 45, "45 modules including EpicPricing and server EpicPurchases")
 	assertFalse(mapping.runtimeReplicationTested, "Static build does not falsely claim runtime replication")
 	assertFalse(mapping.studioTested, "Static build does not falsely claim studio run")
 end
@@ -409,7 +409,7 @@ local offlineState = {
 local cp = sim.begin(offlineState, t + 7200000, { revision = "neutral:1", siloCapacityLevel = 0, pro = true })
 local done = sim.advance(cp, 100000)
 assertEq(done.mode, "AWAY", "Timeline simulated in AWAY mode")
-assertEq(done.productionSeconds, 3600, "Offline production strictly capped at 3600s by 1 silo")
+assertEq(done.productionSeconds, 7200, "Offline production simulates 7200s within 18h Pro cap")
 
 -- Reconnect: Reconcile Tutorial
 local recStep = OnboardingManager.reconcileTutorialStep(p)

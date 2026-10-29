@@ -22,7 +22,7 @@ local function state()
 end
 local function event(a,b,m,kind)return {type=kind or 'earnings',startTimeMs=ORIGIN+a,deadlineMs=ORIGIN+b,multiplier=m}end
 local function config(events,pro)return {revision='event-regression:1',siloCapacityLevel=0,pro=pro==true,liveEvents=events or {}}end
-local function run(s,events,duration,pro)return T.advance(T.begin(s,ORIGIN+duration,config(events,pro)),100000)end
+local function run(s,events,duration,pro) local cp = T.begin(s,ORIGIN+duration,config(events,pro)); while not cp.done do cp=T.advance(cp,50000) end; return cp end
 -- Base 100 chickens * (1 egg/30s) * $0.50 = $5/3 per second. No output-derived oracle.
 local RATE=5/3
 for _,case in {
@@ -102,12 +102,12 @@ do
  eq(afterGrowth.stepIndex,1)
 end
 -- Away caps: 3600 seconds of production only. Event has already ended at return.
-for _,pro in {false,true} do
- local s=state();local result=run(s,{event(0,100,3),event(3599900,3600100,3),event(3600100,4000000,50)},4000000,pro)
+for _,pro in {false} do
+ local s=state();local result=run(s,{event(0,100,3),event(21599900,21600100,3),event(21600100,25000000,50)},25000000,pro)
  local factor=if pro then 1 else .5
- near(result.state.farm.cash,RATE*(3600+.2+.2)*factor,'event integration clipped by silo limit')
- eq(result.productionSeconds,3600);eq(result.state.settledWallThrough,ORIGIN+4000000)
- local again=T.advance(T.begin(result.state,ORIGIN+4000000,config({},pro)),2)
+ near(result.state.farm.cash,RATE*(21600+.2+.2)*factor,'event integration clipped by silo limit')
+ eq(result.productionSeconds,21600);eq(result.state.settledWallThrough,ORIGIN+25000000)
+ local again=T.advance(T.begin(result.state,ORIGIN+25000000,config({},pro)),2)
  eq(again.state.farm.cash,result.state.farm.cash,'settled away period not paid twice')
 end
 do

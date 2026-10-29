@@ -160,7 +160,7 @@ do
 	local joinRes, joinErr = server:playerJoined("101", initialFixture)
 	ok(joinRes ~= nil, "playerJoined succeeded: " .. tostring(joinErr))
 
-	-- Buy hold_to_hatch (Lvl 1 cost is 10 GE)
+	-- R2026-10-28: hold_to_hatch first level now costs ceil(10/2)=5 GE.
 	local buyPacket = {
 		protocolVersion = 1,
 		requestId = "req-b-1",
@@ -176,12 +176,12 @@ do
 	eq(res.result.success, true, "success is true")
 	eq(res.result.researchId, "hold_to_hatch", "researchId is hold_to_hatch")
 	eq(res.result.level, 1, "level is 1")
-	eq(res.result.costGE, "10", "costGE is 10")
+	eq(res.result.costGE, "5", "R2026-10-28: ceil(10/2)=5 GE")
 
 	local coord = server:getCoordinator("101")
 	local durable = coord.snapshots().durable
-	eq(durable.permanent.GE, "990", "GE correctly deducted (1000 - 10 = 990)")
-	eq(durable.permanent.totalGESpent, "10", "totalGESpent correctly incremented to 10")
+	eq(durable.permanent.GE, "995", "1000 - 5 = 995 GE")
+	eq(durable.permanent.totalGESpent, "5", "5 GE spent")
 	eq(durable.permanent.epic.hold_to_hatch, 1, "epic level for hold_to_hatch is 1")
 
 	server:playerLeaving("101")
@@ -219,7 +219,7 @@ do
 	})
 	eq(res1.status, "APPLIED")
 	eq(res1.result.level, 1)
-	eq(res1.result.costGE, "10")
+	eq(res1.result.costGE, "5")
 
 	-- Purchase 2
 	local coord = server:getCoordinator("102")
@@ -230,7 +230,7 @@ do
 	})
 	eq(res2.status, "APPLIED")
 	eq(res2.result.level, 2)
-	eq(res2.result.costGE, "45")
+	eq(res2.result.costGE, "23")
 
 	-- Purchase 3
 	local rev2 = coord.snapshots().durable.meta.revision
@@ -240,12 +240,12 @@ do
 	})
 	eq(res3.status, "APPLIED")
 	eq(res3.result.level, 3)
-	eq(res3.result.costGE, "80")
+	eq(res3.result.costGE, "40")
 
 	local profile = coord.snapshots().durable
 	eq(profile.permanent.epic.hold_to_hatch, 3, "Final level is 3")
-	eq(profile.permanent.GE, tostring(5000 - 10 - 45 - 80), "Balance after 3 upgrades: 4865")
-	eq(profile.permanent.totalGESpent, tostring(10 + 45 + 80), "Total spent: 135")
+	eq(profile.permanent.GE, tostring(5000 - 5 - 23 - 40), "Balance after 3 upgrades: 4932")
+	eq(profile.permanent.totalGESpent, tostring(5 + 23 + 40), "Total spent: 68")
 
 	server:playerLeaving("102")
 end
@@ -259,7 +259,7 @@ do
 	local mockClock = { utcNowMs = function() return nowMs end, elapsedNowSeconds = function() return 0 end }
 	local server = ServerBootstrap.new({ clock = mockClock, initialNowMs = nowMs })
 	local fixture = ProfileSchema.createReference("103", nowMs)
-	fixture.permanent.GE = "5" -- hold_to_hatch costs 10
+	fixture.permanent.GE = "4" -- approved hold_to_hatch first level costs 5
 	fixture.permanent.totalGESpent = "0"
 	fixture.permanent.epic = {}
 	server:playerJoined("103", fixture)
@@ -273,7 +273,7 @@ do
 
 	local coord = server:getCoordinator("103")
 	local durable = coord.snapshots().durable
-	eq(durable.permanent.GE, "5", "GE balance unchanged after rejection")
+	eq(durable.permanent.GE, "4", "GE balance unchanged after rejection")
 	eq(durable.permanent.totalGESpent, "0", "totalGESpent unchanged after rejection")
 	eq(durable.permanent.epic.hold_to_hatch, nil, "epic research level not set")
 
@@ -364,7 +364,7 @@ do
 
 	local coord = server:getCoordinator("106")
 	local geAfterFirst = coord.snapshots().durable.permanent.GE
-	eq(geAfterFirst, "990", "GE is 990 after first purchase")
+	eq(geAfterFirst, "995", "GE is 995 after first purchase")
 
 	-- Replay: exactly the same operationId submitted again
 	local replayRes = server:dispatch("106", packet)
@@ -372,12 +372,12 @@ do
 	eq(replayRes.result.terminalStatus, "APPLIED", "terminalStatus in result is APPLIED")
 	eq(replayRes.result.actionKind, "BuyEpicResearch", "actionKind in result is BuyEpicResearch")
 	eq(replayRes.result.level, 1, "level in replayed result is 1")
-	eq(replayRes.result.costGE, "10", "costGE in replayed result is 10")
+	eq(replayRes.result.costGE, "5", "costGE in replayed result is 5")
 
 	local geAfterReplay = coord.snapshots().durable.permanent.GE
-	eq(geAfterReplay, "990", "GE balance NOT deducted again on replay")
+	eq(geAfterReplay, "995", "GE balance NOT deducted again on replay")
 	eq(coord.snapshots().durable.permanent.epic.hold_to_hatch, 1, "Level NOT incremented again on replay")
-	eq(coord.snapshots().durable.permanent.totalGESpent, "10", "totalGESpent NOT doubled on replay")
+	eq(coord.snapshots().durable.permanent.totalGESpent, "5", "totalGESpent NOT doubled on replay")
 
 	server:playerLeaving("106")
 end
@@ -538,7 +538,7 @@ do
 	-- Verify client state store updated through RefreshState
 	local updatedFarm = client:getFarm()
 	ok(updatedFarm.progress.epic.epic_hatchery == 1, "ClientStateStore progress.epic has epic_hatchery = 1")
-	eq(updatedFarm.progress.GE, "998", "ClientStateStore reflects deducted GE (1000 - 2 = 998)")
+	eq(updatedFarm.progress.GE, "999", "ClientStateStore reflects approved cost 1 GE")
 
 	-- Check HUD modal opens and shows updated cards
 	local hud = client:getHUD()
@@ -553,8 +553,8 @@ do
 	local cardData = hud.epicResearchCards["epic_hatchery"]
 	ok(cardData ~= nil, "cardData exists for epic_hatchery")
 	ok(string.find(cardData.lvlLabel.Text, "1 / 20", 1, true) ~= nil, "Level label shows 1 / 20: " .. cardData.lvlLabel.Text)
-	-- Next price for Lvl 2 epic_hatchery is 54 GE
-	ok(string.find(cardData.buyBtn.Text, "54 💎", 1, true) ~= nil, "Buy button shows next price (54 💎): " .. cardData.buyBtn.Text)
+	-- R2026-10-28: next price is ceil(54/2)=27 GE.
+	ok(string.find(cardData.buyBtn.Text, "27 💎", 1, true) ~= nil, "Buy button shows approved next price (27 💎): " .. cardData.buyBtn.Text)
 
 	hud:destroy()
 	client:destroy()
@@ -600,7 +600,7 @@ do
 		eq(res.status, "APPLIED", "Purchase succeeded for epic research: " .. epicId)
 		eq(res.result.researchId, epicId, "Returned researchId matches: " .. epicId)
 		eq(res.result.level, 1, "Level 1 granted for: " .. epicId)
-		eq(res.result.costGE, tostring(row.prices[1]), "Price matches catalog row for: " .. epicId)
+		eq(res.result.costGE, tostring(math.max(1, math.ceil(row.prices[1]/2))), "Price integration: reference row with approved half-price overlay for: " .. epicId)
 		end
 	end
 

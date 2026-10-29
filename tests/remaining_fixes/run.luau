@@ -38,7 +38,7 @@ for _,pair in {{'afx_mission_time','afx_mission_time'},{'afx_mission_capacity','
   eq(p.permanent.epic[pair[1]],if pair[1]==pair[2] and oldLevel>0 then oldLevel else nil,'alias cannot create a level')
   local allowed=command(b,'BuyEpicResearch',{researchId='hold_to_hatch'},'allowed')
   eq(allowed.status,'APPLIED','supported research still purchasable')
-  eq(b:getCoordinator('1').snapshots().durable.permanent.GE,'999990','supported price charged once')
+  eq(b:getCoordinator('1').snapshots().durable.permanent.GE,'999995','approved half-price charged once')
  end
 end
 for _,id in {'auto_hatch','buy_max','epic_tier_1','epic_tier_2','epic_tier_3','epic_tier_4'} do

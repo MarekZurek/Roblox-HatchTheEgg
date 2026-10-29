@@ -6,7 +6,7 @@
 
 1. Wrapper wylicza różnicę zegara i czasu ostatniej symulacji farmy. Ujemny czas ma osobną ścieżkę ochrony; nie jest naliczany jako dodatni dochód.
 2. Dla przerwy <=60 s wybiera tryb online; powyżej 60 s wybiera away i fast-forward biegających kur. Kontrakty mogą dodatkowo ograniczyć przedział czasem zakończenia kontraktu.
-3. W away ogranicza czas produkcji przez `liczba posiadanych silosów * GDR.siloSeconds()`. Pełny czas nieobecności pozostaje oddzielnym argumentem. Dla zera silosów i długiej nieobecności wywołuje kernel z czasem produkcji zero.
+3. W away ogranicza czas produkcji przez `liczba posiadanych silosów * GDR.siloSeconds()` (W adaptacji HatchTheEgg, R 29.10.2026: zastąpione stałym limitem konta 6h bez Pro / 18h z Pro; silosy wycofane). Pełny czas nieobecności pozostaje oddzielnym argumentem. Dla zera silosów i długiej nieobecności wywołuje kernel z czasem produkcji zero.
 4. Kernel wykonuje `dt=min(remaining,0.3)` aż zużyje limit. Aktualizuje BoostManager, ArtifactsManager, LiveEventManager i buffy kontraktu. Nie dzieli automatycznie każdego kroku dokładnie na chwilę wygaśnięcia każdego bonusu.
 5. Odczytuje aktualne tempo znoszenia, wartość jaja, bonus biegających kur, przepustowość i mnożniki. W away stosuje `siloQuality * earningsMultAway`; `siloQuality=0.5` bez Pro i `1` z Pro.
 6. Liczy jaja z populacji na początku kroku. Przed sprzedażą obsługuje forge/paliwo/tank; resztę ogranicza transportem. Dochód obejmuje wartość sprzedanych jaj, mnożniki dochodu, RCB, away i stan podwajacza w danym kroku.

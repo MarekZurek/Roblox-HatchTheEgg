@@ -4,6 +4,7 @@
 local fs,luau=require('@lune/fs'),require('@lune/luau')
 local Roblox=require('@lune/roblox')
 local Availability=require('../../src/shared/FeatureAvailability')
+local EpicPricing=require('../../src/shared/EpicPricing')
 local StudUi=require('../../src/client/ui/StudUi')
 local UiAssets=require('../../src/client/ui/UiAssets')
 return function()
@@ -28,6 +29,7 @@ return function()
   game={GetService=function()error('No native services in header test')end},
   require=function(path)
    if path=='../shared/FeatureAvailability' then return Availability end
+   if path=='../shared/EpicPricing' then return EpicPricing end
    if path=='./ui/StudUi' then return StudUi end
    if path=='./ui/UiAssets' then return UiAssets end
    error('Unexpected header dependency: '..tostring(path))

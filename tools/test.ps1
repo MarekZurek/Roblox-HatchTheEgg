@@ -53,6 +53,9 @@ try {
     $taskSuite = 'retired_doubler'
     & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
     if ($LASTEXITCODE -ne 0) { throw 'Retired doubler regressions failed.' }
+    $taskSuite = 'epic_robux'
+    & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
+    if ($LASTEXITCODE -ne 0) { throw 'Epic Robux regressions failed.' }
     $taskSuite = 'upgrade_previews'
     & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
     if ($LASTEXITCODE -ne 0) { throw 'Upgrade preview regressions failed.' }

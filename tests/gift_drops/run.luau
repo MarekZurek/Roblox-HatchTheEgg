@@ -61,7 +61,7 @@ do
  local packet={protocolVersion=1,kind='BuyEpicResearch',requestId='spend',operationId='spend',expectedRevision=t.profile().meta.revision,args={researchId='hold_to_hatch'}}
  eq(t.b:dispatch('1',packet).status,'APPLIED','fixture crosses spending threshold')
  t.now=1002500;t.pos={x=0,y=3,z=18};eq(t.b:collectGift('1','fixed'),true,'fixed gift collected')
- eq(t.profile().permanent.GE,'6','SPEC/issued reward stays fixed after spending change')
+ eq(t.profile().permanent.GE,'11','SPEC/issued reward stays fixed after approved 5 GE spend: 10-5+6')
 end
 -- A later spawn deadline cannot stack another live gift.
 do

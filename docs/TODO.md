@@ -4,10 +4,19 @@
 > **Aktualna decyzja użytkownika — 28.10.2026 (R):** RCB zależne od liczby biegnących kur zostało usunięte. Dochód korzysta ze stałego mnożnika wynikającego z badań, niezależnego od wylęgu i `runningCount`; działa on również w rozliczeniu away. Grupy kur, rezerwacje miejsc i dotarcia pozostają logiką populacji. Nazwy `activeRCB`/`onscreenChickenMult*` w kodzie i zapisach są historyczne. Aktualny kontrakt: [31 §3](31_research_hatching_rcb_and_new_account.md#3-stały-mnożnik-dochodu-i-przejścia-populacji). Starsze opisy aktywnego RCB w historii dostaw nie są bieżącym wymaganiem.
 
 - [x] Zaktualizować kontrakt po usunięciu aktywnego RCB —28.10.2026; stały mnożnik dochodu, grupy i dotarcia zachowane.
-- [ ] Domknąć pozostałości po24de421: aktywacja boostów (#92) i zgodność zakresu silosów/Hyperloop (#93). Blokady #85/#90–91 i podgląd #86 naprawione lokalnie, publikacja/odbiór pozostają osobno. [Dowody review](workflow/review_24de421_2026_10_28.md).
+- [x] [#93](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/93): Wdrożono Decyzję R — silosy usunięte na rzecz stałego limitu offline 6h/18h, Hyperloop odłożony jako "Egg to the Moon 🚀", badanie `silo_capacity` zablokowane, zaktualizowano HUD i testy (zamknięte).
+- [ ] [#98](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/98): Dedykowane okno prestiżu z pełnym zestawieniem korzyści i widocznym dostępem w UI
+- [ ] [#97](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/97): Zaokrąglanie kwot gotówki (Cash) do 2 miejsc po przecinku w całej grze i nagrodach z dronów
+- [ ] [#96](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/96): Zweryfikować i ujednolicić oznaczenie nagród z prezentów i dronów: "GE" -> "Diamenty" (💎)
+- [ ] [#95](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/95): Usunąć modele silosów z mapy 3D farmy (`FarmPlotBuilder.luau`).
+- [ ] [#92](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/92): Aktywacja boostów z ekwipunku gracza oraz wpięcie sklepu boostów.
 
 
 > **Decyzja użytkownika 28.10.2026 (R): czasowy podwajacz dochodu i badanie `video_doubler_time` („Dłuższe Wzmocnienia”) zostały usunięte z gry.** Dawne terminy/poziomy w profilach są zachowane wyłącznie dla zgodności i nie dają efektu ani możliwości zakupu. Poniższe wcześniejsze zasady VD, jego darmowej aktywacji i odnawiania są historyczne. Osobny pass `double_cash` (2× Cash), boosty oraz zasady bonusowych prezentów pozostają poza tą zmianą. [Zakres i testy](workflow/remove_timed_doubler_2026_10_28.md).
+
+> **Decyzja użytkownika 29.10.2026 (R): Silosy usunięte na rzecz stałego limitu offline (6h F2P / 18h Pro Permit); Hyperloop odłożony z rebrandingiem na „Egg to the Moon”.**
+> 1. Mechanika silosów i ich zakupu zostaje całkowicie wycofana z farmy. Stały czas produkcji offline: **6 godzin** dla graczy zwykłych (bez Pro Permit) oraz **18 godzin** dla graczy posiadających Pro Permit. Badania epickie `silo_capacity` oraz `epic_silo_quality` zostają wycofane/zablokowane w `FeatureAvailability.luau`.
+> 2. Zakup pojazdu 11 (Hyperloop) zostaje odłożony. W UI Floty slot 11 otrzymuje status `WKRÓTCE: EGG TO THE MOON 🚀` z zablokowanym przyciskiem; przyszły koncept przewiduje wystrzeliwanie rakiet z jajkami w kosmos jako unikalny element wyróżniający grę. Dotyczy: [#93](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/93).
 
 ## Bieżące zadanie
 

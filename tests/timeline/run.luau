@@ -17,7 +17,7 @@ local function state(pop)
  return {farm={cash=10,habitats=h,hatcheryStock=0,runningCount="0",hatchGroupSequence="0",groups={},commonLevels={},vehicleTypes={0},siloOwned=1},accounting={prestigeSessionArchivedCash=20,prestigeExtraEarnings=30,lastBaseEarnings=40,currentFarmCash=100,lastCashEarned=50},settledWallThrough=1000}
 end
 local function cfg(pro)return {revision="neutral:1",siloCapacityLevel=0,pro=pro or false}end
-local function all(s,ms,c)return T.advance(T.begin(s,ms,c or cfg()),100000)end
+local function all(s,ms,c) local cp=T.begin(s,ms,c or cfg()); while not cp.done do cp=T.advance(cp,50000) end; return cp end
 local original=state();local before=D.fingerprint(original)
 local cp=T.begin(original,2000,cfg());eq(cp.mode,"ONLINE");eq(cp.productionSeconds,1);eq(cp.stepIndex,0)
 local mid=T.advance(cp,1);eq(mid.phase,"AFTER_PRODUCTION");eq(mid.stepDt,.3);eq(mid.elapsedSeconds,0);eq(mid.state.farm.cash,10.5)
@@ -42,7 +42,7 @@ local zero=state();zero.farm.siloOwned=0
 local sixty=all(zero,61000);eq(sixty.mode,"ONLINE");eq(sixty.productionSeconds,60);eq(sixty.state.farm.cash>10,true)
 local away=all(zero,61001);eq(away.mode,"AWAY");eq(away.productionSeconds,0);eq(away.stepIndex,0);eq(away.state.farm.cash,10);eq(away.state.settledWallThrough,61001)
 eq(all(away.state,61001).state.farm.cash,10)
-local limited=all(state(),4001000);eq(limited.mode,"AWAY");eq(limited.productionSeconds,3600);eq(limited.state.settledWallThrough,4001000)
+local limited=all(state(),1000+25000*1000);eq(limited.mode,"AWAY");eq(limited.productionSeconds,21600);eq(limited.state.settledWallThrough,1000+25000*1000)
 local pro=all(state(),62000,cfg(true));local free=all(state(),62000,cfg(false))
 eq((pro.state.farm.cash-10)>(free.state.farm.cash-10),true)
 -- Already-ready groups settle before first production; within-step arrivals occur only after production.

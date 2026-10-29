@@ -90,6 +90,7 @@ local Calendar=if isStudio then require(script.Parent.rewards.calendar) else req
 local ActionReference=if isStudio then require(script.Parent.ActionReferenceData) else require("./ActionReferenceData")
 local ProgressActions=if isStudio then require(script.Parent.ProgressActions) else require("./ProgressActions")
 local Products=if isStudio then require(script.Parent.platform.products) else require("./platform/products")
+local EpicPurchases=if isStudio then require(script.Parent.EpicPurchases) else require("./EpicPurchases")
 local FarmActions=if isStudio then require(script.Parent.FarmActions) else require("./FarmActions")
 local FvSe=if isStudio then require(script.Parent.FarmMath.fv_se) else require("./FarmMath/fv_se")
 local ViewProjector = {}
@@ -118,6 +119,7 @@ function ViewProjector.new(deps)
 	local self = setmetatable({
 		codec = deps.codec,
 		catalog = deps.catalog,
+        epicProducts = deps.epicProducts or {},
 		productionMath = productionMath,
 		configRevision = deps.configRevision or "CANONICAL_V1",
         paidRandomAllowed = deps.paidRandomAllowed,
@@ -338,7 +340,7 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
         end
         for key,value in profile.rewards.trophies or {} do if value==true then table.insert(claimed,key) end end;table.sort(claimed)
         local paidAllowed=Products.readPaidRandomPolicy(self.paidRandomAllowed,profile.meta.playerId)
-        ownFarm.progress={issuedDrones=drones,ordinaryOffers=offers,GE=profile.permanent.GE,SE=profile.permanent.SE,PE=profile.permanent.PE,
+        ownFarm.progress={epicRobuxOffers=EpicPurchases.offers(profile,catalog,self.epicProducts),issuedDrones=drones,ordinaryOffers=offers,GE=profile.permanent.GE,SE=profile.permanent.SE,PE=profile.permanent.PE,
             proPermit=profile.entitlements.pro_permit==true,doubleCash=profile.entitlements.double_cash==true,autoHatch=profile.entitlements.auto_hatch==true,proBonusAvailable=Products.isProBonusAvailable(profile,paidAllowed),
             paidRandomPolicy=if paidAllowed==nil then "unknown" elseif paidAllowed then "allowed" else "restricted",
             numDailyGiftsCollected=profile.rewards.numDailyGiftsCollected or 0,lastCalendarDayUtc=profile.rewards.lastCalendarDayUtc or -1,

@@ -1069,7 +1069,7 @@ do
 	local function simAll(state, targetMs, cfg)
 		local config = cfg or { revision = "neutral:1", siloCapacityLevel = 0, pro = false }
 		local cp = Timeline.begin(state, targetMs, config)
-		return Timeline.advance(cp, 100000)
+		while not cp.done do cp = Timeline.advance(cp, 50000) end; return cp
 	end
 
 	-- 1. Powrót online (<=60s) bez limitu silosów (even with 0 silos!)
@@ -1084,11 +1084,11 @@ do
 	-- 2. Powrót away (>60s) z limitem silosów
 	-- dt = 7200s (2 hours). 1 silo owned = 3600s capacity.
 	local stateAway1 = makeTimelineState("100", 1, 10)
-	local targetAwayMs = 1000 + 7200 * 1000
+	local targetAwayMs = 1000 + 25200 * 1000
 	local resAway1 = simAll(stateAway1, targetAwayMs)
 	eq(resAway1.mode, "AWAY", "A12.2: dt > 60s is AWAY mode")
-	eq(resAway1.productionSeconds, 3600, "A12.2: Production capped at 1 silo capacity (3600s), ignoring extra 3600s")
-	eq(resAway1.state.settledWallThrough, targetAwayMs, "A12.2: Entire period closed (settledWallThrough advanced to 7201000)")
+	eq(resAway1.productionSeconds, 21600, "A12.2: Production capped at 6h flat offline cap (21600s), ignoring extra 3600s")
+	eq(resAway1.state.settledWallThrough, targetAwayMs, "A12.2: Entire period closed (settledWallThrough advanced to 25201000)")
 
 	-- Immediate second simulation of same target yields 0 new cash:
 	local resImmediate = simAll(resAway1.state, targetAwayMs)

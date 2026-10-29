@@ -78,7 +78,7 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
   local duration=if targetMs>start then (targetMs-start)/1000 else 0
   local mode=if duration>60 then "AWAY" else "ONLINE"
   local limit=duration
-  if mode=="AWAY" then limit=math.min(duration,A.multiply(state.farm.siloOwned,A.add(3600,A.multiply(360,config.siloCapacityLevel)))) end
+  if mode=="AWAY" then local offlineCap = if state.farm.siloOwned == 0 then 0 elseif config.pro == true then 64800 else 21600; limit=math.min(duration, offlineCap) end
   local cp={version=1,config=config,state=state,startInstantMs=start,targetInstantMs=math.max(start,targetMs),mode=mode,
    productionSeconds=limit,remainingSeconds=limit,elapsedSeconds=0,stepIndex=0,phase="BETWEEN_STEPS",done=false,clockDiscrepancy=targetMs<start}
   if config.holdContext and mode=="ONLINE" then cp.hold=data.copy(config.holdContext) end
@@ -102,7 +102,7 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
   assert(cp.mode=="ONLINE" or cp.mode=="AWAY","Timeline/INVALID_MODE")
   local d=(cp.targetInstantMs-cp.startInstantMs)/1000
   assert(cp.mode==(if d>60 then "AWAY" else "ONLINE"),"Timeline/MODE_MISMATCH")
-  local limit=if cp.mode=="AWAY" then math.min(d,A.multiply(cp.state.farm.siloOwned,A.add(3600,A.multiply(360,cp.config.siloCapacityLevel)))) else d
+  local offlineCap=if cp.state.farm.siloOwned == 0 then 0 elseif cp.config.pro == true then 64800 else 21600; local limit=if cp.mode=="AWAY" then math.min(d,offlineCap) else d
   assert(cp.productionSeconds==limit,"Timeline/LIMIT_MISMATCH")
   assert(cp.done==(cp.remainingSeconds==0),"Timeline/DONE_MISMATCH")
   assert(cp.state.settledWallThrough==(if cp.done then cp.targetInstantMs else cp.startInstantMs),"Timeline/WALL_CURSOR_MISMATCH")

@@ -141,7 +141,7 @@ Piggy ma własne ścieżki wzrostu, limity i modyfikatory; nie traktować dawneg
 | `hyper_portalling` | HYPER PORTALLING | 25 | `{"hyperloopCarCapacityMult":1.05}` → `{"hyperloopCarCapacityMult":2.25}` | 7.829012184e+56 | 2.085644866e+66 |
 | `relativity_optimization` | RELATIVITY OPTIMIZATION | 10 | `{"eggLayingRateMult":1.1}` → `{"eggLayingRateMult":2.0}` | 1.447390677e+55 | 1.41791348e+65 |
 
-Graviton Coupling (`micro_coupling`) zwiększa długość pociągu Hyperloop, nie liczbę miejsc floty. Wymiary transportowe stosować do odpowiednich typów pojazdów, według [04](04_vehicles_and_shipping.md).
+Graviton Coupling (`micro_coupling`) zwiększa długość pociągu Hyperloop, nie liczbę miejsc floty. Z uwagi na odłożenie zakupu Hyperloop i planowany rebranding na „Egg to the Moon” (rakiety; [04](04_vehicles_and_shipping.md)), jego adaptacja pozostaje odłożona. Wymiary transportowe stosować do odpowiednich typów pojazdów, według [04](04_vehicles_and_shipping.md).
 
 ## 3. Epic Research
 
@@ -174,7 +174,7 @@ Graviton Coupling (`micro_coupling`) zwiększa długość pociągu Hyperloop, ni
 
 `videoDoublerHours` w tabeli jest wkładem badania: baza GDR 2 h +0.5 h/poziom, do 8 h. `siloSeconds` także jest dodatkiem do bazy, nie pełną długością silosu. Puste próbki Epic Internal Incubators/Silo Quality nie uzasadniają usunięcia tych mechanik; pełne złożenie IHR/away opisuje [10](10_verified_simulation_and_server_config.md).
 
-Badania `afx_mission_time` oraz `afx_mission_capacity` mają prezentacyjne nazwy logistyki floty, ale ich efekty nie są wdrożone. Zakup jest zablokowany zarówno w HUD, jak i na serwerze; sama zmiana nazwy nie oznacza adaptacji mechaniki. Dotyczy to też nieobsługiwanych hold_to_research, epic_silo_quality i warp_shift. [Polityka i regresje](workflow/remaining_fixes_2026_10_28.md).
+Badania `afx_mission_time` oraz `afx_mission_capacity` mają prezentacyjne nazwy logistyki floty, ale ich efekty nie są wdrożone. Zakup jest zablokowany zarówno w HUD, jak i na serwerze; sama zmiana nazwy nie oznacza adaptacji mechaniki. Dotyczy to też nieobsługiwanych hold_to_research, warp_shift oraz wycofanych badań silosów `epic_silo_quality` i `silo_capacity` (decyzja R 29.10.2026: silosy zastąpione stałym limitem offline 6h/18h). [Polityka i regresje](workflow/remaining_fixes_2026_10_28.md).
 
 ## 4. Propozycja interfejsu Roblox
 

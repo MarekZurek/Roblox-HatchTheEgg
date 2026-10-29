@@ -89,6 +89,12 @@ Pełna tabela maszynowa: [drony i silosy](reference_data/drone_and_silo_rules.js
 
 ## Silosy i offline
 
+> [!IMPORTANT]
+> **Aktualizacja statusu R (29.10.2026):** Decyzją użytkownika mechanika silosów oraz ich kupowania została **całkowicie wycofana z gry**. Czas produkcji offline w trybie `AWAY` zastąpiono stałym limitem konta:
+> - **Gracze standardowi (F2P / bez Pro Permit):** stały limit produkcji offline = **6 godzin** ($21\,600\text{ s}$).
+> - **Gracze Premium (z Pro Permit):** stały limit produkcji offline = **18 godzin** ($64\,800\text{ s}$).
+> Badania epickie `silo_capacity` („Czas Silosów Offline”) oraz `epic_silo_quality` („Efektywność Silosów Offline”) zostały wycofane i zablokowane. Poniższe formuły zależne od `silosOwned` stanowią historyczną specyfikację referencyjną N/S.
+
 Bez dodatkowych modyfikatorów:
 
 ```text

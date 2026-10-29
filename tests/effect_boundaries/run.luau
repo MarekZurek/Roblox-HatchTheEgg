@@ -371,9 +371,9 @@ do
 	-- 5.3 1 silo with level 0 -> 3600s capacity
 	local stateAway1 = makeState(makeFarm(10, 100, 0, 1), nil, 1000)
 	-- Offline period of 7200s (2h)
-	local cpAway1 = Timeline.begin(stateAway1, 1000 + 7200 * 1000, makeConfig(false, 0))
+	local cpAway1 = Timeline.begin(stateAway1, 1000 + 25200 * 1000, makeConfig(false, 0))
 	eq(cpAway1.mode, "AWAY")
-	eq(cpAway1.productionSeconds, 3600, "AWAY production capped at 1 silo (3600s)")
+	eq(cpAway1.productionSeconds, 21600, "AWAY production capped at 6h flat offline cap (21600s)")
 
 	-- 5.4 Boosts do NOT decay after silos run out!
 	local effBoostFreeze = {

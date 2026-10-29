@@ -2,7 +2,7 @@
 -- Public availability metadata. The server checks it again before spending/granting.
 local blockedEpic: {[string]: boolean} = table.freeze({
  video_doubler_time=true, afx_mission_time=true, afx_mission_capacity=true,
- hold_to_research=true, epic_silo_quality=true, warp_shift=true,
+ hold_to_research=true, epic_silo_quality=true, silo_capacity=true, warp_shift=true,
 })
 local blockedProducts: {[string]: boolean} = table.freeze({
  auto_hatch=true, buy_max=true,

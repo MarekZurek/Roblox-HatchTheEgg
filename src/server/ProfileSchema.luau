@@ -29,6 +29,17 @@ function Schema.new(codec)
 		assert(U.encode(reserved)==p.farm.runningCount,"INCONSISTENT_RESERVATIONS")
 		uint(p.permanent.GE); uint(p.permanent.totalGESpent); A.decode(p.permanent.SE);uint(p.permanent.PE)
 		if p.permanent.shellScripts~=nil then uint(p.permanent.shellScripts) end
+		if p.permanent.epicPurchases~=nil then
+			local s=p.permanent.epicPurchases
+			assert(type(s)=="table" and type(s.credits)=="table","INVALID_EPIC_PURCHASES")
+			for key,n in s.credits do assert(type(key)=="string" and string.match(key,"^epic_upgrade_%d+$"),"INVALID_EPIC_CREDIT_PRODUCT");uint(n) end
+			if s.pending~=nil then
+				local q=s.pending
+				assert(type(q)=="table" and type(q.researchId)=="string" and type(q.productId)=="string" and string.match(q.productId,"^epic_upgrade_%d+$"),"INVALID_EPIC_INTENT")
+				assert(type(q.level)=="number" and q.level%1==0 and q.level>0 and q.level<=65535,"INVALID_EPIC_INTENT_LEVEL")
+				instant(q.platformId);assert(q.platformId>0,"INVALID_EPIC_INTENT_PRODUCT")
+			end
+		end
 		for _,name in {"prestigeSessionArchivedCash","prestigeExtraEarnings","lastBaseEarnings","currentFarmCash","lastCashEarned"} do A.decode(p.accounting[name]) end
 		instant(p.timeline.settledWallThrough)
         if p.timeline.selectionState~=nil then local seed=U.toSafeNumber(U.decode(p.timeline.selectionState));assert(seed>0 and seed<4294967296,"INVALID_SELECTION_STATE") end

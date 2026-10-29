@@ -16,6 +16,8 @@
 
 > **Decyzja użytkownika 28.10.2026 (R): czasowy podwajacz dochodu i badanie `video_doubler_time` („Dłuższe Wzmocnienia”) zostały usunięte z gry.** Dawne terminy/poziomy w profilach są zachowane wyłącznie dla zgodności i nie dają efektu ani możliwości zakupu. Poniższe wcześniejsze zasady VD, jego darmowej aktywacji i odnawiania są historyczne. Osobny pass `double_cash` (2× Cash), boosty oraz zasady bonusowych prezentów pozostają poza tą zmianą. [Zakres i testy](workflow/remove_timed_doubler_2026_10_28.md).
 
+> **Decyzja użytkownika 29.10.2026 (R): Silosy usunięte na rzecz stałego limitu offline (6h F2P / 18h Pro Permit); Hyperloop odłożony z rebrandingiem na „Egg to the Moon”.** Mechanika silosów i ich zakupu zostaje całkowicie wycofana z farmy. Stały czas produkcji offline wynosi 6h dla graczy bez Pro oraz 18h z Pro Permit. Badania `silo_capacity` oraz `epic_silo_quality` zostają wycofane/zablokowane. Zakup pojazdu 11 (Hyperloop) zostaje odłożony, z oznaczeniem `WKRÓTCE: EGG TO THE MOON 🚀` i planowanym mechanizmem rakiet z jajkami wyróżniającym grę. Dotyczy: [#93](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/93).
+
 Cel: farma HatchTheEgg z petami w Roblox, zgodna z opisaną specyfikacją. Poniższy skrót przekazania jest aktualnym punktem startowym; starsze opisy etapów i listy otwartych zgłoszeń dalej w pliku są historyczne.
 
 ## Weryfikacja poprzedniego commitu — 28.10.2026

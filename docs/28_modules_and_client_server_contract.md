@@ -105,7 +105,7 @@ Klucz trwałej deduplikacji pozostaje (playerId,operationId). Kanoniczne argumen
 | Grupa | Intencja i minimalne argumenty | Serwer ustala |
 |---|---|---|
 | Badania | BuyResearch: researchId, quoteId, tryb single; tryb max tylko z prawem Buy MAX | Poziom, bramka, cena i możliwy zakres zakupu. Podgląd max wiąże także liczbę poziomów i łączny koszt; brak dowolnego klientowskiego count. |
-| Infrastruktura | BuyHabitat: slotId, habitatId; BuyVehicle: slotId, vehicleId; BuyTrainCar: trainSlotId; BuySilo bez kwoty; każda z tych komend wymaga quoteId | Stan slotu, cenę zależną od egzemplarzy, długość pociągu, wolne miejsce i uprawnienia. |
+| Infrastruktura | BuyHabitat: slotId, habitatId; BuyVehicle: slotId, vehicleId; każda z tych komend wymaga quoteId (BuySilo wycofane na rzecz stałego limitu offline 6h/18h; BuyTrainCar i pojazd 11 odłożone na rzecz „Egg to the Moon”) | Stan slotu, cenę zależną od egzemplarzy, wolne miejsce i uprawnienia. |
 | Postęp | ChangeEgg: targetEggId; Prestige: potwierdzona intencja, bez liczby SE | FV, dostępność, naliczenie i całą macierz resetu. |
 | Pety | EquipPet: petUid, slotId; UnequipPet: slotId; SetPetLock: petUid, boolean; FusePets: baseUid, materialUids, targetVariant, quoteId | Własność, zgodność, lock/wyposażenie, szansę, gwarancję i zużycie. Brak automatycznej podmiany listy. |
 | Boosty i VD | ActivateBoost: boostId; ActivateDoubler: quoteId, financing | Sztuki, dostępność/sloty, czas, prawo UTC i cenę. Pro nie jest drugim mnożnikiem VD. |

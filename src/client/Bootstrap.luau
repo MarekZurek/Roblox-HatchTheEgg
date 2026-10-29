@@ -167,6 +167,7 @@ function ClientBootstrap.new(deps)
 		if hud.onBuyEpicResearch == nil then
 			hud.onBuyEpicResearch = function(researchId) self:buyEpicResearch(researchId) end
 		end
+		hud.onBuyEpicRobux = function(researchId) self:buyEpicRobux(researchId) end
 	end
 
 	self:_setupEventBindings()
@@ -321,7 +322,7 @@ function ClientBootstrap:_command(kind,args,callback)
     return self.transport:sendPurchase(kind,"req-action-"..token,"op-action-"..token,self.stateStore:getCommitRevision(),args,function(response)
         if response.kind=="CommandResult" and (response.status=="APPLIED" or response.status=="REPLAYED" or response.status=="REJECTED") then
             self.transport:sendRefreshState()
-            if response.result and response.result.terminalStatus=="APPLIED" and response.result.actionKind=="PurchaseProduct" then
+            if response.result and response.result.terminalStatus=="APPLIED" and (response.result.actionKind=="PurchaseProduct" or (response.result.actionKind=="BuyEpicRobux" and not response.result.granted)) then
                 local prompt=self.promptPurchase
                 self._purchasePreviews=self._purchasePreviews or {}
                 if not self._purchasePreviews[response.operationId] and type(prompt)=="function" and self.hud then
@@ -329,6 +330,9 @@ function ClientBootstrap:_command(kind,args,callback)
                     self.hud:showPurchasePreview(response.result,function()
                         local farm=self.stateStore:getFarm()
                         local p=farm and farm.progress
+                        if response.result.actionKind=="BuyEpicRobux" and p and p.epic and (p.epic[response.result.researchId] or 0)>=response.result.level then
+                            self.transport:sendRefreshState();return
+                        end
                         if response.result.productId=="pro_permit" and (not p or p.paidRandomPolicy=="unknown" or (p.paidRandomPolicy=="allowed")~=response.result.paidBonusAvailable) then
                             self.hud:onActionResult({status="NOT_ACCEPTED",errorCode="POLICY_CHANGED"});return
                         end
@@ -351,6 +355,7 @@ function ClientBootstrap:buyBoost(boostId,callback) return self:_command("BuyBoo
 function ClientBootstrap:purchaseProduct(productId,callback) return self:_command("PurchaseProduct",{productId=productId},callback) end
 function ClientBootstrap:prestige(callback) return self:_command("Prestige",{},callback) end
 function ClientBootstrap:buyEpicResearch(researchId,callback) return self:_command("BuyEpicResearch",{researchId=researchId},callback) end
+function ClientBootstrap:buyEpicRobux(researchId,callback) return self:_command("BuyEpicRobux",{researchId=researchId},callback) end
 
 function ClientBootstrap:hitDrone(droneId, callback)
 	if type(self.onHitDrone) == "function" then

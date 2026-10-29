@@ -48,7 +48,7 @@ P = population, gdy C >= population
 P = floor(C + 0.2*(population-C)), w przeciwnym razie
 F = max(0, habCapacity-population)^0.6
 I = 4 * researchIHRBase * researchIHRMult / 60
-T = silosOwned * GDR.siloSeconds()
+T = silosOwned * GDR.siloSeconds()              # W adaptacji HatchTheEgg po wycofaniu silosów (R 29.10.2026): stałe T = 21600s (6h) bez Pro / 64800s (18h) z Pro
 R = max(1, (5+researchMaxRCBBase)*researchMaxRCBMult-4)^0.25
 K = 1200+600*eggIndex                         # indeks silnika 0..17
 K = 3600                                      # Enlightenment, indeks 18

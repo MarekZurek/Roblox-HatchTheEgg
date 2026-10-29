@@ -97,10 +97,10 @@ worldBuilder:build()
 
 -- 4. Initialize Authoritative ServerBootstrap
 local configuredProducts={}
-for _,catalogId in {"pro_permit","buy_max","double_cash","ge_pack_small","ge_pack_large"} do
+for _,catalogId in {"pro_permit","buy_max","double_cash","ge_pack_small","ge_pack_large","epic_upgrade_9","epic_upgrade_19","epic_upgrade_39","epic_upgrade_79"} do
     local id=script:GetAttribute(catalogId.."_PlatformId")
     if type(id)=="number" and id>0 and id%1==0 then
-        Products.registerProductId(id,catalogId)
+        if not string.match(catalogId,"^epic_upgrade_") then Products.registerProductId(id,catalogId) end
         configuredProducts[catalogId]={platformId=id}
     end
 end

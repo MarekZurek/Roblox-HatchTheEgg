@@ -27,6 +27,9 @@ Suma przepustowości to suma pojemności zakupionych pojazdów. `GDR::modifiedVe
 
 ## Stacja i długość Hyperloop
 
+> [!IMPORTANT]
+> **Aktualizacja statusu R (29.10.2026):** Zakup pojazdu 11 (dawny pociąg Hyperloop) oraz stacji Hyperloop został **odłożony** na polecenie użytkownika. Koncept transportu kosmicznego przechodzi rebranding na **„Egg to the Moon”** (wystrzeliwanie rakiet z jajkami w kosmos), aby nadać grze unikalny charakter i odróżnić ją od pierwowzoru Egg, Inc. W UI Floty slot 11 oznaczony jest jako `WKRÓTCE: EGG TO THE MOON 🚀` z zablokowanym przyciskiem zakupu. Poniższe formuły stacji i wagonów stanowią dokumentację referencyjną N/S.
+
 `getHyperloopStationPrice()` zwraca dokładnie **50 000 GE**. Zakup stacji jest trwałym odblokowaniem. Zakup pociągu i kolejnych wagonów to osobne operacje.
 
 Bazowy limit długości wynosi 5. Badanie **Graviton Coupling**, identyfikator `micro_coupling`, ma 5 poziomów po +1: limit 10. W tabeli konfiguracji referencyjnej `tier_raw=11`, czyli Tier 12 przy numeracji od 1. `attemptBuyTrainCar` odrzuca zakup, gdy bieżąca długość osiąga `GDR.hyperloopMaxTrainLength()`; samo wywołanie funkcji ceny nie sprawdza tego limitu.

@@ -320,7 +320,7 @@ function NetworkGateway:_initHandlers()
 	handlers.BuyHabitat = handleMutation
 	handlers.BuyVehicle = handleMutation
 	handlers.UpgradeEgg = handleMutation
-    for _, kind in {"ClaimDailyGift","ClaimTrophy","FusePets","EquipPet","UnequipPet","TogglePetLock","BuyBoost","PurchaseProduct","Prestige","BuyEpicResearch"} do
+    for _, kind in {"ClaimDailyGift","ClaimTrophy","FusePets","EquipPet","UnequipPet","TogglePetLock","BuyBoost","PurchaseProduct","Prestige","BuyEpicResearch","BuyEpicRobux"} do
         handlers[kind] = handleMutation
     end
 

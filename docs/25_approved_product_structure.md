@@ -6,7 +6,7 @@
 
 | Produkt | Typ / rola | Zatwierdzona zawartość |
 |---|---|---|
-| Pro Permit | Jednorazowy trwały gamepass; główna przepustka rozwoju farmy | Więcej dostępnych silosów, pełna jakość naliczania dochodu offline zamiast połowy, więcej miejsc aktywnych boostów. Dodatkowo rozszerzenie slotów petów i +10 punktów procentowych powodzenia łączenia (max 100%, bez kumulacji i dopłat do prób). |
+| Pro Permit | Jednorazowy trwały gamepass; główna przepustka rozwoju farmy | Stały limit 18h offline (zamiast 6h dla kont darmowych; R 29.10.2026), pełna jakość naliczania dochodu offline (100% zamiast 50%), więcej miejsc aktywnych boostów. Dodatkowo rozszerzenie slotów petów i +10 punktów procentowych powodzenia łączenia (max 100%, bez kumulacji i dopłat do prób). |
 | Buy MAX | Osobny jednorazowy trwały gamepass, poza Pro | Szybki zakup maksymalnej dostępnej i opłacalnej środkami gracza liczby poziomów badań. Nie daje darmowych poziomów ani pominięcia bramek postępu. Szczegóły przycisków/UX nie są implementacją. |
 | Auto-Hatch kurczaków / Egg Bot | Osobny jednorazowy trwały gamepass, poza Pro | Automatyzuje przycisk ręcznej wylęgarni kurczaków. Nadal obowiązują jej pojemność, regeneracja, tempo i wolne miejsca kurników. Nie dodaje nowego mnożnika i nie oznacza automatycznego otwierania petów ani nowej produkcji offline. |
 | Pakiety Diamentów (Diamonds, 💎) | Powtarzalne zakupy | Przyznanie określonej ilości Diamentów (w kodzie i bazie zachowany klucz profilu profile.permanent.GE) do wydania w badaniach epickich, boostach i inkubacji. |
@@ -14,7 +14,7 @@
 
 Pro ma być znaczącym rozszerzeniem możliwości i wygody, podobnie do roli Pro Permit w oryginale. Nie zawiera automatycznie Buy MAX i Auto-Hatch. Rozszerzenie petów jest częścią Pro; nie przyjęto osobnego +2 Pet Equip ani osobnego passa wyłącznie za +10 p.p. Posiadanie Buy MAX lub Auto-Hatch samo nie przyznaje Pro.
 
-Pełna jakość offline oznacza udział w dochodzie wyliczonym z prawidłowej symulacji, a nie pominięcie silosów, transportu, pojemności czy historycznego czasu wydarzeń. Nie jest to nieograniczony offline. Parametry liczby silosów, miejsc boostów i petów nie zostały zmienione tym dokumentem.
+Pełna jakość offline oznacza udział w dochodzie wyliczonym z prawidłowej symulacji (100% zamiast 50%), a nie pominięcie transportu, pojemności czy historycznego czasu wydarzeń. Nie jest to nieograniczony offline. Decyzją z 29.10.2026 silosy wycofano na rzecz stałego limitu 18h dla Pro (oraz 6h dla standardu). Parametry miejsc boostów i petów pozostają w toku dalszych ustaleń.
 
 ## Co pozostaje bez zmian / poza tą akceptacją
 
