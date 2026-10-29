@@ -1803,6 +1803,7 @@ function HUD:_buildInterface()
 		{ name = "PetsMenuButton", title = "Pety", iconKey = "window.pets", bg = Color3.fromRGB(150, 60, 190), hidden = true, action = function() self:togglePetsModal() end },
 		{ name = "ShopMenuButton", title = "Sklep", iconKey = "window.shop", bg = Color3.fromRGB(225, 155, 30), action = function() self:toggleShopModal() end },
 		{ name = "CalendarMenuButton", title = "Nagrody", iconKey = "window.calendar", bg = Color3.fromRGB(225, 75, 95), action = function() self:toggleCalendarModal() end },
+		{ name = "PrestigeMenuButton", title = "Prestiż", iconKey = "control.upgrade", emoji = "🟣", bg = Color3.fromRGB(110, 40, 170), action = function() self:togglePrestigeModal() end },
 	}
 
 	local visibleButtonsCount = 0
@@ -1859,6 +1860,16 @@ function HUD:_buildInterface()
 			end)
 		end
 
+		if dSpec.emoji then
+			createGuiElement("TextLabel", {
+				Name = "ButtonBadge",
+				Size = isRoblox and UDim2.new(0, 22, 0, 22) or nil,
+				Position = isRoblox and UDim2.new(1, -24, 1, -24) or nil,
+				BackgroundTransparency = 1,
+				TextScaled = true,
+				Text = dSpec.emoji,
+			}, btn)
+		end
 		if dSpec.name == "ResearchMenuButton" then self.researchToggleBtn = btn
 		elseif dSpec.name == "EpicResearchMenuButton" then self.epicResearchToggleBtn = btn
 		elseif dSpec.name == "HabitatsMenuButton" then self.habitatsToggleBtn = btn
@@ -1866,6 +1877,7 @@ function HUD:_buildInterface()
 		elseif dSpec.name == "PetsMenuButton" then self.petsToggleBtn = btn
 		elseif dSpec.name == "ShopMenuButton" then self.shopToggleBtn = btn
 		elseif dSpec.name == "CalendarMenuButton" then self.calendarToggleBtn = btn
+		elseif dSpec.name == "PrestigeMenuButton" then self.prestigeToggleBtn = btn
 		end
 	end
 
@@ -3322,15 +3334,15 @@ function HUD:_buildPrestigeModal(root)
 	local modal = createGuiElement("Frame", {
 		Name = "PrestigeModal",
 		Visible = false,
-		Size = isRoblox and UDim2.new(0, 460, 0, 420) or nil,
-		Position = isRoblox and UDim2.new(0.5, -230, 0.5, -210) or nil,
+		Size = isRoblox and UDim2.new(0, 460, 0, 560) or nil,
+		Position = isRoblox and UDim2.new(0.5, -230, 0.5, -280) or nil,
 		BackgroundColor3 = isRoblox and Color3.fromRGB(24, 16, 42) or nil,
 		BackgroundTransparency = 0.05,
 		BorderSizePixel = 0,
 		ZIndex = 50,
 	}, root)
 	self.prestigeModal = modal
-	self:_fitWindow(modal, 460, 420)
+	self:_fitWindow(modal, 460, 560)
 	addCornerAndStroke(modal, 18, isRoblox and Color3.fromRGB(180, 80, 255) or nil, 3.5)
 
 	-- Header Frame
@@ -3381,7 +3393,7 @@ function HUD:_buildPrestigeModal(root)
 	-- 1. Current Crystals & Multiplier Card
 	local currentCard = createGuiElement("Frame", {
 		Name = "CurrentCard",
-		Size = isRoblox and UDim2.new(1, -32, 0, 76) or nil,
+		Size = isRoblox and UDim2.new(1, -32, 0, 112) or nil,
 		Position = isRoblox and UDim2.new(0, 16, 0, 62) or nil,
 		BackgroundColor3 = isRoblox and Color3.fromRGB(36, 20, 60) or nil,
 		BackgroundTransparency = 0.2,
@@ -3417,11 +3429,25 @@ function HUD:_buildPrestigeModal(root)
 	}, currentCard)
 	addTextStroke(self.prestigeCurrentBonusLabel, 1.8)
 
+	self.prestigeAfterBonusLabel = createGuiElement("TextLabel", {
+		Name = "AfterBonusLabel",
+		Size = isRoblox and UDim2.new(1, -16, 0, 26) or nil,
+		Position = isRoblox and UDim2.new(0, 10, 0, 68) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(130, 250, 160) or nil,
+		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+		Text = "Po prestiżu: —",
+		ZIndex = 52,
+	}, currentCard)
+	addTextStroke(self.prestigeAfterBonusLabel, 1.8)
+
 	-- 2. Pending Crystals Card
 	local pendingCard = createGuiElement("Frame", {
 		Name = "PendingCard",
 		Size = isRoblox and UDim2.new(1, -32, 0, 105) or nil,
-		Position = isRoblox and UDim2.new(0, 16, 0, 146) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 0, 182) or nil,
 		BackgroundColor3 = isRoblox and Color3.fromRGB(48, 16, 80) or nil,
 		BackgroundTransparency = 0.1,
 		ZIndex = 51,
@@ -3466,12 +3492,13 @@ function HUD:_buildPrestigeModal(root)
 		ZIndex = 52,
 	}, pendingCard)
 	addTextStroke(pendingSubLabel, 1.4)
+	self.prestigeSubLabel = pendingSubLabel
 
 	-- 3. Warning / Explanation Pill
 	local warningPill = createGuiElement("Frame", {
 		Name = "WarningPill",
-		Size = isRoblox and UDim2.new(1, -32, 0, 68) or nil,
-		Position = isRoblox and UDim2.new(0, 16, 0, 258) or nil,
+		Size = isRoblox and UDim2.new(1, -32, 0, 128) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 0, 295) or nil,
 		BackgroundColor3 = isRoblox and Color3.fromRGB(32, 18, 30) or nil,
 		BackgroundTransparency = 0.25,
 		ZIndex = 51,
@@ -3487,7 +3514,7 @@ function HUD:_buildPrestigeModal(root)
 		TextScaled = true,
 		TextWrapped = true,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 210, 210) or nil,
-		Text = "⚠️ Prestiż zresetuje: gotówkę, kurniki, pojazdy i stada kur.\n✨ ZACHOWUJESZ: Kryształy Prestiżu, Diamenty, Pety i Badania Epickie!",
+				Text = "🔴 RESET: gotówka, kurniki, flota, populacja kur, badania zwykłe.\n🟢 ZACHOWANE: wszystkie Kryształy Prestiżu, Diamenty 💎, Pety i ich poziomy, Badania Epickie, Trofea i Przepustki.",
 		ZIndex = 52,
 	}, warningPill)
 	addTextStroke(warningLabel, 1.6)
@@ -3496,7 +3523,7 @@ function HUD:_buildPrestigeModal(root)
 	local prestigeActionBtn = createGuiElement("TextButton", {
 		Name = "PrestigeActionButton",
 		Size = isRoblox and UDim2.new(1, -32, 0, 54) or nil,
-		Position = isRoblox and UDim2.new(0, 16, 0, 334) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 0, 433) or nil,
 		BackgroundColor3 = isRoblox and Color3.fromRGB(160, 45, 230) or nil,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
@@ -4018,7 +4045,7 @@ function HUD:update()
     for day,cell in self.calendarDayCells or {} do
         local reward=progress and progress.calendar and progress.calendar[day]
         local label=cell:FindFirstChild("RewardText")
-        if label then label.Text=if reward then (if reward.available then reward.rewardType.." "..reward.amount else "Niedostępne") else "Dane z serwera" end
+        if label then label.Text=if reward then (if reward.available then (if reward.rewardType=="GE" then "💎 "..reward.amount else reward.rewardType.." "..reward.amount) else "Niedostępne") else "Dane z serwera" end
     end
     for i,card in self.petInventoryCards or {} do
         local pet=self._visiblePets[i]
@@ -4738,6 +4765,18 @@ function HUD:_updatePrestigeDisplay(farm)
 	end
 	if self.prestigeCurrentBonusLabel then
 		self.prestigeCurrentBonusLabel.Text = string.format("Bonus do zarobków: +%s%% (+%d%% z każdego kryształu)", if totalBonusPercent ~= nil then formatCompact(totalBonusPercent) else "—", bonusPerCrystal)
+	end
+	if self.prestigeSubLabel then
+		local eventMult = if progress.prestigeEventMult ~= nil then (if codec and codec.Real64 then codec.Real64.decode(progress.prestigeEventMult) else tonumber(progress.prestigeEventMult) or 1) else 1
+		self.prestigeSubLabel.Text = if eventMult > 1 then string.format("Aktywny event: ×%s Prestiż!", formatCompact(eventMult)) else "Zwiększaj dochód farmy, aby zdobyć jeszcze więcej kryształów!"
+	end
+	if self.prestigeAfterBonusLabel then
+		local afterPercent = if progress.earningBonusAfter ~= nil then (if codec and codec.Real64 then math.floor(codec.Real64.decode(progress.earningBonusAfter)) else tonumber(progress.earningBonusAfter) or 0) else nil
+		if afterPercent ~= nil and totalBonusPercent ~= nil then
+			self.prestigeAfterBonusLabel.Text = string.format("Po prestiżu: +%s%% (+%s%%)", formatCompact(afterPercent), formatCompact(afterPercent - totalBonusPercent))
+		else
+			self.prestigeAfterBonusLabel.Text = "Po prestiżu: —"
+		end
 	end
 	if self.prestigePendingLabel then
 		self.prestigePendingLabel.Text = string.format("+%s KRYSZTAŁÓW PRESTIŻU", pendingText)

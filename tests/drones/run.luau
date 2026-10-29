@@ -122,6 +122,7 @@ do
 	ok(ok1, "hit within flight window accepted")
 	eq(spawn.claimed, true, "spawn marked as claimed")
 	ok(rew1 ~= nil, "reward returned")
+	ok(rew1 ~= nil and rew1.type == "GE" and string.sub(rew1.formattedAmount or "", -5) == " 💎", "#96 GE formattedAmount uses diamond, not GE")
 
 	-- Second hit on same spawn: rejected with ALREADY_CLAIMED
 	local geBefore = prof.permanent.GE
@@ -292,6 +293,9 @@ do
 	local sCashSmall = Drones.createDroneSpawn("sc_small", 0, { droneCashGuaranteed = true }, prof, 1.0, 0.99)
 	local _, rcSmall = Drones.claimDrone(sCashSmall, 100, prof, { droneCashGuaranteed = true }, { u2 = 0.50 }, fv, curve0Val)
 	near(rcSmall.amount, 20.0, 1e-12, "regular cash b=0.02 matches 20")
+	-- #97: presentation string is rounded to <= 2 decimals; amount keeps full precision.
+	eq(rcSmall.formattedAmount, "$20", "cash formattedAmount plain integer")
+	eq(rcBig.formattedAmount, "$500", "cash formattedAmount 500")
 
 	-- Elite cash formula: FV * (10 / 50) * min(struggle, 10) * droneRewardMult * sqrt(chickenMult)
 	-- Overwrites b: independent of u2!
@@ -354,6 +358,7 @@ do
 	ok(reward1 ~= nil, "reward returned")
 	eq(reward1.type, "Cash", "reward type is Cash")
 	near(reward1.amount, 0.4000000059604645, 1e-12, "cash amount matches formula with small population exception")
+	eq(reward1.formattedAmount, "$0.4", "#97 cash formattedAmount rounded to 2 decimals")
 
 	-- 2. Idempotency / Duplicate hit rejection on server
 	local okHitDup, errDup = server:hitDrone("999", "drone_srv_1", {operationId="duplicate-hit"})

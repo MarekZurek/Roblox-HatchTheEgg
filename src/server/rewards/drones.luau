@@ -23,6 +23,27 @@ end, "../pets/equipment")
 local BigAmount = Codec.BigAmount
 local ExactUInt = Codec.ExactUInt
 
+-- Presentation only: rounds to 2 decimals with K/M/B/T suffixes. Wallet math keeps full precision.
+local CASH_SUFFIXES = table.freeze({ { 1e12, "T" }, { 1e9, "B" }, { 1e6, "M" }, { 1e3, "K" } })
+local function formatCashPresentation(value: number): string
+	local function trim(s: string): string
+		if string.find(s, ".", 1, true) then
+			s = string.gsub(s, "0+$", "")
+			s = string.gsub(s, "%.$", "")
+		end
+		return s
+	end
+	if value ~= value or value == math.huge then
+		return "$" .. tostring(value)
+	end
+	for _, tier in CASH_SUFFIXES do
+		if value >= tier[1] then
+			return "$" .. trim(string.format("%.2f", value / tier[1])) .. tier[2]
+		end
+	end
+	return "$" .. trim(string.format("%.2f", value))
+end
+
 local Drones = {
 	VERSION = 1,
 }
@@ -277,7 +298,7 @@ local function claimDrone(
 		local reward: DroneReward = {
 			type = "GE",
 			amount = finalGE,
-			formattedAmount = tostring(finalGE) .. " GE",
+			formattedAmount = tostring(finalGE) .. " 💎",
 		}
 		spawn.reward = reward
 		return true, reward
@@ -328,7 +349,7 @@ local function claimDrone(
 		local reward: DroneReward = {
 			type = "Cash",
 			amount = finalCash,
-			formattedAmount = BigAmount.encode(finalCash),
+			formattedAmount = formatCashPresentation(finalCash),
 		}
 		spawn.reward = reward
 		return true, reward

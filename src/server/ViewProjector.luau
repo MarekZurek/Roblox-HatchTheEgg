@@ -327,6 +327,12 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
             return eb * 100
         end)
         local earningBonusStr = if ebOk and earningBonusPct ~= nil then codec.Real64.encode(earningBonusPct) else nil
+        -- Preview of the income bonus after claiming pendingSE; authoritative server formula, display only.
+        local afterOk, earningBonusAfterPct = pcall(function()
+            if not pendingOk or pendingSE == nil then error("no pending preview") end
+            return FvSe.calculateEarningBonus(se + pendingSE, pe, soulFoodLvl, prophecyBonusLvl) * 100
+        end)
+        local earningBonusAfterStr = if afterOk and earningBonusAfterPct ~= nil then codec.Real64.encode(earningBonusAfterPct) else nil
         for day=1,28 do
             local reward=Calendar.resolveReward(cycle*28+day-1,ActionReference.calendar,homeFV)
             table.insert(calendar,{day=day,available=reward~=nil,rewardType=if reward then reward.rewardType else "Unavailable",amount=codec.BigAmount.encode(if reward then reward.amountNumber else 0)})
@@ -345,7 +351,7 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
             paidRandomPolicy=if paidAllowed==nil then "unknown" elseif paidAllowed then "allowed" else "restricted",
             numDailyGiftsCollected=profile.rewards.numDailyGiftsCollected or 0,lastCalendarDayUtc=profile.rewards.lastCalendarDayUtc or -1,
             pets=pets,equipped=deepCopy(profile.inventory.equipped),trophies=claimed,calendar=calendar,shellScripts=profile.permanent.shellScripts or "0",epic=deepCopy((profile.permanent and profile.permanent.epic) or {}),
-            pendingSE=pendingSEStr,earningBonus=earningBonusStr}
+            pendingSE=pendingSEStr,earningBonus=earningBonusStr,earningBonusAfter=earningBonusAfterStr,prestigeEventMult=codec.Real64.encode(prestigeEventMult)}
     end
     local commitRevision = (profile.meta and profile.meta.revision) or "0"
 	local configRev = (profile.meta and profile.meta.configRevision) or self.configRevision

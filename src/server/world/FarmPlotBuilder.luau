@@ -113,8 +113,8 @@ local function formatCompact(value)
 	end
 	for _, tier in ipairs(SUFFIXES) do
 		if n >= tier[1] then
-			local s = string.format("%.1f", n / tier[1])
-			s = string.gsub(s, "%.0$", "")
+			local s = string.format("%.2f", n / tier[1])
+			s = string.gsub(s, "%.?0+$", "")
 			return s .. tier[2]
 		end
 	end
@@ -2044,7 +2044,7 @@ function FarmPlotBuilder:_buildPetIncubatorStation(worldFolder)
 		sub.BackgroundTransparency = 1
 		sub.Font = Enum.Font.FredokaOne
 		sub.TextScaled = true
-		sub.Text = "[E] Wykluj Nowego Peta (100 GE)"
+		sub.Text = "[E] Wykluj Nowego Peta (100 💎)"
 		sub.TextColor3 = Color3.fromRGB(255, 255, 255)
 		sub.Parent = bb
 

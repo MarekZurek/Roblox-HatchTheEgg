@@ -5,9 +5,9 @@
 
 - [x] Zaktualizować kontrakt po usunięciu aktywnego RCB —28.10.2026; stały mnożnik dochodu, grupy i dotarcia zachowane.
 - [x] [#93](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/93): Wdrożono Decyzję R — silosy usunięte na rzecz stałego limitu offline 6h/18h, Hyperloop odłożony jako "Egg to the Moon 🚀", badanie `silo_capacity` zablokowane, zaktualizowano HUD i testy (zamknięte).
-- [ ] [#98](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/98): Dedykowane okno prestiżu z pełnym zestawieniem korzyści i widocznym dostępem w UI
-- [ ] [#97](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/97): Zaokrąglanie kwot gotówki (Cash) do 2 miejsc po przecinku w całej grze i nagrodach z dronów
-- [ ] [#96](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/96): Zweryfikować i ujednolicić oznaczenie nagród z prezentów i dronów: "GE" -> "Diamenty" (💎)
+- [x] [#98](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/98): Dedykowane okno prestiżu z pełnym zestawieniem korzyści i widocznym dostępem w UI — kod i testy L gotowe; **do dokończenia:** weryfikacja w Studio ([raport](workflow/issues_96_98_2026_10_29.md)).
+- [x] [#97](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/97): Zaokrąglanie kwot gotówki (Cash) do 2 miejsc po przecinku w całej grze i nagrodach z dronów — kod i testy L gotowe; **do dokończenia:** weryfikacja w Studio ([raport](workflow/issues_96_98_2026_10_29.md)).
+- [x] [#96](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/96): Zweryfikować i ujednolicić oznaczenie nagród z prezentów i dronów: "GE" -> "Diamenty" (💎) — kod i testy L gotowe; **do dokończenia:** weryfikacja w Studio ([raport](workflow/issues_96_98_2026_10_29.md)).
 - [ ] [#95](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/95): Usunąć modele silosów z mapy 3D farmy (`FarmPlotBuilder.luau`).
 - [ ] [#92](https://github.com/MarekZurek/Roblox-HatchTheEgg/issues/92): Aktywacja boostów z ekwipunku gracza oraz wpięcie sklepu boostów.
 

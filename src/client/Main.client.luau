@@ -282,7 +282,8 @@ if serverToClient then
 				audio:playSFX("coin")
 			end
 			local rw = message.reward
-			local desc = if rw and rw.formattedAmount then ("+" .. tostring(rw.formattedAmount)) elseif rw and rw.amount then ("+" .. tostring(rw.amount) .. " " .. tostring(rw.type or "")) else "+1 Nagroda"
+			local hudRef = client:getHUD()
+			local desc = if rw and rw.type == "Cash" and hudRef and tonumber(rw.amount) then ("+" .. hudRef:formatCash(tonumber(rw.amount))) elseif rw and rw.formattedAmount then ("+" .. (string.gsub(tostring(rw.formattedAmount), " GE$", " 💎"))) elseif rw and rw.amount then ("+" .. tostring(rw.amount) .. " " .. (if rw.type == "GE" then "💎" else tostring(rw.type or ""))) else "+1 Nagroda"
 			showLootNotification("🎁 ZEBRANO PREZENT!", desc)
 			return
 		elseif type(message) == "table" and message.kind == "OfferClaimedPopup" then
@@ -291,7 +292,8 @@ if serverToClient then
 				audio:playSFX("coin")
 			end
 			local rw = message.reward
-			local desc = if rw and rw.amount then ("+" .. tostring(rw.amount) .. " " .. tostring(rw.rewardType or "")) else "+1 Paczka Otwarta"
+			local hudRef = client:getHUD()
+			local desc = if rw and rw.rewardType == "Cash" and hudRef and tonumber(rw.amountNumber) then ("+" .. hudRef:formatCash(tonumber(rw.amountNumber))) elseif rw and rw.amount then ("+" .. tostring(rw.amount) .. " " .. (if rw.rewardType == "GE" then "💎" else tostring(rw.rewardType or ""))) else "+1 Paczka Otwarta"
 			showLootNotification("📦 PACZKA 2+1 ODEBRANA!", desc)
 			return
 		elseif type(message) == "table" and message.kind == "PetHatched" then
