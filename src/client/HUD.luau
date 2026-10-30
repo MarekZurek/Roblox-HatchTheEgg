@@ -3262,7 +3262,7 @@ function HUD:_buildEggUpgradeModal(root)
 	local win = self.ui:window({
 		parent = root, name = "EggUpgradeModal", family = "egg",
 		title = "STACJA BADAWCZA JAJ",
-		designWidth = 440, designHeight = 400,
+		designWidth = 440, designHeight = 360,
 	})
 	local eggModal = win.frame
 	self.eggUpgradeModal = eggModal
@@ -3323,16 +3323,6 @@ function HUD:_buildEggUpgradeModal(root)
 		end,
 	})
 	self.eggUpgradeBtn = upgEggBtn
-
-	self.eggPrestigeBtn = self.ui:button(eggModal, {
-		name = "PrestigeFromEggButton", text = "✨ ODRÓDŹ FARMĘ (PRESTIŻ)", tone = "secondary",
-		size = { 1, -40, 0, 42 }, position = { 0, 20, 0, 350 },
-		textStroke = 2.0, maxTextSize = 16,
-		onClick = function()
-			eggModal.Visible = false
-			self:togglePrestigeModal(true)
-		end,
-	})
 end
 
 function HUD:_buildPetHatchModal(root)
