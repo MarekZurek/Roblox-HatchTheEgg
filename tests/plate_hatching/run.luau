@@ -300,7 +300,7 @@ end
 do
 	local h = harness(function(p)
 		p.permanent.SE = "100000"
-		p.farm.common.coordinated_clucking = 50
+		p.farm.common.flock_motivation = 40
 	end)
 	sample(h, 0.5, true)
 	eq(h.farm().runningCount, "15", "plate hatches before the reset")

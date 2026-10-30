@@ -59,7 +59,7 @@ local ready=all(grouped(1),1300);eq(ready.state.farm.cash,10+(1/30*.3*1.00))
 local awayGroup=grouped(100);awayGroup.farm.siloOwned=0;local closed=all(awayGroup,61001)
 eq(closed.state.farm.habitats[1].population,"1");eq(closed.state.farm.runningCount,"0");eq(closed.state.farm.cash,10)
 -- Common IHR rate is 2/min at level1; growth affects following production only.
-local growth=state("0");growth.farm.commonLevels.internal_hatchery1=1;growth.farm.habitats[1].fractionalIHR=.995
+local growth=state("0");growth.farm.commonLevels.internal_hatchery=1;growth.farm.habitats[1].fractionalIHR=.995
 local growthMid=T.advance(T.begin(growth,1600,cfg()),1);eq(growthMid.state.farm.cash,10)
 local growthDone=T.advance(growthMid,1);eq(growthDone.state.farm.habitats[1].population,"1")
 eq(T.advance(growthDone,1).state.farm.cash>10,true)

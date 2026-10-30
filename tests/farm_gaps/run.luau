@@ -104,7 +104,7 @@ end
 for _,level in {0,1,10} do
  local h=harness(function(p)
   p.farm.habitats[1].population='250';p.farm.habitats[2].typeIndex=0
-  p.farm.common.internal_hatchery1=1;p.permanent.epic.int_hatch_sharing=level
+  p.farm.common.internal_hatchery=1;p.permanent.epic.int_hatch_sharing=level
  end)
  h.step(.3)
  near(C.Real64.decode(h.p().farm.habitats[2].fractionalIHR),.01*(1+.1*level),'own IHR plus shared IHR')
@@ -117,7 +117,7 @@ end
 do
  local h=harness(function(p)
   for i=1,4 do p.farm.habitats[i].typeIndex=0;p.farm.habitats[i].population='250' end
-  p.farm.common.internal_hatchery1=1;p.permanent.epic.int_hatch_sharing=10
+  p.farm.common.internal_hatchery=1;p.permanent.epic.int_hatch_sharing=10
  end)
  h.step(.3)
  for _,hab in h.p().farm.habitats do eq(hab.population,'250');eq(hab.fractionalIHR,'0')end
@@ -205,7 +205,7 @@ do
  local T=require('../../src/server/TimelineSimulation').new(C,M,H,I,D,{mode='INTERNAL_TEST_ONLY'})
  local function memory()
   local p=S.createReference('1',ORIGIN)
-  p.farm.hatcheryStock=250;p.farm.cash=0;p.farm.commonLevels={internal_hatchery1=1};p.farm.vehicleTypes={0}
+  p.farm.hatcheryStock=250;p.farm.cash=0;p.farm.commonLevels={internal_hatchery=1};p.farm.vehicleTypes={0}
   p.permanent.epic={int_hatch_sharing=10,hold_to_hatch=15}
   for i,hab in p.farm.habitats do hab.typeIndex=if i<3 then 0 else -1;hab.capacity=if i<3 then '250' else '0';hab.population=if i==1 then '250' else '0';hab.fractionalIHR=0 end
   return {settledWallThrough=ORIGIN,farm=p.farm,permanent=p.permanent,accounting={prestigeSessionArchivedCash=0,currentFarmCash=0,prestigeExtraEarnings=0,lastBaseEarnings=0,lastCashEarned=0}}

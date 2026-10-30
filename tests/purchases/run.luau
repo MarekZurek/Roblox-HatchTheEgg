@@ -58,9 +58,15 @@ do
 	local valid, err = ProtocolSchemas.validateServer(quote)
 	ok(valid, "QuoteView passes ProtocolSchemas validation: " .. tostring(err))
 
-	-- 1.2 TIER_LOCKED block (hab_capacity1 is tier 1, requires 30 points)
-	local targetTier1 = { kind = "BuyResearch", args = { researchId = "hab_capacity1", mode = "single" } }
-	local quoteLocked = FarmActions.createQuote(p, Catalog, targetTier1, "req-2", "0", "q-2", 1000000, "cfg:1")
+	-- 1.2 TIER_LOCKED block (hab_expansion with locked catalog requires 30 points)
+	local lockedCatalog = setmetatable({
+		tierThreshold = function(tier)
+			if tier >= 1 then return 30 end
+			return 0
+		end,
+	}, { __index = Catalog })
+	local targetTier1 = { kind = "BuyResearch", args = { researchId = "hab_expansion", mode = "single" } }
+	local quoteLocked = FarmActions.createQuote(p, lockedCatalog, targetTier1, "req-2", "0", "q-2", 1000000, "cfg:1")
 	eq(quoteLocked.available, false)
 	eq(quoteLocked.blockedReason, "TIER_LOCKED")
 	local validLocked, errLocked = ProtocolSchemas.validateServer(quoteLocked)
@@ -68,18 +74,18 @@ do
 
 	-- Unlock tier by giving 30 points in comfy_nests
 	p.farm.common.comfy_nests = 30
-	local quoteUnlocked = FarmActions.createQuote(p, Catalog, targetTier1, "req-3", "0", "q-3", 1000000, "cfg:1")
+	local quoteUnlocked = FarmActions.createQuote(p, lockedCatalog, targetTier1, "req-3", "0", "q-3", 1000000, "cfg:1")
 	eq(quoteUnlocked.available, true)
 	eq(quoteUnlocked.blockedReason, nil)
 	eq(quoteUnlocked.nextLevel, 1)
 
 	-- 1.3 MAX_LEVEL block
-	p.farm.common.better_incubators = 15 -- maxLevel is 15
-	local targetMax = { kind = "BuyResearch", args = { researchId = "better_incubators", mode = "single" } }
+	p.farm.common.egg_genetics = 10 -- maxLevel is 10
+	local targetMax = { kind = "BuyResearch", args = { researchId = "egg_genetics", mode = "single" } }
 	local quoteMax = FarmActions.createQuote(p, Catalog, targetMax, "req-4", "0", "q-4", 1000000, "cfg:1")
 	eq(quoteMax.available, false)
 	eq(quoteMax.blockedReason, "MAX_LEVEL")
-	eq(quoteMax.nextLevel, 15)
+	eq(quoteMax.nextLevel, 10)
 	eq(quoteMax.cashCost, "0")
 	local validMax, errMax = ProtocolSchemas.validateServer(quoteMax)
 	ok(validMax, "MAX_LEVEL QuoteView valid: " .. tostring(errMax))
@@ -192,15 +198,22 @@ do
 	eq(badOutcome.result.errorCode, "UNSUPPORTED_OPERATION")
 
 	-- 3.2 TIER_LOCKED rejection
-	local opTierLocked = { kind = "BuyResearch", args = { researchId = "hab_capacity1", mode = "single", quoteId = "q" } }
-	local outLocked = actions.apply(p, opTierLocked)
+	local lockedCatalog = setmetatable({
+		tierThreshold = function(tier)
+			if tier >= 1 then return 30 end
+			return 0
+		end,
+	}, { __index = Catalog })
+	local actionsLocked = FarmActions.new(C, lockedCatalog, { mode = "INTERNAL_TEST_ONLY" })
+	local opTierLocked = { kind = "BuyResearch", args = { researchId = "hab_expansion", mode = "single", quoteId = "q" } }
+	local outLocked = actionsLocked.apply(p, opTierLocked)
 	eq(outLocked.terminalStatus, "REJECTED")
 	eq(outLocked.result.errorCode, "TIER_LOCKED")
 	eq(p.farm.cash, "1000") -- unchanged
 
 	-- 3.3 MAX_LEVEL rejection
-	p.farm.common.better_incubators = 15
-	local opMax = { kind = "BuyResearch", args = { researchId = "better_incubators", mode = "single", quoteId = "q" } }
+	p.farm.common.egg_genetics = 10
+	local opMax = { kind = "BuyResearch", args = { researchId = "egg_genetics", mode = "single", quoteId = "q" } }
 	local outMax = actions.apply(p, opMax)
 	eq(outMax.terminalStatus, "REJECTED")
 	eq(outMax.result.errorCode, "MAX_LEVEL")
@@ -446,7 +459,7 @@ do
 		kind = "BuyResearch",
 		operationId = "op-research-1",
 		expectedRevision = "1",
-		args = { researchId = "nutritional_sup", mode = "single", quoteId = "q-diff" },
+		args = { researchId = "egg_diet", mode = "single", quoteId = "q-diff" },
 	}
 	local conflictRes = actor.submit(conflictOp)
 	eq(conflictRes.status, "REJECTED")

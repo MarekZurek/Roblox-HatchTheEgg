@@ -374,12 +374,10 @@ client:getStore():onStateChanged(function()
 		if hud.shopFrame and hud.shopFrame.Visible then
 			for _, rId in ipairs({
 				"comfy_nests",
-				"nutritional_sup",
-				"better_incubators",
-				"hab_capacity1",
-				"internal_hatchery1",
-				"hatchery_expansion",
-				"leafsprings",
+				"egg_diet",
+				"internal_hatchery",
+				"hab_expansion",
+				"fleet_capacity",
 			}) do
 				client:requestQuote({ kind = "BuyResearch", args = { researchId = rId, mode = "single" } })
 			end
@@ -415,12 +413,10 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt, playerWhoTrigger
 			hud:toggleResearchModal(true)
 			for _, rId in ipairs({
 				"comfy_nests",
-				"nutritional_sup",
-				"better_incubators",
-				"hab_capacity1",
-				"internal_hatchery1",
-				"hatchery_expansion",
-				"leafsprings",
+				"egg_diet",
+				"internal_hatchery",
+				"hab_expansion",
+				"fleet_capacity",
 			}) do
 				client:requestQuote({ kind = "BuyResearch", args = { researchId = rId, mode = "single" } })
 			end

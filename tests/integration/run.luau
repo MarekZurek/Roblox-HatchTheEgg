@@ -382,8 +382,15 @@ do
 	eq(client2:getStore():getCommitRevision(), "4", "Client commitRevision restored to 4")
 
 	local f = client2:getFarm()
-	eq(f.common[1].researchId, "comfy_nests", "First research is comfy_nests")
-	eq(f.common[1].level, 1, "Restored comfy_nests level is 1")
+	local comfyEntry
+	for _, item in f.common do
+		if item.researchId == "comfy_nests" then
+			comfyEntry = item
+			break
+		end
+	end
+	ok(comfyEntry ~= nil, "comfy_nests present in common researches")
+	eq(comfyEntry.level, 1, "Restored comfy_nests level is 1")
 	eq(f.habitats[1].habitatIndex, 1, "Restored hab 1 is SHACK (index 1)")
 	eq(f.habitats[1].capacity, "500", "Restored hab 1 capacity is 500")
 	eq(f.habitats[1].population, "1", "Restored hab 1 population is 1")

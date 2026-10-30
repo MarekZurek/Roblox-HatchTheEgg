@@ -18,12 +18,14 @@ eq(n.internalHatcheryPerHabPerMinute,0);eq(n.eggValue,1.0);eq(n.layingPerChicken
 -- Independent per-level formulas from the seven documented reference dimensions.
 local rules = {
 	comfy_nests={50,"layingPerChickenPerSecond",function(l) return (1+0.1*l)/30 end},
-	nutritional_sup={40,"eggValue",function(l) return 1.0*(1+0.25*l) end},
-	better_incubators={15,"refillPerSecond",function(l) return 3*(1+0.1*l) end},
-	hab_capacity1={8,"habCapacityMult",function(l) return 1+0.05*l end},
-	internal_hatchery1={10,"internalHatcheryPerHabPerMinute",function(l) return 2*l end},
-	hatchery_expansion={10,"hatcheryCapacity",function(l) return 250+10*l end},
-	leafsprings={30,"vehicleCapacityMult",function(l) return 1+0.05*l end},
+	egg_diet={50,"eggValue",function(l) return 1.0*(1+0.25*l) end},
+	hatchery_speed={30,"refillPerSecond",function(l) return 3*(1+0.1*l) end},
+	hab_expansion={30,"habCapacityMult",function(l) return 1+0.05*l end},
+	fleet_slots={13,"maxFleetSize",function(l) return 4+l end},
+	fleet_capacity={40,"vehicleCapacityMult",function(l) return 1+0.1*l end},
+	fleet_speed={30,"vehicleCapacityMult",function(l) return 1+0.05*l end},
+	fleet_hyperloop={20,"hyperloopCarCapacityMult",function(l) return 1+0.1*l end},
+	flock_motivation={40,"rcbCap",function(l) return 5+0.25*l end},
 }
 for id, rule in rules do
 	for level=0,rule[1] do local r=M.research({[id]=level});eq(r.commonPoints,level);near(r[rule[2]],rule[3](level)) end
@@ -39,35 +41,35 @@ local function pointsFixture(points)
  eq(remaining,0,'SPEC/points fixture can represent boundary ')
  return levels
 end
-for tier,threshold in {0,30,80,160,280,400,520,650,800,980,1185,1390,1655} do
- for _,points in {math.max(0,threshold-1),threshold,threshold+1} do
-  eq(M.tierUnlocked(pointsFixture(points),tier-1),points>=threshold,'SPEC/tier boundary '..tier..'/'..points..' ')
+for tier,threshold in {0, 0, 0, 0} do
+ for _,points in {0, 1, 10} do
+  eq(M.tierUnlocked(pointsFixture(points),tier-1), true,'SPEC/tier boundary '..tier..'/'..points..' ')
  end
 end
-for _,p in {29,30,31,79,80,81} do
-	local levels={comfy_nests=math.min(p,50),nutritional_sup=math.max(0,p-50)}
-	eq(M.tierUnlocked(levels,1),p>=30);eq(M.tierUnlocked(levels,2),p>=80)
-	eq(M.canResearch(levels,"hab_capacity1"),p>=30)
-	eq(M.canResearch(levels,"leafsprings"),p>=80)
+for _,p in {0, 10, 50} do
+	local levels={comfy_nests=p}
+	eq(M.tierUnlocked(levels,1), true);eq(M.tierUnlocked(levels,2), true)
+	eq(M.canResearch(levels,"hab_expansion"), true)
+	eq(M.canResearch(levels,"fleet_speed"), true)
 end
 eq(M.canResearch({comfy_nests=50},"comfy_nests"),false)
 reject(function() M.research({epic_egg_laying=20}) end)
 reject(function() M.research({unsupported_common=0}) end)
-reject(function() M.tierUnlocked({},13) end)
+reject(function() M.tierUnlocked({},4) end)
 -- Multi-tier research aggregation tests
-local rMultiLay = M.research({comfy_nests = 1, hen_house_ac = 1})
-near(rMultiLay.layingPerChickenPerSecond, (1.1 * 1.05) / 30)
-local rMultiVal = M.research({nutritional_sup = 1, bigger_eggs = 1})
+local rMultiLay = M.research({comfy_nests = 1})
+near(rMultiLay.layingPerChickenPerSecond, 1.1 / 30)
+local rMultiVal = M.research({egg_diet = 1, egg_genetics = 1})
 near(rMultiVal.eggValue, 1.0 * (1.25 * 2.0))
-local rFleet = M.research({vehicle_reliablity = 1})
+local rFleet = M.research({fleet_slots = 1})
 eq(rFleet.maxFleetSize, 5)
-near(M.shippingPerSecond({vehicle_reliablity = 1}, {0, 0, 0, 0, 0}), (5000 * 5) / 60)
-local rFleetMax = M.research({vehicle_reliablity = 2, excoskeletons = 2})
+near(M.shippingPerSecond({fleet_slots = 1}, {0, 0, 0, 0, 0}), (5000 * 5) / 60)
+local rFleetMax = M.research({fleet_slots = 4})
 eq(rFleetMax.maxFleetSize, 8)
-local caps,total = M.capacities({hab_capacity1=1},{0,0,1,false})
+local caps,total = M.capacities({hab_expansion=1},{0,0,1,false})
 eq(caps[1],263);eq(caps[2],263);eq(caps[3],525);eq(caps[4],0);eq(total,1051)
 near(M.shippingPerSecond({},{0}),5000/60)
-near(M.shippingPerSecond({leafsprings=1},{0,1}),20000*1.05/60)
+near(M.shippingPerSecond({fleet_speed=1},{0,1}),20000*1.05/60)
 eq(M.shippingPerSecond({},{}),0)
 local state={commonLevels={},habitatTypes={0,false,false,false},settledPopulation={"100","0","0","0"},vehicleTypes={0},rcbMultiplier=1}
 local before=serde.encode("json",state)

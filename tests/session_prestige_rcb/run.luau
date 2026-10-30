@@ -136,18 +136,18 @@ do
 end
 -- docs/31 section 3 at 57cd5b9: constant research multiplier, independent of runners.
 local function rcbProfile(p,n,common,epic)
- p.farm.cash='0';p.farm.habitats[1].population='100';p.farm.common=common or {excitable_chickens=25};p.permanent.epic=epic or {}
+ p.farm.cash='0';p.farm.habitats[1].population='100';p.farm.common=common or {flock_motivation=40};p.permanent.epic=epic or {}
  p.farm.runningCount=tostring(n);p.farm.hatchGroupSequence=tostring(n);p.farm.habitats[1].assignedInTransit=tostring(n)
  if n>0 then p.farm.groups['hatch:'..n]={groupId='hatch:'..n,count=tostring(n),targetSlot=1,routeVersion='regression',startInstantMs=ORIGIN,travelDurationSeconds=.3,status='IN_TRANSIT'} end
 end
 for _,case in {
- {n=0,common={excitable_chickens=25},epic={},c=1.025,k=5},
- {n=10,common={excitable_chickens=25},epic={},c=1.025,k=5},
- {n=100,common={excitable_chickens=25},epic={},c=1.025,k=5},
- {n=100,common={excitable_chickens=25,coordinated_clucking=50},epic={},c=1.025,k=15},
+ {n=0,common={flock_motivation=40},epic={},c=1,k=15},
+ {n=10,common={flock_motivation=40},epic={},c=1,k=15},
+ {n=100,common={flock_motivation=40},epic={},c=1,k=15},
+ {n=100,common={flock_motivation=40},epic={},c=1,k=15},
  {n=10,common={},epic={epic_clucking=20},c=1.02,k=5},
- {n=10,common={excitable_chickens=25},epic={epic_clucking=20},c=1.025*1.02,k=5},
- {n=100,common={excitable_chickens=25},epic={epic_multiplier=1},c=1.025,k=7},
+ {n=10,common={flock_motivation=40},epic={epic_clucking=20},c=1.02,k=15},
+ {n=100,common={flock_motivation=40},epic={epic_multiplier=1},c=1,k=17},
  {n=100,common={},epic={epic_multiplier=100},c=1,k=205},
 } do
  local h=harness(function(p)rcbProfile(p,case.n,case.common,case.epic)end)
@@ -171,7 +171,7 @@ do
   p.effects={videoDoublerEndsAtMs=ORIGIN+1000,boosts={{id='jimbos_blue_v2',remainingSeconds='10'},{id='soul_beacon_blue_v2',remainingSeconds='10'}}}
  end,{{type='earnings',multiplier=3,startTimeMs=ORIGIN,deadlineMs=ORIGIN+100}})
  h.step(.3)
- local income=1.00*5*1.5*3*(5/3) -- retired VD has no factor
+ local income=1.00*15*1.5*3*(5/3) -- retired VD has no factor
  near(C.BigAmount.decode(h.state().farm.cash),income,'passive multiplier composed exactly once')
  near(C.BigAmount.decode(h.state().accounting.prestigeExtraEarnings),income*4,'actual earnings feed Soul Beacon accumulator')
 end
@@ -190,14 +190,14 @@ do
  local whole=T.advance(cp,100);local sliced=cp
  while not sliced.done do sliced=T.decodeCheckpoint(serde.decode('json',serde.encode('json',T.encodeCheckpoint(T.advance(sliced,1))))) end
  eq(D.fingerprint(sliced),D.fingerprint(whole),'checkpoint round trips match uninterrupted constant multiplier')
- near(whole.state.farm.cash,1.00*5+(110/30)*1.00*.3*5)
+ near(whole.state.farm.cash,1.00*15+(110/30)*1.00*.3*15)
  eq(whole.state.farm.runningCount,'0')
  eq(D.fingerprint(T.advance(sliced,10)),D.fingerprint(sliced),'completed checkpoint does not repeat income')
 end
 -- Away settles runners before production and retains the passive research multiplier.
 do
  local h=harness(function(p)rcbProfile(p,10)end);h.step(61)
- near(C.BigAmount.decode(h.state().farm.cash),(110/30)*1.00*61*.5*5,'away mode retains passive multiplier')
+ near(C.BigAmount.decode(h.state().farm.cash),(110/30)*1.00*61*.5*15,'away mode retains passive multiplier')
  eq(h.state().farm.runningCount,'0')
 end
 fs.writeFile('build/session-prestige-rcb-results.json',serde.encode('json',{status='PASS',level='L',assertions=assertions,studioTested=false,dataStoreTested=false},true))

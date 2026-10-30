@@ -65,7 +65,7 @@ do
 end
 do
  local b=create(function(p)
-  p.farm.common={internal_hatchery1=1};p.farm.habitats[1].population='0';p.farm.habitats[1].fractionalIHR='0.8'
+  p.farm.common={internal_hatchery=1};p.farm.habitats[1].population='0';p.farm.habitats[1].fractionalIHR='0.8'
   pet(p,'ihr',{ihrMult=.5});pet(p,'alien',{boostBoostMult=.5})
   p.effects.boosts={{id='tachyon_prism_blue_v2',remainingSeconds=10},{id='boost_beacon_blue',remainingSeconds=10}}
  end)
@@ -81,7 +81,7 @@ do
  p=step(b,.3);eq(p.farm.habitats[1].capacity,'250');eq(p.farm.habitats[1].population,'375');near(cash(p),7.5)
 end
 do
- local b=create(function(p)p.farm.common.hab_capacity1=1;pet(p,'cow',{habCapacityMult=.1})end)
+ local b=create(function(p)p.farm.common.hab_expansion=1;pet(p,'cow',{habCapacityMult=.1})end)
  eq(step(b,.3).farm.habitats[1].capacity,'289') -- ceil(250*1.05*1.1), not ceil(ceil(250*1.05)*1.1)
  eq(pcall(function()b.productionMath.productionStep({commonLevels={},habitatTypes={0,0,false,false},settledPopulation={'5000000000000000','5000000000000000','0','0'},vehicleTypes={0},permitExistingPopulation=true},.3)end),false)
 end
@@ -162,7 +162,7 @@ end
 do
  local b=create(function(p)
   p.timeline.settledWallThrough=10000000-61000;p.farm.habitats[1].population='0'
-  p.farm.common.internal_hatchery1=1;p.permanent.epic.int_hatch_calm=20
+  p.farm.common.internal_hatchery=1;p.permanent.epic.int_hatch_calm=20
  end)
  local p=step(b,0);eq(p.farm.habitats[1].population,'6');near(C.Real64.decode(p.farm.habitats[1].fractionalIHR),.1)
 end
