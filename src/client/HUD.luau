@@ -1356,6 +1356,7 @@ function HUD.new(deps)
 		researchTierLockBanner = nil,
 		shopResearch = {},
 		unifiedResearch = {},
+		_legacyHolder = isRoblox and Instance.new("Folder") or {},
 
 		petsModal = nil,
 		equippedPetSlots = {},
@@ -4518,7 +4519,7 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 		local orderIdx = displayOrder or 1
 		local shouldBeVisible = if isTabVisible ~= nil then isTabVisible else true
 		local card = createGuiElement("TextButton", {
-			Name = "ResearchCard_" .. id,
+			Name = "UnifiedResearchCard_" .. id,
 			Visible = shouldBeVisible,
 			Size = isRoblox and UDim2.new(1, -6, 0, 90) or nil,
 			Position = isRoblox and UDim2.new(0, 0, 0, (orderIdx - 1) * 96) or nil,
@@ -4665,6 +4666,10 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 		}
 
 		local function triggerBuy()
+			-- Guard against clicks when disabled or already maxed (EDGE-01)
+			if not item.buyButton.Active or item.statusLabel.Text == "MAX" or item.statusLabel.Text == "LOCKED" then
+				return
+			end
 			local buyTargetId = item.activeId or id
 			self:buyResearch(buyTargetId)
 		end
@@ -4698,6 +4703,12 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 			args = { researchId = activeSubId, mode = "single" },
 		})
 	end
+
+	-- Fresh quote validation (BUG-01)
+	local activeCurLvl = activeResearch and tonumber(activeResearch.level) or 0
+	if quote ~= nil and quote.nextLevel ~= nil and quote.nextLevel <= activeCurLvl then
+		quote = nil
+	end
 	item.quote = quote
 
 	if quote ~= nil and quote.cashCost ~= nil then
@@ -4723,6 +4734,12 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 		item.priceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
 		item.buyButton.Active = false
 		if isRoblox then item.buyButton.BackgroundColor3 = Color3.fromRGB(75, 85, 99) end
+	elseif quote ~= nil and not quote.available and quote.blockedReason == "INSUFFICIENT_CASH" then
+		item.statusLabel.Text = "INSUFFICIENT_CASH"
+		item.actionLabel.Text = "ZA MAŁO $"
+		item.priceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
+		item.buyButton.Active = false
+		if isRoblox then item.buyButton.BackgroundColor3 = Color3.fromRGB(107, 114, 128) end
 	else
 		item.statusLabel.Text = "BUY"
 		item.actionLabel.Text = "KUP"
@@ -4751,14 +4768,14 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 		local orderIdx = displayOrder or 1
 		local shouldBeVisible = if isTabVisible ~= nil then isTabVisible else (research.blockedReason ~= "UNSUPPORTED")
 		local card = createGuiElement("TextButton", {
-			Name = "ResearchCard_" .. id,
+			Name = "LegacyResearchCard_" .. id,
 			Visible = shouldBeVisible,
 			Size = isRoblox and UDim2.new(1, -6, 0, 90) or nil,
 			Position = isRoblox and UDim2.new(0, 0, 0, (orderIdx - 1) * 96) or nil,
 			BackgroundColor3 = isRoblox and Color3.fromRGB(78, 52, 46) or nil,
 			Text = "",
 			AutoButtonColor = false,
-		}, self.shopListContainer or self.shopFrame)
+		}, self._legacyHolder or self.shopFrame)
 		addCornerAndStroke(card, 12, isRoblox and Color3.fromRGB(43, 24, 16) or nil, 2)
 
 		-- Left Icon Badge (44x44)
@@ -5365,6 +5382,73 @@ function HUD:onQuoteReceived(quoteView)
 				end
 				else
 					item.buyButton.Text = reason
+				end
+			end
+		end
+
+		-- Propagate fresh quote to the active unified research card (BUG-01 & BUG-02)
+		if self.unifiedResearch then
+			for _, uItem in pairs(self.unifiedResearch) do
+				if uItem.activeId == target.args.researchId then
+					uItem.quote = quoteView
+					if quoteView.cashCost ~= nil then
+						uItem.priceLabel.Text = HUD.formatCash(quoteView.cashCost)
+					end
+					if quoteView.available then
+						if uItem.statusLabel.Text ~= "MAX" then
+							uItem.available = true
+							uItem.blockedReason = nil
+							uItem.buyButton.Active = true
+							uItem.statusLabel.Text = "BUY"
+							if uItem.actionLabel then
+								uItem.actionLabel.Text = "KUP"
+								uItem.actionLabel.Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil
+								uItem.actionLabel.Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil
+							end
+							uItem.priceLabel.Visible = true
+							uItem.priceLabel.TextColor3 = isRoblox and Color3.fromRGB(254, 240, 138) or nil
+							if isRoblox then
+								uItem.buyButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94)
+								local stroke = uItem.buyButton:FindFirstChildOfClass("UIStroke")
+								if stroke then stroke.Color = Color3.fromRGB(20, 83, 45) end
+							end
+						end
+					else
+						local reason = quoteView.blockedReason or "LOCKED"
+						if uItem.statusLabel.Text ~= "MAX" then
+							uItem.available = false
+							uItem.blockedReason = reason
+							uItem.buyButton.Active = false
+							uItem.statusLabel.Text = reason
+							if reason == "INSUFFICIENT_CASH" then
+								if uItem.actionLabel then
+									uItem.actionLabel.Text = "ZA MAŁO $"
+									uItem.actionLabel.Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil
+									uItem.actionLabel.Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil
+								end
+								uItem.priceLabel.Visible = true
+								uItem.priceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
+								if isRoblox then
+									uItem.buyButton.BackgroundColor3 = Color3.fromRGB(107, 114, 128)
+									local stroke = uItem.buyButton:FindFirstChildOfClass("UIStroke")
+									if stroke then stroke.Color = Color3.fromRGB(75, 85, 99) end
+								end
+							elseif reason == "TIER_LOCKED" then
+								if uItem.actionLabel then
+									uItem.actionLabel.Text = "ZABLOK."
+									uItem.actionLabel.Size = isRoblox and UDim2.new(1, -6, 0.9, 0) or nil
+									uItem.actionLabel.Position = isRoblox and UDim2.new(0, 3, 0.05, 0) or nil
+								end
+								uItem.priceLabel.Visible = false
+								if isRoblox then
+									uItem.buyButton.BackgroundColor3 = Color3.fromRGB(75, 85, 99)
+									local stroke = uItem.buyButton:FindFirstChildOfClass("UIStroke")
+									if stroke then stroke.Color = Color3.fromRGB(31, 41, 55) end
+								end
+							end
+						end
+					end
+					break
 				end
 			end
 		end

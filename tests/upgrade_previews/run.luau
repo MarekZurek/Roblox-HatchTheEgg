@@ -24,6 +24,8 @@ do
 	local h=harness();local farm=h.client:getFarm()
 	eq(h.hud.shopResearch.comfy_nests.subtitleLabel.Text,'Tempo znoszenia: +0% → +10%')
 	eq(h.hud.shopResearch.internal_hatchery1.subtitleLabel.Text,'Kurczaki/min/kurnik: +0 → +2')
+	eq(h.hud.unifiedResearch.comfy_nests.levelLabel.Text,'★ POZ. 0/180','unified comfy_nests starts at 0/180')
+	eq(h.hud.unifiedResearch.internal_hatchery1.levelLabel.Text,'★ POZ. 0/345','unified internal_hatchery starts at 0/345')
 	eq(h.hud.goldenEggsLabel.Text,'Diamenty: 10','GE visible without opening a modal')
 	for i=1,4 do
 		eq(h.hud.vehicleCards[i].card.Visible,true,'four base slots visible')
@@ -37,6 +39,7 @@ do
 	local result
 	h.client:buyResearch('comfy_nests',function(r)result=r end);eq(result.status,'APPLIED');h.sync()
 	eq(h.hud.shopResearch.comfy_nests.subtitleLabel.Text,'Tempo znoszenia: +10% → +20%','effect updates after purchase')
+	eq(h.hud.unifiedResearch.comfy_nests.levelLabel.Text,'★ POZ. 1/180','unified comfy_nests advances to 1/180')
 	h.client:buyHabitat(1,'SHACK',function(r)result=r end);eq(result.status,'APPLIED');h.sync()
 	eq(h.client:getFarm().habitats[1].nextHabitatId,'SUPER SHACK','next target advances past SHACK')
 	local quote
@@ -77,6 +80,7 @@ do
 	eq(h.hud.habitatUpgBtns[1].Text,'MAX');eq(h.hud.habitatUpgBtns[1].Active,false)
 	eq(h.hud.vehicleCards[1].upgBtn.Text,'MAX');eq(h.hud.vehicleCards[1].upgBtn.Active,false)
 	eq(h.hud.shopResearch.comfy_nests.subtitleLabel.Text,'Tempo znoszenia: +500% (MAX)')
+	eq(h.hud.unifiedResearch.comfy_nests.levelLabel.Text,'★ POZ. 50/180','unified comfy_nests tracks cumulative chain levels')
 	eq(h.hud.shopResearch.coordinated_clucking.subtitleLabel.Text:find('%%'),nil,'RCB limit is additive, not percent')
 	h.client:destroy();h.b:close()
 end
