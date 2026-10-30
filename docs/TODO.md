@@ -33,6 +33,7 @@
 
 ## Odłożone na polecenie użytkownika
 
+- [ ] **Gamepass Buy MAX (Paywall / Monetyzacja):** Zgodnie z decyzją użytkownika (30.10.2026), przycisk szybkiego zakupu MAX na 15 scalonych kartach badań (obecnie wdrożony i aktywny do testów mechaniki) w wersji produkcyjnej ma być zablokowany za paywallem (dedykowany gamepass Buy MAX zgodnie z [25. Zatwierdzony podział produktów Roblox](25_approved_product_structure.md) oraz [28 §4.2](28_modules_and_client_server_contract.md)). Kliknięcie przez gracza nieposiadającego uprawnienia powinno wyświetlać monit zakupu gamepassa (Robux) lub otwierać okno oferty.
 - [ ] **Dalsza kalibracja płatnej progresji i ekonomii petów.** Wznowić wyłącznie na kolejne polecenie użytkownika. Zakres: porównania F2P / Pro / 5 slotów / zakupy GE, ostateczne ceny inkubatorów (szczególnie Universe V), limit i tempo odnawiania inkubacji oraz tempo zdobywania i ulepszania petów.
 - [ ] W ramach tego odłożonego zadania poprawić strategie symulacji (boosty, prestiż, rezerwa GE na Hyperloop), uwzględnić wybrany zakres trofeów i wydarzeń oraz sprawdzić dokładność modelu przed zamrożeniem bilansu.
 
