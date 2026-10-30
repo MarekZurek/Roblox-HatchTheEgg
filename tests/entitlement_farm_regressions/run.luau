@@ -99,9 +99,9 @@ end
 -- #72: independent closed-form FV. Only the maximum bonus dimension counts,
 -- not current running chickens, clucking growth, pet equipment or active boosts.
 local baseFV=50*1200*(1/30)*1.00*(250^.6)
-for _,case in {{common={},epic={},cap=0},{common={flock_motivation=40},epic={},cap=10},
- {common={flock_motivation=20},epic={},cap=5},
- {common={flock_motivation=40},epic={epic_multiplier=3,epic_clucking=10},cap=16}} do
+for _,case in {{common={},epic={},cap=0},{common={coordinated_clucking=50},epic={},cap=10},
+ {common={coordinated_clucking=50,motivational_clucking=2},epic={},cap=11},
+ {common={coordinated_clucking=50},epic={epic_multiplier=3,epic_clucking=10},cap=16}} do
  local p=S.createReference('1',ORIGIN);p.farm.common=case.common;p.permanent.epic=case.epic
  near(P.calculateProfileFarmValue(p),baseFV*(1+case.cap)^.25,'max RCB cap in FV')
  p.farm.runningCount='100';p.effects.boosts={{id='fixture',dimension_raw=2,effect=50,remainingSeconds='60'}}
@@ -109,11 +109,11 @@ for _,case in {{common={},epic={},cap=0},{common={flock_motivation=40},epic={},c
  near(P.calculateProfileFarmValue(p),baseFV*(1+case.cap)^.25,'running, pet and boost excluded from FV')
 end
 do
- local h=harness(function(p)p.farm.common.flock_motivation=40;p.rewards.numDailyGiftsCollected=3 end)
+ local h=harness(function(p)p.farm.common.coordinated_clucking=50;p.rewards.numDailyGiftsCollected=3 end)
  local gift=h.cmd('ClaimDailyGift',{},'rcb-calendar')
  eq(gift.status,'APPLIED');near(C.BigAmount.decode(gift.result.amount),baseFV*11^.25*.5,'28-day cash resolver uses corrected FV')
  local p=S.createReference('1',ORIGIN);p.permanent.SE='25000'
- eq(P.canUpgradeEgg(p,1),false);p.farm.common.flock_motivation=40
+ eq(P.canUpgradeEgg(p,1),false);p.farm.common.coordinated_clucking=50
  eq(P.canUpgradeEgg(p,1),true,'existing egg threshold uses max RCB')
 end
 -- #73: raw first-price oracles from unchanged reference_data, never createQuote.
@@ -163,7 +163,7 @@ do
  h.step(2100);eq(h.b:getPlayer('1').hatchingRuntime.held,false,'unchanged lease expires')
 end
 do
- local h=harness(function(p)p.permanent.SE='1000';p.farm.common.flock_motivation=40;p.permanent.epic.hold_to_hatch=15 end)
+ local h=harness(function(p)p.permanent.SE='1000';p.farm.common.coordinated_clucking=50;p.permanent.epic.hold_to_hatch=15 end)
  h.input('start',1)
  h.beforeWrite=function()h.records['player:1'].farm.common={} end
  eq(h.cmd('UpgradeEgg',{targetEggIndex=1},'rejected-upgrade').status,'REJECTED')

@@ -77,7 +77,7 @@ for _,vdEnd in {100,300,301} do
 end
 -- Boundaries must not insert extra IHR phases, which would produce new chickens too early.
 do
- local s=state();s.farm.habitats[1].population='0';s.farm.habitats[1].fractionalIHR=.995;s.farm.commonLevels.internal_hatchery=1
+ local s=state();s.farm.habitats[1].population='0';s.farm.habitats[1].fractionalIHR=.995;s.farm.commonLevels.internal_hatchery1=1
  local result=run(s,{event(0,100,3)},300)
  eq(result.state.farm.cash,0,'new IHR chicken cannot produce in the same step')
  eq(result.state.farm.habitats[1].population,'1','IHR advances once')

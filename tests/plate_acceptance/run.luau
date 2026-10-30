@@ -78,7 +78,8 @@ end
 midStep.b:close()
 local function rcbFixture(p)
  p.farm.habitats[1].population='100'
- p.farm.common.flock_motivation=10
+ p.farm.common.excitable_chickens=10
+ p.farm.common.coordinated_clucking=10
 end
 local delayed,split=harness(rcbFixture),harness(rcbFixture)
 delayed.now+=500;delayed.elapsed+=0.5

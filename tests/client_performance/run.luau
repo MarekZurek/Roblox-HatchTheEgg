@@ -60,11 +60,11 @@ client:update(now)
 eq(count('QuoteRequest')>beforeQuotes,true,'expired visible-tier quotes renewed without a state change')
 eq(updates,0,'quote maintenance does not repaint full HUD')
 local result
-client:buyResearch('egg_diet',function(r) result=r end)
+client:buyResearch('comfy_nests',function(r) result=r end)
 eq(result.status,'APPLIED','research purchase succeeds after timed renewal')
 client:receive(server:createPlayerDelta('1'))
 eq(store:getFarm().common[1].level,1,'research level projected')
-eq(server:getCoordinator('1').snapshots().durable.farm.common.egg_diet,1,'research durable')
+eq(server:getCoordinator('1').snapshots().durable.farm.common.comfy_nests,1,'research durable')
 hud:toggleResearchModal(false)
 updates=0
 local hatchResult

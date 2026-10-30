@@ -134,7 +134,7 @@ do
 	local h=harness();h.step(20)
 	local q1=h.quote('BuyResearch',research);local p1=h.packet(q1,'first')
 	eq(h.send(p1).status,'APPLIED')
-	local q2=h.quote('BuyResearch',{researchId='egg_diet',mode='single'})
+	local q2=h.quote('BuyResearch',{researchId='nutritional_sup',mode='single'})
 	eq(q2.available,true);local p2=h.packet(q2,'second');eq(h.send(p2).status,'APPLIED')
 	local remaining=12-C.BigAmount.decode(q1.cashCost)-C.BigAmount.decode(q2.cashCost)
 	near(h.cash(),remaining,'sequential debits conserve total income')

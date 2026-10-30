@@ -118,7 +118,7 @@ do
 	local p = createTestProfile()
 	p.farm.eggIndex = 3
 	p.farm.cash = BigAmount.encode(999999)
-	p.farm.common = { comfy_nests = 10, egg_diet = 5 }
+	p.farm.common = { comfy_nests = 10, nutritional_sup = 5 }
 	p.farm.habitats[1] = { typeIndex = 1, population = "500", assignedInTransit = "10", fractionalIHR = "0.5" }
 	p.farm.habitats[2] = { typeIndex = 0, population = "200", assignedInTransit = "0", fractionalIHR = "0" }
 	p.farm.vehicles = { { typeIndex = 1 }, { typeIndex = 0 } }
@@ -337,7 +337,7 @@ do
 		p.farm.habitats[2] = { typeIndex = 0, population = "100", assignedInTransit = "0", fractionalIHR = "0" }
 		p.farm.vehicles = { { typeIndex = 1 }, { typeIndex = 0 } }
 		p.farm.fleetLimit = 4
-		p.farm.common = { comfy_nests = 15, egg_diet = 8 }
+		p.farm.common = { comfy_nests = 15, nutritional_sup = 8 }
 		p.farm.hatcheryStock = "75"
 		p.farm.runningCount = "5"
 		p.farm.hatchGroupSequence = "12"
@@ -673,7 +673,7 @@ do
 		p.farm.habitats[2] = { typeIndex = 0, population = "500", assignedInTransit = "0", fractionalIHR = "0" }
 		p.farm.vehicles = { { typeIndex = 1 }, { typeIndex = 0 } }
 		p.farm.fleetLimit = 6
-		p.farm.common = { comfy_nests = 5, egg_diet = 3 }
+		p.farm.common = { comfy_nests = 5, nutritional_sup = 3 }
 		p.farm.hatcheryStock = "150"
 		p.farm.runningCount = "5"
 		p.farm.siloOwned = 2

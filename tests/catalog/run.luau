@@ -73,7 +73,7 @@ for _, id in expectedCommonIds do
 	rejects("MAX_LEVEL", function() C.researchPrice(id, row.maxLevel) end)
 	rejects("INVALID_INDEX", function() C.researchEffects(id, row.maxLevel + 1) end)
 end
-equal(prices, 443); equal(effects, 457)
+equal(prices, 2330); equal(effects, 2386)
 
 local byEpicId = {}
 for _, row in research.epic do byEpicId[row.id] = row end
@@ -151,7 +151,7 @@ rejects("INVALID_INDEX", function() C.getHabitat(19) end)
 rejects("INVALID_INDEX", function() C.getVehicle(12) end)
 rejects("INVALID_INDEX", function() C.habitatPrice(0, 4) end)
 rejects("INVALID_INDEX", function() C.vehiclePrice(0, 17) end)
-rejects("INVALID_INDEX", function() C.tierThreshold(#research.tierThresholds) end)
+rejects("INVALID_INDEX", function() C.tierThreshold(13) end)
 rejects("UNSUPPORTED_RESEARCH", function() C.getCommon("nonexistent_research") end)
 rejects("UNSUPPORTED_RESEARCH", function() C.getCommon({}) end)
 rejects("UNSUPPORTED_RESEARCH", function() C.getEpic("nonexistent_epic") end)

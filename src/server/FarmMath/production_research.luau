@@ -36,7 +36,6 @@ function Module.new(codec, catalog, options)
 		local habCapacityMult = 1
 		local vehicleCapacityMult = 1
 		local maxFleetSizeAdd = 0
-		local hyperloopCarCapacityMult = 1
 		local rcbGrowthBase,rcbCapAdd=1,0
 
 		for _, id in catalog.commonIds do
@@ -68,9 +67,6 @@ function Module.new(codec, catalog, options)
 				if eff.maxFleetSize ~= nil then
 					maxFleetSizeAdd = maxFleetSizeAdd + eff.maxFleetSize
 				end
-				if eff.hyperloopCarCapacityMult ~= nil then
-					hyperloopCarCapacityMult = amount.multiply(hyperloopCarCapacityMult, eff.hyperloopCarCapacityMult)
-				end
 			end
 		end
 
@@ -86,7 +82,6 @@ function Module.new(codec, catalog, options)
 			habCapacityMult = habCapacityMult,
 			vehicleCapacityMult = vehicleCapacityMult,
 			maxFleetSize = 4 + maxFleetSizeAdd,
-			hyperloopCarCapacityMult = hyperloopCarCapacityMult,
 		})
 	end
  -- Read only confirmed catalog effects. Empty/special Epic entries are not guessed.

@@ -44,7 +44,8 @@ local POP = 100                 -- fixed settled population for every paired run
 -- Catalog cross-checks: the fixture literals below must be the reference rows, so a silently
 -- changed catalog cannot make this suite pass with invented rules.
 do
-	eq(Catalog.researchEffects("flock_motivation", 40).onscreenChickenMultMax, 10, "reference flock_motivation@40")
+	eq(Catalog.researchEffects("excitable_chickens", 25).onscreenChickenMult, 1.025, "reference excitable_chickens@25")
+	eq(Catalog.researchEffects("coordinated_clucking", 50).onscreenChickenMultMax, 10, "reference coordinated_clucking@50")
 	eq(Catalog.epicEffects("epic_clucking", 20).onscreenChickenMult, 1.02, "reference epic_clucking@20")
 	eq(Catalog.epicEffects("epic_multiplier", 100).onscreenChickenMultMax, 200, "reference epic_multiplier@100")
 	eq(Catalog.getEgg(0).value, EGG_VALUE, "reference EDIBLE egg value")
@@ -161,20 +162,20 @@ local WINDOW = 3
 local CASES = {
 	{ label = "c=1 neutral, no runners", n = 0, c = 1, K = 5, common = {}, epic = {} },
 	{ label = "c=1 neutral, 100 runners", n = 100, c = 1, K = 5, common = {}, epic = {} },
-	{ label = "flock40, no runners", n = 0, c = 1, K = 15, common = { flock_motivation = 40 }, epic = {} },
-	{ label = "flock40, 1 runner", n = 1, c = 1, K = 15, common = { flock_motivation = 40 }, epic = {} },
-	{ label = "flock40, 10 runners", n = 10, c = 1, K = 15, common = { flock_motivation = 40 }, epic = {} },
-	{ label = "flock40, 65 runners (unchanged multiplier)", n = 65, c = 1, K = 15, common = { flock_motivation = 40 }, epic = {} },
-	{ label = "flock40, 66 runners (unchanged multiplier)", n = 66, c = 1, K = 15, common = { flock_motivation = 40 }, epic = {} },
-	{ label = "flock40, 100 runners (same K)", n = 100, c = 1, K = 15, common = { flock_motivation = 40 }, epic = {} },
-	{ label = "clucking K=15, 100 runners", n = 100, c = 1, K = 15,
-		common = { flock_motivation = 40 }, epic = {} },
-	{ label = "epic clucking c=1.02, 10 runners", n = 10, c = 1.02, K = 5,
-		common = {}, epic = { epic_clucking = 20 } },
-	{ label = "epic multiplier K=205, 100 runners", n = 100, c = 1, K = 205,
-		common = {}, epic = { epic_multiplier = 100 } },
-	{ label = "epic multiplier K=215, 220 runners (same K)", n = 220, c = 1, K = 215,
-		common = { flock_motivation = 40 }, epic = { epic_multiplier = 100 } },
+	{ label = "excitable25, no runners", n = 0, c = 1.025, K = 5, common = { excitable_chickens = 25 }, epic = {} },
+	{ label = "excitable25, 1 runner", n = 1, c = 1.025, K = 5, common = { excitable_chickens = 25 }, epic = {} },
+	{ label = "excitable25, 10 runners", n = 10, c = 1.025, K = 5, common = { excitable_chickens = 25 }, epic = {} },
+	{ label = "excitable25, 65 runners (unchanged multiplier)", n = 65, c = 1.025, K = 5, common = { excitable_chickens = 25 }, epic = {} },
+	{ label = "excitable25, 66 runners (unchanged multiplier)", n = 66, c = 1.025, K = 5, common = { excitable_chickens = 25 }, epic = {} },
+	{ label = "excitable25, 100 runners (same K)", n = 100, c = 1.025, K = 5, common = { excitable_chickens = 25 }, epic = {} },
+	{ label = "clucking K=15, 100 runners", n = 100, c = 1.025, K = 15,
+		common = { excitable_chickens = 25, coordinated_clucking = 50 }, epic = {} },
+	{ label = "epic clucking c=1.0455, 10 runners", n = 10, c = 1.025 * 1.02, K = 5,
+		common = { excitable_chickens = 25 }, epic = { epic_clucking = 20 } },
+	{ label = "epic multiplier K=205, 100 runners", n = 100, c = 1.025, K = 205,
+		common = { excitable_chickens = 25 }, epic = { epic_multiplier = 100 } },
+	{ label = "epic multiplier K=205, 220 runners (same K)", n = 220, c = 1.025, K = 205,
+		common = { excitable_chickens = 25 }, epic = { epic_multiplier = 100 } },
 }
 for _, case in CASES do
 	local m = measure(case, WINDOW)
@@ -194,14 +195,14 @@ for _, case in CASES do
 end
 -- Different running counts must leave the income multiplier unchanged.
 do
-	local c, K = 1, 15
+	local c, K = 1.025, 5
 	local q1, q10, q65, q66, q100 = passiveMultiplier(c, 1, K), passiveMultiplier(c, 10, K), passiveMultiplier(c, 65, K), passiveMultiplier(c, 66, K), passiveMultiplier(c, 100, K)
 	ok(q1 == K and q10 == K and q65 == K, "running counts evaluate to passive multiplier K")
 	ok(q66 == K and q100 == K, "higher running counts evaluate to passive multiplier K")
-	local m1 = measure({ n = 1, c = c, K = K, common = { flock_motivation = 40 } }, WINDOW)
-	local m10 = measure({ n = 10, c = c, K = K, common = { flock_motivation = 40 } }, WINDOW)
-	local m66 = measure({ n = 66, c = c, K = K, common = { flock_motivation = 40 } }, WINDOW)
-	local m100 = measure({ n = 100, c = c, K = K, common = { flock_motivation = 40 } }, WINDOW)
+	local m1 = measure({ n = 1, c = c, K = K, common = { excitable_chickens = 25 } }, WINDOW)
+	local m10 = measure({ n = 10, c = c, K = K, common = { excitable_chickens = 25 } }, WINDOW)
+	local m66 = measure({ n = 66, c = c, K = K, common = { excitable_chickens = 25 } }, WINDOW)
+	local m100 = measure({ n = 100, c = c, K = K, common = { excitable_chickens = 25 } }, WINDOW)
 	ok(m1.cash == m10.cash and m10.cash == m66.cash, "actual cash is constant below old cap")
 	near(m66.cash, m100.cash, "more runners do not add income")
 	near(m66.cash, stepIncome(POP, c, 66, K, WINDOW), "income equals the passive multiplier model")
@@ -212,7 +213,7 @@ end
 --     as a double, so it is only ever handled as an exact decimal string by the compatibility API; it is irrelevant to the multiplier.
 do
 	local h = harness(function(p)
-		fixture(p, { n = 10, common = { flock_motivation = 40 } })
+		fixture(p, { n = 10, common = { excitable_chickens = 25 } })
 		p.inventory.pets.dog = { uid = "dog", speciesId = "farmer_dog", tier = 1, variant = "normal", locked = false }
 		p.inventory.equipped = { "dog" }
 		p.effects = { videoDoublerEndsAtMs = ORIGIN + 100000, boosts = { { id = "jimbos_blue_v2", remainingSeconds = "100" } } }
@@ -220,7 +221,7 @@ do
 	local projected = C.BigAmount.decode(h.view().view.farm.cashIncomePerSecond)
 	h.step(3)
 	near(h.cash() / 3, projected, "projected rate equals the real income rate with pets/boosts (legacy VD inert)")
-	ok(h.cash() > stepIncome(POP, 1, 10, 5, 3), "boosted income still contains the passive research multiplier")
+	ok(h.cash() > stepIncome(POP, 1.025, 10, 5, 3), "boosted income still contains the passive research multiplier")
 end
 do
 	-- A2b. A running count above 2^53 is not representable as a double, so the exact decimal string is
@@ -228,11 +229,11 @@ do
 	-- only production_math.activeRCB is exercised, with the exact string input preserved.
 	local big = "9007199254740993" -- 2^53 + 1: rounds to 2^53 as a double
 	local M = require("../../src/server/FarmMath/production_research").new(C, Catalog, { mode = "INTERNAL_TEST_ONLY" })
-	local common = { flock_motivation = 40 }
+	local common = { excitable_chickens = 25 }
 	local multiplier = M.activeRCB(common, {}, big)
-	eq(multiplier, 15, "an arbitrary exact running count leaves the passive multiplier unchanged")
+	eq(multiplier, 5, "an arbitrary exact running count leaves the passive multiplier unchanged")
 	eq(C.ExactUInt.encode(C.ExactUInt.decode(big)), big, "the exact running-count string is preserved through the codec")
-	eq(common.flock_motivation, 40, "passive research multiplier leaves the research input untouched")
+	eq(common.excitable_chickens, 25, "passive research multiplier leaves the research input untouched")
 end
 
 
@@ -244,8 +245,8 @@ end
 --    population with the same passive multiplier. Both values are separated explicitly.
 -- ============================================================================
 do
-	local c, K, n = 1, 15, 10
-	local h = harness(function(p) fixture(p, { n = n, common = { flock_motivation = 40 }, travel = 0.3 }) end)
+	local c, K, n = 1.025, 5, 10
+	local h = harness(function(p) fixture(p, { n = n, common = { excitable_chickens = 25 }, travel = 0.3 }) end)
 	h.step(0.3)
 	local step1 = h.cash()
 	near(step1, stepIncome(POP, c, n, K, 0.3), "arrival step: passive multiplier on the pre-arrival population")
@@ -267,8 +268,8 @@ end
 --    counted from the real server running count (one manual press = one chicken).
 -- ============================================================================
 do
-	local c, K = 1, 15
-	local h = harness(function(p) fixture(p, { n = 10, common = { flock_motivation = 40 }, travel = 0.3 }) end)
+	local c, K = 1.025, 5
+	local h = harness(function(p) fixture(p, { n = 10, common = { excitable_chickens = 25 }, travel = 0.3 }) end)
 	h.step(0.3) -- runners arrive
 	local before = h.cash()
 	h.step(0.3)
@@ -292,7 +293,7 @@ end
 --    of the passive multiplier. The server tracks the full authoritative running count for population only.
 -- ============================================================================
 do
-	local h = harness(function(p) fixture(p, { n = 0, common = { flock_motivation = 40 } }) end)
+	local h = harness(function(p) fixture(p, { n = 0, common = { excitable_chickens = 25 } }) end)
 	h.step(1)
 	local cash, run = h.cash(), h.state().farm.runningCount
 	for _, extra in { { count = "100" }, { population = "999" }, { rcb = "50" } } do
@@ -338,11 +339,11 @@ do
 	client:destroy()
 
 	-- If the bounded cosmetic count were used as the bonus source the income would differ.
-	local c, K = 1, 215
+	local c, K = 1.025, 205
 	local model100 = stepIncome(POP, c, 100, K, 1)
 	local model32 = stepIncome(POP, c, 32, K, 1)
 	near(model100, model32, "passive income is constant regardless of visual count")
-	local m = measure({ n = 100, c = c, K = K, common = { flock_motivation = 40 },
+	local m = measure({ n = 100, c = c, K = K, common = { excitable_chickens = 25 },
 		epic = { epic_multiplier = 100 } }, 1)
 	near(m.cash, model100, "server income uses the passive multiplier")
 end
@@ -373,9 +374,9 @@ local function plateReleases(stock, steps, dt, rate, refill, cap, vacancies)
 	return cumulative
 end
 local function plateWindows(stock, steps)
-	local c, K = 1, 15
+	local c, K = 1.025, 5
 	local h = harness(function(p)
-		p.farm.common = { flock_motivation = 40 }
+		p.farm.common = { excitable_chickens = 25 }
 		p.farm.habitats[1].population = tostring(POP)
 		p.farm.hatcheryStock = tostring(stock)
 	end)
@@ -395,7 +396,7 @@ do
 	eq(table.concat(windows, ","), "7,15,22,30", "plate releases the approved 30/s in 250 ms windows")
 	near(h.cash(), expected, "plate income uses settled population and constant research multiplier per window")
 	eq(h.state().farm.hatcheryStock, "223", "plate stock is charged per release with the base refill")
-	near(h.cash(), stepIncome(POP, 1, 0, 15, 1), "plate hatching earns the steady passive multiplier")
+	near(h.cash(), stepIncome(POP, 1.025, 0, 5, 1), "plate hatching earns the steady passive multiplier")
 end
 do
 	local h, windows, expected = plateWindows(2, 4)
@@ -411,8 +412,8 @@ end
 -- G. Fresh-earned passive multiplier cash, a purchase before any checkpoint, replay and reload
 -- ============================================================================
 do
-	local c, K, n = 1, 15, 10
-	local h = harness(function(p) fixture(p, { n = n, common = { flock_motivation = 40 } }) end)
+	local c, K, n = 1.025, 5, 10
+	local h = harness(function(p) fixture(p, { n = n, common = { excitable_chickens = 25 } }) end)
 	h.step(20)
 	local earned = stepIncome(POP, c, n, K, 20)
 	near(h.cash(), earned, "fresh income includes the passive research multiplier")
@@ -456,7 +457,7 @@ do
 	local IHR = require("../../src/server/FarmMath/ihr").new(C, P)
 	local T = require("../../src/server/TimelineSimulation").new(C, M, Hatch, IHR, D, { mode = "INTERNAL_TEST_ONLY" })
 	local ref = S.createReference("1", ORIGIN)
-	fixture(ref, { n = 10, common = { flock_motivation = 40 } })
+	fixture(ref, { n = 10, common = { excitable_chickens = 25 } })
 	local farm = D.copy(ref.farm)
 	farm.cash = 0
 	farm.hatcheryStock = 250
@@ -475,7 +476,7 @@ do
 		sliced = T.decodeCheckpoint(serde.decode("json", serde.encode("json", T.encodeCheckpoint(T.advance(sliced, 1)))))
 	end
 	eq(D.fingerprint(sliced), D.fingerprint(whole), "checkpoint round trip matches the uninterrupted passive multiplier run")
-	local window = stepIncome(POP, 1, 10, 15, 6)
+	local window = stepIncome(POP, 1.025, 10, 5, 6)
 	near(whole.state.farm.cash, window, "uninterrupted passive multiplier income over the window")
 	near(sliced.state.farm.cash, window, "reloaded passive multiplier income is neither lost nor doubled")
 	eq(D.fingerprint(T.advance(sliced, 10)), D.fingerprint(sliced), "a completed checkpoint does not repeat income")
@@ -483,8 +484,8 @@ end
 do
 	-- Real session: save, long absence, reload. The pre-save passive multiplier income is kept once and the away
 	-- catch-up keeps the passive multiplier; in-flight runners settle before away production.
-	local c, K, n = 1, 15, 10
-	local h = harness(function(p) fixture(p, { n = n, common = { flock_motivation = 40 } }) end)
+	local c, K, n = 1.025, 5, 10
+	local h = harness(function(p) fixture(p, { n = n, common = { excitable_chickens = 25 } }) end)
 	h.step(3)
 	local online = stepIncome(POP, c, n, K, 3)
 	near(h.cash(), online, "online window earned the passive multiplier")

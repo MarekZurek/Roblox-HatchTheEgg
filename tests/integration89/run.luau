@@ -67,7 +67,7 @@ local config={revision="integration-neutral:1",siloCapacityLevel=0,pro=false}
 local function seed(h)
 	local p=h.handle.snapshot
 	p.farm.cash="10";p.farm.habitats[1].population="30"
-	p.farm.common={internal_hatchery=1}
+	p.farm.common={internal_hatchery1=1}
 	p.accounting.currentFarmCash="100";p.accounting.prestigeSessionArchivedCash="200"
 	p.accounting.prestigeExtraEarnings="7";p.accounting.lastBaseEarnings="300"
 	h.records[h.handle.key]=Data.copy(p)

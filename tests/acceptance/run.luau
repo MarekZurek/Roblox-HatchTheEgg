@@ -647,43 +647,36 @@ do
 	eq(pBroke.accounting.currentFarmCash, "5000", "A06.2: currentFarmCash unchanged")
 
 	-- 3. Zamknięty tier (TIER_LOCKED)
-	-- Test tier lock enforcement using a catalog with a locked tier threshold
-	local lockedCatalog = setmetatable({
-		tierThreshold = function(tier)
-			if tier >= 1 then return 30 end
-			return 0
-		end,
-	}, { __index = Catalog })
-	local actionsLocked = FarmActions.new(C, lockedCatalog, { mode = "INTERNAL_TEST_ONLY" })
+	-- hab_capacity1 is in Tier 1, requiring 30 points in Tier 0
 	local pLocked = baseProfile("1000000", "5000")
 	pLocked.farm.common.comfy_nests = 0 -- 0 points
 	local opTier1 = {
 		operationId = "buy-tier1-1",
 		kind = "BuyResearch",
-		args = { researchId = "hab_expansion", mode = "single", quoteId = "q-tier1" },
+		args = { researchId = "hab_capacity1", mode = "single", quoteId = "q-tier1" },
 		expectedRevision = "0",
 	}
-	local outLocked = actionsLocked.apply(pLocked, opTier1)
+	local outLocked = actions.apply(pLocked, opTier1)
 	eq(outLocked.terminalStatus, "REJECTED", "A06.3: Purchase rejected on locked tier")
 	eq(outLocked.result.errorCode, "TIER_LOCKED", "A06.3: errorCode is TIER_LOCKED")
 	eq(pLocked.farm.cash, "1000000", "A06.3: Cash unchanged")
-	eq(pLocked.farm.common.hab_expansion, nil, "A06.3: hab_expansion level unchanged")
+	eq(pLocked.farm.common.hab_capacity1, nil, "A06.3: hab_capacity1 level unchanged")
 
 	-- 4. Max level (MAX_LEVEL)
-	-- egg_genetics maxLevel is 10
+	-- better_incubators maxLevel is 15
 	local pMax = baseProfile("1000000", "5000")
-	pMax.farm.common.egg_genetics = 10
+	pMax.farm.common.better_incubators = 15
 	local opMax = {
 		operationId = "buy-max-1",
 		kind = "BuyResearch",
-		args = { researchId = "egg_genetics", mode = "single", quoteId = "q-max" },
+		args = { researchId = "better_incubators", mode = "single", quoteId = "q-max" },
 		expectedRevision = "0",
 	}
 	local outMax = actions.apply(pMax, opMax)
 	eq(outMax.terminalStatus, "REJECTED", "A06.4: Purchase rejected at max level")
 	eq(outMax.result.errorCode, "MAX_LEVEL", "A06.4: errorCode is MAX_LEVEL")
 	eq(pMax.farm.cash, "1000000", "A06.4: Cash unchanged")
-	eq(pMax.farm.common.egg_genetics, 10, "A06.4: Level remains 10")
+	eq(pMax.farm.common.better_incubators, 15, "A06.4: Level remains 15")
 end
 
 -- ============================================================================
@@ -785,7 +778,7 @@ do
 		operationId = "op-inter-1",
 		kind = "BuyResearch",
 		expectedRevision = "0",
-		args = { researchId = "egg_diet", mode = "single" },
+		args = { researchId = "nutritional_sup", mode = "single" },
 	}
 	local coordSubmit = coord.submit(intermediateOp)
 	eq(coordSubmit.status, "PENDING", "A08: Intermediate operation submitted")
@@ -876,7 +869,7 @@ do
 		operationId = "op-dup-901", -- Same ID as above!
 		kind = "BuyResearch",
 		expectedRevision = "1",
-		args = { researchId = "egg_diet", mode = "single" }, -- DIFFERENT ARGS!
+		args = { researchId = "nutritional_sup", mode = "single" }, -- DIFFERENT ARGS!
 	}
 	local resConflict = coord.submit(opConflict)
 	eq(resConflict.status, "REJECTED", "A09.2: Same ID with different arguments rejected")
@@ -1139,7 +1132,7 @@ do
 				runningCount = "0",
 				hatchGroupSequence = "0",
 				groups = {},
-				commonLevels = { comfy_nests = 5, internal_hatchery = 2 },
+				commonLevels = { comfy_nests = 5, internal_hatchery1 = 2 },
 				vehicleTypes = { 0 },
 				siloOwned = 1,
 			},
@@ -1446,13 +1439,7 @@ do
 	end)
 	eq(resBuyRes.status, "APPLIED", "A16.7: Research purchase applied")
 	client:receive(server:createPlayerDelta("1601"))
-	local function getCommonLevel(farm, id)
-		for _, entry in farm.common do
-			if entry.researchId == id then return entry.level end
-		end
-		return nil
-	end
-	eq(getCommonLevel(client:getFarm(), "comfy_nests"), 1, "A16.7: comfy_nests upgraded to level 1 on client")
+	eq(client:getFarm().common[1].level, 1, "A16.7: comfy_nests upgraded to level 1 on client")
 
 	-- Step 8: Rozłączenie, zapis checkpointu i odtworzenie po powrocie (Reconnect & persist)
 	local savedCash = client:getFarm().cash
@@ -1466,7 +1453,7 @@ do
 	clientReconnect:connect("boot-a16-reconnect")
 	eq(clientReconnect:getStatus(), "READY", "A16.8: Reconnected client is READY")
 	eq(#clientReconnect:getFarm().fleet.vehicles, 1, "A16.8: Restored fleet has 1 vehicle")
-	eq(getCommonLevel(clientReconnect:getFarm(), "comfy_nests"), 1, "A16.8: Restored comfy_nests is level 1")
+	eq(clientReconnect:getFarm().common[1].level, 1, "A16.8: Restored comfy_nests is level 1")
 	eq(clientReconnect:getFarm().cash, savedCash, "A16.8: Restored wallet cash matches exactly without data loss")
 
 	clientReconnect:destroy()

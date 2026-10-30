@@ -66,7 +66,7 @@ end
 do
 	local p = makeTestProfile("player-1", "5000", "200", 0)
 	p.farm.common.comfy_nests = 5
-	p.farm.common.egg_diet = 2
+	p.farm.common.nutritional_sup = 2
 
 	local snapshot = projector:projectPrivateView(p, "stream-1", "1", 1000000, "req-1")
 	validateServer(snapshot, "projectPrivateView snapshot")
@@ -116,12 +116,12 @@ do
 	-- shippingPerMinute = 5000 -> shippingPerSecond = 5000/60 = 83.333333333333329
 	-- soldEggsPerSecond = min(10, 83.333333333333329) = 10
 	eq(farm.soldEggsPerSecond, "10")
-	-- egg_diet = 2 -> eggValue = 1.00 * (1 + 0.25*2) = 1.00 * 1.5 = 1.5
+	-- nutritional_sup = 2 -> eggValue = 1.00 * (1 + 0.25*2) = 1.00 * 1.5 = 1.5
 	-- cashIncomePerSecond = 10 * 1.5 = 15
 	eq(farm.cashIncomePerSecond, "15")
 
-	-- Common research list: exactly 14 entries
-	eq(#farm.common, 14, "Must contain all 14 research items")
+	-- Common research list: exactly 56 entries
+	eq(#farm.common, 56, "Must contain all 56 research items")
 	local researchById = {}
 	for _, res in farm.common do
 		ok(researchById[res.researchId] == nil, "Research IDs must be unique: " .. res.researchId)
@@ -133,20 +133,22 @@ do
 	eq(researchById["comfy_nests"].available, true)
 	eq(researchById["comfy_nests"].blockedReason, nil)
 
-	eq(researchById["egg_diet"].level, 2)
-	eq(researchById["egg_diet"].available, true)
+	eq(researchById["nutritional_sup"].level, 2)
+	eq(researchById["nutritional_sup"].available, true)
 
-	eq(researchById["hab_expansion"].level, 0)
-	eq(researchById["hab_expansion"].available, true)
-	eq(researchById["hab_expansion"].blockedReason, nil)
+	-- hab_capacity1 is tier 1 (requires 30 points, currently we have 5+2=7 points)
+	eq(researchById["hab_capacity1"].level, 0)
+	eq(researchById["hab_capacity1"].available, false)
+	eq(researchById["hab_capacity1"].blockedReason, "TIER_LOCKED")
 
-	eq(researchById["fleet_capacity"].level, 0)
-	eq(researchById["fleet_capacity"].available, true)
-	eq(researchById["fleet_capacity"].blockedReason, nil)
+	-- Tier-locked common research (requires >= 30 points, currently we have 5+2=7 points)
+	eq(researchById["padded_packaging"].level, 0)
+	eq(researchById["padded_packaging"].available, false)
+	eq(researchById["padded_packaging"].blockedReason, "TIER_LOCKED")
 
-	eq(researchById["fleet_hyperloop"].level, 0)
-	eq(researchById["fleet_hyperloop"].available, true)
-	eq(researchById["fleet_hyperloop"].blockedReason, nil)
+	eq(researchById["relativity_optimization"].level, 0)
+	eq(researchById["relativity_optimization"].available, false)
+	eq(researchById["relativity_optimization"].blockedReason, "TIER_LOCKED")
 
 	-- Security check: NEVER expose internal tokens, ledgers or receipts
 	ok(farm["ownerToken"] == nil, "No ownerToken in view")
