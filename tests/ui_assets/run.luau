@@ -244,7 +244,7 @@ do
 		{ label = "Fleet", win = hud:getVehiclesModal(), title = "FLOTA TRANSPORTOWA (DO 17 POJAZDÓW)", key = "window.fleet" },
 		{ label = "Pets", win = hud:getPetsModal(), title = "MOJE PETY I EWOLUCJA FUZYJNA", key = "window.pets" },
 		{ label = "Shop", win = hud:getShopModal(), title = "SKLEP DIAMENTÓW I PRZEPUSTEK", key = "window.shop" },
-		{ label = "Daily/Trophies", win = hud:getCalendarModal(), title = "KALENDARZ NAGRÓD I TROFEA", key = "window.calendar" },
+		{ label = "Daily/Trophies", win = hud:getCalendarModal(), title = "KALENDARZ NAGRÓD", key = "window.calendar" },
 		{ label = "EggUpgrade", win = hud:getEggUpgradeModal(), title = "STACJA BADAWCZA JAJ", key = "window.egg" },
 		{ label = "PetHatch", win = hud:getPetHatchModal(), title = "INKUBACJA & WYKLUWANIE JAJ", key = "window.hatch" },
 		{ label = "EpicResearch", win = hud:getEpicResearchModal(), title = "BADANIA EPICKIE", key = "window.shop" },

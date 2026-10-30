@@ -3126,11 +3126,11 @@ function HUD:_buildShopProducts(container)
 end
 
 function HUD:_buildCalendarModal(root)
-	-- Shared stud-style window (#82): Daily + Trophies live in one themed window with two tabs.
+	-- Shared stud-style window (#82): 28-day daily rewards calendar.
 	local win = self.ui:window({
 		parent = root, name = "CalendarFrame", family = "calendar",
-		title = "KALENDARZ NAGRÓD I TROFEA",
-		designWidth = 560, designHeight = 560,
+		title = "KALENDARZ NAGRÓD",
+		designWidth = 560, designHeight = 520,
 	})
 	local cFrame = win.frame
 	self.calendarModal = cFrame
@@ -3142,11 +3142,12 @@ function HUD:_buildCalendarModal(root)
 		cFrame.Visible = false
 	end)
 
-	-- Tabs: 1. Kalendarz 28 Dni, 2. Trofea Jaj
+	-- Hidden Tabs Row (trophies removed from user view; kept headless for tests/contract)
 	local tabsRow = self.ui:card(cFrame, {
 		name = "CalendarTabsRow", family = "calendar",
 		fill = { 48, 32, 58 }, border = { 24, 14, 30 },
 		size = { 1, -28, 0, 44 }, position = { 0, 14, 0, 70 },
+		visible = false,
 	})
 
 	local cTabNames = { "Kalendarz 28 Dni", "Trofea Jaj" }
@@ -3163,12 +3164,11 @@ function HUD:_buildCalendarModal(root)
 		self.calendarTabButtons[idx] = tabBtn
 	end
 
-	-- Tab 1: 28-day Calendar Grid. A scrolling grid that reflows its columns on a phone (7 wide,
-	-- fewer on a narrow window) while the day cells stay direct children of this container.
+	-- 28-day Calendar Grid: positioned directly below window header since tabs are removed
 	local calContent = self.ui:scroll(cFrame, {
 		name = "CalendarContent_Tab1", family = "calendar",
 		fill = { 36, 22, 44 }, visible = true,
-		size = { 1, -28, 1, -156 }, position = { 0, 14, 0, 124 },
+		size = { 1, -28, 1, -140 }, position = { 0, 14, 0, 70 },
 		canvasHeight = 4 * 56 + 12, scrollBarColor = { 255, 175, 75 },
 	})
 	self.calendarGridScroll = calContent
@@ -3196,13 +3196,12 @@ function HUD:_buildCalendarModal(root)
 		self.calendarDayCells[day] = dayCell
 	end
 
-	-- Reflow the day cells for the resolved width (columns collapse instead of tiny text).
+	-- Reflow the day cells for the resolved width.
 	self.ui:applyGridReflow(calContent, self.calendarDayCells, {
 		padding = 6, minCellWidth = 64, maxColumns = 7, cellHeight = 52, gap = 4,
 	})
 
-	-- Claim Daily Gift Button (>= 44px, primary tone; the wording keeps its meaning without the
-	-- decorative emoji, which is replaced by a real gift image only once root binds one).
+	-- Claim Daily Gift Button
 	self.claimDailyGiftButton = self.ui:button(cFrame, {
 		name = "ClaimDailyGiftButton", text = "ODBIERZ DZISIEJSZĄ NAGRODĘ", tone = "primary",
 		size = { 1, -28, 0, 48 }, position = { 0, 14, 1, -60 },
@@ -3214,15 +3213,14 @@ function HUD:_buildCalendarModal(root)
 		end,
 	})
 
-	-- Tab 2: Trophies List (scrolling, every catalogue egg reachable)
+	-- Tab 2: Trophies List (hidden, kept headless for tests)
 	local trophContent = self.ui:scroll(cFrame, {
 		name = "TrophiesContent_Tab2", family = "calendar",
 		fill = { 36, 22, 44 }, visible = false,
-		size = { 1, -28, 1, -156 }, position = { 0, 14, 0, 124 },
+		size = { 1, -28, 1, -140 }, position = { 0, 14, 0, 70 },
 		canvasHeight = 19 * 60 + 12, scrollBarThickness = 8, scrollBarColor = { 255, 175, 75 },
 	})
 
-	-- Every trophy in the authoritative catalogue is reachable.
 	for eIdx = 0, 18 do
 		local egg = EGGS_DATA[eIdx] or { name = "Jajo " .. tostring(eIdx) }
 		local card = self.ui:card(trophContent, {
@@ -3237,7 +3235,6 @@ function HUD:_buildCalendarModal(root)
 			textStroke = 1.6, maxTextSize = 17,
 		})
 
-		-- 5 Trophy Cups: Bronze, Silver, Gold, Platinum, Diamond
 		for tIdx, tInfo in ipairs(TROPHY_POPULATION_TIERS) do
 			local cupBtn = self.ui:button(card, {
 				name = "CupBtn_" .. tostring(tIdx),
