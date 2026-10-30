@@ -895,15 +895,15 @@ do
 	hud:toggleResearchModal(true)
 	eq(resModal.Visible, true, "ResearchModal opened")
 
-	-- Common has 13 tabs; Epic has its own modal.
+	-- Common has 4 category tabs; Epic has its own modal.
 	local tabsRow = resModal:FindFirstChild("TierTabsRow")
 	ok(tabsRow ~= nil, "TierTabsRow exists")
-	eq(#tabsRow:GetChildren(), 13, "13 tabs present (T1..T13)")
+	eq(#tabsRow:GetChildren(), 4, "4 category tabs present")
 
-	-- Check initial selected tier is 1
-	eq(hud:getCurrentResearchTier(), 1, "Initial selected tier is 1")
+	-- Check initial selected category is 1
+	eq(hud:getCurrentResearchTier(), 1, "Initial selected category is 1")
 
-	-- Feed snapshot with total research points = 10 (Tier 1 unlocked, Tier 2 requires 30 -> locked)
+	-- Feed snapshot with total research points = 10 (Kurniki requires 30 -> locked)
 	local snap = makeTestSnapshot({
 		streamId = "stream-tier-locks",
 		common = {
@@ -914,17 +914,17 @@ do
 	})
 	store:applySnapshot(snap)
 
-	-- Select Tier 2
-	hud:selectResearchTier(2)
-	eq(hud:getCurrentResearchTier(), 2, "Selected tier is 2")
+	-- Select Category 3 (Kurniki)
+	hud:selectResearchTier(3)
+	eq(hud:getCurrentResearchTier(), 3, "Selected category is 3")
 
-	-- Tier lock banner should be visible for Tier 2 since 10 < 30
+	-- Tier lock banner should be visible for Category 3 since 10 < 30
 	local lockBanner = resModal:FindFirstChild("TierLockBanner")
 	ok(lockBanner ~= nil, "TierLockBanner exists")
-	eq(lockBanner.Visible, true, "TierLockBanner is visible for locked Tier 2")
+	eq(lockBanner.Visible, true, "TierLockBanner is visible for locked Category 3")
 	ok(string.find(lockBanner.Text, "wymaga 30", 1, true) ~= nil or string.find(lockBanner.Text, "Wymaga 30", 1, true) ~= nil, "Banner mentions 30 required")
 
-	-- Switch to Tier 1: banner should be hidden
+	-- Switch to Category 1: banner should be hidden
 	hud:selectResearchTier(1)
 	eq(lockBanner.Visible, false, "TierLockBanner is hidden for Tier 1")
 
@@ -1515,7 +1515,7 @@ do
  eq(hud.eggUpgradeBtn.Active,true,"Known eligible valuation enables advancement")
  hud:_updateEggUpgradeModal({eggIndex=0,homeFV="1e20"})
  eq(hud.eggUpgradeBtn.Active,true,"authoritative FV enables advancement")
- for _,invalid in {0,14,-1,1.5,"2"} do
+ for _,invalid in {0,5,14,-1,1.5,"2"} do
   hud:selectResearchTier(invalid)
   eq(hud:getCurrentResearchTier(),1,"invalid tier preserves Common selection")
  end

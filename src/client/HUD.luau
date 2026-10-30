@@ -287,6 +287,38 @@ local TIER_THRESHOLDS = table.freeze({
 	0, 30, 80, 160, 280, 400, 520, 650, 800, 980, 1185, 1390, 1655
 })
 
+local CATEGORY_THRESHOLDS = table.freeze({
+	[1] = 0,   -- 🧬 Genetyka (odblokowane od startu)
+	[2] = 0,   -- 🐣 Wylęg (odblokowane od startu)
+	[3] = 30,  -- 🏡 Kurniki (wymaga 30 badań do odblokowania kurników)
+	[4] = 80,  -- 🚚 Flota (wymaga 80 badań do odblokowania floty)
+})
+
+local RESEARCH_CATEGORY = table.freeze({
+	-- 1: 🧬 Genetyka i Wartość Jaj (17 badań)
+	nutritional_sup = 1, padded_packaging = 1, bigger_eggs = 1, usde_prime = 1,
+	superfeed = 1, improved_genetics = 1, shell_fortification = 1, even_bigger_eggs = 1,
+	genetic_purification = 1, graviton_coating = 1, chrystal_shells = 1, telepathic_will = 1,
+	atomic_purification = 1, multi_layering = 1, eggsistor = 1, matter_reconfig = 1,
+	timeline_splicing = 1,
+
+	-- 2: 🐣 Wylęg i Populacja (20 badań)
+	comfy_nests = 2, better_incubators = 2, excitable_chickens = 2, internal_hatchery1 = 2,
+	hatchery_expansion = 2, internal_hatchery2 = 2, rooster_booster = 2, coordinated_clucking = 2,
+	hatchery_rebuild1 = 2, hen_house_ac = 2, compact_incubators = 2, internal_hatchery3 = 2,
+	motivational_clucking = 2, internal_hatchery4 = 2, internal_hatchery5 = 2, time_compress = 2,
+	enlightened_chickens = 2, neural_linking = 2, timeline_diversion = 2, relativity_optimization = 2,
+
+	-- 3: 🏡 Kurniki i Przestrzeń (3 badania)
+	hab_capacity1 = 3, microlux = 3, grav_plating = 3,
+
+	-- 4: 🚚 Flota i Logistyka (16 badań)
+	leafsprings = 4, vehicle_reliablity = 4, lightweight_boxes = 4, excoskeletons = 4,
+	traffic_management = 4, driver_training = 4, egg_loading_bots = 4, super_alloy = 4,
+	quantum_storage = 4, hover_upgrades = 4, autonomous_vehicles = 4, dark_containment = 4,
+	wormhole_dampening = 4, micro_coupling = 4, neural_net_refine = 4, hyper_portalling = 4,
+})
+
 local COMMON_RESEARCH_TIERS = table.freeze({
 	comfy_nests = 1, nutritional_sup = 1, better_incubators = 1, excitable_chickens = 1,
 	hab_capacity1 = 2, internal_hatchery1 = 2, padded_packaging = 2, hatchery_expansion = 2, bigger_eggs = 2,
@@ -2229,12 +2261,12 @@ function HUD:_buildResearchModal(root)
 		size = { 1, -24, 0, 44 }, position = { 0, 12, 0, 70 },
 		canvasHeight = 0, scrollBarThickness = 3, scrollBarColor = { 245, 158, 11 },
 	})
-	if isRoblox then tabsRow.CanvasSize = UDim2.new(0, 940, 0, 0) end
+	if isRoblox then tabsRow.CanvasSize = UDim2.new(0, 520, 0, 0) end
 
-	local tabNames = { "T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12", "T13" }
+	local tabNames = { "🧬 Genetyka", "🐣 Wylęg", "🏡 Kurniki", "🚚 Flota" }
 	local tabOffset = 0
 	for idx, tabName in ipairs(tabNames) do
-		local tabWidth = 56
+		local tabWidth = 120
 		local tabBtn = self.ui:tabButton(tabsRow, {
 			name = "TierTab_" .. tabName, text = tabName,
 			size = { 0, tabWidth }, position = { 0, tabOffset, 0, 0 },
@@ -2244,7 +2276,7 @@ function HUD:_buildResearchModal(root)
 			end,
 		})
 		self.researchTabButtons[idx] = tabBtn
-		tabOffset += tabWidth + 6
+		tabOffset += tabWidth + 8
 	end
 
 	-- Lock Banner (themed pill; the update pass keeps its text and visibility contract)
@@ -3793,8 +3825,8 @@ function HUD:requestQuotesForCurrentTier(force)
 	if serverObservedAt and self._quoteNowMs then serverObservedAt = math.max(serverObservedAt, self._quoteNowMs) end
 	local currentRevision = if self.stateStore then self.stateStore:getCommitRevision() else nil
 
-	for rId, rTier in pairs(COMMON_RESEARCH_TIERS) do
-		if rTier == currentTier then
+	for rId, rCat in pairs(RESEARCH_CATEGORY) do
+		if rCat == currentTier then
 			local item = self.shopResearch and self.shopResearch[rId]
 			local quote = item and item.quote
 			local curLvl = item and item.level or 0
@@ -3860,7 +3892,7 @@ end
 
 -- Tab selection methods
 function HUD:selectResearchTier(tierIndex)
-	if type(tierIndex) ~= "number" or tierIndex % 1 ~= 0 or tierIndex < 1 or tierIndex > 13 then return false end
+	if type(tierIndex) ~= "number" or tierIndex % 1 ~= 0 or tierIndex < 1 or tierIndex > 4 then return false end
 	self.selectedResearchTier = tierIndex
 	for idx, btn in ipairs(self.researchTabButtons) do
 		if isRoblox then
@@ -4273,13 +4305,13 @@ function HUD:_updateResearchModal(farm)
 		end
 	end
 
-	local requiredLevels = TIER_THRESHOLDS[currentTier] or 0
-	local isTierUnlocked = (totalPurchasedLevels >= requiredLevels)
+	local requiredLevels = CATEGORY_THRESHOLDS[currentTier] or 0
+	local isCategoryUnlocked = (totalPurchasedLevels >= requiredLevels)
 
 	if self.researchTierLockBanner then
-		if not isTierUnlocked then
+		if not isCategoryUnlocked then
 			self.researchTierLockBanner.Visible = true
-			self.researchTierLockBanner.Text = string.format("🔒 Tier %d zablokowany! Wymaga %d zakupionych badań (masz %d)", currentTier, requiredLevels, totalPurchasedLevels)
+			self.researchTierLockBanner.Text = string.format("🔒 Kategoria zablokowana! Wymaga %d zakupionych badań (masz %d)", requiredLevels, totalPurchasedLevels)
 			if isRoblox and self.shopListContainer then
 				self.shopListContainer.Position = UDim2.new(0, 12, 0, 138)
 				self.shopListContainer.Size = UDim2.new(1, -24, 1, -150)
@@ -4298,8 +4330,8 @@ function HUD:_updateResearchModal(farm)
 		local visibleIdx = 0
 		if type(farm.common) == "table" then
 			for _, research in ipairs(farm.common) do
-				local rTier = COMMON_RESEARCH_TIERS[research.researchId] or 1
-				local matchesTab = (rTier == currentTier)
+				local rCat = RESEARCH_CATEGORY[research.researchId] or 1
+				local matchesTab = (rCat == currentTier)
 				if matchesTab then
 					visibleIdx += 1
 				end
