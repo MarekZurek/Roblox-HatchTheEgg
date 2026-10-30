@@ -127,7 +127,11 @@ function ShopController:_targetKey(target)
 	local kind = target.kind
 	local args = target.args
 	if kind == "BuyResearch" then
-		return "BuyResearch:" .. tostring(args.researchId)
+		if args.mode == "max" then
+			return "BuyResearch:" .. tostring(args.researchId) .. ":max"
+		else
+			return "BuyResearch:" .. tostring(args.researchId)
+		end
 	elseif kind == "BuyHabitat" then
 		return "BuyHabitat:" .. tostring(args.slotId) .. ":" .. tostring(args.habitatId)
 	elseif kind == "BuyVehicle" then

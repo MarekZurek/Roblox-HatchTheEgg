@@ -110,12 +110,12 @@ function ProtocolSchemas.new(codec)
 	local lifecycle = enum({ loading = true, offlineSettling = true, ready = true, sessionLost = true })
 	local action = enum({ BuyResearch = true, BuyHabitat = true, BuyVehicle = true })
 	local targetSchemas = {
-		BuyResearch = record({ researchId = id, mode = literal("single") }),
+		BuyResearch = record({ researchId = id, mode = enum({ single = true, max = true }) }),
 		BuyHabitat = record({ slotId = slot, habitatId = id }),
 		BuyVehicle = record({ slotId = vehicleSlot, vehicleId = id }),
 	}
 	local mutationSchemas = {
-		BuyResearch = record({ researchId = id, mode = literal("single"), quoteId = id }),
+		BuyResearch = record({ researchId = id, mode = enum({ single = true, max = true }), quoteId = id }),
 		BuyHabitat = record({ slotId = slot, habitatId = id, quoteId = id }),
 		BuyVehicle = record({ slotId = vehicleSlot, vehicleId = id, quoteId = id }),
 		UpgradeEgg = record({ targetEggIndex = index }),

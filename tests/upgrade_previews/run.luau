@@ -126,6 +126,26 @@ do
 		end
 	end
 end
+-- Buy MAX test: verify buyMaxButton exists and advances research to maximum affordable level atomically
+do
+	local h = harness(function(p)
+		p.farm.cash = "50000"
+	end)
+	local uComfy = h.hud.unifiedResearch.comfy_nests
+	eq(uComfy.buyButton ~= nil, true, "buyButton exists")
+	eq(uComfy.buyMaxButton ~= nil, true, "buyMaxButton exists")
+	eq(uComfy.buyMaxButton.Active, true, "buyMaxButton active with cash")
+	local maxRes
+	h.client:buyResearch("comfy_nests", "max", function(r) maxRes = r end)
+	eq(maxRes.status, "APPLIED", "buyResearch max returns APPLIED")
+	eq(maxRes.result.actionKind, "BuyResearch")
+	eq(maxRes.result.level > 1, true, "BuyResearch max upgraded multiple levels at once")
+	h.sync()
+	local expectedStr = "★ POZ. " .. tostring(maxRes.result.level) .. "/180"
+	eq(uComfy.levelLabel.Text, expectedStr, "unified level label updated after MAX purchase")
+	h.client:destroy(); h.b:close()
+end
+
 for _,size in {{1920,1080},{800,600},{390,844},{844,390}} do
 	local w,h,s=HUD.modalLayout(size[1],size[2],540)
 	eq(w<=size[1],true);eq(h<=size[2],true);eq(s>0 and s<=1,true)

@@ -62,7 +62,8 @@ for _, state in { "start", "refresh", "stop" } do local message = copy(messages[
 local badHold = copy(messages[5]); badHold.state = "click"; check(badHold, false)
 local badSlot = { protocolVersion = 1, requestId = "r", kind = "BuyHabitat", operationId = "o", expectedRevision = "0", args = copy(args.BuyHabitat) }
 for _, value in { 0, 5, -1, 1.5, "1", math.huge, 0/0 } do local bad = copy(badSlot); bad.args.slotId = value; check(bad, false) end
-local max = copy(badSlot); max.kind = "BuyResearch"; max.args = copy(args.BuyResearch); max.args.mode = "max"; check(max, false)
+local max = copy(badSlot); max.kind = "BuyResearch"; max.args = copy(args.BuyResearch); max.args.mode = "max"; check(max, true)
+local badMode = copy(badSlot); badMode.kind = "BuyResearch"; badMode.args = copy(args.BuyResearch); badMode.args.mode = "infinite"; check(badMode, false)
 for _, kind in { "GrantCash", "PreparePurchase", "ClaimOffer", "FusePets", "Prestige", "BuySilo" } do local bad = copy(badSlot); bad.kind = kind; check(bad, false) end
 
 local own = {

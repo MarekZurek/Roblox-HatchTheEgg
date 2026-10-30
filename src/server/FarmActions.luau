@@ -137,7 +137,8 @@ function FarmActions.createQuote(profile, catalog, target, requestId, expectedRe
 	if kind == "BuyResearch" then
 		local researchId = args.researchId
 		assert(type(researchId) == "string", "INVALID_RESEARCH_ID")
-		cleanTarget = { kind = "BuyResearch", args = { researchId = researchId, mode = "single" } }
+		local mode = args.mode or "single"
+		cleanTarget = { kind = "BuyResearch", args = { researchId = researchId, mode = mode } }
 
 		local okRow, row = pcall(function()
 			return catalog.getCommon(researchId)
@@ -167,6 +168,9 @@ function FarmActions.createQuote(profile, catalog, target, requestId, expectedRe
 			blockedReason = "TIER_LOCKED"
 		end
 
+		local mult = costMultiplier(profile, catalog, kind)
+		local currentCash = BigAmount.decode(profile.farm.cash)
+
 		if currentLevel >= row.maxLevel then
 			available = false
 			if not blockedReason then
@@ -174,16 +178,38 @@ function FarmActions.createQuote(profile, catalog, target, requestId, expectedRe
 			end
 			nextLevel = row.maxLevel
 			price = 0
+		elseif mode == "max" then
+			local totalPrice = 0
+			local targetLevel = currentLevel
+			for lvl = currentLevel, row.maxLevel - 1 do
+				local stepPrice = catalog.researchPrice(researchId, lvl) * mult
+				if totalPrice + stepPrice <= currentCash then
+					totalPrice += stepPrice
+					targetLevel = lvl + 1
+				else
+					break
+				end
+			end
+			if targetLevel == currentLevel then
+				available = false
+				if not blockedReason then
+					blockedReason = "INSUFFICIENT_CASH"
+				end
+				nextLevel = currentLevel + 1
+				price = catalog.researchPrice(researchId, currentLevel) * mult
+			else
+				nextLevel = targetLevel
+				price = totalPrice
+			end
 		else
 			nextLevel = currentLevel + 1
-			price = catalog.researchPrice(researchId, currentLevel) * costMultiplier(profile, catalog, kind)
-		end
+			price = catalog.researchPrice(researchId, currentLevel) * mult
 
-		local currentCash = BigAmount.decode(profile.farm.cash)
-		if currentCash < price then
-			available = false
-			if not blockedReason then
-				blockedReason = "INSUFFICIENT_CASH"
+			if currentCash < price then
+				available = false
+				if not blockedReason then
+					blockedReason = "INSUFFICIENT_CASH"
+				end
 			end
 		end
 
@@ -338,22 +364,50 @@ function FarmActions.apply(candidateProfile, op, options)
 			}
 		end
 
-		local price = catalog.researchPrice(researchId, currentLevel) * preparedMultiplier
+		local mode = args.mode or "single"
 		local currentCash = BigAmount.decode(candidateProfile.farm.cash)
-		if currentCash < price then
-			return {
-				profile = candidateProfile,
-				terminalStatus = "REJECTED",
-				result = { terminalStatus = "REJECTED", errorCode = "INSUFFICIENT_CASH" },
-				validate = function() return true end,
-			}
+		local newLevel
+		local price
+
+		if mode == "max" then
+			local totalPrice = 0
+			local targetLevel = currentLevel
+			for lvl = currentLevel, row.maxLevel - 1 do
+				local stepPrice = catalog.researchPrice(researchId, lvl) * preparedMultiplier
+				if totalPrice + stepPrice <= currentCash then
+					totalPrice += stepPrice
+					targetLevel = lvl + 1
+				else
+					break
+				end
+			end
+			if targetLevel == currentLevel then
+				return {
+					profile = candidateProfile,
+					terminalStatus = "REJECTED",
+					result = { terminalStatus = "REJECTED", errorCode = "INSUFFICIENT_CASH" },
+					validate = function() return true end,
+				}
+			end
+			price = totalPrice
+			newLevel = targetLevel
+		else
+			price = catalog.researchPrice(researchId, currentLevel) * preparedMultiplier
+			if currentCash < price then
+				return {
+					profile = candidateProfile,
+					terminalStatus = "REJECTED",
+					result = { terminalStatus = "REJECTED", errorCode = "INSUFFICIENT_CASH" },
+					validate = function() return true end,
+				}
+			end
+			newLevel = currentLevel + 1
 		end
 
 		local remaining = BigAmount.subtract(currentCash, price)
 		candidateProfile.farm.cash = BigAmount.encode(remaining)
 		-- CRITICAL INVARIANT: candidateProfile.accounting.currentFarmCash is NOT DECREASED!
 
-		local newLevel = currentLevel + 1
 		candidateProfile.farm.common[researchId] = newLevel
 
 		local terminalResult = {

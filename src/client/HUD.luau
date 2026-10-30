@@ -3969,6 +3969,31 @@ function HUD:requestQuotesForCurrentTier(force)
 			end
 		end
 	end
+
+	for _, group in ipairs(UNIFIED_RESEARCH_GROUPS) do
+		if group.category == currentTier then
+			local uItem = self.unifiedResearch and self.unifiedResearch[group.key]
+			local activeId = (uItem and uItem.activeId) or group.chain[1]
+			if activeId then
+				local maxQuote = self.intentControllers.shop:getCachedQuote({
+					kind = "BuyResearch",
+					args = { researchId = activeId, mode = "max" },
+				})
+				local curLvl = uItem and uItem.level or 0
+				local isMaxFresh = maxQuote ~= nil
+					and (currentRevision == nil or maxQuote.expectedRevision == currentRevision)
+					and (serverObservedAt == nil or maxQuote.expiresAt == nil or maxQuote.expiresAt > serverObservedAt)
+					and (maxQuote.nextLevel == nil or maxQuote.nextLevel > curLvl)
+
+				if not isMaxFresh then
+					self.intentControllers.shop:requestQuote({
+						kind = "BuyResearch",
+						args = { researchId = activeId, mode = "max" },
+					})
+			end
+			end
+		end
+	end
 end
 
 function HUD:toggleResearchModal(forceState)
@@ -4538,7 +4563,7 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 		-- Middle Column: Name, Subtitle, Level, Progress Bar
 		local nameLabel = createGuiElement("TextLabel", {
 			Name = "Title",
-			Size = isRoblox and UDim2.new(1, -205, 0, 18) or nil,
+			Size = isRoblox and UDim2.new(1, -210, 0, 18) or nil,
 			Position = isRoblox and UDim2.new(0, 58, 0, 6) or nil,
 			BackgroundTransparency = 1,
 			Font = isRoblox and Enum.Font.FredokaOne or nil,
@@ -4551,7 +4576,7 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 
 		local subtitleLabel = createGuiElement("TextLabel", {
 			Name = "Subtitle",
-			Size = isRoblox and UDim2.new(1, -205, 0, 40) or nil,
+			Size = isRoblox and UDim2.new(1, -210, 0, 40) or nil,
 			Position = isRoblox and UDim2.new(0, 58, 0, 24) or nil,
 			BackgroundTransparency = 1,
 			Font = isRoblox and Enum.Font.FredokaOne or nil,
@@ -4600,16 +4625,16 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 			Text = "BUY",
 		}, card)
 
-		-- 3D Tycoon Buy Button (130x46)
+		-- 3D Tycoon Buy Button (+1 level, 92x48)
 		local buyBtn = createGuiElement("TextButton", {
 			Name = "BuyButton",
-			Size = isRoblox and UDim2.new(0, 130, 0, 46) or nil,
-			Position = isRoblox and UDim2.new(1, -138, 0, 7) or nil,
+			Size = isRoblox and UDim2.new(0, 92, 0, 48) or nil,
+			Position = isRoblox and UDim2.new(1, -196, 0, 21) or nil,
 			BackgroundColor3 = isRoblox and Color3.fromRGB(34, 197, 94) or nil,
 			Font = isRoblox and Enum.Font.FredokaOne or nil,
 			Text = "",
 		}, card)
-		addCornerAndStroke(buyBtn, 10, isRoblox and Color3.fromRGB(20, 83, 45) or nil, 2.5)
+		addCornerAndStroke(buyBtn, 10, isRoblox and Color3.fromRGB(20, 83, 45) or nil, 2)
 
 		local btnActionLabel = createGuiElement("TextLabel", {
 			Name = "ActionLabel",
@@ -4635,6 +4660,41 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 		}, buyBtn)
 		addTextStroke(priceLabel, 1.8)
 
+		-- 3D Tycoon Buy MAX Button (MAX levels, 92x48)
+		local buyMaxBtn = createGuiElement("TextButton", {
+			Name = "BuyMaxButton",
+			Size = isRoblox and UDim2.new(0, 92, 0, 48) or nil,
+			Position = isRoblox and UDim2.new(1, -98, 0, 21) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(245, 158, 11) or nil,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			Text = "",
+		}, card)
+		addCornerAndStroke(buyMaxBtn, 10, isRoblox and Color3.fromRGB(180, 83, 9) or nil, 2)
+
+		local btnMaxActionLabel = createGuiElement("TextLabel", {
+			Name = "MaxActionLabel",
+			Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil,
+			Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil,
+			BackgroundTransparency = 1,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextScaled = true,
+			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+			Text = "MAX",
+		}, buyMaxBtn)
+		addTextStroke(btnMaxActionLabel, 1.8)
+
+		local btnMaxPriceLabel = createGuiElement("TextLabel", {
+			Name = "MaxPrice",
+			Size = isRoblox and UDim2.new(1, 0, 0.44, 0) or nil,
+			Position = isRoblox and UDim2.new(0, 0, 0.50, 0) or nil,
+			BackgroundTransparency = 1,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextScaled = true,
+			TextColor3 = isRoblox and Color3.fromRGB(254, 240, 138) or nil,
+			Text = "MAX",
+		}, buyMaxBtn)
+		addTextStroke(btnMaxPriceLabel, 1.8)
+
 		item = {
 			id = id,
 			activeId = activeSubId,
@@ -4647,9 +4707,13 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 			statusLabel = statusLabel,
 			buyButton = buyBtn,
 			actionLabel = btnActionLabel,
+			buyMaxButton = buyMaxBtn,
+			maxActionLabel = btnMaxActionLabel,
+			maxPriceLabel = btnMaxPriceLabel,
 			available = true,
 			blockedReason = nil,
 			quote = nil,
+			maxQuote = nil,
 		}
 
 		local function triggerBuy()
@@ -4658,11 +4722,20 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 				return
 			end
 			local buyTargetId = item.activeId or id
-			self:buyResearch(buyTargetId)
+			self:buyResearch(buyTargetId, "single")
+		end
+
+		local function triggerBuyMax()
+			if not item.buyMaxButton.Active or item.statusLabel.Text == "MAX" or item.statusLabel.Text == "LOCKED" then
+				return
+			end
+			local buyTargetId = item.activeId or id
+			self:buyResearch(buyTargetId, "max")
 		end
 
 		if card.Activated ~= nil then card.Activated:Connect(triggerBuy) end
 		if buyBtn.Activated ~= nil then buyBtn.Activated:Connect(triggerBuy) end
+		if buyMaxBtn.Activated ~= nil then buyMaxBtn.Activated:Connect(triggerBuyMax) end
 
 		self.unifiedResearch[id] = item
 	end
@@ -4698,6 +4771,18 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 	end
 	item.quote = quote
 
+	local maxQuote = nil
+	if self.intentControllers and self.intentControllers.shop then
+		maxQuote = self.intentControllers.shop:getCachedQuote({
+			kind = "BuyResearch",
+			args = { researchId = activeSubId, mode = "max" },
+		})
+	end
+	if maxQuote ~= nil and maxQuote.nextLevel ~= nil and maxQuote.nextLevel <= activeCurLvl then
+		maxQuote = nil
+	end
+	item.maxQuote = maxQuote
+
 	if quote ~= nil and quote.cashCost ~= nil then
 		item.priceLabel.Text = HUD.formatCash(quote.cashCost)
 	elseif activeResearch and activeResearch.price ~= nil then
@@ -4714,6 +4799,12 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 		item.priceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
 		item.buyButton.Active = false
 		if isRoblox then item.buyButton.BackgroundColor3 = Color3.fromRGB(55, 65, 81) end
+
+		item.maxActionLabel.Text = "MAX"
+		item.maxPriceLabel.Text = "WYKUPIONE"
+		item.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
+		item.buyMaxButton.Active = false
+		if isRoblox then item.buyMaxButton.BackgroundColor3 = Color3.fromRGB(55, 65, 81) end
 	elseif not isAvailable then
 		item.statusLabel.Text = "LOCKED"
 		item.actionLabel.Text = "ZABLOK."
@@ -4721,18 +4812,51 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 		item.priceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
 		item.buyButton.Active = false
 		if isRoblox then item.buyButton.BackgroundColor3 = Color3.fromRGB(75, 85, 99) end
+
+		item.maxActionLabel.Text = "ZABLOK."
+		item.maxPriceLabel.Text = "ZABLOKOWANE"
+		item.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
+		item.buyMaxButton.Active = false
+		if isRoblox then item.buyMaxButton.BackgroundColor3 = Color3.fromRGB(75, 85, 99) end
 	elseif quote ~= nil and not quote.available and quote.blockedReason == "INSUFFICIENT_CASH" then
 		item.statusLabel.Text = "INSUFFICIENT_CASH"
 		item.actionLabel.Text = "ZA MAŁO $"
 		item.priceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
 		item.buyButton.Active = false
 		if isRoblox then item.buyButton.BackgroundColor3 = Color3.fromRGB(107, 114, 128) end
+
+		item.maxActionLabel.Text = "MAX"
+		item.maxPriceLabel.Text = "ZA MAŁO $"
+		item.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
+		item.buyMaxButton.Active = false
+		if isRoblox then item.buyMaxButton.BackgroundColor3 = Color3.fromRGB(107, 114, 128) end
 	else
 		item.statusLabel.Text = "BUY"
 		item.actionLabel.Text = "KUP"
 		item.priceLabel.TextColor3 = isRoblox and Color3.fromRGB(254, 240, 138) or nil
 		item.buyButton.Active = true
 		if isRoblox then item.buyButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94) end
+
+		if maxQuote ~= nil and not maxQuote.available and maxQuote.blockedReason == "INSUFFICIENT_CASH" then
+			item.maxActionLabel.Text = "MAX"
+			item.maxPriceLabel.Text = "ZA MAŁO $"
+			item.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
+			item.buyMaxButton.Active = false
+			if isRoblox then item.buyMaxButton.BackgroundColor3 = Color3.fromRGB(107, 114, 128) end
+		elseif maxQuote ~= nil and maxQuote.available and maxQuote.cashCost ~= nil then
+			local levelsGain = (maxQuote.nextLevel or (chainCurLvl + 1)) - activeCurLvl
+			item.maxActionLabel.Text = string.format("MAX (+%d)", math.max(1, levelsGain))
+			item.maxPriceLabel.Text = HUD.formatCash(maxQuote.cashCost)
+			item.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(254, 240, 138) or nil
+			item.buyMaxButton.Active = true
+			if isRoblox then item.buyMaxButton.BackgroundColor3 = Color3.fromRGB(245, 158, 11) end
+		else
+			item.maxActionLabel.Text = "MAX"
+			item.maxPriceLabel.Text = "MAX"
+			item.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(254, 240, 138) or nil
+			item.buyMaxButton.Active = true
+			if isRoblox then item.buyMaxButton.BackgroundColor3 = Color3.fromRGB(245, 158, 11) end
+		end
 	end
 end
 
@@ -5373,64 +5497,85 @@ function HUD:onQuoteReceived(quoteView)
 			end
 		end
 
-		-- Propagate fresh quote to the active unified research card (BUG-01 & BUG-02)
+		-- Propagate fresh quote to the active unified research card (BUG-01 & BUG-02 & MAX)
 		if self.unifiedResearch then
 			for _, uItem in pairs(self.unifiedResearch) do
 				if uItem.activeId == target.args.researchId then
-					uItem.quote = quoteView
-					if quoteView.cashCost ~= nil then
-						uItem.priceLabel.Text = HUD.formatCash(quoteView.cashCost)
-					end
-					if quoteView.available then
-						if uItem.statusLabel.Text ~= "MAX" then
-							uItem.available = true
-							uItem.blockedReason = nil
-							uItem.buyButton.Active = true
-							uItem.statusLabel.Text = "BUY"
-							if uItem.actionLabel then
-								uItem.actionLabel.Text = "KUP"
-								uItem.actionLabel.Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil
-								uItem.actionLabel.Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil
-							end
-							uItem.priceLabel.Visible = true
-							uItem.priceLabel.TextColor3 = isRoblox and Color3.fromRGB(254, 240, 138) or nil
-							if isRoblox then
-								uItem.buyButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94)
-								local stroke = uItem.buyButton:FindFirstChildOfClass("UIStroke")
-								if stroke then stroke.Color = Color3.fromRGB(20, 83, 45) end
+					local mode = target.args.mode or "single"
+					if mode == "max" then
+						uItem.maxQuote = quoteView
+						if uItem.statusLabel.Text ~= "MAX" and uItem.statusLabel.Text ~= "LOCKED" then
+							if quoteView.available then
+								local activeCurLvl = uItem.level or 0
+								local levelsGain = (quoteView.nextLevel or (activeCurLvl + 1)) - activeCurLvl
+								uItem.maxActionLabel.Text = string.format("MAX (+%d)", math.max(1, levelsGain))
+								if quoteView.cashCost ~= nil then
+									uItem.maxPriceLabel.Text = HUD.formatCash(quoteView.cashCost)
+								end
+								uItem.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(254, 240, 138) or nil
+								uItem.buyMaxButton.Active = true
+								if isRoblox then
+									uItem.buyMaxButton.BackgroundColor3 = Color3.fromRGB(245, 158, 11)
+									local stroke = uItem.buyMaxButton:FindFirstChildOfClass("UIStroke")
+									if stroke then stroke.Color = Color3.fromRGB(180, 83, 9) end
+								end
+							else
+								local reason = quoteView.blockedReason or "LOCKED"
+								uItem.buyMaxButton.Active = false
+								uItem.maxActionLabel.Text = "MAX"
+								uItem.maxPriceLabel.Text = if reason == "INSUFFICIENT_CASH" then "ZA MAŁO $" else reason
+								uItem.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
+								if isRoblox then
+									uItem.buyMaxButton.BackgroundColor3 = Color3.fromRGB(107, 114, 128)
+									local stroke = uItem.buyMaxButton:FindFirstChildOfClass("UIStroke")
+									if stroke then stroke.Color = Color3.fromRGB(75, 85, 99) end
+								end
 							end
 						end
 					else
-						local reason = quoteView.blockedReason or "LOCKED"
-						if uItem.statusLabel.Text ~= "MAX" then
-							uItem.available = false
-							uItem.blockedReason = reason
-							uItem.buyButton.Active = false
-							uItem.statusLabel.Text = reason
-							if reason == "INSUFFICIENT_CASH" then
+						uItem.quote = quoteView
+						if quoteView.cashCost ~= nil then
+							uItem.priceLabel.Text = HUD.formatCash(quoteView.cashCost)
+						end
+						if quoteView.available then
+							if uItem.statusLabel.Text ~= "MAX" then
+								uItem.available = true
+								uItem.blockedReason = nil
+								uItem.buyButton.Active = true
+								uItem.statusLabel.Text = "BUY"
 								if uItem.actionLabel then
-									uItem.actionLabel.Text = "ZA MAŁO $"
+									uItem.actionLabel.Text = "KUP"
 									uItem.actionLabel.Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil
 									uItem.actionLabel.Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil
 								end
 								uItem.priceLabel.Visible = true
-								uItem.priceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
+								uItem.priceLabel.TextColor3 = isRoblox and Color3.fromRGB(254, 240, 138) or nil
 								if isRoblox then
-									uItem.buyButton.BackgroundColor3 = Color3.fromRGB(107, 114, 128)
+									uItem.buyButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94)
 									local stroke = uItem.buyButton:FindFirstChildOfClass("UIStroke")
-									if stroke then stroke.Color = Color3.fromRGB(75, 85, 99) end
+									if stroke then stroke.Color = Color3.fromRGB(20, 83, 45) end
 								end
-							elseif reason == "TIER_LOCKED" then
-								if uItem.actionLabel then
-									uItem.actionLabel.Text = "ZABLOK."
-									uItem.actionLabel.Size = isRoblox and UDim2.new(1, -6, 0.9, 0) or nil
-									uItem.actionLabel.Position = isRoblox and UDim2.new(0, 3, 0.05, 0) or nil
-								end
-								uItem.priceLabel.Visible = false
-								if isRoblox then
-									uItem.buyButton.BackgroundColor3 = Color3.fromRGB(75, 85, 99)
-									local stroke = uItem.buyButton:FindFirstChildOfClass("UIStroke")
-									if stroke then stroke.Color = Color3.fromRGB(31, 41, 55) end
+							end
+						else
+							local reason = quoteView.blockedReason or "LOCKED"
+							if uItem.statusLabel.Text ~= "MAX" then
+								uItem.available = false
+								uItem.blockedReason = reason
+								uItem.buyButton.Active = false
+								uItem.statusLabel.Text = reason
+								if reason == "INSUFFICIENT_CASH" then
+									if uItem.actionLabel then
+										uItem.actionLabel.Text = "ZA MAŁO $"
+										uItem.actionLabel.Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil
+										uItem.actionLabel.Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil
+									end
+									uItem.priceLabel.Visible = true
+									uItem.priceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
+									if isRoblox then
+										uItem.buyButton.BackgroundColor3 = Color3.fromRGB(107, 114, 128)
+										local stroke = uItem.buyButton:FindFirstChildOfClass("UIStroke")
+										if stroke then stroke.Color = Color3.fromRGB(75, 85, 99) end
+									end
 								end
 							end
 						end
@@ -5475,7 +5620,13 @@ function HUD:stopHoldHatch(callback)
 	return nil
 end
 
-function HUD:buyResearch(researchId, callback)
+function HUD:buyResearch(researchId, mode, callback)
+	if type(mode) == "function" and callback == nil then
+		callback = mode
+		mode = "single"
+	end
+	mode = mode or "single"
+
 	if not self.intentControllers or not self.intentControllers.shop then
 		if callback then callback({ status = "REJECTED", errorCode = "NO_SHOP_CONTROLLER" }) end
 		return false, "NO_SHOP_CONTROLLER"
@@ -5495,14 +5646,14 @@ function HUD:buyResearch(researchId, callback)
 
 	local target = {
 		kind = "BuyResearch",
-		args = { researchId = researchId, mode = "single" },
+		args = { researchId = researchId, mode = mode },
 	}
 
 	local currentRevision = if self.stateStore then self.stateStore:getCommitRevision() else nil
 	local serverObservedAt = if self.stateStore then self.stateStore:getServerObservedAt() else nil
 	local quote = self.intentControllers.shop:getCachedQuote(target)
 
-	local item = self.shopResearch and self.shopResearch[researchId]
+	local item = (self.shopResearch and self.shopResearch[researchId]) or (self.unifiedResearch and self.unifiedResearch[researchId])
 	local curLvl = item and item.level or 0
 
 	local isQuoteFresh = quote ~= nil

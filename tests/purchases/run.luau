@@ -92,6 +92,16 @@ do
 	eq(quotePoor.blockedReason, "INSUFFICIENT_CASH")
 	local validPoor, errPoor = ProtocolSchemas.validateServer(quotePoor)
 	ok(validPoor, "INSUFFICIENT_CASH QuoteView valid: " .. tostring(errPoor))
+
+	-- 1.5 Buy MAX quote
+	local pMaxTest = freshProfile("100", "50000")
+	local targetMaxBuy = { kind = "BuyResearch", args = { researchId = "comfy_nests", mode = "max" } }
+	local quoteMaxBuy = FarmActions.createQuote(pMaxTest, Catalog, targetMaxBuy, "req-max-1", "0", "q-m1", 1000000, "cfg:1")
+	ok(quoteMaxBuy ~= nil, "MAX Quote created")
+	eq(quoteMaxBuy.available, true)
+	ok(quoteMaxBuy.nextLevel > 1, "MAX quote buys multiple levels")
+	local validMaxQuote, errMQ = ProtocolSchemas.validateServer(quoteMaxBuy)
+	ok(validMaxQuote, "MAX QuoteView valid: " .. tostring(errMQ))
 end
 
 -- ============================================================================
@@ -244,6 +254,16 @@ do
 	local vPass, vCode = outBuyRes.validate(pEmpty, 1000000)
 	eq(vPass, false)
 	eq(vCode, "INSUFFICIENT_CASH")
+
+	-- 3.5b BuyResearch with mode = "max"
+	local pMaxApply = freshProfile("100", "50000")
+	local opMaxBuy = { kind = "BuyResearch", args = { researchId = "comfy_nests", mode = "max", quoteId = "q-m1" } }
+	local outMaxBuy = actions.apply(pMaxApply, opMaxBuy)
+	eq(outMaxBuy.terminalStatus, "APPLIED")
+	eq(outMaxBuy.result.actionKind, "BuyResearch")
+	ok(outMaxBuy.result.level > 1, "BuyResearch MAX upgraded multiple levels")
+	eq(pMaxApply.farm.common.comfy_nests, outMaxBuy.result.level)
+	eq(pMaxApply.accounting.currentFarmCash, "50000", "currentFarmCash invariant preserved on MAX")
 
 	-- 3.6 Successful BuyHabitat purchase with POPULATION PRESERVATION
 	local pHab = freshProfile("10000", "75000")

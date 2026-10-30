@@ -129,7 +129,7 @@ function ClientBootstrap.new(deps)
 
 	if hud then
 		if hud.onQuickBuyResearch == nil then
-			hud.onQuickBuyResearch = function(researchId) self:buyResearch(researchId) end
+			hud.onQuickBuyResearch = function(researchId, mode) self:buyResearch(researchId, mode) end
 		end
 		if hud.onQuickBuyHabitat == nil then
 			hud.onQuickBuyHabitat = function(slotId) self:buyHabitat(slotId or 1, "SHACK") end
@@ -255,8 +255,13 @@ function ClientBootstrap:confirmPurchase(quoteView, callback)
 	return self.intentControllers.shop:confirmPurchase(quoteView, callback)
 end
 
-function ClientBootstrap:buyResearch(researchId, callback)
-	local target = { kind = "BuyResearch", args = { researchId = researchId, mode = "single" } }
+function ClientBootstrap:buyResearch(researchId, mode, callback)
+	if type(mode) == "function" and callback == nil then
+		callback = mode
+		mode = "single"
+	end
+	mode = mode or "single"
+	local target = { kind = "BuyResearch", args = { researchId = researchId, mode = mode } }
 	return self.intentControllers.shop:requestQuote(target, function(quoteView)
 		if quoteView and quoteView.kind == "QuoteView" and quoteView.available then
 			self.intentControllers.shop:confirmPurchase(quoteView, callback)
