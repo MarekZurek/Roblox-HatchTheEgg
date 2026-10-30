@@ -319,6 +319,136 @@ local RESEARCH_CATEGORY = table.freeze({
 	micro_coupling = 4, neural_net_refine = 4, hyper_portalling = 4,
 })
 
+local UNIFIED_RESEARCH_GROUPS = table.freeze({
+	-- 🧬 Genetyka (Tier 1) - 4 badania
+	{
+		key = "nutritional_sup",
+		title = "Wartość Znoszonych Jaj",
+		desc = "+25% wartości jaja za poziom",
+		category = 1,
+		icon = "🥚",
+		chain = { "nutritional_sup", "padded_packaging", "superfeed", "chrystal_shells", "telepathic_will" },
+	},
+	{
+		key = "bigger_eggs",
+		title = "Skokowe Mnożniki Wartości",
+		desc = "Mnożenie wartości jaja (2x, 3x, 10x)",
+		category = 1,
+		icon = "✨",
+		chain = { "bigger_eggs", "usde_prime", "even_bigger_eggs", "graviton_coating", "multi_layering", "timeline_splicing" },
+	},
+	{
+		key = "shell_fortification",
+		title = "Wzmocnienie i Czystość Skorup",
+		desc = "Zaawansowane wzmocnienie skorup jaj",
+		category = 1,
+		icon = "🛡️",
+		chain = { "shell_fortification", "genetic_purification", "atomic_purification", "eggsistor", "matter_reconfig" },
+	},
+	{
+		key = "improved_genetics",
+		title = "Wartość i Tempo Produkcji",
+		desc = "+15% wartości oraz +15% tempa znoszenia",
+		category = 1,
+		icon = "🧬",
+		chain = { "improved_genetics" },
+	},
+
+	-- 🐣 Wylęg (Tier 2) - 5 badań
+	{
+		key = "internal_hatchery1",
+		title = "Automatyczny Wylęg",
+		desc = "Automatyczny przyrost kur na minutę",
+		category = 2,
+		icon = "🏭",
+		chain = { "internal_hatchery1", "internal_hatchery2", "internal_hatchery3", "internal_hatchery4", "internal_hatchery5", "neural_linking" },
+	},
+	{
+		key = "comfy_nests",
+		title = "Szybkość Znoszenia Jaj",
+		desc = "Przyspieszenie tempa znoszenia jaj przez stado",
+		category = 2,
+		icon = "🪹",
+		chain = { "comfy_nests", "hen_house_ac", "time_compress", "timeline_diversion", "relativity_optimization" },
+	},
+	{
+		key = "excitable_chickens",
+		title = "Mnożnik Dochodów ze Stada",
+		desc = "Mnożnik przychodu biegających kur (RCB)",
+		category = 2,
+		icon = "🏃",
+		chain = { "excitable_chickens", "coordinated_clucking", "motivational_clucking", "enlightened_chickens" },
+	},
+	{
+		key = "hatchery_expansion",
+		title = "Pojemność Wylęgarni",
+		desc = "Zapas kur do ręcznego klikania",
+		category = 2,
+		icon = "🔋",
+		chain = { "hatchery_expansion", "hatchery_rebuild1", "compact_incubators" },
+	},
+	{
+		key = "better_incubators",
+		title = "Odnowienie Wylęgarni",
+		desc = "Tempo regeneracji zapasu wylęgarni",
+		category = 2,
+		icon = "🐣",
+		chain = { "better_incubators", "rooster_booster" },
+	},
+
+	-- 🏡 Kurniki (Tier 3) - 1 badanie
+	{
+		key = "hab_capacity1",
+		title = "Pojemność Kurników",
+		desc = "Rozbudowa pojemności wszystkich kurników",
+		category = 3,
+		icon = "🏠",
+		chain = { "hab_capacity1", "microlux", "grav_plating", "wormhole_dampening" },
+	},
+
+	-- 🚚 Flota (Tier 4) - 5 badań
+	{
+		key = "leafsprings",
+		title = "Pojemność Floty",
+		desc = "Ładowność pojazdów transportowych",
+		category = 4,
+		icon = "🚚",
+		chain = { "leafsprings", "lightweight_boxes", "super_alloy", "quantum_storage", "dark_containment" },
+	},
+	{
+		key = "vehicle_reliablity",
+		title = "Miejsca we Flocie",
+		desc = "Odblokowanie kolejnych pojazdów transportu",
+		category = 4,
+		icon = "🔧",
+		chain = { "vehicle_reliablity", "excoskeletons", "traffic_management", "egg_loading_bots", "autonomous_vehicles" },
+	},
+	{
+		key = "driver_training",
+		title = "Szkolenie i Prędkość Floty",
+		desc = "Ładowność oraz szybkość kursowania floty",
+		category = 4,
+		icon = "🎓",
+		chain = { "driver_training", "neural_net_refine" },
+	},
+	{
+		key = "hover_upgrades",
+		title = "Pojazdy Poduszkowe",
+		desc = "Pojemność dla pojazdów typu Hover",
+		category = 4,
+		icon = "🛸",
+		chain = { "hover_upgrades" },
+	},
+	{
+		key = "micro_coupling",
+		title = "Pociąg Hyperloop",
+		desc = "Wagony oraz ładowność pociągu Hyperloop",
+		category = 4,
+		icon = "🚅",
+		chain = { "micro_coupling", "hyper_portalling" },
+	},
+})
+
 local COMMON_RESEARCH_TIERS = table.freeze({
 	comfy_nests = 1, nutritional_sup = 1, better_incubators = 1, excitable_chickens = 1,
 	hab_capacity1 = 2, internal_hatchery1 = 2, padded_packaging = 2, hatchery_expansion = 2, bigger_eggs = 2,
@@ -1225,6 +1355,7 @@ function HUD.new(deps)
 		selectedResearchTier = 1,
 		researchTierLockBanner = nil,
 		shopResearch = {},
+		unifiedResearch = {},
 
 		petsModal = nil,
 		equippedPetSlots = {},
@@ -4306,9 +4437,13 @@ function HUD:_updateResearchModal(farm)
 
 	-- Calculate total purchased research levels to evaluate tier unlocking
 	local totalPurchasedLevels = 0
+	local byId = {}
 	if type(farm.common) == "table" then
 		for _, r in ipairs(farm.common) do
+			byId[r.researchId] = r
 			totalPurchasedLevels += (tonumber(r.level) or 0)
+			-- Maintain individual research preview items for backend tests and quote hooks
+			self:_updateResearchItem(r, 0, false)
 		end
 	end
 
@@ -4332,18 +4467,15 @@ function HUD:_updateResearchModal(farm)
 		end
 	end
 
-	-- Common tiers only; Epic has a dedicated modal.
+	-- Render ONLY the 15 unified research groups (4 in Tab 1, 5 in Tab 2, 1 in Tab 3, 5 in Tab 4)
 	do
 		local visibleIdx = 0
-		if type(farm.common) == "table" then
-			for _, research in ipairs(farm.common) do
-				local rCat = RESEARCH_CATEGORY[research.researchId] or 1
-				local matchesTab = (rCat == currentTier)
-				if matchesTab then
-					visibleIdx += 1
-				end
-				self:_updateResearchItem(research, visibleIdx, matchesTab)
+		for _, group in ipairs(UNIFIED_RESEARCH_GROUPS) do
+			local matchesTab = (group.category == currentTier)
+			if matchesTab then
+				visibleIdx += 1
 			end
+			self:_updateUnifiedGroup(group, byId, visibleIdx, matchesTab)
 		end
 		if isRoblox and self.shopListContainer then
 			self.shopListContainer.CanvasSize = UDim2.new(0, 0, 0, math.max(350, visibleIdx * 96 + 10))
@@ -4351,6 +4483,252 @@ function HUD:_updateResearchModal(farm)
 		if self.shopFrame and self.shopFrame.Visible then
 			self:requestQuotesForCurrentTier(false)
 		end
+	end
+end
+
+function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
+	local id = group.key
+	self.unifiedResearch = self.unifiedResearch or {}
+	local item = self.unifiedResearch[id]
+
+	local chainCurLvl = 0
+	local chainMaxLvl = 0
+	local activeResearch = nil
+
+	for _, subId in ipairs(group.chain) do
+		local sub = byId[subId]
+		local cur = sub and tonumber(sub.level) or 0
+		local maxL = COMMON_RESEARCH_MAX_LEVELS[subId] or 25
+		chainCurLvl += cur
+		chainMaxLvl += maxL
+		if activeResearch == nil and cur < maxL then
+			activeResearch = sub
+		end
+	end
+	if activeResearch == nil then
+		activeResearch = byId[group.chain[#group.chain]] or { researchId = group.key, level = chainMaxLvl, available = false }
+	end
+
+	local cleanTitle = group.title
+	local cleanSubtitle = researchEffectText(activeResearch, group.desc)
+	local iconEmoji = group.icon
+	local activeSubId = activeResearch.researchId
+
+	if item == nil then
+		local orderIdx = displayOrder or 1
+		local shouldBeVisible = if isTabVisible ~= nil then isTabVisible else true
+		local card = createGuiElement("TextButton", {
+			Name = "ResearchCard_" .. id,
+			Visible = shouldBeVisible,
+			Size = isRoblox and UDim2.new(1, -6, 0, 90) or nil,
+			Position = isRoblox and UDim2.new(0, 0, 0, (orderIdx - 1) * 96) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(78, 52, 46) or nil,
+			Text = "",
+			AutoButtonColor = false,
+		}, self.shopListContainer or self.shopFrame)
+		addCornerAndStroke(card, 12, isRoblox and Color3.fromRGB(43, 24, 16) or nil, 2)
+
+		-- Left Icon Badge (44x44)
+		local iconBadge = createGuiElement("Frame", {
+			Name = "IconBadge",
+			Size = isRoblox and UDim2.new(0, 44, 0, 44) or nil,
+			Position = isRoblox and UDim2.new(0, 8, 0, 8) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(254, 243, 199) or nil,
+		}, card)
+		addCornerAndStroke(iconBadge, 10, isRoblox and Color3.fromRGB(217, 119, 6) or nil, 1.5)
+
+		createGuiElement("TextLabel", {
+			Name = "IconEmoji",
+			Size = isRoblox and UDim2.new(1, 0, 1, 0) or nil,
+			BackgroundTransparency = 1,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextSize = 24,
+			TextColor3 = isRoblox and Color3.fromRGB(69, 26, 3) or nil,
+			Text = iconEmoji,
+		}, iconBadge)
+
+		-- Middle Column: Name, Subtitle, Level, Progress Bar
+		local nameLabel = createGuiElement("TextLabel", {
+			Name = "Title",
+			Size = isRoblox and UDim2.new(1, -205, 0, 18) or nil,
+			Position = isRoblox and UDim2.new(0, 58, 0, 6) or nil,
+			BackgroundTransparency = 1,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextScaled = true,
+			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+			Text = cleanTitle,
+		}, card)
+		addTextStroke(nameLabel, 1.8)
+
+		local subtitleLabel = createGuiElement("TextLabel", {
+			Name = "Subtitle",
+			Size = isRoblox and UDim2.new(1, -205, 0, 40) or nil,
+			Position = isRoblox and UDim2.new(0, 58, 0, 24) or nil,
+			BackgroundTransparency = 1,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextScaled = false,
+			TextSize = 12,
+			TextWrapped = true,
+			TextYAlignment = isRoblox and Enum.TextYAlignment.Top or nil,
+			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+			TextColor3 = isRoblox and Color3.fromRGB(214, 190, 178) or nil,
+			Text = cleanSubtitle,
+		}, card)
+
+		local levelLabel = createGuiElement("TextLabel", {
+			Name = "Level",
+			Size = isRoblox and UDim2.new(0, 95, 0, 13) or nil,
+			Position = isRoblox and UDim2.new(0, 58, 0, 70) or nil,
+			BackgroundTransparency = 1,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextScaled = true,
+			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+			TextColor3 = isRoblox and Color3.fromRGB(251, 191, 36) or nil,
+			Text = string.format("★ POZ. %d/%d", chainCurLvl, chainMaxLvl),
+		}, card)
+		addTextStroke(levelLabel, 1.5)
+
+		-- Mini Progress Bar
+		local progressTrack = createGuiElement("Frame", {
+			Name = "ProgressTrack",
+			Size = isRoblox and UDim2.new(1, -300, 0, 7) or nil,
+			Position = isRoblox and UDim2.new(0, 156, 0, 74) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(43, 24, 16) or nil,
+		}, card)
+		addCornerAndStroke(progressTrack, 3, nil, 0)
+
+		local progressFill = createGuiElement("Frame", {
+			Name = "ProgressFill",
+			Size = isRoblox and UDim2.new(math.clamp(chainCurLvl / math.max(1, chainMaxLvl), 0, 1), 0, 1, 0) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(34, 197, 94) or nil,
+		}, progressTrack)
+		addCornerAndStroke(progressFill, 3, nil, 0)
+
+		-- Invisible status label for test invariants
+		local statusLabel = createGuiElement("TextLabel", {
+			Name = "Status",
+			Visible = false,
+			Text = "BUY",
+		}, card)
+
+		-- 3D Tycoon Buy Button (130x46)
+		local buyBtn = createGuiElement("TextButton", {
+			Name = "BuyButton",
+			Size = isRoblox and UDim2.new(0, 130, 0, 46) or nil,
+			Position = isRoblox and UDim2.new(1, -138, 0, 7) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(34, 197, 94) or nil,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			Text = "",
+		}, card)
+		addCornerAndStroke(buyBtn, 10, isRoblox and Color3.fromRGB(20, 83, 45) or nil, 2.5)
+
+		local btnActionLabel = createGuiElement("TextLabel", {
+			Name = "ActionLabel",
+			Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil,
+			Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil,
+			BackgroundTransparency = 1,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextScaled = true,
+			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+			Text = "KUP",
+		}, buyBtn)
+		addTextStroke(btnActionLabel, 1.8)
+
+		local priceLabel = createGuiElement("TextLabel", {
+			Name = "Price",
+			Size = isRoblox and UDim2.new(1, 0, 0.44, 0) or nil,
+			Position = isRoblox and UDim2.new(0, 0, 0.50, 0) or nil,
+			BackgroundTransparency = 1,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextScaled = true,
+			TextColor3 = isRoblox and Color3.fromRGB(254, 240, 138) or nil,
+			Text = "$0",
+		}, buyBtn)
+		addTextStroke(priceLabel, 1.8)
+
+		item = {
+			id = id,
+			activeId = activeSubId,
+			card = card,
+			nameLabel = nameLabel,
+			subtitleLabel = subtitleLabel,
+			levelLabel = levelLabel,
+			progressFill = progressFill,
+			priceLabel = priceLabel,
+			statusLabel = statusLabel,
+			buyButton = buyBtn,
+			actionLabel = btnActionLabel,
+			available = true,
+			blockedReason = nil,
+			quote = nil,
+		}
+
+		local function triggerBuy()
+			local buyTargetId = item.activeId or id
+			self:buyResearch(buyTargetId)
+		end
+
+		if card.Activated ~= nil then card.Activated:Connect(triggerBuy) end
+		if buyBtn.Activated ~= nil then buyBtn.Activated:Connect(triggerBuy) end
+
+		self.unifiedResearch[id] = item
+	end
+
+	item.activeId = activeSubId
+
+	if isTabVisible ~= nil then
+		item.card.Visible = isTabVisible
+		if isTabVisible and displayOrder then
+			item.card.Position = isRoblox and UDim2.new(0, 0, 0, (displayOrder - 1) * 96) or nil
+		end
+	end
+
+	item.level = chainCurLvl
+	item.subtitleLabel.Text = cleanSubtitle
+	item.levelLabel.Text = string.format("★ POZ. %d/%d", chainCurLvl, chainMaxLvl)
+	if item.progressFill and isRoblox then
+		item.progressFill.Size = UDim2.new(math.clamp(chainCurLvl / math.max(1, chainMaxLvl), 0, 1), 0, 1, 0)
+	end
+
+	local quote = nil
+	if self.intentControllers and self.intentControllers.shop then
+		quote = self.intentControllers.shop:getCachedQuote({
+			kind = "BuyResearch",
+			args = { researchId = activeSubId, mode = "single" },
+		})
+	end
+	item.quote = quote
+
+	if quote ~= nil and quote.cashCost ~= nil then
+		item.priceLabel.Text = HUD.formatCash(quote.cashCost)
+	elseif activeResearch and activeResearch.price ~= nil then
+		item.priceLabel.Text = HUD.formatCash(activeResearch.price)
+	end
+
+	local isAvailable = activeResearch.available
+	local isMax = (chainCurLvl >= chainMaxLvl)
+
+	if isMax then
+		item.statusLabel.Text = "MAX"
+		item.actionLabel.Text = "MAX"
+		item.priceLabel.Text = "WYKUPIONE"
+		item.priceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
+		item.buyButton.Active = false
+		if isRoblox then item.buyButton.BackgroundColor3 = Color3.fromRGB(55, 65, 81) end
+	elseif not isAvailable then
+		item.statusLabel.Text = "LOCKED"
+		item.actionLabel.Text = "ZABLOK."
+		item.priceLabel.Text = "ZABLOKOWANE"
+		item.priceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
+		item.buyButton.Active = false
+		if isRoblox then item.buyButton.BackgroundColor3 = Color3.fromRGB(75, 85, 99) end
+	else
+		item.statusLabel.Text = "BUY"
+		item.actionLabel.Text = "KUP"
+		item.priceLabel.TextColor3 = isRoblox and Color3.fromRGB(254, 240, 138) or nil
+		item.buyButton.Active = true
+		if isRoblox then item.buyButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94) end
 	end
 end
 
