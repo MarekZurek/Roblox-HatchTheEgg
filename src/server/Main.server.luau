@@ -38,7 +38,7 @@ end
 
 -- Explicit Studio-only local mode. A live server ignores this attribute.
 local studio = RunService:IsStudio()
-local studioMemory = studio and script:GetAttribute("UseLocalMemoryStore") == true
+local studioMemory = studio and (script:GetAttribute("UseLocalMemoryStore") == true or game.PlaceId == 0)
 local storageMode = if studioMemory then "STUDIO_MEMORY" else "PERSISTENT"
 local persistentStore, storageError
 if not studioMemory then persistentStore, storageError = RobloxDataStorePort.open(DataStoreService) end
