@@ -1442,8 +1442,12 @@ do
 	closeBtn.Activated:Fire()
 	eq(hud:getResearchModal().Visible, false, "Actual close button closes research")
 
-	-- Check mobile-friendly touch targets on main interactive buttons
-	ok(hud.hatchButton ~= nil, "HatchButton exists")
+	-- Check mobile-friendly touch targets on main interactive buttons & #101 HatcheryFrame indicator
+	eq(hud.hatchButton, nil, "#101: manual HatchButton removed from HatcheryFrame")
+	ok(hud.hatcheryStockLabel ~= nil, "#101: HatcheryFrame retains StockLabel indicator")
+	ok(hud.hatcheryRefillLabel ~= nil, "#101: HatcheryFrame retains RefillLabel indicator")
+	eq(hud:getHatcheryText(), "250 / 500", "#101: Hatchery stock indicator displays current stock/capacity")
+	eq(hud:getHatcheryRefillText(), "+10/s", "#101: Hatchery refill indicator displays current refill rate")
 	ok(hud.homeButton ~= nil, "HomeButton exists")
 	ok(hud.researchToggleBtn ~= nil, "Dock buttons exist")
 

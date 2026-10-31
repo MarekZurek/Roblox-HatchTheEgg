@@ -1,4 +1,6 @@
-# Bieżący kontekst — 28.10.2026
+# Bieżący kontekst — 31.10.2026
+
+**Realizacja i odbiór Studio zadań #96, #97, #98, #100, #101 — 31.10.2026:** [raport dostawy i walidacji Studio](workflow/issues_96_98_2026_10_29.md). Usunięto manualny przycisk HatchButton z HatcheryFrame (#101), pozostawiając kompaktowy wskaźnik zapasu i odnawiania kurczaków (220×50), wydzielono statyczne katalogi HUD do UiAssets.catalogs (rozmiar HUD.luau zmniejszony do 193 042 bajtów poniżej limitu 200 KB Script.Source w Studio), zsynchronizowano 47/47 skryptów z HatchTheEgg.rbxlx i instancją Roblox Studio oraz potwierdzono w sesji Play (UseLocalMemoryStore=true) działanie zadań #96, #97, #98, #100 i #101 bez błędów konsoli. Pełny runner 	ools/test.ps1 (Rojo 45+2 PASS_STATIC_BUILD, 54 suity Lune PASS L, testy Python) zakończony sukcesem. Studio przywrócone do trybu Edit (UseLocalMemoryStore=true). Bez publikacji chmurowej Roblox.
 
 **Audio prezentów — 28.10.2026:** [naprawione coin/pop i native Studio FAIL→PASS](workflow/gift_audio_2026_10_28.md). Stare ID9069609203/9069609204 wskazywały Place; zastąpiono je darmowymi Audio135483737426662/140323850218372. Naturalny odbiór prezentu wywołał jedną parę poprawnie odtwarzanych efektów, bez błędów ładowania. Test odtwarzania native + dwie mutacje starych ID; Lune UI452/gift_drops103 PASS, build43+2 PASS. Własny Play zakończony, sondy usunięte, Studio Edit/local memory. Bez publikacji Roblox.
 
