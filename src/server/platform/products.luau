@@ -297,7 +297,7 @@ local function previewPurchase(
 			desc = "Stała Przepustka PRO: 10 silosów (do 24h działania offline z badaniami) i 5 aktywnych boostów. Note: Paid random chance modifier is disabled for your account."
 		end
 	elseif resolvedId == "buy_max" then
-		desc = "Buy MAX Research: fast research purchase shortcut. Does not grant Pro Permit."
+		desc = "Kupuj MAX (Buy MAX): szybki zakup maksymalnej dostępnej liczby poziomów badań jednym kliknięciem. Nie zawiera Przepustki PRO."
 	elseif resolvedId == "double_cash" then
 		desc = "2x Cash (Double Cash): permanent x2 multiplier to all egg income."
 	elseif resolvedId == "auto_hatch" then

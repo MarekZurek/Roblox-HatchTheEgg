@@ -1096,9 +1096,9 @@ do
 	eq(purchasedProduct, "pro_permit", "Auto-Hatch placeholder does not invoke purchase")
 	eq(autoHatchCard:FindFirstChild("BuyPassButton").Active, false, "Auto-Hatch disabled")
 	local maxCard=cont:FindFirstChild("Tab3_GamePasses"):FindFirstChild("PassCard_buy_max")
+	eq(maxCard:FindFirstChild("BuyPassButton").Active,true,"Buy MAX active for purchase")
 	maxCard:FindFirstChild("BuyPassButton").Activated:Fire()
-	eq(purchasedProduct,"pro_permit","Buy MAX placeholder cannot invoke purchase")
-	eq(maxCard:FindFirstChild("BuyPassButton").Active,false,"Buy MAX disabled")
+	eq(purchasedProduct,"buy_max","Buy MAX pass button invokes purchase")
 	hud:selectResearchTier(14)
 	eq(hud:getCurrentResearchTier(),1,"Invalid retired tier does not change selection")
 

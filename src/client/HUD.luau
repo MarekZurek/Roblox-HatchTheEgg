@@ -2358,9 +2358,9 @@ function HUD:_buildShopProducts(container)
 		},
 		{
 			spec = SHOP_PRODUCTS_CATALOG.buy_max,
-			badge = "[⏳ WKRÓTCE (AKTUALIZACJA V1.1)]",
+			badge = "[⚡ SZYBKI ROZWÓJ (ZAKUP MAX)]",
 			badgeColor = { 130, 255, 150 },
-			isFeatured = false,
+			isFeatured = true,
 		},
 	}
 
@@ -3268,7 +3268,7 @@ function HUD:requestQuotesForCurrentTier(force)
 	end
 
 	for _, group in ipairs(UNIFIED_RESEARCH_GROUPS) do
-		if group.category == currentTier then
+		if self._hasBuyMax and group.category == currentTier then
 			local uItem = self.unifiedResearch and self.unifiedResearch[group.key]
 			local activeId = (uItem and uItem.activeId) or group.chain[1]
 			if activeId then
@@ -3535,6 +3535,7 @@ function HUD:update()
     self.fusionMaterialUids=self.fusionMaterialUids or {}
     local farm=(self.stateStore.getPresentationFarm or self.stateStore.getFarm)(self.stateStore)
     local progress=farm and farm.progress
+    self._hasBuyMax = (progress and progress.buyMax == true) or false
 	if self.goldenEggsLabel then self.goldenEggsLabel.Text="Diamenty: "..(if progress then formatCompact(progress.GE) else "-") end
     if self.fusionProPermitBadge and progress then
         self.fusionProPermitBadge.Text=if progress.proBonusAvailable then "Pro +10 p.p.: aktywne" elseif progress.paidRandomPolicy=="unknown" then "Pro +10 p.p.: polityka nieznana" elseif not progress.proPermit then "Pro +10 p.p.: wymaga Pro" else "Pro +10 p.p.: niedostępne dla konta" end
@@ -4026,6 +4027,10 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 			if not item.buyMaxButton.Active or item.statusLabel.Text == "MAX" or item.statusLabel.Text == "LOCKED" then
 				return
 			end
+			if not self._hasBuyMax then
+				promptMarketplacePurchase("buy_max", self.onPurchaseProduct)
+				return
+			end
 			local buyTargetId = item.activeId or id
 			self:buyResearch(buyTargetId, "max")
 		end
@@ -4122,11 +4127,19 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 		item.buyButton.Active = false
 		if isRoblox then item.buyButton.BackgroundColor3 = Color3.fromRGB(107, 114, 128) end
 
-		item.maxActionLabel.Text = "MAX"
-		item.maxPriceLabel.Text = "ZA MAŁO $"
-		item.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
-		item.buyMaxButton.Active = false
-		if isRoblox then item.buyMaxButton.BackgroundColor3 = Color3.fromRGB(107, 114, 128) end
+		if not self._hasBuyMax then
+			item.maxActionLabel.Text = "🔒 MAX"
+			item.maxPriceLabel.Text = "ODBLOKUJ"
+			item.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(254, 240, 138) or nil
+			item.buyMaxButton.Active = true
+			if isRoblox then item.buyMaxButton.BackgroundColor3 = Color3.fromRGB(245, 158, 11) end
+		else
+			item.maxActionLabel.Text = "MAX"
+			item.maxPriceLabel.Text = "ZA MAŁO $"
+			item.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
+			item.buyMaxButton.Active = false
+			if isRoblox then item.buyMaxButton.BackgroundColor3 = Color3.fromRGB(107, 114, 128) end
+		end
 	else
 		item.statusLabel.Text = "BUY"
 		item.actionLabel.Text = "KUP"
@@ -4134,7 +4147,13 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 		item.buyButton.Active = true
 		if isRoblox then item.buyButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94) end
 
-		if maxQuote ~= nil and not maxQuote.available and maxQuote.blockedReason == "INSUFFICIENT_CASH" then
+		if not self._hasBuyMax then
+			item.maxActionLabel.Text = "🔒 MAX"
+			item.maxPriceLabel.Text = "ODBLOKUJ"
+			item.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(254, 240, 138) or nil
+			item.buyMaxButton.Active = true
+			if isRoblox then item.buyMaxButton.BackgroundColor3 = Color3.fromRGB(245, 158, 11) end
+		elseif maxQuote ~= nil and not maxQuote.available and maxQuote.blockedReason == "INSUFFICIENT_CASH" then
 			item.maxActionLabel.Text = "MAX"
 			item.maxPriceLabel.Text = "ZA MAŁO $"
 			item.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
@@ -4713,6 +4732,29 @@ function HUD:_updateShopModal(farm)
 			end
 		end
 	end
+
+	local ownedMap = {
+		pro_permit = progress.proPermit == true,
+		buy_max = progress.buyMax == true,
+		double_cash = progress.doubleCash == true,
+		auto_hatch = progress.autoHatch == true,
+	}
+	for passId, isOwned in pairs(ownedMap) do
+		local card = self.shopProductCards and self.shopProductCards[passId]
+		local buyBtn = card and card:FindFirstChild("BuyPassButton")
+		if buyBtn then
+			if isOwned then
+				buyBtn.Active = false
+				buyBtn.Text = "POSIADANE"
+				self.ui:setButtonTone(buyBtn, "disabled")
+			else
+				local isPassDisabled = not Availability.isProductAvailable(passId)
+				buyBtn.Active = not isPassDisabled
+				buyBtn.Text = if isPassDisabled then "WKRÓTCE" else "ODBLOKUJ"
+				self.ui:setButtonTone(buyBtn, if isPassDisabled then "ghost" else "primary")
+			end
+		end
+	end
 end
 
 function HUD:onQuoteReceived(quoteView)
@@ -4802,7 +4844,17 @@ function HUD:onQuoteReceived(quoteView)
 					if mode == "max" then
 						uItem.maxQuote = quoteView
 						if uItem.statusLabel.Text ~= "MAX" and uItem.statusLabel.Text ~= "LOCKED" then
-							if quoteView.available then
+							if not self._hasBuyMax or quoteView.blockedReason == "BUY_MAX_REQUIRED" then
+								uItem.maxActionLabel.Text = "🔒 MAX"
+								uItem.maxPriceLabel.Text = "ODBLOKUJ"
+								uItem.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(254, 240, 138) or nil
+								uItem.buyMaxButton.Active = true
+								if isRoblox then
+									uItem.buyMaxButton.BackgroundColor3 = Color3.fromRGB(245, 158, 11)
+									local stroke = uItem.buyMaxButton:FindFirstChildOfClass("UIStroke")
+									if stroke then stroke.Color = Color3.fromRGB(180, 83, 9) end
+								end
+							elseif quoteView.available then
 								local activeCurLvl = uItem.level or 0
 								local levelsGain = (quoteView.nextLevel or (activeCurLvl + 1)) - activeCurLvl
 								uItem.maxActionLabel.Text = string.format("MAX (+%d)", math.max(1, levelsGain))

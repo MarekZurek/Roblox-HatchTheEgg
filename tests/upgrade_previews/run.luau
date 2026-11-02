@@ -126,18 +126,62 @@ do
 		end
 	end
 end
--- Buy MAX test: verify buyMaxButton exists and advances research to maximum affordable level atomically
+-- Buy MAX test: verify F2P paywall (BUY_MAX_REQUIRED + offer prompt) and owner atomic multi-level upgrade
 do
-	local h = harness(function(p)
+	-- 1. F2P player without buy_max entitlement:
+	local hF2p = harness(function(p)
 		p.farm.cash = "50000"
 	end)
+	eq(hF2p.client:getFarm().progress.buyMax, false, "F2P player has buyMax == false in projected progress")
+	local uComfyF2p = hF2p.hud.unifiedResearch.comfy_nests
+	eq(uComfyF2p.buyButton ~= nil, true, "buyButton exists")
+	eq(uComfyF2p.buyMaxButton ~= nil, true, "buyMaxButton exists")
+	eq(uComfyF2p.buyMaxButton.Active, true, "buyMaxButton remains clickable for F2P to trigger paywall")
+	eq(uComfyF2p.maxActionLabel.Text, "🔒 MAX", "F2P buyMaxButton shows paywall lock")
+	eq(uComfyF2p.maxPriceLabel.Text, "ODBLOKUJ", "F2P buyMaxButton shows unlock CTA")
+
+	local promptedProduct = nil
+	hF2p.hud.onPurchaseProduct = function(prodId)
+		promptedProduct = prodId
+	end
+	uComfyF2p.buyMaxButton.Activated:Fire()
+	eq(promptedProduct, "buy_max", "Clicking BuyMaxButton as F2P triggers buy_max purchase prompt")
+
+	-- Direct BuyResearch max quote and mutation are rejected by server without buy_max entitlement
+	local f2pQuote
+	hF2p.client:requestQuote({ kind = "BuyResearch", args = { researchId = "comfy_nests", mode = "max" } }, function(q)
+		f2pQuote = q
+	end)
+	eq(f2pQuote.available, false, "F2P max quote is unavailable")
+	eq(f2pQuote.blockedReason, "BUY_MAX_REQUIRED", "F2P max quote blockedReason is BUY_MAX_REQUIRED")
+
+	local f2pApply = hF2p.b:dispatch("1", {
+		protocolVersion = 1,
+		kind = "BuyResearch",
+		requestId = "f2p-bypass-req",
+		operationId = "f2p-bypass-op",
+		expectedRevision = hF2p.b:getCoordinator("1").snapshots().durable.meta.revision,
+		args = { researchId = "comfy_nests", quoteId = f2pQuote.quoteId, mode = "max" },
+	})
+	eq(f2pApply.status, "REJECTED", "Server rejects direct BuyResearch max without entitlement")
+	eq(f2pApply.result.errorCode, "BUY_MAX_REQUIRED", "Server rejection errorCode is BUY_MAX_REQUIRED")
+	eq(hF2p.b:getCoordinator("1").snapshots().durable.farm.cash, "50000", "F2P cash unchanged after rejected max buy")
+	eq(hF2p.b:getCoordinator("1").snapshots().durable.farm.common.comfy_nests or 0, 0, "F2P level unchanged after rejected max buy")
+	hF2p.client:destroy(); hF2p.b:close()
+
+	-- 2. Player with buy_max entitlement:
+	local h = harness(function(p)
+		p.farm.cash = "50000"
+		p.entitlements.buy_max = true
+	end)
+	eq(h.client:getFarm().progress.buyMax, true, "Owner player has buyMax == true in projected progress")
 	local uComfy = h.hud.unifiedResearch.comfy_nests
 	eq(uComfy.buyButton ~= nil, true, "buyButton exists")
 	eq(uComfy.buyMaxButton ~= nil, true, "buyMaxButton exists")
-	eq(uComfy.buyMaxButton.Active, true, "buyMaxButton active with cash")
+	eq(uComfy.buyMaxButton.Active, true, "buyMaxButton active with cash for owner")
 	local maxRes
 	h.client:buyResearch("comfy_nests", "max", function(r) maxRes = r end)
-	eq(maxRes.status, "APPLIED", "buyResearch max returns APPLIED")
+	eq(maxRes.status, "APPLIED", "buyResearch max returns APPLIED for owner")
 	eq(maxRes.result.actionKind, "BuyResearch")
 	eq(maxRes.result.level > 1, true, "BuyResearch max upgraded multiple levels at once")
 	h.sync()

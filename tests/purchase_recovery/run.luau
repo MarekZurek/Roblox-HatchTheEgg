@@ -42,12 +42,21 @@ do
 	local p = makeProfile()
 
 	-- Planned products cannot create a purchase reservation.
- for _, id in {"buy_max","auto_hatch"} do
+ for _, id in {"auto_hatch"} do
   local accepted, _, reason = Products.preparePurchase(p,id,"blocked-"..id,1000)
   eq(accepted,false,"unavailable product rejected")
   eq(reason,"PRODUCT_UNAVAILABLE_AT_LAUNCH","blocked product reason")
   eq(p.entitlements[id],nil,"no entitlement granted")
  end
+
+	-- buy_max is a launch gamepass independent of Pro Permit
+	local okPrepBM, prevBM = Products.preparePurchase(p, "buy_max", "tok_bm", 1050)
+	eq(okPrepBM, true, "prepare buy_max")
+	eq(prevBM.isAvailable, true, "buy_max preview available")
+	local okConfBM, resBM = Products.confirmPurchase(p, "tok_bm", nil, 1080)
+	eq(okConfBM, true, "confirm buy_max")
+	eq(p.entitlements.buy_max, true, "buy_max entitlement granted")
+	eq(p.entitlements.pro_permit, nil, "buy_max does not grant pro_permit")
 
 	-- double_cash grants 2x income entitlement
 	local okPrepDC, prevDC = Products.preparePurchase(p, "double_cash", "tok_dc", 1100)
@@ -56,10 +65,10 @@ do
 	eq(okConfDC, true, "confirm double_cash")
 	eq(p.entitlements.double_cash, true, "double_cash entitlement granted")
 
-	-- Existing ownership survives availability changes; it is not a new purchase.
- p.entitlements.buy_max=true
+	-- Existing ownership survives availability changes; cannot re-purchase buy_max.
  p.entitlements.auto_hatch=true
- eq(Products.previewPurchase(p,"buy_max").isAvailable,false,"owned planned pass unavailable for new purchase")
+ eq(Products.previewPurchase(p,"buy_max").isAvailable,false,"owned buy_max pass unavailable for repurchase")
+ eq(Products.previewPurchase(p,"buy_max").error,"ALREADY_OWNED","buy_max already owned error")
  eq(p.entitlements.buy_max,true,"existing ownership preserved")
 
 	-- Purchasing Pro Permit does not grant Buy MAX

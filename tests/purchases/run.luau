@@ -93,9 +93,13 @@ do
 	local validPoor, errPoor = ProtocolSchemas.validateServer(quotePoor)
 	ok(validPoor, "INSUFFICIENT_CASH QuoteView valid: " .. tostring(errPoor))
 
-	-- 1.5 Buy MAX quote
+	-- 1.5 Buy MAX quote (requires buy_max entitlement)
 	local pMaxTest = freshProfile("100", "50000")
 	local targetMaxBuy = { kind = "BuyResearch", args = { researchId = "comfy_nests", mode = "max" } }
+	local quoteMaxLocked = FarmActions.createQuote(pMaxTest, Catalog, targetMaxBuy, "req-max-0", "0", "q-m0", 1000000, "cfg:1")
+	eq(quoteMaxLocked.available, false)
+	eq(quoteMaxLocked.blockedReason, "BUY_MAX_REQUIRED")
+	pMaxTest.entitlements.buy_max = true
 	local quoteMaxBuy = FarmActions.createQuote(pMaxTest, Catalog, targetMaxBuy, "req-max-1", "0", "q-m1", 1000000, "cfg:1")
 	ok(quoteMaxBuy ~= nil, "MAX Quote created")
 	eq(quoteMaxBuy.available, true)
@@ -255,9 +259,14 @@ do
 	eq(vPass, false)
 	eq(vCode, "INSUFFICIENT_CASH")
 
-	-- 3.5b BuyResearch with mode = "max"
+	-- 3.5b BuyResearch with mode = "max" (requires buy_max entitlement)
 	local pMaxApply = freshProfile("100", "50000")
 	local opMaxBuy = { kind = "BuyResearch", args = { researchId = "comfy_nests", mode = "max", quoteId = "q-m1" } }
+	local outMaxBlocked = actions.apply(pMaxApply, opMaxBuy)
+	eq(outMaxBlocked.terminalStatus, "REJECTED")
+	eq(outMaxBlocked.result.errorCode, "BUY_MAX_REQUIRED")
+	eq(pMaxApply.farm.cash, "100")
+	pMaxApply.entitlements.buy_max = true
 	local outMaxBuy = actions.apply(pMaxApply, opMaxBuy)
 	eq(outMaxBuy.terminalStatus, "APPLIED")
 	eq(outMaxBuy.result.actionKind, "BuyResearch")

@@ -376,7 +376,7 @@ function ViewProjector:projectPrivateView(profile, streamId, viewSeq, serverObse
             end
         end
         ownFarm.progress={epicRobuxOffers=EpicPurchases.offers(profile,catalog,self.epicProducts),issuedDrones=drones,ordinaryOffers=offers,GE=profile.permanent.GE,SE=profile.permanent.SE,PE=profile.permanent.PE,
-            proPermit=profile.entitlements.pro_permit==true,doubleCash=profile.entitlements.double_cash==true,autoHatch=profile.entitlements.auto_hatch==true,proBonusAvailable=Products.isProBonusAvailable(profile,paidAllowed),
+            proPermit=profile.entitlements.pro_permit==true,buyMax=profile.entitlements.buy_max==true,doubleCash=profile.entitlements.double_cash==true,autoHatch=profile.entitlements.auto_hatch==true,proBonusAvailable=Products.isProBonusAvailable(profile,paidAllowed),
             paidRandomPolicy=if paidAllowed==nil then "unknown" elseif paidAllowed then "allowed" else "restricted",
             numDailyGiftsCollected=profile.rewards.numDailyGiftsCollected or 0,lastCalendarDayUtc=profile.rewards.lastCalendarDayUtc or -1,
             pets=pets,equipped=deepCopy(profile.inventory.equipped),trophies=claimed,calendar=calendar,shellScripts=profile.permanent.shellScripts or "0",epic=deepCopy((profile.permanent and profile.permanent.epic) or {}),

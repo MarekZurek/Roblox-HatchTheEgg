@@ -5,7 +5,7 @@ local blockedEpic: {[string]: boolean} = table.freeze({
  hold_to_research=true, epic_silo_quality=true, silo_capacity=true, warp_shift=true,
 })
 local blockedProducts: {[string]: boolean} = table.freeze({
- auto_hatch=true, buy_max=true,
+ auto_hatch=true,
  epic_tier_1=true, epic_tier_2=true, epic_tier_3=true, epic_tier_4=true,
 })
 return table.freeze({

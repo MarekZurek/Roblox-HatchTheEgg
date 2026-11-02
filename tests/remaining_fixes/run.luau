@@ -41,7 +41,7 @@ for _,pair in {{'afx_mission_time','afx_mission_time'},{'afx_mission_capacity','
   eq(b:getCoordinator('1').snapshots().durable.permanent.GE,'999995','approved half-price charged once')
  end
 end
-for _,id in {'auto_hatch','buy_max','epic_tier_1','epic_tier_2','epic_tier_3','epic_tier_4'} do
+for _,id in {'auto_hatch','epic_tier_1','epic_tier_2','epic_tier_3','epic_tier_4'} do
  local p=S.createReference('1',ORIGIN)
  p.entitlements.buy_max=true -- historical ownership is not removed by gating new sales
  eq(Policy.isProductAvailable(id),false,'shared policy')
@@ -56,6 +56,16 @@ for _,id in {'auto_hatch','buy_max','epic_tier_1','epic_tier_2','epic_tier_3','e
  eq(p.accounting.processedReceipts.old,nil,'no false receipt success')
  eq(serde.encode('json',p.permanent),before,'no economic mutation')
  eq(p.entitlements.buy_max,true,'existing ownership preserved')
+end
+do
+ eq(Policy.isProductAvailable('buy_max'),true,'buy_max available at launch')
+ local p=S.createReference('1',ORIGIN)
+ local prepared,preview=Products.preparePurchase(p,'buy_max','buy-max-tok',ORIGIN)
+ eq(prepared,true,'buy_max can reserve a purchase')
+ eq(preview.isAvailable,true,'buy_max preview available')
+ local confirmed=Products.confirmPurchase(p,'buy-max-tok',nil,ORIGIN+10)
+ eq(confirmed,true,'buy_max confirmation succeeds')
+ eq(p.entitlements.buy_max,true,'buy_max entitlement granted')
 end
 for _,offset in {0,999,1000,1001} do
  local b=make(function(p)

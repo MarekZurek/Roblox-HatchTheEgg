@@ -179,27 +179,37 @@ function FarmActions.createQuote(profile, catalog, target, requestId, expectedRe
 			nextLevel = row.maxLevel
 			price = 0
 		elseif mode == "max" then
-			local totalPrice = 0
-			local targetLevel = currentLevel
-			for lvl = currentLevel, row.maxLevel - 1 do
-				local stepPrice = catalog.researchPrice(researchId, lvl) * mult
-				if totalPrice + stepPrice <= currentCash then
-					totalPrice += stepPrice
-					targetLevel = lvl + 1
-				else
-					break
-				end
-			end
-			if targetLevel == currentLevel then
+			local hasBuyMax = profile.entitlements and profile.entitlements.buy_max == true
+			if not hasBuyMax then
 				available = false
 				if not blockedReason then
-					blockedReason = "INSUFFICIENT_CASH"
+					blockedReason = "BUY_MAX_REQUIRED"
 				end
 				nextLevel = currentLevel + 1
 				price = catalog.researchPrice(researchId, currentLevel) * mult
 			else
-				nextLevel = targetLevel
-				price = totalPrice
+				local totalPrice = 0
+				local targetLevel = currentLevel
+				for lvl = currentLevel, row.maxLevel - 1 do
+					local stepPrice = catalog.researchPrice(researchId, lvl) * mult
+					if totalPrice + stepPrice <= currentCash then
+						totalPrice += stepPrice
+						targetLevel = lvl + 1
+					else
+						break
+					end
+				end
+				if targetLevel == currentLevel then
+					available = false
+					if not blockedReason then
+						blockedReason = "INSUFFICIENT_CASH"
+					end
+					nextLevel = currentLevel + 1
+					price = catalog.researchPrice(researchId, currentLevel) * mult
+				else
+					nextLevel = targetLevel
+					price = totalPrice
+				end
 			end
 		else
 			nextLevel = currentLevel + 1
@@ -370,6 +380,14 @@ function FarmActions.apply(candidateProfile, op, options)
 		local price
 
 		if mode == "max" then
+			if not (candidateProfile.entitlements and candidateProfile.entitlements.buy_max == true) then
+				return {
+					profile = candidateProfile,
+					terminalStatus = "REJECTED",
+					result = { terminalStatus = "REJECTED", errorCode = "BUY_MAX_REQUIRED" },
+					validate = function() return true end,
+				}
+			end
 			local totalPrice = 0
 			local targetLevel = currentLevel
 			for lvl = currentLevel, row.maxLevel - 1 do
@@ -418,6 +436,9 @@ function FarmActions.apply(candidateProfile, op, options)
 		}
 
 		local function validateFn(freshProfile, now)
+			if mode == "max" and not (freshProfile.entitlements and freshProfile.entitlements.buy_max == true) then
+				return false, "BUY_MAX_REQUIRED"
+			end
 			if costMultiplier(freshProfile, catalog, kind) ~= preparedMultiplier then return false, "QUOTE_CHANGED" end
 			local freshCash = BigAmount.decode(freshProfile.farm.cash)
 			if freshCash < price then return false, "INSUFFICIENT_CASH" end

@@ -580,9 +580,9 @@ local catalogs = table.freeze({
 		},
 		buy_max = {
 			id = "buy_max",
-			name = "Kupuj MAX (Wkrótce - v1.1)",
+			name = "Kupuj MAX (Buy MAX)",
 			kind = "gamepass",
-			desc = "Kupuj maksymalną możliwą liczbę ulepszeń i badań jednym kliknięciem! Planowany na v1.1.",
+			desc = "Kupuj maksymalną możliwą liczbę poziomów badań jednym kliknięciem!",
 		},
 		double_cash = {
 			id = "double_cash",
