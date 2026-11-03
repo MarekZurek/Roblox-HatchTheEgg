@@ -574,9 +574,9 @@ local catalogs = table.freeze({
 		},
 		auto_hatch = {
 			id = "auto_hatch",
-			name = "Auto-Wylęg (Wkrótce - v1.1)",
+			name = "Auto-Wylęg",
 			kind = "gamepass",
-			desc = "Automatyczny, ciągły wylęg kurczaków z maksymalną prędkością bez klikania! Planowany na v1.1.",
+			desc = "Automatyczny, ciągły wylęg kurczaków z maksymalną prędkością bez klikania!",
 		},
 		buy_max = {
 			id = "buy_max",
@@ -619,6 +619,91 @@ local catalogs = table.freeze({
 		[17] = { index = 17, name = "Smocze", eggValueBase = 150e12, advanceFV = 5e61 },
 		[18] = { index = 18, name = "Astralny Lewiatan", eggValueBase = 1e-7, advanceFV = 5e65 },
 	}),
+	PET_SPECIES_ICONS = table.freeze({
+		farmer_dog = "🐶",
+		farm_pup = "🐕",
+		robo_cock = "🤖",
+		golden_pecker = "✨",
+		speedy_chick = "🐥",
+		mega_rooster = "🐓",
+		drone_hawk = "🦅",
+		cosmic_phoenix = "🔥",
+		alien_clucker = "👽",
+	}),
+	PET_SPECIES_NAMES = table.freeze({
+		farmer_dog = "Pies Farmer (Farmer Dog)",
+		farm_pup = "Szczeniak (Farm Pup)",
+		robo_cock = "Robo-Kogut (Robo Cock)",
+		golden_pecker = "Złoty Dzięcioł (Golden Pecker)",
+		speedy_chick = "Szybki Kurczak (Speedy Chick)",
+		mega_rooster = "Mega Kogut (Mega Rooster)",
+		drone_hawk = "Jastrząb Dronów (Drone Hawk)",
+		cosmic_phoenix = "Kosmiczny Feniks (Cosmic Phoenix)",
+		alien_clucker = "Kosmiczny Gdakacz (Alien Clucker)",
+	}),
+	PET_STAT_DESCRIPTIONS = table.freeze({
+		farmer_dog = "+50% Wartość Jaj",
+		farm_pup = "+50% Wartość Jaj",
+		robo_cock = "+50% Tempo Znoszenia",
+		golden_pecker = "+50% Wewnętrzny Wylęg (IHR)",
+		speedy_chick = "+50% Wewnętrzny Wylęg (IHR)",
+		mega_rooster = "+50% Pojemność Kurników",
+		drone_hawk = "+400% Szansa na Elitarnego Drona",
+		cosmic_phoenix = "+50% Zysk z Prestiżu",
+		alien_clucker = "+50% Siła Dopalaczy (Boosts)",
+	}),
+	RESEARCH_EFFECT_LABELS = table.freeze({
+		eggLayingRateMult = "Tempo znoszenia", eggValueMult = "Wartość jaj",
+		hatcheryRefillRateMult = "Odnawianie wylęgu", habCapacityMult = "Pojemność kurników",
+		vehicleCapacityMult = "Pojemność transportu", vehicleCapacityMultHover = "Pojemność poduszkowców",
+		portalCapacityMult = "Pojemność portali", hyperloopCarCapacityMult = "Pojemność wagonów",
+		vehicleSpeedMult = "Prędkość pojazdów", vehicleRoundTripTimeMult = "Czas kursu",
+		vehicleLoadingTimeMult = "Czas załadunku", hatcheryCapacity = "Zapas wylęgu",
+		internalHatcheryRate = "Kurczaki/min/kurnik", maxFleetSize = "Miejsca floty",
+		onscreenChickenMult = "Mnożnik Dochodów",
+		onscreenChickenMultMax = "Maksymalny Mnożnik", hyperloopMaxTrainLength = "Dodatkowe wagony",
+	}),
+	SHOP_GAMEPASS_CARDS = table.freeze({
+		{ id = "double_cash", badge = "[⭐ NAJPOPULARNIEJSZE (2x KASA NA ZAWSZE)]", badgeColor = { 255, 225, 85 }, isFeatured = true },
+		{ id = "pro_permit", badge = "[👑 VIP (18H OFFLINE & 5 BOOSTÓW)]", badgeColor = { 245, 165, 255 }, isFeatured = true },
+		{ id = "buy_max", badge = "[⚡ SZYBKI ROZWÓJ (ZAKUP MAX)]", badgeColor = { 130, 255, 150 }, isFeatured = true },
+		{ id = "auto_hatch", badge = "[⏳ WKRÓTCE (AKTUALIZACJA V1.1)]", badgeColor = { 135, 225, 255 }, isFeatured = false },
+	}),
+	DOCK_BUTTONS_METADATA = table.freeze({
+		{ name = "ResearchMenuButton", title = "Badania", iconKey = "window.research", bg = { 48, 152, 248 } },
+		{ name = "HabitatsMenuButton", title = "Kurniki", iconKey = "window.habitats", bg = { 82, 212, 64 } },
+		{ name = "ShopMenuButton", title = "Sklep", iconKey = "window.shop", bg = { 232, 64, 58 } },
+		{ name = "VehiclesMenuButton", title = "Flota", iconKey = "window.fleet", bg = { 248, 178, 36 } },
+		{ name = "EpicResearchMenuButton", title = "Epickie", iconKey = "tab.ge", bg = { 168, 72, 248 } },
+		{ name = "PrestigeMenuButton", title = "Prestiż", iconKey = "control.upgrade", emoji = "🟣", bg = { 238, 68, 162 } },
+		{ name = "CalendarMenuButton", title = "Nagrody", iconKey = "window.calendar", bg = { 98, 224, 56 }, sideLeft = true },
+		{ name = "PetsMenuButton", title = "Pety", iconKey = "window.pets", bg = { 150, 60, 190 }, hidden = true },
+	}),
+	QUICK_BUTTONS_METADATA = table.freeze({
+		{ name = "QuickResearchBtn", text = "🔬 +Badanie", yPos = 0, target = "research" },
+		{ name = "QuickHabitatBtn", text = "🏠 +Kurnik", yPos = 58, target = "habitat" },
+		{ name = "QuickVehicleBtn", text = "🚚 +Pojazd", yPos = 116, target = "vehicle" },
+	}),
+})
+
+local helpers = table.freeze({
+	researchEffectText = function(research, fallback, formatCompactFn)
+		local lines = {}
+		local labels = catalogs.RESEARCH_EFFECT_LABELS
+		for _, effect in research.effects or {} do
+			local function value(text)
+				local n = tonumber(text) or 0
+				local percent = effect.stat:find("Mult", 1, true) ~= nil and effect.stat ~= "onscreenChickenMultMax"
+				if percent then n = (n - 1) * 100 end
+				if math.abs(n) < 1e-9 then n = 0 end
+				local formatted = if type(formatCompactFn) == "function" then formatCompactFn(n) else tostring(n)
+				return (if n >= 0 then "+" else "") .. formatted .. (if percent then "%" else "")
+			end
+			local label = (labels and labels[effect.stat]) or effect.stat
+			table.insert(lines, label .. ": " .. value(effect.current) .. (if effect.next then " → " .. value(effect.next) else " (MAX)"))
+		end
+		return if #lines > 0 then table.concat(lines, "\n") else fallback
+	end,
 })
 
 return table.freeze({
@@ -632,4 +717,5 @@ return table.freeze({
 	}),
 	images = images,
 	catalogs = catalogs,
+	helpers = helpers,
 })

@@ -79,31 +79,11 @@ function HUD.formatCompact(selfOrValue, maybeValue)
 	return formatCompact(val)
 end
 
-local RESEARCH_EFFECT_LABELS = {
-	eggLayingRateMult="Tempo znoszenia", eggValueMult="Wartość jaj",
-	hatcheryRefillRateMult="Odnawianie wylęgu", habCapacityMult="Pojemność kurników",
-	vehicleCapacityMult="Pojemność transportu", vehicleCapacityMultHover="Pojemność poduszkowców",
-	portalCapacityMult="Pojemność portali", hyperloopCarCapacityMult="Pojemność wagonów",
-	vehicleSpeedMult="Prędkość pojazdów", vehicleRoundTripTimeMult="Czas kursu",
-	vehicleLoadingTimeMult="Czas załadunku", hatcheryCapacity="Zapas wylęgu",
-	internalHatcheryRate="Kurczaki/min/kurnik", maxFleetSize="Miejsca floty",
-	onscreenChickenMult="Mnożnik Dochodów",
-	onscreenChickenMultMax="Maksymalny Mnożnik", hyperloopMaxTrainLength="Dodatkowe wagony",
-}
-local function researchEffectText(research,fallback)
-	local lines={}
-	for _,effect in research.effects or {} do
-		local function value(text)
-			local n=tonumber(text) or 0
-			local percent=effect.stat:find("Mult",1,true)~=nil and effect.stat~="onscreenChickenMultMax"
-			if percent then n=(n-1)*100 end
-			if math.abs(n)<1e-9 then n=0 end
-			return (if n>=0 then "+" else "")..formatCompact(n)..(if percent then "%" else "")
-		end
-		local label=RESEARCH_EFFECT_LABELS[effect.stat] or effect.stat
-		table.insert(lines,label..": "..value(effect.current)..(if effect.next then " → "..value(effect.next) else " (MAX)"))
+local function researchEffectText(research, fallback)
+	if UiAssets and UiAssets.helpers and UiAssets.helpers.researchEffectText then
+		return UiAssets.helpers.researchEffectText(research, fallback, formatCompact)
 	end
-	return if #lines>0 then table.concat(lines,"\n") else fallback
+	return fallback
 end
 
 function HUD.formatCash(selfOrAmount, maybeAmount)
@@ -210,6 +190,14 @@ local BOOSTS_CATALOG = _cat.BOOSTS_CATALOG
 local SHOP_PRODUCTS_CATALOG = _cat.SHOP_PRODUCTS_CATALOG
 local TROPHY_POPULATION_TIERS = _cat.TROPHY_POPULATION_TIERS
 local EGGS_DATA = _cat.EGGS_DATA
+local PET_SPECIES_ICONS = _cat.PET_SPECIES_ICONS or {}
+local PET_SPECIES_NAMES = _cat.PET_SPECIES_NAMES or {}
+local PET_STAT_DESCRIPTIONS = _cat.PET_STAT_DESCRIPTIONS or {}
+
+local BOOSTS_BY_ID = {}
+for _, b in ipairs(BOOSTS_CATALOG or {}) do
+	BOOSTS_BY_ID[b.id] = b
+end
 
 -- GUI Instance Helpers (Studio & Lune Mock)
 
@@ -479,6 +467,58 @@ local function bindBouncyButton(btn)
 		end)
 		btn.MouseLeave:Connect(function()
 			tweenUp:Play()
+		end)
+	end
+end
+
+local function bindHoldToBuy(btn, actionFn)
+	local isHolding = false
+	local holdToken = 0
+	local lastPressTime = 0
+
+	local function stopHold()
+		isHolding = false
+		holdToken += 1
+	end
+
+	if isRoblox then
+		btn.MouseButton1Down:Connect(function()
+			stopHold()
+			isHolding = true
+			lastPressTime = os.clock()
+			local myToken = holdToken
+			local success = actionFn()
+			if success == false then
+				stopHold()
+				return
+			end
+			task.spawn(function()
+				task.wait(0.35)
+				while isHolding and holdToken == myToken do
+					if not btn.Active or not btn.Visible then
+						stopHold()
+						break
+					end
+					local res = actionFn()
+					if res == false then
+						stopHold()
+						break
+					end
+					task.wait(0.20)
+				end
+			end)
+		end)
+
+		btn.MouseButton1Up:Connect(stopHold)
+		btn.MouseLeave:Connect(stopHold)
+	end
+
+	if btn.Activated ~= nil then
+		btn.Activated:Connect(function()
+			if isRoblox and (os.clock() - lastPressTime) < 0.3 then
+				return
+			end
+			actionFn()
 		end)
 	end
 end
@@ -1193,54 +1233,24 @@ function HUD:_buildInterface()
 		Visible = false,
 	}, root)
 
-	local quickButtonsSpec = {
-		{
-			name = "QuickResearchBtn",
-			text = "🔬 +Badanie",
-			yPos = 0,
-			bg = isRoblox and Color3.fromRGB(102, 232, 48) or nil,
-			action = function()
-				if type(self.onQuickBuyResearch) == "function" then
-					self.onQuickBuyResearch("comfy_nests")
-				else
-					self:buyResearch("comfy_nests")
-				end
-			end,
-		},
-		{
-			name = "QuickHabitatBtn",
-			text = "🏠 +Kurnik",
-			yPos = 58,
-			bg = isRoblox and Color3.fromRGB(102, 232, 48) or nil,
-			action = function()
-				if type(self.onQuickBuyHabitat) == "function" then
-					self.onQuickBuyHabitat()
-				else
-					self:toggleHabitatsModal()
-				end
-			end,
-		},
-		{
-			name = "QuickVehicleBtn",
-			text = "🚚 +Pojazd",
-			yPos = 116,
-			bg = isRoblox and Color3.fromRGB(102, 232, 48) or nil,
-			action = function()
-				if type(self.onQuickBuyVehicle) == "function" then
-					self.onQuickBuyVehicle()
-				else
-					self:toggleVehiclesModal()
-				end
-			end,
-		},
+	local quickActions = {
+		research = function()
+			if type(self.onQuickBuyResearch) == "function" then self.onQuickBuyResearch("comfy_nests") else self:buyResearch("comfy_nests") end
+		end,
+		habitat = function()
+			if type(self.onQuickBuyHabitat) == "function" then self.onQuickBuyHabitat() else self:toggleHabitatsModal() end
+		end,
+		vehicle = function()
+			if type(self.onQuickBuyVehicle) == "function" then self.onQuickBuyVehicle() else self:toggleVehiclesModal() end
+		end,
 	}
 
-	for _, qSpec in ipairs(quickButtonsSpec) do
+	for _, qSpec in ipairs(_cat.QUICK_BUTTONS_METADATA or {}) do
 		local qBtn = createGuiElement("TextButton", {
 			Name = qSpec.name,
 			Size = isRoblox and UDim2.new(1, 0, 0, 48) or nil,
 			Position = isRoblox and UDim2.new(0, 0, 0, qSpec.yPos) or nil,
-			BackgroundColor3 = qSpec.bg,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(102, 232, 48) or nil,
 			Font = isRoblox and Enum.Font.FredokaOne or nil,
 			TextScaled = true,
 			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
@@ -1249,9 +1259,10 @@ function HUD:_buildInterface()
 		addCornerAndStroke(qBtn, 8, isRoblox and Color3.fromRGB(22, 48, 12) or nil, 3)
 		addTextStroke(qBtn, 2.5)
 		if qBtn.Activated then
+			local fn = quickActions[qSpec.target]
 			qBtn.Activated:Connect(function()
 				self:_playClick()
-				qSpec.action()
+				if fn then fn() end
 			end)
 		end
 	end
@@ -1344,16 +1355,17 @@ function HUD:_buildInterface()
 	end
 	self:_bindHatchStatusResponsive(root)
 
-	local dockButtonsSpec = {
-		{ name = "ResearchMenuButton", title = "Badania", iconKey = "window.research", bg = Color3.fromRGB(48, 152, 248), action = function() self:toggleResearchModal() end },
-		{ name = "HabitatsMenuButton", title = "Kurniki", iconKey = "window.habitats", bg = Color3.fromRGB(82, 212, 64), action = function() self:toggleHabitatsModal() end },
-		{ name = "ShopMenuButton", title = "Sklep", iconKey = "window.shop", bg = Color3.fromRGB(232, 64, 58), action = function() self:toggleShopModal() end },
-		{ name = "VehiclesMenuButton", title = "Flota", iconKey = "window.fleet", bg = Color3.fromRGB(248, 178, 36), action = function() self:toggleVehiclesModal() end },
-		{ name = "EpicResearchMenuButton", title = "Epickie", iconKey = "tab.ge", bg = Color3.fromRGB(168, 72, 248), action = function() self:toggleEpicResearchModal() end },
-		{ name = "PrestigeMenuButton", title = "Prestiż", iconKey = "control.upgrade", emoji = "🟣", bg = Color3.fromRGB(238, 68, 162), action = function() self:togglePrestigeModal() end },
-		{ name = "CalendarMenuButton", title = "Nagrody", iconKey = "window.calendar", bg = Color3.fromRGB(98, 224, 56), sideLeft = true, action = function() self:toggleCalendarModal() end },
-		{ name = "PetsMenuButton", title = "Pety", iconKey = "window.pets", bg = Color3.fromRGB(150, 60, 190), hidden = true, action = function() self:togglePetsModal() end },
+	local dockActions = {
+		ResearchMenuButton = function() self:toggleResearchModal() end,
+		HabitatsMenuButton = function() self:toggleHabitatsModal() end,
+		ShopMenuButton = function() self:toggleShopModal() end,
+		VehiclesMenuButton = function() self:toggleVehiclesModal() end,
+		EpicResearchMenuButton = function() self:toggleEpicResearchModal() end,
+		PrestigeMenuButton = function() self:togglePrestigeModal() end,
+		CalendarMenuButton = function() self:toggleCalendarModal() end,
+		PetsMenuButton = function() self:togglePetsModal() end,
 	}
+	local dockButtonsSpec = _cat.DOCK_BUTTONS_METADATA or {}
 
 	local dockHeight = 6 * 64 + 12
 	local rightDock = createGuiElement("Frame", {
@@ -1383,12 +1395,13 @@ function HUD:_buildInterface()
 			btnPos = UDim2.new(0, 7, 0, yOffset)
 		end
 
+		local bgColor = if isRoblox and type(dSpec.bg) == "table" and dSpec.bg[1] then Color3.fromRGB(dSpec.bg[1], dSpec.bg[2], dSpec.bg[3]) else dSpec.bg
 		local btn = createGuiElement("TextButton", {
 			Name = dSpec.name,
 			Visible = isVisible,
 			Size = isRoblox and btnSize or nil,
 			Position = isRoblox and btnPos or nil,
-			BackgroundColor3 = isRoblox and dSpec.bg or nil,
+			BackgroundColor3 = bgColor,
 			AutoButtonColor = true,
 			Text = "",
 		}, btnParent)
@@ -1437,7 +1450,8 @@ function HUD:_buildInterface()
 		if btn.Activated then
 			btn.Activated:Connect(function()
 				self:_playClick()
-				dSpec.action()
+				local act = dockActions[dSpec.name]
+				if act then act() end
 			end)
 		end
 
@@ -1932,13 +1946,25 @@ function HUD:_buildEpicResearchModal(root)
 		name = "EpicResearchListContainer",
 		size = { 1, -28, 1, -118 },
 		position = { 0, 14, 0, 108 },
-		canvasHeight = #EPIC_RESEARCH_CATALOG * 92 + 12,
+		canvasHeight = 12,
 		scrollBarColor = { 215, 120, 255 },
 	})
 	self.epicResearchListContainer = scroll
 	self.epicResearchCards = {}
 
-	for i, item in ipairs(EPIC_RESEARCH_CATALOG) do
+	local epicVisibleCount = 0
+	for _, it in ipairs(EPIC_RESEARCH_CATALOG) do
+		if not UNSUPPORTED_EPIC_RESEARCH[it.id] then
+			epicVisibleCount = epicVisibleCount + 1
+		end
+	end
+	if isRoblox and scroll then
+		scroll.CanvasSize = UDim2.new(0, 0, 0, epicVisibleCount * 92 + 12)
+	end
+
+	local epicSlot = 0
+	for _, item in ipairs(EPIC_RESEARCH_CATALOG) do
+		local isUnsupported = UNSUPPORTED_EPIC_RESEARCH[item.id] == true
 		local card = self.ui:card(scroll, {
 			name = "EpicCard_" .. item.id,
 			family = "shop",
@@ -1946,8 +1972,15 @@ function HUD:_buildEpicResearchModal(root)
 			top = { 46, 58, 98 },
 			border = { 185, 110, 255 },
 			size = { 1, -6, 0, 84 },
-			position = { 0, 0, 0, (i - 1) * 92 },
+			position = { 0, 0, 0, (if isUnsupported then 0 else epicSlot) * 92 },
+			visible = not isUnsupported,
 		})
+		if not isUnsupported then
+			epicSlot = epicSlot + 1
+		end
+		if isRoblox and isUnsupported then
+			card.Visible = false
+		end
 
 		local title = self.ui:label(card, {
 			name = "Title",
@@ -2365,9 +2398,16 @@ function HUD:_buildShopProducts(container)
 		})
 
 		local title = self.ui:label(card, {
-			name = "Title", size = { 0.36, 0, 0, 54 }, position = { 0.02, 0, 0, 0 },
-			text = bSpec.name .. " (" .. bSpec.effect .. ")", color = { 255, 255, 255 },
-			align = "Left", textStroke = 1.6, maxTextSize = 15,
+			name = "Title", size = { 0.36, 0, 0, 26 }, position = { 0.02, 0, 0, 4 },
+			text = bSpec.name, color = { 255, 255, 255 },
+			align = "Left", textStroke = 1.6, maxTextSize = 14,
+		})
+
+		local durationIcon = if bSpec.duration == "Natychmiast" then "⚡ " else "⏱️ "
+		self.ui:label(card, {
+			name = "DurationSubtitle", size = { 0.36, 0, 0, 20 }, position = { 0.02, 0, 0, 28 },
+			text = durationIcon .. bSpec.duration .. " • " .. bSpec.effect, color = { 255, 220, 100 },
+			align = "Left", textStroke = 1.4, maxTextSize = 12,
 		})
 
 		local ownedLbl = self.ui:label(card, {
@@ -2417,44 +2457,27 @@ function HUD:_buildShopProducts(container)
 	local tab3Frame = self.ui:card(container, {
 		name = "Tab3_GamePasses", family = "shop",
 		fill = { 19, 24, 42 }, border = { 19, 24, 42 },
-		visible = false, size = { 1, -8, 0, 4 * 126 + 8 }, position = { 0, 0, 0, 0 },
+		visible = false, size = { 1, -8, 0, 3 * 126 + 8 }, position = { 0, 0, 0, 0 },
 	})
 
-	local passes = {
-		{
-			spec = SHOP_PRODUCTS_CATALOG.double_cash,
-			badge = "[⭐ NAJPOPULARNIEJSZE (2x KASA NA ZAWSZE)]",
-			badgeColor = { 255, 225, 85 },
-			isFeatured = true,
-		},
-		{
-			spec = SHOP_PRODUCTS_CATALOG.pro_permit,
-			badge = "[👑 VIP (18H OFFLINE & 5 BOOSTÓW)]",
-			badgeColor = { 245, 165, 255 },
-			isFeatured = true,
-		},
-		{
-			spec = SHOP_PRODUCTS_CATALOG.buy_max,
-			badge = "[⚡ SZYBKI ROZWÓJ (ZAKUP MAX)]",
-			badgeColor = { 130, 255, 150 },
-			isFeatured = true,
-		},
-		{
-			spec = SHOP_PRODUCTS_CATALOG.auto_hatch,
-			badge = "[⏳ WKRÓTCE (AKTUALIZACJA V1.1)]",
-			badgeColor = { 135, 225, 255 },
-			isFeatured = false,
-		},
-	}
-
-	for i, pass in ipairs(passes) do
+	local passSlot = 0
+	for _, pass in ipairs(_cat.SHOP_GAMEPASS_CARDS or {}) do
+		local spec = SHOP_PRODUCTS_CATALOG[pass.id] or { name = pass.id, desc = "" }
+		local isHidden = pass.id == "auto_hatch"
 		local card = self.ui:card(tab3Frame, {
-			name = "PassCard_" .. pass.spec.id, family = "shop",
+			name = "PassCard_" .. pass.id, family = "shop",
 			fill = if pass.isFeatured then { 28, 36, 64 } else { 24, 30, 52 },
 			top = if pass.isFeatured then { 46, 62, 108 } else { 36, 44, 74 },
 			border = if pass.isFeatured then { 245, 184, 42 } else { 52, 64, 98 },
-			size = { 1, 0, 0, 118 }, position = { 0, 0, 0, (i - 1) * 126 },
+			size = { 1, 0, 0, 118 }, position = { 0, 0, 0, (if isHidden then 0 else passSlot) * 126 },
+			visible = not isHidden,
 		})
+		if not isHidden then
+			passSlot = passSlot + 1
+		end
+		if isRoblox and isHidden then
+			card.Visible = false
+		end
 
 		local badgeLbl = self.ui:label(card, {
 			name = "BadgeLabel", size = { 0.70, 0, 0, 18 }, position = { 0.03, 0, 0, 6 },
@@ -2464,31 +2487,31 @@ function HUD:_buildShopProducts(container)
 
 		local title = self.ui:label(card, {
 			name = "Title", size = { 0.70, 0, 0, 24 }, position = { 0.03, 0, 0, 25 },
-			text = pass.spec.name, color = { 255, 255, 255 }, align = "Left",
+			text = spec.name, color = { 255, 255, 255 }, align = "Left",
 			textStroke = 2.0, maxTextSize = 19,
 		})
 
 		local desc = self.ui:label(card, {
 			name = "Desc", size = { 0.70, 0, 0, 34 }, position = { 0.03, 0, 0, 50 },
-			text = pass.spec.desc, color = { 205, 218, 242 }, align = "Left",
+			text = spec.desc, color = { 205, 218, 242 }, align = "Left",
 			textStroke = 1.5, maxTextSize = 14,
 		})
 
-		if pass.spec.notice then
+		if spec.notice then
 			local noticeLbl = self.ui:label(card, {
 				name = "Notice", size = { 0.70, 0, 0, 24 }, position = { 0.03, 0, 0, 86 },
-				text = pass.spec.notice, color = { 255, 185, 130 }, align = "Left",
+				text = spec.notice, color = { 255, 185, 130 }, align = "Left",
 				textStroke = 1.4, maxTextSize = 13,
 			})
 		end
 
-		local isPassDisabled = not Availability.isProductAvailable(pass.spec.id)
+		local isPassDisabled = not Availability.isProductAvailable(pass.id)
 		local buyBtn = self.ui:button(card, {
 			name = "BuyPassButton", active = not isPassDisabled, text = if isPassDisabled then "WKRÓTCE" else "ODBLOKUJ", tone = if isPassDisabled then "ghost" else "primary",
 			size = { 0.23, 0, 0, 52 }, position = { 0.74, 0, 0, 32 },
 			onClick = function()
 				if isPassDisabled then return end
-				promptMarketplacePurchase(pass.spec.id, self.onPurchaseProduct)
+				promptMarketplacePurchase(pass.id, self.onPurchaseProduct)
 			end,
 		})
 
@@ -2499,7 +2522,7 @@ function HUD:_buildShopProducts(container)
 			end
 		end
 
-		self.shopProductCards[pass.spec.id] = card
+		self.shopProductCards[pass.id] = card
 	end
 end
 
@@ -2874,20 +2897,20 @@ function HUD:_buildPrestigeModal(root)
 	local modal = createGuiElement("Frame", {
 		Name = "PrestigeModal",
 		Visible = false,
-		Size = isRoblox and UDim2.new(0, 460, 0, 560) or nil,
-		Position = isRoblox and UDim2.new(0.5, -230, 0.5, -280) or nil,
+		Size = isRoblox and UDim2.new(0, 560, 0, 580) or nil,
+		Position = isRoblox and UDim2.new(0.5, -280, 0.5, -290) or nil,
 		BackgroundColor3 = isRoblox and Color3.fromRGB(24, 16, 42) or nil,
 		BackgroundTransparency = 0.05,
 		BorderSizePixel = 0,
 		ZIndex = 50,
 	}, root)
 	self.prestigeModal = modal
-	self:_fitWindow(modal, 460, 560)
+	self:_fitWindow(modal, 560, 580)
 	addCornerAndStroke(modal, 18, isRoblox and Color3.fromRGB(180, 80, 255) or nil, 3.5)
 
 	local header = createGuiElement("Frame", {
 		Name = "WindowHeader",
-		Size = isRoblox and UDim2.new(1, 0, 0, 52) or nil,
+		Size = isRoblox and UDim2.new(1, 0, 0, 54) or nil,
 		Position = isRoblox and UDim2.new(0, 0, 0, 0) or nil,
 		BackgroundColor3 = isRoblox and Color3.fromRGB(48, 22, 78) or nil,
 		BorderSizePixel = 0,
@@ -2898,7 +2921,7 @@ function HUD:_buildPrestigeModal(root)
 	local titleLabel = createGuiElement("TextLabel", {
 		Name = "WindowTitle",
 		Size = isRoblox and UDim2.new(1, -70, 1, 0) or nil,
-		Position = isRoblox and UDim2.new(0, 16, 0, 0) or nil,
+		Position = isRoblox and UDim2.new(0, 18, 0, 0) or nil,
 		BackgroundTransparency = 1,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
@@ -2930,8 +2953,8 @@ function HUD:_buildPrestigeModal(root)
 
 	local currentCard = createGuiElement("Frame", {
 		Name = "CurrentCard",
-		Size = isRoblox and UDim2.new(1, -32, 0, 112) or nil,
-		Position = isRoblox and UDim2.new(0, 16, 0, 62) or nil,
+		Size = isRoblox and UDim2.new(1, -36, 0, 118) or nil,
+		Position = isRoblox and UDim2.new(0, 18, 0, 66) or nil,
 		BackgroundColor3 = isRoblox and Color3.fromRGB(36, 20, 60) or nil,
 		BackgroundTransparency = 0.2,
 		ZIndex = 51,
@@ -2940,8 +2963,8 @@ function HUD:_buildPrestigeModal(root)
 
 	self.prestigeCurrentCrystalsLabel = createGuiElement("TextLabel", {
 		Name = "CurrentCrystalsLabel",
-		Size = isRoblox and UDim2.new(1, -16, 0, 30) or nil,
-		Position = isRoblox and UDim2.new(0, 10, 0, 6) or nil,
+		Size = isRoblox and UDim2.new(1, -20, 0, 32) or nil,
+		Position = isRoblox and UDim2.new(0, 12, 0, 8) or nil,
 		BackgroundTransparency = 1,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
@@ -2954,8 +2977,8 @@ function HUD:_buildPrestigeModal(root)
 
 	self.prestigeCurrentBonusLabel = createGuiElement("TextLabel", {
 		Name = "CurrentBonusLabel",
-		Size = isRoblox and UDim2.new(1, -16, 0, 26) or nil,
-		Position = isRoblox and UDim2.new(0, 10, 0, 40) or nil,
+		Size = isRoblox and UDim2.new(1, -20, 0, 26) or nil,
+		Position = isRoblox and UDim2.new(0, 12, 0, 44) or nil,
 		BackgroundTransparency = 1,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
@@ -2968,8 +2991,8 @@ function HUD:_buildPrestigeModal(root)
 
 	self.prestigeAfterBonusLabel = createGuiElement("TextLabel", {
 		Name = "AfterBonusLabel",
-		Size = isRoblox and UDim2.new(1, -16, 0, 26) or nil,
-		Position = isRoblox and UDim2.new(0, 10, 0, 68) or nil,
+		Size = isRoblox and UDim2.new(1, -20, 0, 26) or nil,
+		Position = isRoblox and UDim2.new(0, 12, 0, 74) or nil,
 		BackgroundTransparency = 1,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
@@ -2982,8 +3005,8 @@ function HUD:_buildPrestigeModal(root)
 
 	local pendingCard = createGuiElement("Frame", {
 		Name = "PendingCard",
-		Size = isRoblox and UDim2.new(1, -32, 0, 105) or nil,
-		Position = isRoblox and UDim2.new(0, 16, 0, 182) or nil,
+		Size = isRoblox and UDim2.new(1, -36, 0, 116) or nil,
+		Position = isRoblox and UDim2.new(0, 18, 0, 196) or nil,
 		BackgroundColor3 = isRoblox and Color3.fromRGB(48, 16, 80) or nil,
 		BackgroundTransparency = 0.1,
 		ZIndex = 51,
@@ -2992,8 +3015,8 @@ function HUD:_buildPrestigeModal(root)
 
 	local pendingHeaderLabel = createGuiElement("TextLabel", {
 		Name = "PendingHeaderLabel",
-		Size = isRoblox and UDim2.new(1, -16, 0, 22) or nil,
-		Position = isRoblox and UDim2.new(0, 8, 0, 8) or nil,
+		Size = isRoblox and UDim2.new(1, -20, 0, 22) or nil,
+		Position = isRoblox and UDim2.new(0, 10, 0, 8) or nil,
 		BackgroundTransparency = 1,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
@@ -3005,8 +3028,8 @@ function HUD:_buildPrestigeModal(root)
 
 	self.prestigePendingLabel = createGuiElement("TextLabel", {
 		Name = "PendingLabel",
-		Size = isRoblox and UDim2.new(1, -16, 0, 44) or nil,
-		Position = isRoblox and UDim2.new(0, 8, 0, 32) or nil,
+		Size = isRoblox and UDim2.new(1, -20, 0, 46) or nil,
+		Position = isRoblox and UDim2.new(0, 10, 0, 34) or nil,
 		BackgroundTransparency = 1,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
@@ -3018,8 +3041,8 @@ function HUD:_buildPrestigeModal(root)
 
 	local pendingSubLabel = createGuiElement("TextLabel", {
 		Name = "PendingSubtextLabel",
-		Size = isRoblox and UDim2.new(1, -16, 0, 20) or nil,
-		Position = isRoblox and UDim2.new(0, 8, 0, 78) or nil,
+		Size = isRoblox and UDim2.new(1, -20, 0, 22) or nil,
+		Position = isRoblox and UDim2.new(0, 10, 0, 84) or nil,
 		BackgroundTransparency = 1,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
@@ -3032,8 +3055,8 @@ function HUD:_buildPrestigeModal(root)
 
 	local warningPill = createGuiElement("Frame", {
 		Name = "WarningPill",
-		Size = isRoblox and UDim2.new(1, -32, 0, 128) or nil,
-		Position = isRoblox and UDim2.new(0, 16, 0, 295) or nil,
+		Size = isRoblox and UDim2.new(1, -36, 0, 134) or nil,
+		Position = isRoblox and UDim2.new(0, 18, 0, 324) or nil,
 		BackgroundColor3 = isRoblox and Color3.fromRGB(32, 18, 30) or nil,
 		BackgroundTransparency = 0.25,
 		ZIndex = 51,
@@ -3042,22 +3065,22 @@ function HUD:_buildPrestigeModal(root)
 
 	local warningLabel = createGuiElement("TextLabel", {
 		Name = "WarningText",
-		Size = isRoblox and UDim2.new(1, -16, 1, -8) or nil,
-		Position = isRoblox and UDim2.new(0, 8, 0, 4) or nil,
+		Size = isRoblox and UDim2.new(1, -20, 1, -12) or nil,
+		Position = isRoblox and UDim2.new(0, 10, 0, 6) or nil,
 		BackgroundTransparency = 1,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
 		TextWrapped = true,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 210, 210) or nil,
-				Text = "🔴 RESET: gotówka, kurniki, flota, populacja kur, badania zwykłe.\n🟢 ZACHOWANE: wszystkie Kryształy Prestiżu, Diamenty 💎, Pety i ich poziomy, Badania Epickie, Trofea i Przepustki.",
+		Text = "🔴 RESET: gotówka, kurniki, flota, populacja kur, badania zwykłe.\n🟢 ZACHOWANE: wszystkie Kryształy Prestiżu, Diamenty 💎, Pety i ich poziomy, Badania Epickie, Trofea i Przepustki.",
 		ZIndex = 52,
 	}, warningPill)
 	addTextStroke(warningLabel, 1.6)
 
 	local prestigeActionBtn = createGuiElement("TextButton", {
 		Name = "PrestigeActionButton",
-		Size = isRoblox and UDim2.new(1, -32, 0, 54) or nil,
-		Position = isRoblox and UDim2.new(0, 16, 0, 433) or nil,
+		Size = isRoblox and UDim2.new(1, -36, 0, 60) or nil,
+		Position = isRoblox and UDim2.new(0, 18, 0, 474) or nil,
 		BackgroundColor3 = isRoblox and Color3.fromRGB(160, 45, 230) or nil,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
@@ -3096,45 +3119,9 @@ function HUD:playEggHatchAnimation(petData, onFinished)
 	local pRarity = if type(petData) == "table" and petData.rarity then petData.rarity else "Common"
 	local pUid = if type(petData) == "table" then (petData.uid or "pet_unknown") else "pet_unknown"
 
-	local speciesIcons = {
-		farmer_dog = "🐶",
-		farm_pup = "🐕",
-		robo_cock = "🤖",
-		golden_pecker = "✨",
-		speedy_chick = "🐥",
-		mega_rooster = "🐓",
-		drone_hawk = "🦅",
-		cosmic_phoenix = "🔥",
-		alien_clucker = "👽",
-	}
-
-	local speciesNames = {
-		farmer_dog = "Pies Farmer (Farmer Dog)",
-		farm_pup = "Szczeniak (Farm Pup)",
-		robo_cock = "Robo-Kogut (Robo Cock)",
-		golden_pecker = "Złoty Dzięcioł (Golden Pecker)",
-		speedy_chick = "Szybki Kurczak (Speedy Chick)",
-		mega_rooster = "Mega Kogut (Mega Rooster)",
-		drone_hawk = "Jastrząb Dronów (Drone Hawk)",
-		cosmic_phoenix = "Kosmiczny Feniks (Cosmic Phoenix)",
-		alien_clucker = "Kosmiczny Gdakacz (Alien Clucker)",
-	}
-
-	local statDescriptions = {
-		farmer_dog = "+50% Wartość Jaj",
-		farm_pup = "+50% Wartość Jaj",
-		robo_cock = "+50% Tempo Znoszenia",
-		golden_pecker = "+50% Wewnętrzny Wylęg (IHR)",
-		speedy_chick = "+50% Wewnętrzny Wylęg (IHR)",
-		mega_rooster = "+50% Pojemność Kurników",
-		drone_hawk = "+400% Szansa na Elitarnego Drona",
-		cosmic_phoenix = "+50% Zysk z Prestiżu",
-		alien_clucker = "+50% Siła Dopalaczy (Boosts)",
-	}
-
-	local icon = speciesIcons[pSpecies] or "🐾"
-	local name = speciesNames[pSpecies] or pSpecies
-	local statDesc = statDescriptions[pSpecies] or "+Bonus Zwierzaka"
+	local icon = PET_SPECIES_ICONS[pSpecies] or "🐾"
+	local name = PET_SPECIES_NAMES[pSpecies] or pSpecies
+	local statDesc = PET_STAT_DESCRIPTIONS[pSpecies] or "+Bonus Zwierzaka"
 
 	self.revealPetIcon.Text = icon
 	self.revealPetName.Text = name
@@ -3269,6 +3256,11 @@ function HUD:toggleEpicResearchModal(forceState)
 	local target = if forceState ~= nil then forceState else not self.epicResearchModal.Visible
 	self:closeAllModals()
 	self.epicResearchModal.Visible = target
+	if target then
+		self:_playClick()
+		local farm = self.stateStore and (self.stateStore.getPresentationFarm or self.stateStore.getFarm)(self.stateStore)
+		self:_updateEpicResearchModal(farm)
+	end
 	self:_updateTutorialCardVisibility()
 end
 
@@ -3305,6 +3297,11 @@ function HUD:toggleVehiclesModal(forceState)
 	local target = if forceState ~= nil then forceState else not self.vehiclesModal.Visible
 	self:closeAllModals()
 	self.vehiclesModal.Visible = target
+	if target then
+		self:_playClick()
+		local farm = self.stateStore and (self.stateStore.getPresentationFarm or self.stateStore.getFarm)(self.stateStore)
+		self:_updateVehiclesModal(farm)
+	end
 	self:_updateTutorialCardVisibility()
 end
 
@@ -3373,6 +3370,9 @@ function HUD:toggleResearchModal(forceState)
 	self:closeAllModals()
 	self.shopFrame.Visible = target
 	if target then
+		self:_playClick()
+		local farm = self.stateStore and (self.stateStore.getPresentationFarm or self.stateStore.getFarm)(self.stateStore)
+		self:_updateResearchModal(farm)
 		self:requestQuotesForCurrentTier(true)
 	end
 	self:_updateTutorialCardVisibility()
@@ -3383,6 +3383,10 @@ function HUD:togglePetsModal(forceState)
 	local target = if forceState ~= nil then forceState else not self.petsModal.Visible
 	self:closeAllModals()
 	self.petsModal.Visible = target
+	if target then
+		self:_playClick()
+		self:update()
+	end
 	self:_updateTutorialCardVisibility()
 end
 
@@ -3391,6 +3395,11 @@ function HUD:toggleShopModal(forceState)
 	local target = if forceState ~= nil then forceState else not self.shopModal.Visible
 	self:closeAllModals()
 	self.shopModal.Visible = target
+	if target then
+		self:_playClick()
+		local farm = self.stateStore and (self.stateStore.getPresentationFarm or self.stateStore.getFarm)(self.stateStore)
+		self:_updateShopModal(farm)
+	end
 	self:_updateTutorialCardVisibility()
 end
 
@@ -3399,6 +3408,10 @@ function HUD:toggleCalendarModal(forceState)
 	local target = if forceState ~= nil then forceState else not self.calendarModal.Visible
 	self:closeAllModals()
 	self.calendarModal.Visible = target
+	if target then
+		self:_playClick()
+		self:update()
+	end
 	self:_updateTutorialCardVisibility()
 end
 
@@ -3407,6 +3420,11 @@ function HUD:toggleEggUpgradeModal(forceState)
 	local target = if forceState ~= nil then forceState else not self.eggUpgradeModal.Visible
 	self:closeAllModals()
 	self.eggUpgradeModal.Visible = target
+	if target then
+		self:_playClick()
+		local farm = self.stateStore and (self.stateStore.getPresentationFarm or self.stateStore.getFarm)(self.stateStore)
+		self:_updateEggUpgradeModal(farm)
+	end
 	self:_updateTutorialCardVisibility()
 end
 
@@ -3614,7 +3632,9 @@ function HUD:update()
     local cycleDay = (numColl % 28) + 1
     local claimedUpTo = if alreadyClaimed then ((numColl - 1) % 28 + 1) else (numColl % 28)
 
-    for day, cell in self.calendarDayCells or {} do
+    local isBoot = not self._hasBootstrappedModals
+    if not isRoblox or isBoot or (self.calendarModal and self.calendarModal.Visible) then
+        for day, cell in self.calendarDayCells or {} do
         local reward = progress and progress.calendar and progress.calendar[day]
         local label = cell:FindFirstChild("RewardText")
         local numLbl = cell:FindFirstChild("DayNumber")
@@ -3644,6 +3664,7 @@ function HUD:update()
                 if st then st.Color = Color3.fromRGB(24, 14, 28) end
             end
         end
+    end
     end
 
     if self.calendarAlertBadge then self.calendarAlertBadge.Visible = not alreadyClaimed end
@@ -3681,10 +3702,13 @@ function HUD:update()
             end
         end
     end
-    for i,card in self.petInventoryCards or {} do
-        local pet=self._visiblePets[i]
-        local label=card:FindFirstChild("PetName")
-        if label then label.Text=if pet then pet.speciesId.." T"..tostring(pet.tier).." "..pet.variant else "Puste miejsce" end
+
+    if not isRoblox or isBoot or (self.petsModal and self.petsModal.Visible) then
+        for i,card in self.petInventoryCards or {} do
+            local pet=self._visiblePets[i]
+            local label=card:FindFirstChild("PetName")
+            if label then label.Text=if pet then pet.speciesId.." T"..tostring(pet.tier).." "..pet.variant else "Puste miejsce" end
+        end
     end
 	self:_updateHatchStatus(farm)
 	self:updateStatus(self.stateStore:getStatus())
@@ -3775,16 +3799,27 @@ function HUD:update()
 		self.totalChickensLabel.Text = "Całkowita liczba kurczaków: " .. formatCompact(totalPop)
 	end
 
-	self:_updateVehiclesModal(farm)
+	if not isRoblox or isBoot or (self.vehiclesModal and self.vehiclesModal.Visible) then
+		self:_updateVehiclesModal(farm)
+	end
 
 	self:_updateResearchModal(farm)
-	self:_updateEpicResearchModal(farm)
 
-	self:_updateEggUpgradeModal(farm)
+	if not isRoblox or isBoot or (self.shopModal and self.shopModal.Visible) then
+		self:_updateShopModal(farm)
+	end
+
+	if not isRoblox or isBoot or (self.epicResearchModal and self.epicResearchModal.Visible) then
+		self:_updateEpicResearchModal(farm)
+	end
+
+	if not isRoblox or isBoot or (self.eggUpgradeModal and self.eggUpgradeModal.Visible) then
+		self:_updateEggUpgradeModal(farm)
+	end
 
 	self:_updatePrestigeDisplay(farm)
 
-	self:_updateShopModal(farm)
+	self._hasBootstrappedModals = true
 end
 
 function HUD:tick(nowMs)
@@ -4126,11 +4161,15 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 		}
 
 		local function triggerBuy()
+			if not self.shopFrame or not self.shopFrame.Visible then
+				return false
+			end
 			if not item.buyButton.Active or item.statusLabel.Text == "MAX" or item.statusLabel.Text == "LOCKED" then
-				return
+				return false
 			end
 			local buyTargetId = item.activeId or id
-			self:buyResearch(buyTargetId, "single")
+			local okBuy = self:buyResearch(buyTargetId, "single")
+			return okBuy ~= false
 		end
 
 		local function triggerBuyMax()
@@ -4146,7 +4185,7 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 		end
 
 		if card.Activated ~= nil then card.Activated:Connect(triggerBuy) end
-		if buyBtn.Activated ~= nil then buyBtn.Activated:Connect(triggerBuy) end
+		bindHoldToBuy(buyBtn, triggerBuy)
 		if buyMaxBtn.Activated ~= nil then buyMaxBtn.Activated:Connect(triggerBuyMax) end
 
 		self.unifiedResearch[id] = item
@@ -4616,15 +4655,11 @@ function HUD:_updateEpicResearchModal(farm)
 			end
 
 			if UNSUPPORTED_EPIC_RESEARCH[item.id] then
-				if cardData.lvlLabel then
-					cardData.lvlLabel.Text = "Wkrótce (Aktualizacja v1.1)"
+				if cardData.card then
+					cardData.card.Visible = false
 				end
 				if cardData.buyBtn then
-					cardData.buyBtn.Text = "WKRÓTCE"
 					cardData.buyBtn.Active = false
-					if isRoblox then
-						cardData.buyBtn.BackgroundColor3 = Color3.fromRGB(75, 85, 99)
-					end
 				end
 			elseif curLvl >= maxLvl then
 				if cardData.lvlLabel then
@@ -4787,7 +4822,9 @@ function HUD:_updateShopModal(farm)
 			for _, b in ipairs(activeBoosts) do
 				local rem = if type(b.remainingSeconds) == "string" and codec and codec.Real64 then codec.Real64.decode(b.remainingSeconds) else (tonumber(b.remainingSeconds) or 0)
 				local mins = math.max(0, math.ceil(rem / 60))
-				table.insert(parts, string.format("%s (%dm)", tostring(b.id), mins))
+				local bSpec = BOOSTS_BY_ID and BOOSTS_BY_ID[b.id]
+				local name = if bSpec then bSpec.name else tostring(b.id)
+				table.insert(parts, string.format("%s (%dm)", name, mins))
 			end
 			self.activeBoostsSummaryLabel.Text = string.format("Aktywne boosty: %d / %d • %s", #activeBoosts, maxSlots, table.concat(parts, ", "))
 		end
@@ -5083,7 +5120,7 @@ function HUD:buyResearch(researchId, mode, callback)
 
 	if isRoblox then
 		local now = os.clock()
-		if self._lastResearchBuyTime and (now - self._lastResearchBuyTime) < 0.2 then
+		if self._lastResearchBuyTime and (now - self._lastResearchBuyTime) < 0.15 then
 			return false, "DEBOUNCED"
 		end
 		self._lastResearchBuyTime = now

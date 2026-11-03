@@ -1076,6 +1076,18 @@ do
 	boostCard:FindFirstChild("BuyBoostButton").Activated:Fire()
 	eq(purchasedBoost, "jimbos_blue_v2", "jimbos_blue_v2 buy button fired onBuyBoost")
 
+	local pCard = cont:FindFirstChild("Tab2_Boosts"):FindFirstChild("BoostCard_jimbos_purple_v2")
+	ok(pCard ~= nil, "BoostCard_jimbos_purple_v2 exists")
+	local sub1 = pCard:FindFirstChild("DurationSubtitle")
+	ok(sub1 ~= nil, "DurationSubtitle exists on jimbos_purple_v2")
+	ok(string.find(sub1.Text, "15 min", 1, true) ~= nil, "Shows 15 min duration")
+
+	local bigCard = cont:FindFirstChild("Tab2_Boosts"):FindFirstChild("BoostCard_jimbos_purple_big")
+	ok(bigCard ~= nil, "BoostCard_jimbos_purple_big exists")
+	local sub2 = bigCard:FindFirstChild("DurationSubtitle")
+	ok(sub2 ~= nil, "DurationSubtitle exists on jimbos_purple_big")
+	ok(string.find(sub2.Text, "3 godz", 1, true) ~= nil, "Shows 3 godz duration")
+
 	-- Tab 3: GamePasses
 	hud:selectShopTab(3)
 	eq(hud:getCurrentShopTab(), 3, "Selected shop tab 3")
