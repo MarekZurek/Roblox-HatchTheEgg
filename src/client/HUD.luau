@@ -3642,7 +3642,7 @@ function HUD:update()
         local reward = progress and progress.calendar and progress.calendar[day]
         local label = cell:FindFirstChild("RewardText")
         local numLbl = cell:FindFirstChild("DayNumber")
-        local rewStr = if reward then (if reward.rewardType == "GE" then "💎 " .. reward.amount else reward.rewardType .. " " .. reward.amount) else "-"
+        local rewStr = if reward then (if reward.rewardType == "GE" then "💎 " .. reward.amount elseif reward.rewardType == "PE" then "🎁 Mystery" else reward.rewardType .. " " .. reward.amount) else "-"
         if day <= claimedUpTo then
             if label then label.Text = "✓ Claimed" end
             if numLbl then numLbl.Text = "D" .. tostring(day) .. " ✓" end
