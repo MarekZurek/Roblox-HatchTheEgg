@@ -399,7 +399,7 @@ local function createEggUpgradePedestal(parent, pos, self)
 			Name = "CurrentEggLabel",
 			Size = UDim2.new(1, 0, 0.33, 0),
 			Position = UDim2.new(0, 0, 0, 0),
-			Text = "🥚 Current: Regular Egg",
+			Text = "🥚 Current: Regular",
 			TextColor3 = Color3.fromRGB(255, 235, 100),
 			StrokeThickness = 2.8,
 		})
@@ -408,7 +408,7 @@ local function createEggUpgradePedestal(parent, pos, self)
 			Name = "NextEggLabel",
 			Size = UDim2.new(1, 0, 0.33, 0),
 			Position = UDim2.new(0, 0, 0.33, 0),
-			Text = "✨ Next: Duck Egg",
+			Text = "✨ Next: Duck",
 			TextColor3 = Color3.fromRGB(115, 245, 115),
 			StrokeThickness = 2.8,
 		})

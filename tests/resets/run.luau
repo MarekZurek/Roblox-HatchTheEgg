@@ -253,7 +253,7 @@ do
 	p.accounting.lastBaseEarnings = BigAmount.encode(10000)
 
 	local boostedFV = ProgressActions.calculateProfileFarmValue(p)
-	ok(boostedFV >= 5000000, "boosted FV qualifies for Kacze (index 1)")
+	ok(boostedFV >= 5000000, "boosted FV qualifies for Duck (index 1)")
 
 	local canAdv, blk, fv = ProgressActions.canUpgradeEgg(p, 1)
 	eq(canAdv, true, "canUpgradeEgg to Superfood is true")
@@ -784,12 +784,12 @@ do
 	-- Update billboards from farmView
 	world:updateFromFarmView({ eggIndex = 0, habitats = {}, common = {} }, Catalog)
 	ok(#world.eggUpgradeBillboards >= 1, "at least 1 egg upgrade billboard registered")
-	eq(world.eggUpgradeBillboards[1].curLabel.Text, "🥚 Current: KURZE")
-	eq(world.eggUpgradeBillboards[1].nextLabel.Text, "✨ Next: KACZE")
+	eq(world.eggUpgradeBillboards[1].curLabel.Text, "🥚 Current: Regular")
+	eq(world.eggUpgradeBillboards[1].nextLabel.Text, "✨ Next: Duck")
 
 	-- Update for max egg (18)
 	world:updateFromFarmView({ eggIndex = 18, habitats = {}, common = {} }, Catalog)
-	eq(world.eggUpgradeBillboards[1].curLabel.Text, "🥚 Current: ASTRALNEGO LEWIATANA (MAX)")
+	eq(world.eggUpgradeBillboards[1].curLabel.Text, "🥚 Current: Astral Leviathan (MAX)")
 	eq(world.eggUpgradeBillboards[1].nextLabel.Text, "🎉 Enlightenment Reached (MAX)!")
 
 	-- 7.5 Client HUD Modal & ClientBootstrap Verification

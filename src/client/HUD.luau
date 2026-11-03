@@ -4772,7 +4772,7 @@ function HUD:_updatePrestigeDisplay(farm)
 
 	if self.rebirthLabel ~= nil then
 		local curEgg = EGGS_DATA[farm.eggIndex or 0]
-		local eggName = if curEgg then curEgg.name else "Kurze"
+		local eggName = if curEgg then curEgg.name else "Regular"
 		self.rebirthLabel.Text = string.format("🟣 %s Prestige (+%s) • 🥚 %s", formatCompact(currentSE), pendingText, eggName)
 	end
 
