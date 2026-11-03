@@ -185,6 +185,10 @@ local RESEARCH_DISPLAY_NAMES = _cat.RESEARCH_DISPLAY_NAMES
 local RESEARCH_ICONS = _cat.RESEARCH_ICONS
 local COMMON_RESEARCH_MAX_LEVELS = _cat.COMMON_RESEARCH_MAX_LEVELS
 local UNSUPPORTED_EPIC_RESEARCH = Availability.blockedEpic
+local DEFERRED_V1_2_EPIC = { prophecy_bonus = true }
+local function isEpicUnsupported(id: string): boolean
+	return UNSUPPORTED_EPIC_RESEARCH[id] == true or DEFERRED_V1_2_EPIC[id] == true
+end
 local EPIC_RESEARCH_CATALOG = _cat.EPIC_RESEARCH_CATALOG
 local BOOSTS_CATALOG = _cat.BOOSTS_CATALOG
 local SHOP_PRODUCTS_CATALOG = _cat.SHOP_PRODUCTS_CATALOG
@@ -1954,7 +1958,7 @@ function HUD:_buildEpicResearchModal(root)
 
 	local epicVisibleCount = 0
 	for _, it in ipairs(EPIC_RESEARCH_CATALOG) do
-		if not UNSUPPORTED_EPIC_RESEARCH[it.id] then
+		if not isEpicUnsupported(it.id) then
 			epicVisibleCount = epicVisibleCount + 1
 		end
 	end
@@ -1964,7 +1968,7 @@ function HUD:_buildEpicResearchModal(root)
 
 	local epicSlot = 0
 	for _, item in ipairs(EPIC_RESEARCH_CATALOG) do
-		local isUnsupported = UNSUPPORTED_EPIC_RESEARCH[item.id] == true
+		local isUnsupported = isEpicUnsupported(item.id)
 		local card = self.ui:card(scroll, {
 			name = "EpicCard_" .. item.id,
 			family = "shop",
@@ -2032,12 +2036,12 @@ function HUD:_buildEpicResearchModal(root)
 
 		local buyBtn = self.ui:button(card, {
 			name = "BuyEpicButton",
-			text = if UNSUPPORTED_EPIC_RESEARCH[item.id] then "SOON" else formatCompact(EpicPricing.ge(item.basePriceGE)) .. " 💎",
-			tone = if UNSUPPORTED_EPIC_RESEARCH[item.id] then "ghost" else "primary",
+			text = if isEpicUnsupported(item.id) then "SOON" else formatCompact(EpicPricing.ge(item.basePriceGE)) .. " 💎",
+			tone = if isEpicUnsupported(item.id) then "ghost" else "primary",
 			size = { 0.17, 0, 0, 48 },
 			position = { 0.60, 0, 0, 18 },
 			onClick = function()
-				if UNSUPPORTED_EPIC_RESEARCH[item.id] then return end
+				if isEpicUnsupported(item.id) then return end
 				if type(self.onBuyEpicResearch) == "function" then
 					self.onBuyEpicResearch(item.id)
 				end
@@ -2052,7 +2056,7 @@ function HUD:_buildEpicResearchModal(root)
 			position = { 0.79, 0, 0, 18 },
 			visible = false,
 			onClick = function()
-				if UNSUPPORTED_EPIC_RESEARCH[item.id] then return end
+				if isEpicUnsupported(item.id) then return end
                 local offer=self._epicRobuxOffers and self._epicRobuxOffers[item.id]
                 if offer and offer.configured and type(self.onBuyEpicRobux)=="function" then self.onBuyEpicRobux(item.id) end
 			end,
@@ -3072,7 +3076,7 @@ function HUD:_buildPrestigeModal(root)
 		TextScaled = true,
 		TextWrapped = true,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 210, 210) or nil,
-		Text = "🔴 RESET: Cash, habitats, vehicles, chicken population, regular research.\n🟢 KEPT: All Soul Eggs, Diamonds 💎, Pets & pet levels, Epic Research, Trophies, and Passes.",
+		Text = "🔴 RESET: Cash, habitats, vehicles, chicken population, regular research.\n🟢 KEPT: All Soul Eggs, Diamonds 💎, Pets & pet levels, Epic Research, and Passes.",
 		ZIndex = 52,
 	}, warningPill)
 	addTextStroke(warningLabel, 1.6)
@@ -4649,12 +4653,12 @@ function HUD:_updateEpicResearchModal(farm)
 
 			if cardData.buyRobuxBtn then
 				local offer=self._epicRobuxOffers[item.id]
-                cardData.buyRobuxBtn.Visible = not UNSUPPORTED_EPIC_RESEARCH[item.id] and curLvl<maxLvl
+                cardData.buyRobuxBtn.Visible = not isEpicUnsupported(item.id) and curLvl<maxLvl
                 cardData.buyRobuxBtn.Active = offer~=nil and offer.configured
                 cardData.buyRobuxBtn.Text = if not offer or not offer.configured then "SOON" elseif offer.credits~="0" then "USE" else tostring(offer.nominalPriceRobux).." R$*"
 			end
 
-			if UNSUPPORTED_EPIC_RESEARCH[item.id] then
+			if isEpicUnsupported(item.id) then
 				if cardData.card then
 					cardData.card.Visible = false
 				end
