@@ -59,17 +59,20 @@ def collect_scripts():
                     "className": class_name,
                     "source": content,
                 })
+    # Sort shallowest paths first so parent folders/ModuleScripts exist before their children
+    items.sort(key=lambda x: (len(x["path"].split(".")), x["path"]))
     return items
 
 def run_sync_server():
-    scripts = collect_scripts()
-    payload = json.dumps(scripts).encode("utf-8")
-    
     class SyncHandler(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
-            if self.path == "/scripts":
+            print("Received request for path:", self.path)
+            if self.path.startswith("/scripts"):
+                scripts = collect_scripts()
+                payload = json.dumps(scripts).encode("utf-8")
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
+                self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
                 self.send_header("Content-Length", str(len(payload)))
                 self.end_headers()
                 self.wfile.write(payload)
@@ -79,8 +82,8 @@ def run_sync_server():
         def log_message(self, *args):
             pass
             
-    server = http.server.HTTPServer(("127.0.0.1", 28989), SyncHandler)
-    print(f"Collected {len(scripts)} scripts ({len(payload)} bytes). Ready on port 28989.")
+    server = http.server.HTTPServer(("127.0.0.1", 28990), SyncHandler)
+    print("Sync server ready on port 28990 (dynamic reload).")
     return server
 
 if __name__ == "__main__":

@@ -1,28 +1,9 @@
 --!nocheck
--- HUD for HatchTheEgg (IMP-14, VIS-04, PROD-01, PROD-02, PROD-03).
--- Classic Studs styled responsive 2D HUD for PC and Mobile, inspired by
--- the user's reference screenshots (Dom button at top, Koszyk Jajek at bottom center,
--- huge green $ counter at bottom-left, studded quick-upgrade buttons on the left,
--- 6 framed icon buttons dock on the right, and total chicken counter at bottom-right).
---
--- Supported Full Modals (PROD-03):
--- 1. HabitatsModal: All 19 habitat types (Tier 1..Tier 19), 4 parcel cards, capacity fill bars, prices.
--- 2. VehiclesModal: Up to 17 fleet slots, 12 vehicle types (Tier 1..Tier 12), live shipping comparison bar.
--- 3. ResearchModal: Multi-tier modal with tabs for Tiers 1–13 (56 common) + dedicated Epic research tab (Diamenty).
--- 4. PetsModal: Equipped slots (3/5), inventory grid, fusion section (chance indicator, guarantee counter, +10 p.p. Pro Permit bonus).
--- 5. ShopModal: 3 tabs: Diamenty (pakiety Diamentów 1..4), Wzmocnienia (Boosts za Diamenty), Przepustki (Pro Permit, Buy MAX).
--- 6. CalendarModal: 28-day calendar grid with claim indicators + Trophies tab across 19 eggs with 5 tier cups.
--- 7. EggUpgradeModal: 19 eggs progression, Farm Value threshold checking and reset confirmation.
---
--- CRITICAL ARCHITECTURAL INVARIANT:
--- HUD and controllers NEVER modify authoritative state, grant resources, or alter economy balances.
--- All numeric formatting (K, M, B, T) is presentation-only and NEVER parsed back into domain numbers.
+-- HUD for HatchTheEgg
 
 local HUD = {}
 HUD.__index = HUD
 
--- Shared stud-style window family (#82). Same dual Studio/Lune resolution as the client
--- Bootstrap, so the module is required from the instance tree in Roblox and by path in Lune.
 local isStudioRuntime = (typeof(script) == "Instance")
 local function resolveModule(studioGetter, lunePath)
 	if isStudioRuntime then
@@ -44,7 +25,6 @@ local StudUi = resolveModule(function()
 	return script.Parent.ui.StudUi
 end, "./ui/StudUi")
 
--- One integration surface for uploaded image ids (root owns the ids; see src/client/ui/UiAssets).
 local UiAssets = resolveModule(function()
 	return script.Parent.ui.UiAssets
 end, "./ui/UiAssets")
@@ -151,14 +131,6 @@ function HUD.formatRate(selfOrAmount, maybeAmountOrUnit, maybeUnit)
 end
 
 -- Top Rates Panel Formatting
--- The three former bare top numbers become one named panel: Produkcja, Sprzedaż and
--- Limit transportu. Every value is a rate in Polish "jaj/s".
--- Production and sales are already per-second values of the authoritative view. Transport is the
--- fleet CAPACITY (jaj/min -> jaj/s), never the current sales amount or cash, and the conversion goes
--- through the same BigAmount codec as the view: 5000/min renders as "83.33 jaj/s", not "5000/s".
--- Formatting is presentation-only, the input farm view is only read and never mutated, and a missing
--- authoritative field yields no text at all instead of an invented rate.
-
 HUD.RATES_HEADINGS = table.freeze({ "Produkcja", "Sprzedaż", "Limit transportu" })
 HUD.RATES_CAPTION = "Transport określa maksymalną sprzedaż"
 HUD.RATES_UNIT = " jaj/s"
@@ -173,8 +145,6 @@ function HUD.formatEggRate(selfOrAmount, maybeAmount)
 	return rateText(amount)
 end
 
--- Pure jaj/min -> jaj/s capacity conversion through the authoritative codec. Returns nil when the
--- field or codec is absent (or the encoded decimal is rejected) so no fictional rate is displayed.
 function HUD.transportRatePerSecond(codec, shippingPerMinute)
 	if codec == nil or type(codec.BigAmount) ~= "table" or shippingPerMinute == nil then
 		return nil
@@ -197,17 +167,11 @@ function HUD.formatTransportRate(selfOrCodec, maybeCodecOrPerMinute, maybePerMin
 end
 
 -- Hatch Status Helpers (#77)
--- The blocked decision is presentation of the authoritative farm view only. Counts stay exact
--- uint64 values: tonumber would round population/reservations above 2^53 and change the answer.
-
 HUD.HATCH_STATUS_FULL = "CAPACITY_FULL"
 HUD.HATCH_STATUS_STOCK = "NO_STOCK"
 HUD.HATCH_STATUS_FULL_TEXT = "Brak miejsca w kurnikach"
 HUD.HATCH_STATUS_STOCK_TEXT = "Brak jaj do wylęgu — zapas się odnawia."
 
--- The hatchery stock is a BigAmount binary64 decimal, not an exact uint64 count, and hatching needs
--- at least one whole egg: a fractional stock such as 0.5 is already blocked, exactly like the server
--- rule. The removed ExactUInt == 0 helper wrongly reported 0.5 as non-empty; stock < 1 is the test.
 local function stockBelowOne(codec, text)
 	if type(text) ~= "string" then return false end
 	local ok, value = pcall(codec.BigAmount.decode, text)
@@ -215,7 +179,6 @@ local function stockBelowOne(codec, text)
 	return value < 1
 end
 
--- A built coop has vacancy while population + reservedInTransit < capacity (exact uint64 math).
 local function habitatHasVacancy(codec, habitat)
 	local U = codec.ExactUInt
 	local okCapacity, capacity = pcall(U.decode, habitat.capacity)
@@ -435,10 +398,7 @@ local function addTextStroke(label, thickness, color)
 	stroke.Parent = label
 end
 
--- One decoration pass per instance, at build time only (#82). The shared stud-style family uses
--- corners, thick borders, a vertical gradient for depth, an optional restrained tiled stud
--- overlay and optional pressed feedback. Roblox-only: the Lune mock keeps exactly the element set
--- the existing UI suites assert (no extra children, no per-update styling).
+-- Decoration pass per instance at build time (#82).
 local function decorateGuiElement(inst, spec)
 	if not isRoblox or typeof(inst) ~= "Instance" or type(spec) ~= "table" then return end
 
@@ -448,7 +408,7 @@ local function decorateGuiElement(inst, spec)
 		addCornerAndStroke(inst, radius or 8, strokeColor, spec.thickness)
 	end
 
-	if type(spec.gradient) == "table" and spec.gradient.top and spec.gradient.bottom then
+	if type(spec.gradient) == "table" and spec.gradient.top and spec.gradient.bottom and not inst:IsA("TextButton") and not inst:IsA("TextLabel") then
 		local top = spec.gradient.top
 		local bottom = spec.gradient.bottom
 		local gradient = Instance.new("UIGradient")
@@ -524,7 +484,7 @@ local function bindBouncyButton(btn)
 end
 
 local function addShimmerEffect(frame)
-	if not isRoblox or typeof(frame) ~= "Instance" or not TweenService then return end
+	if not isRoblox or typeof(frame) ~= "Instance" or not TweenService or frame:IsA("TextButton") or frame:IsA("TextLabel") then return end
 	local gradient = Instance.new("UIGradient")
 	gradient.Name = "ShimmerGradient"
 	gradient.Rotation = 25
@@ -619,7 +579,6 @@ function HUD.new(deps)
 		habitatCapacities = { "0", "0", "0", "0" },
 		totalChickensCount = 0,
 
-		-- Core HUD Components
 		sessionBanner = nil,
 		sessionStatusLabel = nil,
 		homeButton = nil,
@@ -643,8 +602,6 @@ function HUD.new(deps)
 		hatchButton = nil,
 		topBar = nil,
 		audioToggleButton = nil,
-		-- Top rates panel: one named panel with three equal cells; the legacy value labels are
-		-- kept (producedEggsLabel/soldEggsLabel/shippingLabel) and each cell adds a visible heading.
 		ratesPanel = nil,
 		ratesCells = {},
 		ratesHeadingLabels = {},
@@ -655,15 +612,15 @@ function HUD.new(deps)
 		ratesCaptionCap = nil,
 		_topHeaderInset = 6,
 
-		-- Right Dock Menu Buttons
 		researchToggleBtn = nil,
 		habitatsToggleBtn = nil,
 		vehiclesToggleBtn = nil,
 		petsToggleBtn = nil,
 		shopToggleBtn = nil,
 		calendarToggleBtn = nil,
+		calendarClaimStatusLabel = nil,
+		calendarAlertBadge = nil,
 
-		-- Modals
 		habitatsModal = nil,
 		habitatCards = {},
 		habitatLabels = {},
@@ -712,14 +669,12 @@ function HUD.new(deps)
 		eggUpgradeWarningLabel = nil,
 		eggUpgradeBtn = nil,
 
-		-- Prestige & Rebirth Modal
 		prestigeModal = nil,
 		prestigeCurrentCrystalsLabel = nil,
 		prestigeCurrentBonusLabel = nil,
 		prestigePendingLabel = nil,
 		prestigeActionBtn = nil,
 
-		-- Pet Hatch & Incubator Modal (PROD-07)
 		petHatchModal = nil,
 		hatchEggButton = nil,
 		hatchAnimationOverlay = nil,
@@ -738,8 +693,7 @@ function HUD.new(deps)
 		_unsubs = {},
 	}, HUD)
 
-	-- Shared stud-style window family (#82). Created once; every migrated window reuses it so the
-	-- frame/border/header/button/tab look is identical and decoration happens once per instance.
+	-- Shared stud-style window family (#82).
 	self.ui = StudUi.new({
 		create = createGuiElement,
 		decorate = decorateGuiElement,
@@ -769,15 +723,14 @@ end
 function HUD:_buildInterface()
 	local root = self.guiRoot
 
-	-- 1. Session Status Banner
 	self.sessionBanner = createGuiElement("Frame", {
 		Name = "SessionBanner",
 		Size = isRoblox and UDim2.new(0, 220, 0, 32) or nil,
 		Position = isRoblox and UDim2.new(0.5, -110, 0, 68) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(45, 25, 15) or nil,
-		BackgroundTransparency = 0.2,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(20, 26, 44) or nil,
+		BackgroundTransparency = 0.08,
 	}, root)
-	addCornerAndStroke(self.sessionBanner, 8, isRoblox and Color3.fromRGB(255, 215, 65) or nil, 2)
+	addCornerAndStroke(self.sessionBanner, 8, isRoblox and Color3.fromRGB(228, 68, 62) or nil, 2.5)
 
 	self.sessionStatusLabel = createGuiElement("TextLabel", {
 		Name = "StatusLabel",
@@ -800,12 +753,8 @@ function HUD:_buildInterface()
 	}, root)
 	self.topBar = topBar
 
-	-- Safe Area / Inset Adaptation for Mobile Notches & Dynamic Island. The inset is applied by the
-	-- responsive binding below, together with the live header geometry.
 	if isRoblox then
 		pcall(function()
-			-- ScreenGui already applies the top inset when IgnoreGuiInset is false.
-			-- Frame-based preview roots inherit that setting from their ScreenGui.
 			local screenGui = if root:IsA("ScreenGui") then root else root:FindFirstAncestorWhichIsA("ScreenGui")
 			if screenGui == nil or not screenGui.IgnoreGuiInset then return end
 			local GuiService = game:GetService("GuiService")
@@ -816,18 +765,17 @@ function HUD:_buildInterface()
 		end)
 	end
 
-	-- Audio Mute/Unmute Toggle Button (Top-Right, >= 44x44 hitbox for mobile touch)
 	local audioToggleBtn = createGuiElement("TextButton", {
 		Name = "AudioToggleButton",
 		Size = isRoblox and UDim2.new(0, 48, 0, 48) or nil,
-		Position = isRoblox and UDim2.new(1, -64, 0, 10) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(48, 25, 56) or nil,
+		Position = isRoblox and UDim2.new(1, -60, 0, 10) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(22, 28, 48) or nil,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
 		Text = if self.audioController and self.audioController:isMuted() then "🔇" else "🔊",
 	}, root)
-	addCornerAndStroke(audioToggleBtn, 10, isRoblox and Color3.fromRGB(255, 215, 65) or nil, 2.5)
+	addCornerAndStroke(audioToggleBtn, 10, isRoblox and Color3.fromRGB(16, 20, 34) or nil, 3.0)
 
 	if audioToggleBtn.Activated then
 		audioToggleBtn.Activated:Connect(function()
@@ -848,13 +796,13 @@ function HUD:_buildInterface()
 		Name = "DomButton",
 		Size = isRoblox and UDim2.new(0, 44, 0, 44) or nil,
 		Position = isRoblox and UDim2.new(0, 6, 0, 2) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(78, 195, 255) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(56, 168, 248) or nil,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
 		Text = "🏠",
 	}, topBar)
-	addCornerAndStroke(self.homeButton, 8, isRoblox and Color3.fromRGB(18, 42, 68) or nil, 3)
+	addCornerAndStroke(self.homeButton, 10, isRoblox and Color3.fromRGB(16, 22, 38) or nil, 3)
 	addTextStroke(self.homeButton, 2.6)
 
 	if self.homeButton.Activated ~= nil then
@@ -874,22 +822,19 @@ function HUD:_buildInterface()
 		end)
 	end
 
-	-- One clear top panel with three named metric fields. The former bare numbers stay as the
-	-- value labels (producedEggsLabel/soldEggsLabel/shippingLabel and their getters) and each cell adds
-	-- a separate visible heading; every value is a rate in Polish "jaj/s".
 	local ratesSpecs = {
-		{ name = "ProducedEggsLabel", heading = HUD.RATES_HEADINGS[1], key = "producedEggsLabel", rgb = { 255, 165, 245 } },
-		{ name = "SoldEggsLabel", heading = HUD.RATES_HEADINGS[2], key = "soldEggsLabel", rgb = { 255, 235, 75 } },
-		{ name = "ShippingLabel", heading = HUD.RATES_HEADINGS[3], key = "shippingLabel", rgb = { 115, 255, 135 } },
+		{ name = "ProducedEggsLabel", heading = HUD.RATES_HEADINGS[1], key = "producedEggsLabel", rgb = { 135, 225, 255 } },
+		{ name = "SoldEggsLabel", heading = HUD.RATES_HEADINGS[2], key = "soldEggsLabel", rgb = { 115, 255, 135 } },
+		{ name = "ShippingLabel", heading = HUD.RATES_HEADINGS[3], key = "shippingLabel", rgb = { 255, 225, 95 } },
 	}
 	local ratesPanel = createGuiElement("Frame", {
 		Name = "RatesPanel",
 		Size = isRoblox and UDim2.new(1, -8, 0, headerLayout.panelHeight) or nil,
 		Position = isRoblox and UDim2.new(0, 4, 0, 48) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(45, 25, 15) or nil,
-		BackgroundTransparency = 0.25,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(20, 26, 44) or nil,
+		BackgroundTransparency = 0.08,
 	}, topBar)
-	addCornerAndStroke(ratesPanel, 10, isRoblox and Color3.fromRGB(255, 215, 65) or nil, 2)
+	addCornerAndStroke(ratesPanel, 10, isRoblox and Color3.fromRGB(56, 152, 245) or nil, 2.4)
 	self.ratesPanel = ratesPanel
 
 	for index, spec in ipairs(ratesSpecs) do
@@ -909,7 +854,7 @@ function HUD:_buildInterface()
 			Font = isRoblox and Enum.Font.FredokaOne or nil,
 			TextScaled = true,
 			TextWrapped = true,
-			TextColor3 = isRoblox and Color3.fromRGB(255, 240, 200) or nil,
+			TextColor3 = isRoblox and Color3.fromRGB(205, 220, 248) or nil,
 			Text = spec.heading,
 		}, cell)
 		addTextStroke(heading, 1.8)
@@ -944,8 +889,6 @@ function HUD:_buildInterface()
 		self[spec.key] = value
 	end
 
-	-- Short explanatory caption, shown only when a cell is wide enough to keep it on one line so it
-	-- can never collide with the right dock on a narrow phone.
 	self.ratesCaptionLabel = createGuiElement("TextLabel", {
 		Name = "RatesCaptionLabel",
 		Visible = headerLayout.captionVisible,
@@ -955,7 +898,7 @@ function HUD:_buildInterface()
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
 		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-		TextColor3 = isRoblox and Color3.fromRGB(235, 220, 190) or nil,
+		TextColor3 = isRoblox and Color3.fromRGB(185, 205, 238) or nil,
 		Text = HUD.RATES_CAPTION,
 	}, topBar)
 	addTextStroke(self.ratesCaptionLabel, 1.6)
@@ -967,131 +910,281 @@ function HUD:_buildInterface()
 		self.ratesCaptionCap = captionCap
 	end
 
-	-- The tutorial hint shares the first header row with the Dom button, so it can never slide under
-	-- the rates panel, the sound toggle or the right dock and never leaves the viewport.
 	self.tutorialLabel = createGuiElement("TextLabel", {
 		Name = "TutorialBannerLabel",
+		Visible = false,
 		Size = isRoblox and UDim2.new(1, -60, 0, 40) or nil,
-		Position = isRoblox and UDim2.new(0, 52, 0, 3) or nil,
+		Position = isRoblox and UDim2.new(0, 54, 0, 3) or nil,
 		BackgroundTransparency = 1,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
 		TextWrapped = true,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 250, 210) or nil,
-		Text = "🎯 Cel: Kliknij koszyk 'Jajka' na dole lub stań na czerwonym przycisku!",
+		TextColor3 = isRoblox and Color3.fromRGB(255, 242, 160) or nil,
+		Text = "",
 	}, topBar)
-	addTextStroke(self.tutorialLabel, 2.0)
-	if isRoblox then
-		local tutorialCap = Instance.new("UITextSizeConstraint")
-		tutorialCap.Name = "ReadableTextCap"
-		tutorialCap.MaxTextSize = 15
-		tutorialCap.Parent = self.tutorialLabel
-	end
 
-	self:_bindTopHeaderResponsive(root)
-
-	-- 3. Bottom-Left Cash & Rebirth Display
-	local bottomLeft = createGuiElement("Frame", {
-		Name = "BottomLeftCluster",
-		Size = isRoblox and UDim2.new(0, 310, 0, 95) or nil,
-		Position = isRoblox and UDim2.new(0, 16, 1, -108) or nil,
-		BackgroundTransparency = 1,
+	local tutorialCard = createGuiElement("Frame", {
+		Name = "TutorialObjectiveCard",
+		Visible = false,
+		AnchorPoint = isRoblox and Vector2.new(0.5, 0) or nil,
+		Size = isRoblox and UDim2.new(0, 600, 0, 110) or nil,
+		Position = isRoblox and UDim2.new(0.5, 0, 1, -185) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(20, 26, 44) or nil,
+		BackgroundTransparency = 0.05,
+		ZIndex = 20,
 	}, root)
+	addCornerAndStroke(tutorialCard, 14, isRoblox and Color3.fromRGB(255, 205, 58) or nil, 3.5)
+	self.tutorialCardFrame = tutorialCard
 
-	self.rebirthLabel = createGuiElement("TextLabel", {
-		Name = "RebirthLabel",
-		Size = isRoblox and UDim2.new(1, 0, 0, 26) or nil,
-		Position = isRoblox and UDim2.new(0, 0, 0, 0) or nil,
+	self.tutorialStepBadge = createGuiElement("TextLabel", {
+		Name = "TutorialStepBadge",
+		Size = isRoblox and UDim2.new(0, 116, 0, 32) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 0, 12) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(245, 178, 36) or nil,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(24, 18, 8) or nil,
+		Text = "KROK 1/4",
+		ZIndex = 21,
+	}, tutorialCard)
+	addCornerAndStroke(self.tutorialStepBadge, 8, isRoblox and Color3.fromRGB(16, 20, 34) or nil, 2.0)
+
+	self.tutorialTitleLabel = createGuiElement("TextLabel", {
+		Name = "TutorialTitleLabel",
+		Size = isRoblox and UDim2.new(1, -156, 0, 32) or nil,
+		Position = isRoblox and UDim2.new(0, 140, 0, 12) or nil,
 		BackgroundTransparency = 1,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
 		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 165, 125) or nil,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 232, 110) or nil,
+		Text = "Wypuść pierwszego kurczaka",
+		ZIndex = 21,
+	}, tutorialCard)
+	addTextStroke(self.tutorialTitleLabel, 2.0)
+
+	self.tutorialBodyLabel = createGuiElement("TextLabel", {
+		Name = "TutorialBodyLabel",
+		Size = isRoblox and UDim2.new(1, -32, 0, 52) or nil,
+		Position = isRoblox and UDim2.new(0, 16, 0, 48) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextWrapped = true,
+		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+		TextColor3 = isRoblox and Color3.fromRGB(240, 246, 255) or nil,
+		Text = "Wejdź na czerwoną płytę wylęgarni na środku farmy, aby wypuścić pierwsze kurczaki!",
+		ZIndex = 21,
+	}, tutorialCard)
+	addTextStroke(self.tutorialBodyLabel, 1.8)
+
+	self:_bindTopHeaderResponsive(root)
+
+	local playerBadge = createGuiElement("Frame", {
+		Name = "PlayerFarmBadge",
+		Size = isRoblox and UDim2.new(0, 236, 0, 72) or nil,
+		Position = isRoblox and UDim2.new(0, 14, 0, 10) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(20, 26, 44) or nil,
+		BackgroundTransparency = 0.06,
+	}, root)
+	self.playerFarmBadge = playerBadge
+	addCornerAndStroke(playerBadge, 12, isRoblox and Color3.fromRGB(14, 18, 32) or nil, 3.0)
+
+	local eggAvatarBox = createGuiElement("TextButton", {
+		Name = "EggAvatarButton",
+		Size = isRoblox and UDim2.new(0, 56, 0, 56) or nil,
+		Position = isRoblox and UDim2.new(0, 8, 0.5, -28) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(58, 162, 245) or nil,
+		Text = "",
+		AutoButtonColor = true,
+	}, playerBadge)
+	addCornerAndStroke(eggAvatarBox, 10, isRoblox and Color3.fromRGB(16, 22, 38) or nil, 2.6)
+	createGuiElement("ImageLabel", {
+		Name = "EggAvatarIcon",
+		Size = isRoblox and UDim2.new(0, 42, 0, 42) or nil,
+		Position = isRoblox and UDim2.new(0.5, -21, 0.5, -21) or nil,
+		BackgroundTransparency = 1,
+		Image = "rbxassetid://131144454901847",
+	}, eggAvatarBox)
+	if eggAvatarBox.Activated then
+		eggAvatarBox.Activated:Connect(function()
+			self:_playClick()
+			self:toggleEggUpgradeModal()
+		end)
+	end
+
+	local xpTrack = createGuiElement("Frame", {
+		Name = "FarmProgressTrack",
+		Size = isRoblox and UDim2.new(1, -76, 0, 22) or nil,
+		Position = isRoblox and UDim2.new(0, 70, 0, 10) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(32, 42, 68) or nil,
+	}, playerBadge)
+	addCornerAndStroke(xpTrack, 6, isRoblox and Color3.fromRGB(14, 18, 30) or nil, 2.0)
+
+	local xpFill = createGuiElement("Frame", {
+		Name = "FarmProgressFill",
+		Size = isRoblox and UDim2.new(0.65, 0, 1, 0) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(56, 178, 255) or nil,
+	}, xpTrack)
+	addCornerAndStroke(xpFill, 6, nil, 0)
+
+	self.totalChickensLabel = createGuiElement("TextLabel", {
+		Name = "TotalChickensLabel",
+		Size = isRoblox and UDim2.new(1, -8, 1, 0) or nil,
+		Position = isRoblox and UDim2.new(0, 4, 0, 0) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextXAlignment = isRoblox and Enum.TextXAlignment.Center or nil,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "Całkowita liczba kurczaków: 0",
+		ZIndex = 3,
+	}, xpTrack)
+	addTextStroke(self.totalChickensLabel, 2.0)
+
+	self.rebirthLabel = createGuiElement("TextLabel", {
+		Name = "RebirthLabel",
+		Size = isRoblox and UDim2.new(1, -76, 0, 24) or nil,
+		Position = isRoblox and UDim2.new(0, 70, 0, 38) or nil,
+		BackgroundTransparency = 1,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 195, 115) or nil,
 		Text = "Odrodzenie 0 • 🥚 Farma Jajeczna",
-	}, bottomLeft)
-	addTextStroke(self.rebirthLabel, 2.4)
+	}, playerBadge)
+	addTextStroke(self.rebirthLabel, 2.0)
 
 	local rebirthBtn = createGuiElement("TextButton", {
 		Name = "RebirthClickButton",
-		Size = isRoblox and UDim2.new(1, 0, 0, 44) or nil,
-		Position = isRoblox and UDim2.new(0, 0, 0, 0) or nil,
+		Size = isRoblox and UDim2.new(1, -72, 0, 32) or nil,
+		Position = isRoblox and UDim2.new(0, 68, 0, 36) or nil,
 		BackgroundTransparency = 1,
 		Text = "",
 		ZIndex = 5,
-	}, bottomLeft)
+	}, playerBadge)
 	if rebirthBtn.Activated then
 		rebirthBtn.Activated:Connect(function()
 			self:togglePrestigeModal()
 		end)
 	end
 
+	local bottomLeft = createGuiElement("Frame", {
+		Name = "BottomLeftCluster",
+		Size = isRoblox and UDim2.new(0, 210, 0, 48) or nil,
+		Position = isRoblox and UDim2.new(1, -416, 1, -60) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(20, 26, 44) or nil,
+		BackgroundTransparency = 0.06,
+	}, root)
+	self.bottomLeftCluster = bottomLeft
+	addCornerAndStroke(bottomLeft, 10, isRoblox and Color3.fromRGB(14, 18, 30) or nil, 3.0)
+
 	self.cashIcon = createGuiElement("ImageLabel", {
 		Name = "CashIcon",
-		Size = isRoblox and UDim2.new(0, 42, 0, 42) or nil,
-		Position = isRoblox and UDim2.new(0, 0, 0, 26) or nil,
+		Size = isRoblox and UDim2.new(0, 36, 0, 36) or nil,
+		Position = isRoblox and UDim2.new(0, 6, 0.5, -18) or nil,
 		BackgroundTransparency = 1,
-		Image = "rbxassetid://87511254654486", -- Green Cash 1st Outline 256px (Store Decal: 139287659909902, Image: 87511254654486)
+		Image = "rbxassetid://87511254654486",
 	}, bottomLeft)
 
 	self.cashLabel = createGuiElement("TextLabel", {
 		Name = "CashLabel",
-		Size = isRoblox and UDim2.new(1, -48, 0, 40) or nil,
-		Position = isRoblox and UDim2.new(0, 48, 0, 26) or nil,
+		Size = isRoblox and UDim2.new(1, -90, 0, 26) or nil,
+		Position = isRoblox and UDim2.new(0, 44, 0, 3) or nil,
 		BackgroundTransparency = 1,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
-		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-		TextColor3 = isRoblox and Color3.fromRGB(115, 255, 45) or nil,
+		TextXAlignment = isRoblox and Enum.TextXAlignment.Right or nil,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
 		Text = "$0",
 	}, bottomLeft)
-	addTextStroke(self.cashLabel, 3.4)
+	addTextStroke(self.cashLabel, 2.4)
 
 	self.cashRateLabel = createGuiElement("TextLabel", {
 		Name = "CashRateLabel",
-		Size = isRoblox and UDim2.new(1, -48, 0, 22) or nil,
-		Position = isRoblox and UDim2.new(0, 48, 0, 68) or nil,
+		Size = isRoblox and UDim2.new(1, -90, 0, 16) or nil,
+		Position = isRoblox and UDim2.new(0, 44, 0, 28) or nil,
 		BackgroundTransparency = 1,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
-		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-		TextColor3 = isRoblox and Color3.fromRGB(165, 255, 135) or nil,
+		TextXAlignment = isRoblox and Enum.TextXAlignment.Right or nil,
+		TextColor3 = isRoblox and Color3.fromRGB(120, 255, 110) or nil,
 		Text = "+$0/s",
 	}, bottomLeft)
-	addTextStroke(self.cashRateLabel, 2.0)
+	addTextStroke(self.cashRateLabel, 1.8)
+
+	local cashPlusBtn = createGuiElement("TextButton", {
+		Name = "CashPlusBtn",
+		Size = isRoblox and UDim2.new(0, 34, 0, 34) or nil,
+		Position = isRoblox and UDim2.new(1, -40, 0.5, -17) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(88, 224, 48) or nil,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "+",
+	}, bottomLeft)
+	addCornerAndStroke(cashPlusBtn, 8, isRoblox and Color3.fromRGB(16, 42, 12) or nil, 2.4)
+	addTextStroke(cashPlusBtn, 2.2)
+	if cashPlusBtn.Activated then
+		cashPlusBtn.Activated:Connect(function()
+			self:_playClick()
+			self:toggleShopModal(true)
+			self:selectShopTab(2)
+		end)
+	end
 
 	local diamondsPill = createGuiElement("Frame", {
 		Name = "DiamondsPillFrame",
-		Size = isRoblox and UDim2.new(0, 160, 0, 36) or nil,
-		Position = isRoblox and UDim2.new(0, 16, 0, 104) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(20, 30, 48) or nil,
-		BackgroundTransparency = isRoblox and 0.25 or nil,
+		Size = isRoblox and UDim2.new(0, 182, 0, 48) or nil,
+		Position = isRoblox and UDim2.new(1, -198, 1, -60) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(20, 26, 44) or nil,
+		BackgroundTransparency = isRoblox and 0.06 or nil,
 		BorderSizePixel = 0,
 	}, root)
 	self.diamondsPillFrame = diamondsPill
-	addCornerAndStroke(diamondsPill, 10, Color3.fromRGB(80, 200, 255), 1.8)
+	addCornerAndStroke(diamondsPill, 10, isRoblox and Color3.fromRGB(14, 18, 30) or nil, 3.0)
 
 	self.diamondIcon = createGuiElement("ImageLabel", {
 		Name = "DiamondIcon",
-		Size = isRoblox and UDim2.new(0, 26, 0, 26) or nil,
-		Position = isRoblox and UDim2.new(0, 6, 0.5, -13) or nil,
+		Size = isRoblox and UDim2.new(0, 32, 0, 32) or nil,
+		Position = isRoblox and UDim2.new(0, 6, 0.5, -16) or nil,
 		BackgroundTransparency = 1,
 		Image = "rbxassetid://123463156806216",
 	}, diamondsPill)
 
 	self.goldenEggsLabel = createGuiElement("TextLabel", {
 		Name = "GoldenEggsLabel",
-		Size = isRoblox and UDim2.new(1, -38, 1, 0) or nil,
-		Position = isRoblox and UDim2.new(0, 36, 0, 0) or nil,
+		Size = isRoblox and UDim2.new(1, -84, 1, -8) or nil,
+		Position = isRoblox and UDim2.new(0, 40, 0, 4) or nil,
 		BackgroundTransparency = 1,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
-		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-		TextColor3 = isRoblox and Color3.fromRGB(200, 240, 255) or nil,
+		TextXAlignment = isRoblox and Enum.TextXAlignment.Right or nil,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
 		Text = "Diamenty: -",
 	}, diamondsPill)
-	addTextStroke(self.goldenEggsLabel, 2)
+	addTextStroke(self.goldenEggsLabel, 2.2)
 
-	-- 4. Left-Side Green Studded Quick-Action Buttons (hidden by default per docs/ui/ui_design_specification.md to preserve clean view and mobile touch thumbstick zone)
+	local gePlusBtn = createGuiElement("TextButton", {
+		Name = "DiamondsPlusBtn",
+		Size = isRoblox and UDim2.new(0, 34, 0, 34) or nil,
+		Position = isRoblox and UDim2.new(1, -40, 0.5, -17) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(64, 185, 255) or nil,
+		Font = isRoblox and Enum.Font.FredokaOne or nil,
+		TextScaled = true,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+		Text = "+",
+	}, diamondsPill)
+	addCornerAndStroke(gePlusBtn, 8, isRoblox and Color3.fromRGB(14, 38, 64) or nil, 2.4)
+	addTextStroke(gePlusBtn, 2.2)
+	if gePlusBtn.Activated then
+		gePlusBtn.Activated:Connect(function()
+			self:_playClick()
+			self:toggleShopModal(true)
+			self:selectShopTab(1)
+		end)
+	end
+
 	local leftQuickCluster = createGuiElement("Frame", {
 		Name = "LeftQuickButtons",
 		Size = isRoblox and UDim2.new(0, 155, 0, 175) or nil,
@@ -1163,55 +1256,46 @@ function HUD:_buildInterface()
 		end
 	end
 
-	-- 5. Bottom-Center Hatchery Indicator (#101: compact chicken stock + refill strip, no manual HatchButton)
 	local hatcheryFrame = createGuiElement("Frame", {
 		Name = "HatcheryFrame",
-		Size = isRoblox and UDim2.new(0, 220, 0, 50) or nil,
-		Position = isRoblox and UDim2.new(0.5, -110, 1, -60) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(235, 152, 48) or nil,
+		Size = isRoblox and UDim2.new(0, 210, 0, 52) or nil,
+		Position = isRoblox and UDim2.new(0.5, -105, 1, -62) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(245, 178, 36) or nil,
 	}, root)
-	addCornerAndStroke(hatcheryFrame, 14, isRoblox and Color3.fromRGB(58, 30, 12) or nil, 3.0)
+	addCornerAndStroke(hatcheryFrame, 12, isRoblox and Color3.fromRGB(18, 22, 36) or nil, 3.2)
 	self.hatcheryFrame = hatcheryFrame
 	self.hatchButton = nil
 
 	self.hatcheryStockLabel = createGuiElement("TextLabel", {
 		Name = "StockLabel",
-		Size = isRoblox and UDim2.new(0.62, 0, 0, 36) or nil,
-		Position = isRoblox and UDim2.new(0.04, 0, 0.5, -18) or nil,
-		BackgroundColor3 = isRoblox and Color3.fromRGB(255, 245, 225) or nil,
+		Size = isRoblox and UDim2.new(0.62, 0, 0, 38) or nil,
+		Position = isRoblox and UDim2.new(0.04, 0, 0.5, -19) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(22, 28, 48) or nil,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
 		Text = "0 / 0",
 	}, hatcheryFrame)
-	addCornerAndStroke(self.hatcheryStockLabel, 10, isRoblox and Color3.fromRGB(72, 38, 14) or nil, 2.2)
+	addCornerAndStroke(self.hatcheryStockLabel, 8, isRoblox and Color3.fromRGB(12, 16, 28) or nil, 2.2)
 	addTextStroke(self.hatcheryStockLabel, 2.2)
 
 	self.hatcheryRefillLabel = createGuiElement("TextLabel", {
 		Name = "RefillLabel",
-		Size = isRoblox and UDim2.new(0.30, 0, 0, 36) or nil,
-		Position = isRoblox and UDim2.new(0.68, 0, 0.5, -18) or nil,
+		Size = isRoblox and UDim2.new(0.30, 0, 0, 38) or nil,
+		Position = isRoblox and UDim2.new(0.68, 0, 0.5, -19) or nil,
 		BackgroundTransparency = 1,
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
-		TextColor3 = isRoblox and Color3.fromRGB(135, 255, 115) or nil,
+		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
 		Text = "+0/s",
 	}, hatcheryFrame)
-	addTextStroke(self.hatcheryRefillLabel, 2.2)
+	addTextStroke(self.hatcheryRefillLabel, 2.4)
 
-	-- 6. Compact persistent hatch status (#77) beside the hatchery/stock HUD.
-	-- Visible only while the authoritative farm view says hatching is blocked: no built coop has
-	-- vacancy after population + reservedInTransit, or the hatchery stock is below one whole egg.
-	-- It is visible on every path (standing on the plate or the manual hatch button), is recomputed
-	-- only when the view changes, sends no intent, adds no remote and plays no sound or toast.
 	local hatchStatusFrame = createGuiElement("Frame", {
 		Name = "HatchStatusFrame",
 		Visible = false,
-		-- Compact mobile strip: 52px tall, bottom edge 2px above the hatchery HUD top (-60). The
-		-- width is resolved from the live root size so it never clips a narrow viewport and never
-		-- overlaps the 84px right dock; a wide view keeps it centred with a 400px cap.
 		Size = isRoblox and UDim2.new(0, 400, 0, 52) or nil,
-		Position = isRoblox and UDim2.new(0.5, 0, 1, -64) or nil,
+		Position = isRoblox and UDim2.new(0.5, 0, 1, -120) or nil,
 		AnchorPoint = isRoblox and Vector2.new(0.5, 1) or nil,
 		BackgroundColor3 = isRoblox and Color3.fromRGB(122, 32, 32) or nil,
 		BackgroundTransparency = 0.08,
@@ -1234,7 +1318,6 @@ function HUD:_buildInterface()
 	}, hatchStatusFrame)
 	addTextStroke(self.hatchStatusLabel, 2.2)
 	if isRoblox then
-		-- TextScaled with a cap keeps short messages readable without shrinking them to nothing.
 		local textCap = Instance.new("UITextSizeConstraint")
 		textCap.Name = "ReadableTextCap"
 		textCap.MaxTextSize = 20
@@ -1261,52 +1344,55 @@ function HUD:_buildInterface()
 	end
 	self:_bindHatchStatusResponsive(root)
 
-	-- 7. Right-Side Framed Icon Buttons Dock (Touch-Friendly Square Icon Buttons)
-	-- Tactile square icon buttons from UiAssets pack with accessible MenuTitle attribute
 	local dockButtonsSpec = {
-		{ name = "ResearchMenuButton", title = "Badania", iconKey = "window.research", bg = Color3.fromRGB(32, 68, 140), action = function() self:toggleResearchModal() end },
-		{ name = "EpicResearchMenuButton", title = "Epickie", iconKey = "tab.ge", bg = Color3.fromRGB(115, 35, 155), action = function() self:toggleEpicResearchModal() end },
-		{ name = "HabitatsMenuButton", title = "Kurniki", iconKey = "window.habitats", bg = Color3.fromRGB(160, 80, 40), action = function() self:toggleHabitatsModal() end },
-		{ name = "VehiclesMenuButton", title = "Flota", iconKey = "window.fleet", bg = Color3.fromRGB(45, 175, 75), action = function() self:toggleVehiclesModal() end },
+		{ name = "ResearchMenuButton", title = "Badania", iconKey = "window.research", bg = Color3.fromRGB(48, 152, 248), action = function() self:toggleResearchModal() end },
+		{ name = "HabitatsMenuButton", title = "Kurniki", iconKey = "window.habitats", bg = Color3.fromRGB(82, 212, 64), action = function() self:toggleHabitatsModal() end },
+		{ name = "ShopMenuButton", title = "Sklep", iconKey = "window.shop", bg = Color3.fromRGB(232, 64, 58), action = function() self:toggleShopModal() end },
+		{ name = "VehiclesMenuButton", title = "Flota", iconKey = "window.fleet", bg = Color3.fromRGB(248, 178, 36), action = function() self:toggleVehiclesModal() end },
+		{ name = "EpicResearchMenuButton", title = "Epickie", iconKey = "tab.ge", bg = Color3.fromRGB(168, 72, 248), action = function() self:toggleEpicResearchModal() end },
+		{ name = "PrestigeMenuButton", title = "Prestiż", iconKey = "control.upgrade", emoji = "🟣", bg = Color3.fromRGB(238, 68, 162), action = function() self:togglePrestigeModal() end },
+		{ name = "CalendarMenuButton", title = "Nagrody", iconKey = "window.calendar", bg = Color3.fromRGB(98, 224, 56), sideLeft = true, action = function() self:toggleCalendarModal() end },
 		{ name = "PetsMenuButton", title = "Pety", iconKey = "window.pets", bg = Color3.fromRGB(150, 60, 190), hidden = true, action = function() self:togglePetsModal() end },
-		{ name = "ShopMenuButton", title = "Sklep", iconKey = "window.shop", bg = Color3.fromRGB(225, 155, 30), action = function() self:toggleShopModal() end },
-		{ name = "CalendarMenuButton", title = "Nagrody", iconKey = "window.calendar", bg = Color3.fromRGB(225, 75, 95), action = function() self:toggleCalendarModal() end },
-		{ name = "PrestigeMenuButton", title = "Prestiż", iconKey = "control.upgrade", emoji = "🟣", bg = Color3.fromRGB(110, 40, 170), action = function() self:togglePrestigeModal() end },
 	}
 
-	local visibleButtonsCount = 0
-	for _, d in ipairs(dockButtonsSpec) do
-		if not (d.hidden == true) then
-			visibleButtonsCount += 1
-		end
-	end
-	local dockHeight = visibleButtonsCount * 64
+	local dockHeight = 6 * 64 + 12
 	local rightDock = createGuiElement("Frame", {
 		Name = "RightDock",
-		Size = isRoblox and UDim2.new(0, 70, 0, dockHeight) or nil,
-		Position = isRoblox and UDim2.new(1, -82, 0.5, -math.floor(dockHeight / 2)) or nil,
-		BackgroundTransparency = 1,
+		Size = isRoblox and UDim2.new(0, 76, 0, dockHeight) or nil,
+		Position = isRoblox and UDim2.new(1, -88, 0.5, -math.floor(dockHeight / 2) - 16) or nil,
+		BackgroundColor3 = isRoblox and Color3.fromRGB(18, 24, 42) or nil,
+		BackgroundTransparency = 0.08,
 	}, root)
+	self.rightDock = rightDock
+	addCornerAndStroke(rightDock, 14, isRoblox and Color3.fromRGB(10, 14, 24) or nil, 3.2)
 
-	local visibleIndex = 0
-	for i, dSpec in ipairs(dockButtonsSpec) do
+	local rightIdx = 0
+	for _, dSpec in ipairs(dockButtonsSpec) do
 		local isVisible = not (dSpec.hidden == true)
-		local yPos = 0
-		if isVisible then
-			visibleIndex += 1
-			yPos = (visibleIndex - 1) * 64 + 4
+		local btnSize = UDim2.new(0, 62, 0, 58)
+		local btnPos = UDim2.new(0, 0, 0, 0)
+		local btnParent = rightDock
+
+		if dSpec.sideLeft then
+			btnSize = UDim2.new(0, 68, 0, 68)
+			btnPos = UDim2.new(0, 16, 0, 96)
+			btnParent = root
+		elseif isVisible then
+			rightIdx += 1
+			local yOffset = 8 + (rightIdx - 1) * 63
+			btnPos = UDim2.new(0, 7, 0, yOffset)
 		end
 
 		local btn = createGuiElement("TextButton", {
 			Name = dSpec.name,
 			Visible = isVisible,
-			Size = isRoblox and UDim2.new(0, 58, 0, 58) or nil,
-			Position = isRoblox and UDim2.new(0, 6, 0, yPos) or nil,
+			Size = isRoblox and btnSize or nil,
+			Position = isRoblox and btnPos or nil,
 			BackgroundColor3 = isRoblox and dSpec.bg or nil,
 			AutoButtonColor = true,
 			Text = "",
-		}, rightDock)
-		addCornerAndStroke(btn, 12, isRoblox and Color3.fromRGB(18, 12, 10) or nil, 3.0)
+		}, btnParent)
+		addCornerAndStroke(btn, 12, isRoblox and Color3.fromRGB(14, 18, 30) or nil, 3.0)
 		if btn.SetAttribute then
 			btn:SetAttribute("MenuTitle", dSpec.title)
 		end
@@ -1314,12 +1400,39 @@ function HUD:_buildInterface()
 		local iconId = (self.ui and self.ui:assetId(dSpec.iconKey)) or (UiAssets and UiAssets.images[dSpec.iconKey] and UiAssets.images[dSpec.iconKey].id) or ""
 		createGuiElement("ImageLabel", {
 			Name = "ButtonIcon",
-			Size = isRoblox and UDim2.new(0, 40, 0, 40) or nil,
-			Position = isRoblox and UDim2.new(0.5, -20, 0.5, -20) or nil,
+			Size = isRoblox and UDim2.new(0, 36, 0, 36) or nil,
+			Position = isRoblox and UDim2.new(0.5, -18, 0, 3) or nil,
 			BackgroundTransparency = 1,
 			Image = iconId,
 			ScaleType = isRoblox and Enum.ScaleType.Fit or nil,
 		}, btn)
+
+		local caption = createGuiElement("TextLabel", {
+			Name = "MenuCaption",
+			Size = isRoblox and UDim2.new(1, -4, 0, 16) or nil,
+			Position = isRoblox and UDim2.new(0, 2, 1, -18) or nil,
+			BackgroundTransparency = 1,
+			Font = isRoblox and Enum.Font.FredokaOne or nil,
+			TextScaled = true,
+			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+			Text = dSpec.title,
+		}, btn)
+		addTextStroke(caption, 2.2)
+
+		if dSpec.sideLeft then
+			local notifDot = createGuiElement("TextLabel", {
+				Name = "AlertBadge",
+				Size = isRoblox and UDim2.new(0, 22, 0, 22) or nil,
+				Position = isRoblox and UDim2.new(1, -16, 0, -6) or nil,
+				BackgroundColor3 = isRoblox and Color3.fromRGB(235, 52, 52) or nil,
+				Font = isRoblox and Enum.Font.FredokaOne or nil,
+				TextScaled = true,
+				TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
+				Text = "!",
+			}, btn)
+			addCornerAndStroke(notifDot, 11, isRoblox and Color3.fromRGB(255, 255, 255) or nil, 2.0)
+			self.calendarAlertBadge = notifDot
+		end
 
 		if btn.Activated then
 			btn.Activated:Connect(function()
@@ -1331,8 +1444,8 @@ function HUD:_buildInterface()
 		if dSpec.emoji then
 			createGuiElement("TextLabel", {
 				Name = "ButtonBadge",
-				Size = isRoblox and UDim2.new(0, 22, 0, 22) or nil,
-				Position = isRoblox and UDim2.new(1, -24, 1, -24) or nil,
+				Size = isRoblox and UDim2.new(0, 20, 0, 20) or nil,
+				Position = isRoblox and UDim2.new(1, -18, 0, -4) or nil,
 				BackgroundTransparency = 1,
 				TextScaled = true,
 				Text = dSpec.emoji,
@@ -1349,68 +1462,55 @@ function HUD:_buildInterface()
 		end
 	end
 
-	self.totalChickensLabel = createGuiElement("TextLabel", {
-		Name = "TotalChickensLabel",
-		Size = isRoblox and UDim2.new(0, 320, 0, 32) or nil,
-		Position = isRoblox and UDim2.new(1, -336, 1, -42) or nil,
-		BackgroundTransparency = 1,
-		Font = isRoblox and Enum.Font.FredokaOne or nil,
-		TextScaled = true,
-		TextXAlignment = isRoblox and Enum.TextXAlignment.Right or nil,
-		TextColor3 = isRoblox and Color3.fromRGB(255, 225, 65) or nil,
-		Text = "Całkowita liczba kurczaków: 0",
-	}, root)
-	addTextStroke(self.totalChickensLabel, 2.6)
-
-	-- 7. Habitats Modal Drawer (Coops 1..4, supporting all 19 habitats)
 	self:_buildHabitatsModal(root)
 
-	-- 8. Vehicles Modal Drawer (Fleet slots 1..17 + live comparison bar)
 	self:_buildVehiclesModal(root)
 
-	-- 9. Research Modal Drawer (Multi-tier T1..T13 common + Epic research tab)
 	self:_buildResearchModal(root)
 	self:_buildEpicResearchModal(root)
 
-	-- 10. Pets Modal Drawer (Equipped slots 3/5, inventory, fusion)
 	self:_buildPetsModal(root)
 
-	-- 11. Shop Modal Drawer (GE packs, Boosts, GamePasses)
 	self:_buildShopModal(root)
 
-	-- 12. Calendar & Trophies Modal Drawer (28-day calendar + 19 eggs cups)
 	self:_buildCalendarModal(root)
     self.actionStatusLabel=createGuiElement("TextLabel",{Name="ActionStatus",Text="",BackgroundTransparency=1,
         Size=if isRoblox then UDim2.new(0.8,0,0,32) else nil,Position=if isRoblox then UDim2.new(0.1,0,0,8) else nil,
         TextColor3=if isRoblox then Color3.new(1,1,1) else nil,TextScaled=true},root)
 
-	-- 13. Egg Upgrade Modal (PROD-02)
 	self:_buildEggUpgradeModal(root)
 
-	-- 14. Pet Incubator & Hatch Modal (PROD-07)
 	self:_buildPetHatchModal(root)
 	self:_buildHatchAnimationOverlay(root)
 
-	-- 15. Prestige & Rebirth Modal
 	self:_buildPrestigeModal(root)
+
+	for _, m in ipairs({
+		self.habitatsModal, self.vehiclesModal, self.shopFrame, self.petsModal,
+		self.petHatchModal, self.shopModal, self.calendarModal, self.eggUpgradeModal,
+		self.epicResearchModal, self.prestigeModal
+	}) do
+		if isRoblox and typeof(m) == 'Instance' and m.GetPropertyChangedSignal then
+			local conn = m:GetPropertyChangedSignal('Visible'):Connect(function()
+				self:_updateTutorialCardVisibility()
+			end)
+			table.insert(self._unsubs, function() conn:Disconnect() end)
+		end
+	end
 end
 
--- Legacy contract kept for the existing UI suites: the desktop budget for a window is ~70% of the
--- viewport (94% on a phone). The shared family now resolves the actual on-screen size through
--- StudUi.windowFit, which never globally shrinks the text and instead reflows the content.
+-- Legacy window budget contract for UI suites.
 function HUD.modalLayout(width,height,designWidth)
 	return StudUi.modalSize(width,height,designWidth)
 end
 
--- Applies the shared window fit and an optional reflow hook. One AbsoluteSize connection per
--- window, disconnected when the frame is destroyed; no per-frame work, no decoration rebuild.
+-- Applies the shared window fit and an optional reflow hook.
 function HUD:_fitWindow(frame, designWidth, designHeight, onLayout)
 	if frame == nil or self.ui == nil then return end
 	self.ui:applyWindowResponsive(frame, self.guiRoot, designWidth, designHeight, onLayout)
 end
--- Pure responsive geometry for the hatch status strip (#77), kept separate from the live layout so it
--- can be checked without a viewport. Narrow (mobile) roots anchor the strip left and reserve the 84px
--- right dock so its right edge stays <= width-96; wide roots centre it with a 400px cap.
+
+-- Responsive geometry for the hatch status strip (#77).
 function HUD.hatchStatusGeometry(rootWidth)
 	local width = tonumber(rootWidth) or 0
 	if width <= 0 then width = 1280 end
@@ -1420,8 +1520,7 @@ function HUD.hatchStatusGeometry(rootWidth)
 	return { centered = true, left = nil, width = math.min(400, math.max(0, width - 32)) }
 end
 
--- Applies the responsive geometry from the live root size. Reuses the existing modal pattern: one
--- AbsoluteSize signal, disconnected when the frame is destroyed, and no per-frame polling.
+-- Binds responsive hatch status geometry to root size.
 function HUD:_bindHatchStatusResponsive(root)
 	local frame = self.hatchStatusFrame
 	if not isRoblox or root == nil or frame == nil then return end
@@ -1442,12 +1541,7 @@ function HUD:_bindHatchStatusResponsive(root)
 	resize()
 end
 
--- Pure responsive geometry for the top header and the rates panel, kept separate from the live
--- layout so it can be checked without a viewport. The header is centred up to 480px and always keeps
--- a 92px right gutter, so neither the 48px sound toggle (width-64, y 10..58) nor the right dock
--- (width-92, top edge height/2-220) can ever be covered; its bottom stays at root y 98..102, above
--- the GoldenEgg counter at y 104. Three equal cells; the headings wrap and the explanatory caption
--- appears only when a cell is wide enough to keep the note on one line.
+-- Responsive geometry for top header and rates panel (#77).
 function HUD.ratesPanelGeometry(rootWidth)
 	local width = tonumber(rootWidth) or 0
 	if width <= 0 then width = 1280 end
@@ -1479,8 +1573,7 @@ function HUD.ratesPanelGeometry(rootWidth)
 	}
 end
 
--- Applies the responsive header geometry from the live root size. Reuses the existing modal pattern:
--- one AbsoluteSize signal, disconnected when the header is destroyed, and no per-frame polling.
+-- Binds responsive header geometry to root size.
 function HUD:_bindTopHeaderResponsive(root)
 	local header = self.topBar
 	if not isRoblox or root == nil or header == nil then return end
@@ -1512,14 +1605,34 @@ function HUD:_bindTopHeaderResponsive(root)
 			self.ratesCaptionLabel.Size = UDim2.new(0, layout.captionWidth, 0, 12)
 			if self.ratesCaptionCap ~= nil then self.ratesCaptionCap.MaxTextSize = layout.captionMax end
 		end
+		if self.tutorialCardFrame then
+			local rootW = size and size.X or 600
+			local cardW = math.clamp(rootW - 190, 280, 560)
+			self.tutorialCardFrame.Size = UDim2.new(0, cardW, 0, 110)
+		end
+		self:_layoutBottomRightCluster(size and size.X or 0)
 	end
 	local connection = root:GetPropertyChangedSignal("AbsoluteSize"):Connect(resize)
 	header.Destroying:Connect(function() connection:Disconnect() end)
 	resize()
 end
 
+function HUD:_layoutBottomRightCluster(width)
+	if not isRoblox then return end
+	local w = tonumber(width) or 0
+	local showDiamonds = self.diamondsPillFrame and self.diamondsPillFrame.Visible
+	if self.bottomLeftCluster then
+		if showDiamonds and w > 0 and w < 920 then
+			self.bottomLeftCluster.Position = UDim2.new(1, -214, 1, -112)
+			if self.diamondsPillFrame then self.diamondsPillFrame.Position = UDim2.new(1, -198, 1, -60) end
+		else
+			self.bottomLeftCluster.Position = if showDiamonds then UDim2.new(1, -416, 1, -60) else UDim2.new(1, -224, 1, -60)
+			if self.diamondsPillFrame then self.diamondsPillFrame.Position = UDim2.new(1, -198, 1, -60) end
+		end
+	end
+end
+
 function HUD:_buildHabitatsModal(root)
-	-- Shared stud-style window (#82): thick border, coloured header, 44px close button.
 	local win = self.ui:window({
 		parent = root, name = "HabitatsFrame", family = "habitats",
 		title = "TWOJE KURNIKI (PARCELE 1-4)",
@@ -1528,21 +1641,18 @@ function HUD:_buildHabitatsModal(root)
 	local habitatsFrame = win.frame
 	self.habitatsModal = habitatsFrame
 	self:_fitWindow(habitatsFrame, win.designWidth, win.designHeight)
-	self.ui:closeButton(habitatsFrame, function()
-		habitatsFrame.Visible = false
-	end)
+	self.ui:closeButton(habitatsFrame, function() self:closeAllModals() end)
 
-	-- Long list scrolls instead of shrinking the text; the canvas is the exact content height.
 	local habitatsScroll = self.ui:scroll(habitatsFrame, {
 		name = "HabitatSlotsContainer",
 		size = { 1, -24, 1, -84 }, position = { 0, 12, 0, 72 },
-		canvasHeight = 4 * 80 + 4, scrollBarColor = { 255, 205, 95 },
+		canvasHeight = 4 * 80 + 4, scrollBarColor = { 75, 225, 115 },
 	})
 
 	for slotId = 1, 4 do
 		local card = self.ui:card(habitatsScroll, {
 			name = "HabitatCard_" .. tostring(slotId), family = "habitats",
-			fill = { 112, 64, 36 }, top = { 150, 90, 50 }, border = { 42, 22, 12 },
+			fill = { 28, 38, 64 }, top = { 44, 62, 102 }, border = { 75, 225, 115 },
 			size = { 1, -6, 0, 72 }, position = { 0, 0, 0, (slotId - 1) * 80 },
 		})
 
@@ -1564,7 +1674,6 @@ function HUD:_buildHabitatsModal(root)
 			textStroke = 1.5, maxTextSize = 16,
 		})
 
-		-- Tactile action button: >= 44px touch target with pressed/disabled states.
 		local upgBtn = self.ui:button(card, {
 			name = "UpgradeHabitatBtn", text = "ULEPSZ", tone = "primary",
 			size = { 0.26, 0, 0, 44 }, position = { 0.71, 0, 0, 14 },
@@ -1582,7 +1691,6 @@ function HUD:_buildHabitatsModal(root)
 end
 
 function HUD:_buildVehiclesModal(root)
-	-- Shared stud-style window (#82): same family, header and close button as every other window.
 	local win = self.ui:window({
 		parent = root, name = "VehiclesFrame", family = "fleet",
 		title = "FLOTA TRANSPORTOWA (DO 17 POJAZDÓW)",
@@ -1591,14 +1699,11 @@ function HUD:_buildVehiclesModal(root)
 	local vFrame = win.frame
 	self.vehiclesModal = vFrame
 	self:_fitWindow(vFrame, win.designWidth, win.designHeight)
-	self.ui:closeButton(vFrame, function()
-		vFrame.Visible = false
-	end)
+	self.ui:closeButton(vFrame, function() self:closeAllModals() end)
 
-	-- Comparison gauge
 	local gaugeFrame = self.ui:card(vFrame, {
 		name = "ComparisonGaugeFrame", family = "fleet",
-		fill = { 32, 44, 26 }, top = { 54, 74, 44 }, border = { 20, 28, 16 },
+		fill = { 26, 36, 62 }, top = { 42, 58, 96 }, border = { 255, 195, 55 },
 		size = { 1, -28, 0, 58 }, position = { 0, 14, 0, 70 },
 	})
 	self.shippingComparisonBar = gaugeFrame
@@ -1609,27 +1714,24 @@ function HUD:_buildVehiclesModal(root)
 		align = "Left", textStroke = 1.8, maxTextSize = 20,
 	})
 
-	-- Status pill: keeps the TextLabel contract the comparison getter reads.
 	local statusBadge = self.ui:pill(gaugeFrame, {
 		name = "StatusBadge", size = { 1, -12, 0, 22 }, position = { 0, 6, 0, 30 },
 		text = "Spedycja wystarczająca", tone = "primary", align = "Left",
 		maxTextSize = 18, radius = 6,
 	})
 
-	-- Fleet Slots Container (displays slots 1..17). The list scrolls; the canvas is grown by the
-	-- update pass from the authoritative slot limit instead of a fixed 4-row canvas.
 	local slotsScroll = self.ui:scroll(vFrame, {
 		name = "FleetSlotsContainer",
 		size = { 1, -28, 1, -146 }, position = { 0, 14, 0, 134 },
-		canvasHeight = 4 * 56, scrollBarColor = { 115, 245, 125 },
+		canvasHeight = 4 * 56, scrollBarColor = { 255, 195, 55 },
 	})
 	self.fleetSlotsScroll=slotsScroll
 
 	for slotId = 1, 17 do
 		local card = self.ui:card(slotsScroll, {
 			name = "VehicleSlotCard_" .. tostring(slotId), family = "fleet",
-			fill = { 65, 85, 52 }, top = { 96, 122, 76 }, border = { 28, 38, 22 },
-			visible = (slotId <= 4), -- default first 4 visible, updated dynamically
+			fill = { 28, 38, 64 }, top = { 44, 62, 102 }, border = { 255, 195, 55 },
+			visible = (slotId <= 4),
 			size = { 1, 0, 0, 48 }, position = { 0, 0, 0, (slotId - 1) * 52 },
 		})
 
@@ -1672,8 +1774,7 @@ function HUD:_buildVehiclesModal(root)
 end
 
 function HUD:_buildResearchModal(root)
-	-- Shared stud-style window (#82). The title/subtitle keep their existing wording and the
-	-- "obecnie → kolejny poziom" hint; only the decorative emoji becomes a genuine image slot.
+	-- Shared stud-style research window (#82).
 	local win = self.ui:window({
 		parent = root, name = "ShopFrame", family = "research",
 		title = "BADANIA I TECHNOLOGIA",
@@ -1686,48 +1787,42 @@ function HUD:_buildResearchModal(root)
 	self:_fitWindow(shopFrame, win.designWidth, win.designHeight, function(fit)
 		self:_reflowResearchList(fit.width)
 	end)
-	self.ui:closeButton(shopFrame, function()
-		shopFrame.Visible = false
-	end)
+	self.ui:closeButton(shopFrame, function() self:closeAllModals() end)
 
-	-- Tier Selector Bar: T1..T13 in a comfortable horizontal ScrollingFrame.
-	-- Exactly the 14 tab buttons live here (the existing suite counts this row's children).
 	local tabsRow = self.ui:scroll(shopFrame, {
 		name = "TierTabsRow",
-		size = { 1, -24, 0, 44 }, position = { 0, 12, 0, 70 },
-		canvasHeight = 0, scrollBarThickness = 3, scrollBarColor = { 245, 158, 11 },
+		size = { 1, -24, 0, 44 }, position = { 0, 12, 0, 52 },
+		canvasHeight = 0, scrollBarThickness = 0, scrollBarColor = { 245, 158, 11 },
 	})
-	if isRoblox then tabsRow.CanvasSize = UDim2.new(0, 520, 0, 0) end
+	if isRoblox then tabsRow.CanvasSize = UDim2.new(0, 0, 0, 0) end
 
 	local tabNames = { "🧬 Genetyka", "🐣 Wylęg", "🏡 Kurniki", "🚚 Flota" }
 	local tabOffset = 0
 	for idx, tabName in ipairs(tabNames) do
-		local tabWidth = 120
+		local tabWidth = 123
 		local tabBtn = self.ui:tabButton(tabsRow, {
 			name = "TierTab_" .. tabName, text = tabName,
 			size = { 0, tabWidth }, position = { 0, tabOffset, 0, 0 },
-			height = 44, active = (idx == 1),
+			height = 42, active = (idx == 1),
+			textStroke = 2.4, maxTextSize = 18,
 			onClick = function()
 				self:selectResearchTier(idx)
 			end,
 		})
 		self.researchTabButtons[idx] = tabBtn
-		tabOffset += tabWidth + 8
+		tabOffset += tabWidth + 6
 	end
 
-	-- Lock Banner (themed pill; the update pass keeps its text and visibility contract)
 	self.researchTierLockBanner = self.ui:pill(shopFrame, {
 		name = "TierLockBanner", visible = false,
-		size = { 1, -24, 0, 26 }, position = { 0, 12, 0, 120 },
+		size = { 1, -24, 0, 26 }, position = { 0, 12, 0, 102 },
 		text = "Tier zablokowany! Wymaga więcej zakupionych badań",
 		tone = "locked", align = "Center", maxTextSize = 18, radius = 6,
 	})
 
-	-- Research List container (ScrollingFrame). Positions are shared with the update pass so the
-	-- list moves under the banner instead of overlapping it.
 	local listContainer = self.ui:scroll(shopFrame, {
 		name = "ResearchListContainer",
-		size = { 1, -24, 1, 160 }, position = { 0, 12, 0, 152 },
+		size = { 1, -24, 1, -114 }, position = { 0, 12, 0, 102 },
 		canvasHeight = 500, scrollBarThickness = 6, scrollBarColor = { 245, 158, 11 },
 	})
 	self.shopListContainer = listContainer
@@ -1735,10 +1830,7 @@ function HUD:_buildResearchModal(root)
 	self:_reflowResearchList(win.designWidth)
 end
 
--- Reflows the research list for the resolved window width (#82): a roomy row keeps the
--- side-by-side layout, a phone stacks the price button under the text so neither the name nor the
--- price becomes unreadable. Only sizes/positions of existing instances change; nothing is created,
--- decorated or restyled per frame.
+-- Reflows research list for resolved window width (#82).
 function HUD:_reflowResearchList(windowWidth)
 	local width = tonumber(windowWidth) or 0
 	if width <= 0 then return end
@@ -1817,9 +1909,7 @@ function HUD:_buildEpicResearchModal(root)
 	local eFrame = win.frame
 	self.epicResearchModal = eFrame
 	self:_fitWindow(eFrame, win.designWidth, win.designHeight)
-	self.ui:closeButton(eFrame, function()
-		eFrame.Visible = false
-	end)
+	self.ui:closeButton(eFrame, function() self:closeAllModals() end)
 
 	if isRoblox and typeof(eFrame) == "Instance" then
 		addCornerAndStroke(eFrame, 16, Color3.fromRGB(215, 120, 255), 2.5)
@@ -1827,7 +1917,6 @@ function HUD:_buildEpicResearchModal(root)
 		if stroke then addPulseGlow(stroke, 0.1, 0.5) end
 	end
 
-	-- Golden Eggs Balance status pill
 	self.epicGePill = self.ui:pill(eFrame, {
 		name = "EpicGeBalancePill",
 		size = { 1, -28, 0, 36 },
@@ -1839,7 +1928,6 @@ function HUD:_buildEpicResearchModal(root)
 		radius = 8,
 	})
 
-	-- Scrolling container with cards for available and planned Epic research
 	local scroll = self.ui:scroll(eFrame, {
 		name = "EpicResearchListContainer",
 		size = { 1, -28, 1, -118 },
@@ -1854,9 +1942,9 @@ function HUD:_buildEpicResearchModal(root)
 		local card = self.ui:card(scroll, {
 			name = "EpicCard_" .. item.id,
 			family = "shop",
-			fill = { 44, 22, 54 },
-			top = { 74, 38, 90 },
-			border = { 90, 45, 110 },
+			fill = { 28, 36, 62 },
+			top = { 46, 58, 98 },
+			border = { 185, 110, 255 },
 			size = { 1, -6, 0, 84 },
 			position = { 0, 0, 0, (i - 1) * 92 },
 		})
@@ -1958,7 +2046,7 @@ function HUD:_buildEpicResearchModal(root)
 end
 
 function HUD:_buildPetsModal(root)
-	-- Shared stud-style window (#82): identical frame/header/close family as the other windows.
+	-- Shared stud-style window (#82)
 	local win = self.ui:window({
 		parent = root, name = "PetsFrame", family = "pets",
 		title = "MOJE PETY I EWOLUCJA FUZYJNA",
@@ -1967,11 +2055,8 @@ function HUD:_buildPetsModal(root)
 	local pFrame = win.frame
 	self.petsModal = pFrame
 	self:_fitWindow(pFrame, win.designWidth, win.designHeight)
-	self.ui:closeButton(pFrame, function()
-		pFrame.Visible = false
-	end)
+	self.ui:closeButton(pFrame, function() self:closeAllModals() end)
 
-	-- Equipped slots (3 base, 5 with Pro Permit)
 	local eqFrame = self.ui:card(pFrame, {
 		name = "EquippedSlotsFrame", family = "pets",
 		fill = { 45, 20, 42 }, top = { 72, 34, 68 }, border = { 25, 10, 24 },
@@ -1979,7 +2064,6 @@ function HUD:_buildPetsModal(root)
 	})
 
 	for slotId = 1, 5 do
-		-- The locked Pro slots keep the same wording without the decorative emoji glyph.
 		local slotBtn = self.ui:button(eqFrame, {
 			name = "EquippedSlot_" .. tostring(slotId),
 			text = if slotId <= 3 then "+ Slot #" .. tostring(slotId) else "Pro Permit",
@@ -1995,7 +2079,6 @@ function HUD:_buildPetsModal(root)
 		self.equippedPetSlots[slotId] = slotBtn
 	end
 
-	-- Inventory Section: a scrolling list so long inventories never shrink the text.
 	local invFrame = self.ui:scroll(pFrame, {
 		name = "InventoryFrame", family = "pets",
 		fill = { 48, 22, 45 },
@@ -2009,7 +2092,6 @@ function HUD:_buildPetsModal(root)
 		color = { 255, 235, 145 }, align = "Left", textStroke = 1.8, maxTextSize = 18,
 	})
 
-	-- Sample default inventory entries
 	for pIdx = 1, 4 do
 		local pCard = self.ui:card(invFrame, {
 			name = "PetCard_" .. tostring(pIdx), family = "pets",
@@ -2057,7 +2139,6 @@ function HUD:_buildPetsModal(root)
 		self.petInventoryCards[pIdx] = pCard
 	end
 
-	-- Fusion Section
 	local fusFrame = self.ui:card(pFrame, {
 		name = "FusionFrame", family = "pets",
 		fill = { 42, 18, 40 }, top = { 68, 32, 66 }, border = { 22, 10, 20 },
@@ -2098,151 +2179,157 @@ function HUD:_buildPetsModal(root)
 end
 
 function HUD:_buildShopModal(root)
-	-- Shared stud-style window (#82) with tabs for:
-	-- 1. Pakiety Diamentów (ShopCard_ge_pack_small / large, piggy_break)
-	-- 2. Wzmocnienia (BoostCard_*)
-	-- 3. Przepustki (PassCard_pro_permit / buy_max)
 	local win = self.ui:window({
 		parent = root, name = "ShopModalFrame", family = "shop",
 		title = "SKLEP DIAMENTÓW I PRZEPUSTEK",
-		designWidth = 920, designHeight = 640,
+		designWidth = 880, designHeight = 560,
 	})
 	local sFrame = win.frame
 	self.shopModal = sFrame
 	self:_fitWindow(sFrame, win.designWidth, win.designHeight)
-	self.ui:closeButton(sFrame, function()
-		sFrame.Visible = false
-	end)
+	self.ui:closeButton(sFrame, function() self:closeAllModals() end)
 
 	if isRoblox and typeof(sFrame) == "Instance" then
-		addCornerAndStroke(sFrame, 16, Color3.fromRGB(255, 215, 65), 2.5)
-		local stroke = sFrame:FindFirstChildOfClass("UIStroke")
-		if stroke then addPulseGlow(stroke, 0.1, 0.5) end
+		addCornerAndStroke(sFrame, 14, Color3.fromRGB(228, 68, 62), 3.8)
 	end
 
-	-- Top Hero Promo Banner: High-converting CTA to Tab 3 GamePasses
 	local heroBanner = self.ui:button(sFrame, {
 		name = "HeroPromoBanner",
-		tone = "boost",
-		size = { 1, -28, 0, 46 },
-		position = { 0, 14, 0, 64 },
-		text = "⭐ MEGA OFERTA: 2X DOCHÓD & PRZEPUSTKA PRO – ZWIĘKSZ ZYSKI JUŻ TERAZ! ⭐",
-		color = { 255, 240, 110 },
+		tone = "gold",
+		size = { 1, -172, 0, 38 },
+		position = { 0, 156, 0, 48 },
+		height = 38,
+		text = "⭐ MEGA OFERTA: 2X DOCHÓD & PRZEPUSTKA PRO – SPRAWDŹ PRZEPUSTKI! ⭐",
+		color = { 255, 255, 255 },
 		textStroke = 2.0,
-		maxTextSize = 18,
+		maxTextSize = 16,
 		onClick = function()
 			self:selectShopTab(3)
 		end,
 	})
 	if isRoblox and typeof(heroBanner) == "Instance" then
-		addCornerAndStroke(heroBanner, 10, Color3.fromRGB(255, 215, 65), 2.0)
-		local stroke = heroBanner:FindFirstChildOfClass("UIStroke")
-		if stroke then addPulseGlow(stroke, 0.05, 0.6) end
 		addShimmerEffect(heroBanner)
 		bindBouncyButton(heroBanner)
 	end
 
-	-- Tabs row: 1. Diamenty, 2. Wzmocnienia (Boosts), 3. Przepustki. 44px touch targets.
 	local tabsRow = self.ui:card(sFrame, {
 		name = "ShopTabsRow", family = "shop",
-		fill = { 56, 32, 48 }, border = { 32, 16, 28 },
-		size = { 1, -28, 0, 46 }, position = { 0, 14, 0, 116 },
+		fill = { 16, 20, 36 }, border = { 12, 14, 26 },
+		size = { 0, 128, 1, -68 }, position = { 0, 16, 0, 52 },
 	})
 
-	local sTabNames = { "Diamenty", "Wzmocnienia", "Przepustki" }
+	local sTabNames = { "Diamenty", "Boosty", "Przepustki" }
 	local sTabIcons = { "tab.ge", "tab.boosts", "tab.passes" }
 	for idx, sName in ipairs(sTabNames) do
 		local tabBtn = self.ui:tabButton(tabsRow, {
 			name = "ShopTab_" .. tostring(idx), text = sName,
-			size = { 0.32, 0, 0, 44 }, position = { (idx - 1) * 0.34, 0, 0, 1 },
-			height = 44, active = (idx == 1), iconKey = sTabIcons[idx],
+			size = { 1, -12, 0, 88 }, position = { 0, 6, 0, 8 + (idx - 1) * 96 },
+			height = 88, active = (idx == 1), iconKey = sTabIcons[idx],
 			onClick = function()
 				self:selectShopTab(idx)
 			end,
 		})
-		if isRoblox then
+		if isRoblox and typeof(tabBtn) == "Instance" then
+			local icon = tabBtn:FindFirstChild("TabIcon")
+			if icon then
+				icon.Size = UDim2.new(0, 44, 0, 44)
+				icon.Position = UDim2.new(0.5, -22, 0, 8)
+			end
+			tabBtn.TextYAlignment = Enum.TextYAlignment.Bottom
 			bindBouncyButton(tabBtn)
 		end
 		self.shopModalTabButtons[idx] = tabBtn
 	end
 
-	-- Content Container: a scroll area so long product lists never shrink their text.
 	local content = self.ui:scroll(sFrame, {
 		name = "ShopContentContainer",
-		size = { 1, -28, 1, -178 }, position = { 0, 14, 0, 168 },
-		canvasHeight = 4 * 132 + 20, scrollBarColor = { 255, 215, 65 },
+		size = { 1, -172, 1, -108 }, position = { 0, 156, 0, 94 },
+		canvasHeight = 440, scrollBarColor = { 228, 68, 62 },
 	})
 
-	-- Build static product cards for tab 1 (GE), tab 2 (Boosts), tab 3 (Passes)
 	self:_buildShopProducts(content)
 end
 
 function HUD:_buildShopProducts(container)
-	-- Tab 1: GE Packs
 	local tab1Frame = self.ui:card(container, {
 		name = "Tab1_GEPacks", family = "shop",
-		fill = { 56, 32, 48 }, border = { 32, 16, 28 },
-		visible = true, size = { 1, 0, 0, 3 * 96 + 8 }, position = { 0, 0, 0, 0 },
+		fill = { 19, 24, 42 }, border = { 19, 24, 42 },
+		visible = true, size = { 1, -8, 0, 420 }, position = { 0, 0, 0, 0 },
 	})
 
 	local geProducts = {
 		{
 			id = "ge_pack_small",
-			title = "Paczka Diamentów (1,000 💎)",
-			badge = "[⚡ SZYBKI START]",
-			badgeColor = { 255, 215, 65 },
-			desc = "Zastrzyk Diamentów na epickie badania i boosty",
-			btnText = "KUP",
+			title = "1,000 Diamentów",
+			badge = "Popularne",
+			badgeFill = { 32, 128, 224 },
+			fill = { 54, 148, 238 },
+			top = { 118, 196, 255 },
+			border = { 28, 96, 178 },
+			desc = "Szybki zastrzyk 💎 na epickie badania i boosty",
+			btnText = "1,000 💎",
+			icon = "rbxassetid://123463156806216",
 		},
 		{
 			id = "ge_pack_large",
-			title = "Wielka Paka Diamentów (10,000 💎)",
-			badge = "[🔥 NAJLEPSZA WARTOŚĆ (+50% BONUS)]",
-			badgeColor = { 255, 140, 50 },
-			desc = "Maksymalna wartość Diamentów na badania",
-			btnText = "KUP",
+			title = "10,000 Diamentów",
+			badge = "Najlepsza wartość (+50%)",
+			badgeFill = { 218, 132, 18 },
+			fill = { 236, 162, 34 },
+			top = { 255, 214, 86 },
+			border = { 168, 98, 14 },
+			desc = "Wielki zapas Diamentów 💎 (+50% Bonus)",
+			btnText = "10,000 💎",
 			isBestValue = true,
-		},
-		{
-			id = "piggy_break",
-			title = "Rozbij Skarbonkę (Break Piggy)",
-			badge = "[💎 BANK DIAMENTÓW]",
-			badgeColor = { 225, 120, 255 },
-			desc = "Wypłać wszystkie Diamenty zmagazynowane w Skarbonce",
-			btnText = "ROZBIJ",
+			icon = "rbxassetid://123463156806216",
 		},
 	}
 
 	for i, prod in ipairs(geProducts) do
 		local card = self.ui:card(tab1Frame, {
 			name = "ShopCard_" .. prod.id, family = "shop",
-			fill = if prod.isBestValue then { 86, 42, 74 } else { 74, 40, 64 },
-			top = if prod.isBestValue then { 124, 64, 104 } else { 106, 58, 90 },
-			border = if prod.isBestValue then { 255, 195, 45 } else { 36, 18, 30 },
-			size = { 1, 0, 0, 88 }, position = { 0, 0, 0, (i - 1) * 96 },
+			fill = { 24, 30, 52 },
+			border = prod.border,
+			size = { 0.47, 0, 0, 404 }, position = { (i - 1) * 0.50 + 0.015, 0, 0, 6 },
 		})
 
-		local badgeLbl = self.ui:label(card, {
-			name = "BadgeLabel", size = { 0.70, 0, 0, 18 }, position = { 0.03, 0, 0, 6 },
-			text = prod.badge, color = prod.badgeColor, align = "Left",
-			textStroke = 1.6, maxTextSize = 14,
+		local artPanel = self.ui:card(card, {
+			name = "ArtworkPanel", family = "shop",
+			fill = prod.fill, top = prod.top, border = prod.border,
+			size = { 1, -16, 0, 210 }, position = { 0, 8, 0, 8 },
+		})
+
+		createGuiElement("ImageLabel", {
+			Name = "CardArtIcon",
+			Size = isRoblox and UDim2.new(0, 112, 0, 112) or nil,
+			Position = isRoblox and UDim2.new(0.5, -56, 0.5, -58) or nil,
+			BackgroundTransparency = 1,
+			Image = prod.icon,
+			ScaleType = isRoblox and Enum.ScaleType.Fit or nil,
+		}, artPanel)
+
+		local badgeLbl = self.ui:pill(card, {
+			name = "BadgeLabel", size = { 0.72, 0, 0, 26 }, position = { 0.14, 0, 0, 204 },
+			text = prod.badge, fill = prod.badgeFill, color = { 255, 255, 255 },
+			align = "Center", textStroke = 1.8, maxTextSize = 15, radius = 6,
 		})
 
 		local title = self.ui:label(card, {
-			name = "Title", size = { 0.70, 0, 0, 24 }, position = { 0.03, 0, 0, 26 },
-			text = prod.title, color = { 255, 235, 95 }, align = "Left",
-			textStroke = 1.8, maxTextSize = 18,
+			name = "Title", size = { 0.90, 0, 0, 30 }, position = { 0.05, 0, 0, 240 },
+			text = prod.title, color = { 255, 255, 255 }, align = "Center",
+			textStroke = 2.2, maxTextSize = 20,
 		})
 
 		local desc = self.ui:label(card, {
-			name = "Desc", size = { 0.70, 0, 0, 30 }, position = { 0.03, 0, 0, 52 },
-			text = prod.desc, color = { 240, 240, 240 }, align = "Left",
-			textStroke = 1.6, maxTextSize = 15,
+			name = "Desc", size = { 0.88, 0, 0, 44 }, position = { 0.06, 0, 0, 274 },
+			text = prod.desc, color = { 196, 210, 238 }, align = "Center", wrapped = true,
+			textStroke = 1.6, maxTextSize = 14,
 		})
 
 		local buyBtn = self.ui:button(card, {
 			name = "BuyProductButton", text = prod.btnText, tone = if prod.isBestValue then "gold" else "primary",
-			size = { 0.23, 0, 0, 50 }, position = { 0.74, 0, 0, 19 },
+			size = { 0.88, 0, 0, 52 }, position = { 0.06, 0, 1, -64 },
+			height = 52,
 			onClick = function()
 				promptMarketplacePurchase(prod.id, self.onPurchaseProduct)
 			end,
@@ -2251,58 +2338,55 @@ function HUD:_buildShopProducts(container)
 		if isRoblox then
 			bindBouncyButton(buyBtn)
 			if prod.isBestValue then
-				addShimmerEffect(card)
-				local stroke = card:FindFirstChildOfClass("UIStroke")
-				if stroke then addPulseGlow(stroke, 0.05, 0.6) end
+				addShimmerEffect(artPanel)
 			end
 		end
 
 		self.shopProductCards[prod.id] = card
 	end
 
-	-- Tab 2: Boosts (scrolling list, 44px buy & activate buttons)
 	local tab2Frame = self.ui:card(container, {
 		name = "Tab2_Boosts", family = "shop",
-		fill = { 56, 32, 48 }, border = { 32, 16, 28 },
-		visible = false, size = { 1, 0, 0, #BOOSTS_CATALOG * 56 + 48 }, position = { 0, 0, 0, 0 },
+		fill = { 19, 24, 42 }, border = { 19, 24, 42 },
+		visible = false, size = { 1, -8, 0, #BOOSTS_CATALOG * 60 + 48 }, position = { 0, 0, 0, 0 },
 	})
 
 	self.activeBoostsSummaryLabel = self.ui:label(tab2Frame, {
-		name = "ActiveBoostsSummary", size = { 0.96, 0, 0, 34 }, position = { 0.02, 0, 0, 4 },
-		text = "Aktywne boosty: 0 / 2", color = { 255, 235, 115 },
-		align = "Left", textStroke = 1.5, maxTextSize = 15,
+		name = "ActiveBoostsSummary", size = { 0.96, 0, 0, 32 }, position = { 0.02, 0, 0, 4 },
+		text = "Aktywne boosty: 0 / 2", color = { 255, 232, 95 },
+		align = "Left", textStroke = 1.8, maxTextSize = 16,
 	})
 
 	for i, bSpec in ipairs(BOOSTS_CATALOG) do
 		local card = self.ui:card(tab2Frame, {
 			name = "BoostCard_" .. bSpec.id, family = "shop",
-			fill = { 68, 38, 58 }, top = { 98, 56, 84 }, border = { 32, 16, 28 },
-			size = { 1, 0, 0, 50 }, position = { 0, 0, 0, 42 + (i - 1) * 56 },
+			fill = { 28, 36, 62 }, top = { 42, 54, 90 }, border = { 56, 152, 245 },
+			size = { 1, 0, 0, 54 }, position = { 0, 0, 0, 40 + (i - 1) * 60 },
 		})
 
 		local title = self.ui:label(card, {
-			name = "Title", size = { 0.36, 0, 0, 50 }, position = { 0.02, 0, 0, 0 },
+			name = "Title", size = { 0.36, 0, 0, 54 }, position = { 0.02, 0, 0, 0 },
 			text = bSpec.name .. " (" .. bSpec.effect .. ")", color = { 255, 255, 255 },
-			align = "Left", textStroke = 1.5, maxTextSize = 15,
+			align = "Left", textStroke = 1.6, maxTextSize = 15,
 		})
 
 		local ownedLbl = self.ui:label(card, {
-			name = "OwnedCount", size = { 0.14, 0, 0, 50 }, position = { 0.39, 0, 0, 0 },
-			text = "Posiadane: 0", color = { 215, 240, 255 },
+			name = "OwnedCount", size = { 0.14, 0, 0, 54 }, position = { 0.39, 0, 0, 0 },
+			text = "Posiadane: 0", color = { 185, 225, 255 },
 			align = "Center", textStroke = 1.4, maxTextSize = 13,
 		})
 
 		local priceLbl = self.ui:label(card, {
-			name = "Price", size = { 0.12, 0, 0, 50 }, position = { 0.54, 0, 0, 0 },
-			text = tostring(bSpec.priceGE) .. " 💎", color = { 255, 215, 65 },
-			align = "Center", textStroke = 1.5, maxTextSize = 15,
+			name = "Price", size = { 0.12, 0, 0, 54 }, position = { 0.54, 0, 0, 0 },
+			text = tostring(bSpec.priceGE) .. " 💎", color = { 115, 225, 255 },
+			align = "Center", textStroke = 1.6, maxTextSize = 15,
 		})
 
 		local activateBtn
 		activateBtn = self.ui:button(card, {
 			name = "ActivateBoostButton", text = "BRAK", tone = "disabled", active = false,
-			size = { 0.15, 0, 0, 42 }, position = { 0.67, 0, 0, 4 },
-			textStroke = 1.5, maxTextSize = 14,
+			size = { 0.15, 0, 0, 44 }, position = { 0.67, 0, 0, 5 },
+			textStroke = 1.6, maxTextSize = 14,
 			onClick = function()
 				if not activateBtn.Active then return end
 				if type(self.onActivateBoost) == "function" then
@@ -2313,8 +2397,8 @@ function HUD:_buildShopProducts(container)
 
 		local buyBtn = self.ui:button(card, {
 			name = "BuyBoostButton", text = "KUP", tone = "primary",
-			size = { 0.15, 0, 0, 42 }, position = { 0.83, 0, 0, 4 },
-			textStroke = 1.5, maxTextSize = 16,
+			size = { 0.15, 0, 0, 44 }, position = { 0.83, 0, 0, 5 },
+			textStroke = 1.6, maxTextSize = 16,
 			onClick = function()
 				if type(self.onBuyBoost) == "function" then
 					self.onBuyBoost(bSpec.id)
@@ -2330,31 +2414,24 @@ function HUD:_buildShopProducts(container)
 		self.shopProductCards[bSpec.id] = card
 	end
 
-	-- Tab 3: GamePasses (scrolling list)
 	local tab3Frame = self.ui:card(container, {
 		name = "Tab3_GamePasses", family = "shop",
-		fill = { 56, 32, 48 }, border = { 32, 16, 28 },
-		visible = false, size = { 1, 0, 0, 4 * 132 + 8 }, position = { 0, 0, 0, 0 },
+		fill = { 19, 24, 42 }, border = { 19, 24, 42 },
+		visible = false, size = { 1, -8, 0, 4 * 126 + 8 }, position = { 0, 0, 0, 0 },
 	})
 
 	local passes = {
 		{
 			spec = SHOP_PRODUCTS_CATALOG.double_cash,
 			badge = "[⭐ NAJPOPULARNIEJSZE (2x KASA NA ZAWSZE)]",
-			badgeColor = { 255, 215, 65 },
+			badgeColor = { 255, 225, 85 },
 			isFeatured = true,
 		},
 		{
 			spec = SHOP_PRODUCTS_CATALOG.pro_permit,
 			badge = "[👑 VIP (18H OFFLINE & 5 BOOSTÓW)]",
-			badgeColor = { 255, 175, 245 },
+			badgeColor = { 245, 165, 255 },
 			isFeatured = true,
-		},
-		{
-			spec = SHOP_PRODUCTS_CATALOG.auto_hatch,
-			badge = "[⏳ WKRÓTCE (AKTUALIZACJA V1.1)]",
-			badgeColor = { 120, 240, 255 },
-			isFeatured = false,
 		},
 		{
 			spec = SHOP_PRODUCTS_CATALOG.buy_max,
@@ -2362,15 +2439,21 @@ function HUD:_buildShopProducts(container)
 			badgeColor = { 130, 255, 150 },
 			isFeatured = true,
 		},
+		{
+			spec = SHOP_PRODUCTS_CATALOG.auto_hatch,
+			badge = "[⏳ WKRÓTCE (AKTUALIZACJA V1.1)]",
+			badgeColor = { 135, 225, 255 },
+			isFeatured = false,
+		},
 	}
 
 	for i, pass in ipairs(passes) do
 		local card = self.ui:card(tab3Frame, {
 			name = "PassCard_" .. pass.spec.id, family = "shop",
-			fill = if pass.isFeatured then { 82, 42, 72 } else { 74, 40, 64 },
-			top = if pass.isFeatured then { 118, 62, 102 } else { 106, 58, 90 },
-			border = if pass.isFeatured then { 255, 205, 50 } else { 36, 18, 30 },
-			size = { 1, 0, 0, 122 }, position = { 0, 0, 0, (i - 1) * 132 },
+			fill = if pass.isFeatured then { 28, 36, 64 } else { 24, 30, 52 },
+			top = if pass.isFeatured then { 46, 62, 108 } else { 36, 44, 74 },
+			border = if pass.isFeatured then { 245, 184, 42 } else { 52, 64, 98 },
+			size = { 1, 0, 0, 118 }, position = { 0, 0, 0, (i - 1) * 126 },
 		})
 
 		local badgeLbl = self.ui:label(card, {
@@ -2380,29 +2463,29 @@ function HUD:_buildShopProducts(container)
 		})
 
 		local title = self.ui:label(card, {
-			name = "Title", size = { 0.70, 0, 0, 24 }, position = { 0.03, 0, 0, 26 },
-			text = pass.spec.name, color = { 255, 235, 95 }, align = "Left",
-			textStroke = 1.8, maxTextSize = 18,
+			name = "Title", size = { 0.70, 0, 0, 24 }, position = { 0.03, 0, 0, 25 },
+			text = pass.spec.name, color = { 255, 255, 255 }, align = "Left",
+			textStroke = 2.0, maxTextSize = 19,
 		})
 
 		local desc = self.ui:label(card, {
-			name = "Desc", size = { 0.70, 0, 0, 36 }, position = { 0.03, 0, 0, 52 },
-			text = pass.spec.desc, color = { 240, 240, 240 }, align = "Left",
-			textStroke = 1.6, maxTextSize = 15,
+			name = "Desc", size = { 0.70, 0, 0, 34 }, position = { 0.03, 0, 0, 50 },
+			text = pass.spec.desc, color = { 205, 218, 242 }, align = "Left",
+			textStroke = 1.5, maxTextSize = 14,
 		})
 
 		if pass.spec.notice then
 			local noticeLbl = self.ui:label(card, {
-				name = "Notice", size = { 0.70, 0, 0, 26 }, position = { 0.03, 0, 0, 90 },
-				text = pass.spec.notice, color = { 255, 175, 140 }, align = "Left",
-				textStroke = 1.5, maxTextSize = 15,
+				name = "Notice", size = { 0.70, 0, 0, 24 }, position = { 0.03, 0, 0, 86 },
+				text = pass.spec.notice, color = { 255, 185, 130 }, align = "Left",
+				textStroke = 1.4, maxTextSize = 13,
 			})
 		end
 
 		local isPassDisabled = not Availability.isProductAvailable(pass.spec.id)
 		local buyBtn = self.ui:button(card, {
 			name = "BuyPassButton", active = not isPassDisabled, text = if isPassDisabled then "WKRÓTCE" else "ODBLOKUJ", tone = if isPassDisabled then "ghost" else "primary",
-			size = { 0.23, 0, 0, 52 }, position = { 0.74, 0, 0, 34 },
+			size = { 0.23, 0, 0, 52 }, position = { 0.74, 0, 0, 32 },
 			onClick = function()
 				if isPassDisabled then return end
 				promptMarketplacePurchase(pass.spec.id, self.onPurchaseProduct)
@@ -2413,8 +2496,6 @@ function HUD:_buildShopProducts(container)
 			bindBouncyButton(buyBtn)
 			if pass.isFeatured then
 				addShimmerEffect(card)
-				local stroke = card:FindFirstChildOfClass("UIStroke")
-				if stroke then addPulseGlow(stroke, 0.1, 0.6) end
 			end
 		end
 
@@ -2435,11 +2516,8 @@ function HUD:_buildCalendarModal(root)
 	self:_fitWindow(cFrame, win.designWidth, win.designHeight, function(fit)
 		self._calendarGridWidth = fit.width
 	end)
-	self.ui:closeButton(cFrame, function()
-		cFrame.Visible = false
-	end)
+	self.ui:closeButton(cFrame, function() self:closeAllModals() end)
 
-	-- Hidden Tabs Row (trophies removed from user view; kept headless for tests/contract)
 	local tabsRow = self.ui:card(cFrame, {
 		name = "CalendarTabsRow", family = "calendar",
 		fill = { 48, 32, 58 }, border = { 24, 14, 30 },
@@ -2461,7 +2539,6 @@ function HUD:_buildCalendarModal(root)
 		self.calendarTabButtons[idx] = tabBtn
 	end
 
-	-- 28-day Calendar Grid: positioned directly below window header since tabs are removed
 	local calContent = self.ui:scroll(cFrame, {
 		name = "CalendarContent_Tab1", family = "calendar",
 		fill = { 36, 22, 44 }, visible = true,
@@ -2493,24 +2570,29 @@ function HUD:_buildCalendarModal(root)
 		self.calendarDayCells[day] = dayCell
 	end
 
-	-- Reflow the day cells for the resolved width.
 	self.ui:applyGridReflow(calContent, self.calendarDayCells, {
 		padding = 6, minCellWidth = 64, maxColumns = 7, cellHeight = 52, gap = 4,
 	})
 
-	-- Claim Daily Gift Button
+	self.calendarClaimStatusLabel = self.ui:label(cFrame, {
+		name = "CalendarClaimStatusLabel",
+		size = { 1, -28, 0, 20 }, position = { 0, 14, 1, -84 },
+		text = "Sprawdzanie dostępności nagrody...", color = { 255, 235, 120 },
+		align = "Center", textStroke = 1.6, maxTextSize = 16,
+	})
+
 	self.claimDailyGiftButton = self.ui:button(cFrame, {
 		name = "ClaimDailyGiftButton", text = "ODBIERZ DZISIEJSZĄ NAGRODĘ", tone = "primary",
 		size = { 1, -28, 0, 48 }, position = { 0, 14, 1, -60 },
 		textStroke = 2.0, maxTextSize = 20,
 		onClick = function()
+			if self.calendarAlertBadge then self.calendarAlertBadge.Visible = false end
 			if type(self.onClaimDailyGift) == "function" then
 				self.onClaimDailyGift()
 			end
 		end,
 	})
 
-	-- Tab 2: Trophies List (hidden, kept headless for tests)
 	local trophContent = self.ui:scroll(cFrame, {
 		name = "TrophiesContent_Tab2", family = "calendar",
 		fill = { 36, 22, 44 }, visible = false,
@@ -2551,8 +2633,7 @@ function HUD:_buildCalendarModal(root)
 end
 
 function HUD:_buildEggUpgradeModal(root)
-	-- Shared stud-style window (#82): egg family; the existing label wording stays (minus the
-	-- decorative glyphs) so every getter and the reset flow keep working unchanged.
+	-- Shared stud-style egg window (#82)
 	local win = self.ui:window({
 		parent = root, name = "EggUpgradeModal", family = "egg",
 		title = "STACJA BADAWCZA JAJ",
@@ -2561,9 +2642,7 @@ function HUD:_buildEggUpgradeModal(root)
 	local eggModal = win.frame
 	self.eggUpgradeModal = eggModal
 	self:_fitWindow(eggModal, win.designWidth, win.designHeight)
-	self.ui:closeButton(eggModal, function()
-		eggModal.Visible = false
-	end)
+	self.ui:closeButton(eggModal, function() self:closeAllModals() end)
 
 	self.eggUpgradeCurrentLabel = self.ui:label(eggModal, {
 		name = "CurrentEggLabel", size = { 1, -32, 0, 26 }, position = { 0, 16, 0, 74 },
@@ -2595,7 +2674,6 @@ function HUD:_buildEggUpgradeModal(root)
 		textStroke = 1.8, maxTextSize = 17,
 	})
 
-	-- Reset warning: a themed pill so the destructive note is unmistakable and readable.
 	self.eggUpgradeWarningLabel = self.ui:pill(eggModal, {
 		name = "WarningLabel", size = { 1, -32, 0, 52 }, position = { 0, 16, 0, 224 },
 		text = "Awans zresetuje bieżącą gotówkę, kurniki i pojazdy.\nPety, Diamenty i badania Epickie zostaną zachowane!",
@@ -2620,7 +2698,6 @@ function HUD:_buildEggUpgradeModal(root)
 end
 
 function HUD:_buildPetHatchModal(root)
-	-- Shared stud-style window (#82): incubation uses the same frame/header/close family.
 	local win = self.ui:window({
 		parent = root, name = "PetHatchModal", family = "hatch",
 		title = "INKUBACJA & WYKLUWANIE JAJ",
@@ -2629,26 +2706,20 @@ function HUD:_buildPetHatchModal(root)
 	local hFrame = win.frame
 	self.petHatchModal = hFrame
 	self:_fitWindow(hFrame, win.designWidth, win.designHeight)
-	self.ui:closeButton(hFrame, function()
-		hFrame.Visible = false
-	end)
+	self.ui:closeButton(hFrame, function() self:closeAllModals() end)
 
-	-- Subtitle info
 	self.ui:label(hFrame, {
 		name = "PetHatchSubtitle", size = { 1, -28, 0, 24 }, position = { 0, 14, 0, 70 },
 		text = "Inkubuj jajo i odkryj nowego zwierzaka ze specjalnym bonusem!",
 		color = { 240, 240, 240 }, align = "Left", textStroke = 1.6, maxTextSize = 16,
 	})
 
-	-- Central Egg Preview Card
 	local card = self.ui:card(hFrame, {
 		name = "EggPreviewCard", family = "hatch",
 		fill = { 38, 16, 38 }, top = { 66, 30, 64 }, border = { 255, 215, 65 },
 		size = { 1, -28, 0, 250 }, position = { 0, 14, 0, 100 },
 	})
 
-	-- Egg icon slot: a genuine cracked-egg image once bound, otherwise the text name below
-	-- carries the meaning and no placeholder is drawn.
 	local eggSlot, eggImage = self.ui:iconSlot(card, {
 		key = "window.hatch", size = 90, position = { 0.5, -45, 0, 12 },
 		background = { 38, 16, 38 }, border = { 255, 215, 65 }, transparency = 0,
@@ -2666,21 +2737,18 @@ function HUD:_buildPetHatchModal(root)
 		textStroke = 1.8, maxTextSize = 18,
 	})
 
-	-- Chances breakdown label
 	self.ui:label(card, {
 		name = "EggChancesLabel", size = { 1, -20, 0, 46 }, position = { 0, 10, 0, 142 },
 		text = "Szanse:\nCommon (60%) • Rare (25%) • Epic (12%) • Legendary (3%)",
 		color = { 220, 220, 240 }, wrapped = true, textStroke = 1.4, maxTextSize = 15,
 	})
 
-	-- Cost label
 	self.ui:label(card, {
 		name = "EggCostLabel", size = { 1, -20, 0, 24 }, position = { 0, 10, 0, 198 },
 		text = "Koszt: 100 Diamentów (100 💎)", color = { 255, 215, 65 },
 		textStroke = 1.6, maxTextSize = 17,
 	})
 
-	-- Hatch Button
 	local hatchBtn = self.ui:button(hFrame, {
 		name = "HatchButton", text = "WYSIADUJ / INKUBUJ (100 💎)", tone = "primary",
 		size = { 1, -28, 0, 52 }, position = { 0, 14, 1, -66 },
@@ -2706,7 +2774,6 @@ function HUD:_buildHatchAnimationOverlay(root)
 	}, root)
 	self.hatchAnimationOverlay = overlay
 
-	-- Wobbling Egg in center
 	local eggVisual = createGuiElement("TextLabel", {
 		Name = "AnimatedEgg",
 		Size = isRoblox and UDim2.new(0, 180, 0, 220) or nil,
@@ -2719,7 +2786,6 @@ function HUD:_buildHatchAnimationOverlay(root)
 	}, overlay)
 	self.animatedEggVisual = eggVisual
 
-	-- Flash / Burst glow frame
 	local burstGlow = createGuiElement("Frame", {
 		Name = "BurstGlow",
 		Visible = false,
@@ -2732,7 +2798,6 @@ function HUD:_buildHatchAnimationOverlay(root)
 	addCornerAndStroke(burstGlow, 150, isRoblox and Color3.fromRGB(255, 255, 255) or nil, 4)
 	self.hatchBurstGlow = burstGlow
 
-	-- Pet Reveal Card
 	local revealCard = createGuiElement("Frame", {
 		Name = "PetRevealCard",
 		Visible = false,
@@ -2750,8 +2815,6 @@ function HUD:_buildHatchAnimationOverlay(root)
 		zIndex = 54, textStroke = 2.4, maxTextSize = 22,
 	})
 
-	-- The pet species glyph stays a text label: it is content (which pet), driven by the reveal
-	-- data, and its text is part of the verified HUD surface.
 	local iconLabel = createGuiElement("TextLabel", {
 		Name = "PetIcon",
 		Size = isRoblox and UDim2.new(0, 120, 0, 120) or nil,
@@ -2785,7 +2848,6 @@ function HUD:_buildHatchAnimationOverlay(root)
 	})
 	self.revealPetStat = statLabel
 
-	-- Action buttons: Equip, Lock, Confirm (shared tactile buttons, >= 44px)
 	local equipBtn = self.ui:button(revealCard, {
 		name = "EquipNowBtn", text = "Załóż Peta", tone = "primary",
 		size = { 0.46, 0, 0, 46 }, position = { 0.03, 0, 0, 284 },
@@ -2823,7 +2885,6 @@ function HUD:_buildPrestigeModal(root)
 	self:_fitWindow(modal, 460, 560)
 	addCornerAndStroke(modal, 18, isRoblox and Color3.fromRGB(180, 80, 255) or nil, 3.5)
 
-	-- Header Frame
 	local header = createGuiElement("Frame", {
 		Name = "WindowHeader",
 		Size = isRoblox and UDim2.new(1, 0, 0, 52) or nil,
@@ -2848,7 +2909,6 @@ function HUD:_buildPrestigeModal(root)
 	}, header)
 	addTextStroke(titleLabel, 2.5)
 
-	-- Close Button
 	local closeBtn = createGuiElement("TextButton", {
 		Name = "CloseBtn",
 		Size = isRoblox and UDim2.new(0, 36, 0, 36) or nil,
@@ -2868,7 +2928,6 @@ function HUD:_buildPrestigeModal(root)
 		end)
 	end
 
-	-- 1. Current Crystals & Multiplier Card
 	local currentCard = createGuiElement("Frame", {
 		Name = "CurrentCard",
 		Size = isRoblox and UDim2.new(1, -32, 0, 112) or nil,
@@ -2921,7 +2980,6 @@ function HUD:_buildPrestigeModal(root)
 	}, currentCard)
 	addTextStroke(self.prestigeAfterBonusLabel, 1.8)
 
-	-- 2. Pending Crystals Card
 	local pendingCard = createGuiElement("Frame", {
 		Name = "PendingCard",
 		Size = isRoblox and UDim2.new(1, -32, 0, 105) or nil,
@@ -2972,7 +3030,6 @@ function HUD:_buildPrestigeModal(root)
 	addTextStroke(pendingSubLabel, 1.4)
 	self.prestigeSubLabel = pendingSubLabel
 
-	-- 3. Warning / Explanation Pill
 	local warningPill = createGuiElement("Frame", {
 		Name = "WarningPill",
 		Size = isRoblox and UDim2.new(1, -32, 0, 128) or nil,
@@ -2997,7 +3054,6 @@ function HUD:_buildPrestigeModal(root)
 	}, warningPill)
 	addTextStroke(warningLabel, 1.6)
 
-	-- 4. Prestige Action Button
 	local prestigeActionBtn = createGuiElement("TextButton", {
 		Name = "PrestigeActionButton",
 		Size = isRoblox and UDim2.new(1, -32, 0, 54) or nil,
@@ -3095,7 +3151,6 @@ function HUD:playEggHatchAnimation(petData, onFinished)
 		self.revealPetRarity.TextColor3 = rarityColors[pRarity] or Color3.fromRGB(255, 215, 65)
 	end
 
-	-- Connect Actions
 	local function cleanup()
 		self.hatchAnimationOverlay.Visible = false
 		if onFinished then onFinished() end
@@ -3133,10 +3188,8 @@ function HUD:playEggHatchAnimation(petData, onFinished)
 		end)
 	end
 
-	-- Phase 1 & 2: Wobble and Burst
 	if isRoblox then
 		task.spawn(function()
-			-- Wobble phase
 			local start = os.clock()
 			while os.clock() - start < 1.4 do
 				local elapsed = os.clock() - start
@@ -3146,7 +3199,6 @@ function HUD:playEggHatchAnimation(petData, onFinished)
 			end
 			self.animatedEggVisual.Rotation = 0
 
-			-- Burst phase
 			if self.audioController and type(self.audioController.playSFX) == "function" then
 				self.audioController:playSFX("pop")
 			end
@@ -3161,14 +3213,12 @@ function HUD:playEggHatchAnimation(petData, onFinished)
 				self.hatchBurstGlow.Visible = false
 			end
 
-			-- Reveal card phase
 			if self.audioController and type(self.audioController.playSFX) == "function" then
 				self.audioController:playSFX("fanfare")
 			end
 			self.petRevealCard.Visible = true
 		end)
 	else
-		-- Lune mock direct reveal
 		if self.audioController and type(self.audioController.playSFX) == "function" then
 			self.audioController:playSFX("pop")
 			self.audioController:playSFX("fanfare")
@@ -3178,7 +3228,26 @@ function HUD:playEggHatchAnimation(petData, onFinished)
 	end
 end
 
--- Modals Visibility & Mutual Exclusivity
+
+function HUD:isAnyModalOpen()
+	return (self.habitatsModal and self.habitatsModal.Visible == true)
+		or (self.vehiclesModal and self.vehiclesModal.Visible == true)
+		or (self.shopFrame and self.shopFrame.Visible == true)
+		or (self.petsModal and self.petsModal.Visible == true)
+		or (self.petHatchModal and self.petHatchModal.Visible == true)
+		or (self.shopModal and self.shopModal.Visible == true)
+		or (self.calendarModal and self.calendarModal.Visible == true)
+		or (self.eggUpgradeModal and self.eggUpgradeModal.Visible == true)
+		or (self.epicResearchModal and self.epicResearchModal.Visible == true)
+		or (self.prestigeModal and self.prestigeModal.Visible == true)
+		or false
+end
+
+function HUD:_updateTutorialCardVisibility()
+	if not self.tutorialCardFrame then return end
+	local isDone = (self.currentTutorialStep or 1) >= 5
+	self.tutorialCardFrame.Visible = (not isDone) and (not self:isAnyModalOpen())
+end
 
 function HUD:closeAllModals()
 	if self.habitatsModal then self.habitatsModal.Visible = false end
@@ -3192,6 +3261,7 @@ function HUD:closeAllModals()
 	if self.eggUpgradeModal then self.eggUpgradeModal.Visible = false end
 	if self.epicResearchModal then self.epicResearchModal.Visible = false end
 	if self.prestigeModal then self.prestigeModal.Visible = false end
+	self:_updateTutorialCardVisibility()
 end
 
 function HUD:toggleEpicResearchModal(forceState)
@@ -3199,6 +3269,7 @@ function HUD:toggleEpicResearchModal(forceState)
 	local target = if forceState ~= nil then forceState else not self.epicResearchModal.Visible
 	self:closeAllModals()
 	self.epicResearchModal.Visible = target
+	self:_updateTutorialCardVisibility()
 end
 
 function HUD:getEpicResearchModal()
@@ -3214,6 +3285,7 @@ function HUD:togglePrestigeModal(forceState)
 		self:_playClick()
 		self:_updatePrestigeDisplay()
 	end
+	self:_updateTutorialCardVisibility()
 end
 
 function HUD:getPrestigeModal()
@@ -3225,6 +3297,7 @@ function HUD:toggleHabitatsModal(forceState)
 	local target = if forceState ~= nil then forceState else not self.habitatsModal.Visible
 	self:closeAllModals()
 	self.habitatsModal.Visible = target
+	self:_updateTutorialCardVisibility()
 end
 
 function HUD:toggleVehiclesModal(forceState)
@@ -3232,6 +3305,7 @@ function HUD:toggleVehiclesModal(forceState)
 	local target = if forceState ~= nil then forceState else not self.vehiclesModal.Visible
 	self:closeAllModals()
 	self.vehiclesModal.Visible = target
+	self:_updateTutorialCardVisibility()
 end
 
 function HUD:requestQuotesForCurrentTier(force)
@@ -3301,6 +3375,7 @@ function HUD:toggleResearchModal(forceState)
 	if target then
 		self:requestQuotesForCurrentTier(true)
 	end
+	self:_updateTutorialCardVisibility()
 end
 
 function HUD:togglePetsModal(forceState)
@@ -3308,6 +3383,7 @@ function HUD:togglePetsModal(forceState)
 	local target = if forceState ~= nil then forceState else not self.petsModal.Visible
 	self:closeAllModals()
 	self.petsModal.Visible = target
+	self:_updateTutorialCardVisibility()
 end
 
 function HUD:toggleShopModal(forceState)
@@ -3315,6 +3391,7 @@ function HUD:toggleShopModal(forceState)
 	local target = if forceState ~= nil then forceState else not self.shopModal.Visible
 	self:closeAllModals()
 	self.shopModal.Visible = target
+	self:_updateTutorialCardVisibility()
 end
 
 function HUD:toggleCalendarModal(forceState)
@@ -3322,6 +3399,7 @@ function HUD:toggleCalendarModal(forceState)
 	local target = if forceState ~= nil then forceState else not self.calendarModal.Visible
 	self:closeAllModals()
 	self.calendarModal.Visible = target
+	self:_updateTutorialCardVisibility()
 end
 
 function HUD:toggleEggUpgradeModal(forceState)
@@ -3329,6 +3407,7 @@ function HUD:toggleEggUpgradeModal(forceState)
 	local target = if forceState ~= nil then forceState else not self.eggUpgradeModal.Visible
 	self:closeAllModals()
 	self.eggUpgradeModal.Visible = target
+	self:_updateTutorialCardVisibility()
 end
 
 function HUD:togglePetHatchModal(forceState)
@@ -3336,22 +3415,16 @@ function HUD:togglePetHatchModal(forceState)
 	local target = if forceState ~= nil then forceState else not self.petHatchModal.Visible
 	self:closeAllModals()
 	self.petHatchModal.Visible = target
+	self:_updateTutorialCardVisibility()
 end
 
--- Tab selection methods
 function HUD:selectResearchTier(tierIndex)
 	if type(tierIndex) ~= "number" or tierIndex % 1 ~= 0 or tierIndex < 1 or tierIndex > 4 then return false end
 	self.selectedResearchTier = tierIndex
 	for idx, btn in ipairs(self.researchTabButtons) do
-		if isRoblox then
-			local isActive = (idx == tierIndex)
-			btn.BackgroundColor3 = if isActive then Color3.fromRGB(245, 158, 11) else Color3.fromRGB(51, 30, 23)
-			btn.TextColor3 = if isActive then Color3.fromRGB(69, 26, 3) else Color3.fromRGB(215, 204, 200)
-			local stroke = btn:FindFirstChildOfClass("UIStroke")
-			if stroke then
-				stroke.Color = if isActive then Color3.fromRGB(180, 83, 9) else Color3.fromRGB(35, 18, 12)
-				stroke.Thickness = if isActive then 2 else 1.2
-			end
+		local isActive = (idx == tierIndex)
+		if self.ui then
+			self.ui:setTabActive(btn, isActive)
 		end
 	end
 	self:update()
@@ -3361,9 +3434,9 @@ end
 function HUD:selectShopTab(tabIndex)
 	self.selectedShopTab = tabIndex
 	for idx, btn in ipairs(self.shopModalTabButtons) do
-		if isRoblox then
-			btn.BackgroundColor3 = if idx == tabIndex then Color3.fromRGB(255, 215, 65) else Color3.fromRGB(42, 22, 34)
-			btn.TextColor3 = if idx == tabIndex then Color3.fromRGB(24, 12, 10) else Color3.fromRGB(255, 255, 255)
+		local isActive = (idx == tabIndex)
+		if self.ui then
+			self.ui:setTabActive(btn, isActive)
 		end
 	end
 	local cont = self.shopModal and self.shopModal:FindFirstChild("ShopContentContainer")
@@ -3380,9 +3453,9 @@ end
 function HUD:selectCalendarTab(tabIndex)
 	self.selectedCalendarTab = tabIndex
 	for idx, btn in ipairs(self.calendarTabButtons) do
-		if isRoblox then
-			btn.BackgroundColor3 = if idx == tabIndex then Color3.fromRGB(255, 175, 75) else Color3.fromRGB(36, 22, 44)
-			btn.TextColor3 = if idx == tabIndex then Color3.fromRGB(24, 12, 10) else Color3.fromRGB(255, 255, 255)
+		local isActive = (idx == tabIndex)
+		if self.ui then
+			self.ui:setTabActive(btn, isActive)
 		end
 	end
 	if self.calendarModal then
@@ -3432,11 +3505,7 @@ function HUD:updateStatus(newStatus)
 	end
 end
 
--- Hatch Status (#77): blocked state derived from the authoritative farm view
-
--- Returns the blocked reason (or nil).
--- Capacity full wins over a low stock when both are true. Empty slots stay empty and are not
--- treated as a built coop with space.
+-- Returns the blocked hatch reason (or nil) (#77).
 function HUD:_resolveHatchBlockedReason(farm)
 	if type(farm) ~= "table" or farm.lifecycle ~= "ready" then return nil end
 	if type(farm.habitats) ~= "table" then return nil end
@@ -3479,8 +3548,6 @@ function HUD:_applyHatchStatus(reason)
 
 	if self.hatchStatusLabel then
 		self.hatchStatusLabel.Text = text
-		-- While the CTA is shown the label reserves the 88px button plus margins; without a CTA it
-		-- expands to the full strip width.
 		if isRoblox then
 			self.hatchStatusLabel.Size = if actionVisible then UDim2.new(1, -112, 0, 44) else UDim2.new(1, -16, 0, 44)
 		end
@@ -3540,17 +3607,85 @@ function HUD:update()
     if self.fusionProPermitBadge and progress then
         self.fusionProPermitBadge.Text=if progress.proBonusAvailable then "Pro +10 p.p.: aktywne" elseif progress.paidRandomPolicy=="unknown" then "Pro +10 p.p.: polityka nieznana" elseif not progress.proPermit then "Pro +10 p.p.: wymaga Pro" else "Pro +10 p.p.: niedostępne dla konta" end
     self._visiblePets=if progress then progress.pets else {}
-    for day,cell in self.calendarDayCells or {} do
-        local reward=progress and progress.calendar and progress.calendar[day]
-        local label=cell:FindFirstChild("RewardText")
-        if label then label.Text=if reward then (if reward.available then (if reward.rewardType=="GE" then "💎 "..reward.amount else reward.rewardType.." "..reward.amount) else "Niedostępne") else "Dane z serwera" end
+    local curUtc = math.floor((if isRoblox then workspace:GetServerTimeNow() else os.time()) / 86400)
+    local lastDayUtc = (progress and progress.lastCalendarDayUtc) or -1
+    local alreadyClaimed = (lastDayUtc >= curUtc and lastDayUtc > 0)
+    local numColl = (progress and progress.numDailyGiftsCollected) or 0
+    local cycleDay = (numColl % 28) + 1
+    local claimedUpTo = if alreadyClaimed then ((numColl - 1) % 28 + 1) else (numColl % 28)
+
+    for day, cell in self.calendarDayCells or {} do
+        local reward = progress and progress.calendar and progress.calendar[day]
+        local label = cell:FindFirstChild("RewardText")
+        local numLbl = cell:FindFirstChild("DayNumber")
+        local rewStr = if reward then (if reward.rewardType == "GE" then "💎 " .. reward.amount else reward.rewardType .. " " .. reward.amount) else "-"
+        if day <= claimedUpTo then
+            if label then label.Text = "✓ Odebrano" end
+            if numLbl then numLbl.Text = "D" .. tostring(day) .. " ✓" end
+            if isRoblox and typeof(cell) == "Instance" then
+                cell.BackgroundColor3 = Color3.fromRGB(36, 68, 48)
+                local st = cell:FindFirstChildOfClass("UIStroke")
+                if st then st.Color = Color3.fromRGB(60, 180, 80) end
+            end
+        elseif not alreadyClaimed and day == cycleDay then
+            if label then label.Text = rewStr end
+            if numLbl then numLbl.Text = "D" .. tostring(day) .. " ★" end
+            if isRoblox and typeof(cell) == "Instance" then
+                cell.BackgroundColor3 = Color3.fromRGB(225, 160, 45)
+                local st = cell:FindFirstChildOfClass("UIStroke")
+                if st then st.Color = Color3.fromRGB(255, 230, 100) end
+            end
+        else
+            if label then label.Text = if reward and reward.available then rewStr else "Niedostępne" end
+            if numLbl then numLbl.Text = "D" .. tostring(day) end
+            if isRoblox and typeof(cell) == "Instance" then
+                cell.BackgroundColor3 = Color3.fromRGB(56, 36, 68)
+                local st = cell:FindFirstChildOfClass("UIStroke")
+                if st then st.Color = Color3.fromRGB(24, 14, 28) end
+            end
+        end
+    end
+
+    if self.calendarAlertBadge then self.calendarAlertBadge.Visible = not alreadyClaimed end
+    if self.calendarClaimStatusLabel then
+        if alreadyClaimed then
+            self.calendarClaimStatusLabel.Text = "✓ Dzisiejsza nagroda została odebrana! Kolejna dostępna jutro."
+            if isRoblox then self.calendarClaimStatusLabel.TextColor3 = Color3.fromRGB(120, 255, 150) end
+        else
+            self.calendarClaimStatusLabel.Text = "★ Twoja dzisiejsza nagroda (Dzień " .. tostring(cycleDay) .. ") jest gotowa do odebrania!"
+            if isRoblox then self.calendarClaimStatusLabel.TextColor3 = Color3.fromRGB(255, 235, 120) end
+        end
+    end
+
+    if self.claimDailyGiftButton then
+        local btnLbl = if isRoblox and typeof(self.claimDailyGiftButton) == "Instance"
+            then (self.claimDailyGiftButton:FindFirstChildOfClass("TextLabel") or self.claimDailyGiftButton)
+            else self.claimDailyGiftButton
+        if alreadyClaimed then
+            if type(btnLbl) == "table" or typeof(btnLbl) == "Instance" then
+                btnLbl.Text = "✓ DZISIEJSZA NAGRODA ODEBRANA (Wróć jutro!)"
+            end
+            if isRoblox and typeof(self.claimDailyGiftButton) == "Instance" then
+                self.claimDailyGiftButton.BackgroundColor3 = Color3.fromRGB(48, 88, 58)
+                local st = self.claimDailyGiftButton:FindFirstChildOfClass("UIStroke")
+                if st then st.Color = Color3.fromRGB(70, 160, 90) end
+            end
+        else
+            if type(btnLbl) == "table" or typeof(btnLbl) == "Instance" then
+                btnLbl.Text = "🎁 ODBIERZ DZISIEJSZĄ NAGRODĘ (Dzień " .. tostring(cycleDay) .. ")"
+            end
+            if isRoblox and typeof(self.claimDailyGiftButton) == "Instance" then
+                self.claimDailyGiftButton.BackgroundColor3 = Color3.fromRGB(245, 178, 36)
+                local st = self.claimDailyGiftButton:FindFirstChildOfClass("UIStroke")
+                if st then st.Color = Color3.fromRGB(255, 215, 60) end
+            end
+        end
     end
     for i,card in self.petInventoryCards or {} do
         local pet=self._visiblePets[i]
         local label=card:FindFirstChild("PetName")
         if label then label.Text=if pet then pet.speciesId.." T"..tostring(pet.tier).." "..pet.variant else "Puste miejsce" end
     end
-	-- 0. Compact hatch status from the authoritative farm view (#77); recomputed on view changes only.
 	self:_updateHatchStatus(farm)
 	self:updateStatus(self.stateStore:getStatus())
 
@@ -3558,7 +3693,6 @@ function HUD:update()
 		return
 	end
 
-	-- 1. Balances & Global Rates: one named top panel, every value a rate in jaj/s.
 	if self.cashLabel ~= nil then
 		self.cashLabel.Text = HUD.formatCash(farm.cash)
 		if self.cashRateLabel ~= nil then
@@ -3566,8 +3700,6 @@ function HUD:update()
 			self.cashRateLabel.Text = "+" .. incomeSec .. "/s"
 		end
 	end
-	-- Production and sales are the per-second values of the authoritative view. A field the view does
-	-- not carry leaves the previous text alone instead of inventing a rate.
 	if self.producedEggsLabel ~= nil then
 		local producedText = HUD.formatEggRate(farm.producedEggsPerSecond)
 		if producedText ~= nil then self.producedEggsLabel.Text = producedText end
@@ -3577,13 +3709,10 @@ function HUD:update()
 		if soldText ~= nil then self.soldEggsLabel.Text = soldText end
 	end
 	if self.shippingLabel ~= nil then
-		-- Transport is the fleet CAPACITY in jaj/s (shippingPerMinute / 60), never the current sales
-		-- amount or cash. The view is only read; no authoritative value is written or recomputed.
 		local transportText = HUD.formatTransportRate(self.codec, farm.fleet and farm.fleet.shippingPerMinute)
 		if transportText ~= nil then self.shippingLabel.Text = transportText end
 	end
 
-	-- 2. Hatchery Stock & Capacity
 	if farm.hatchery ~= nil then
 		local stock = farm.hatchery.stock
 		local capacity = farm.hatchery.capacity
@@ -3601,7 +3730,6 @@ function HUD:update()
 		self.hatcheryRatio = if cNum > 0 then math.clamp(sNum / cNum, 0, 1) else 0
 	end
 
-	-- 3. Habitats 1..4 & Total Chickens
 	local totalPop = 0
 	if type(farm.habitats) == "table" then
 		for _, hab in ipairs(farm.habitats) do
@@ -3619,7 +3747,6 @@ function HUD:update()
 				totalPop += pNum
 				self.habitatFillRatios[slotId] = if cNum > 0 then math.clamp(pNum / cNum, 0, 1) else 0
 
-				-- Update Habitat card title & next upgrade label
 				local card = self.habitatCards[slotId]
 				if card then
 					local currentIdx = hab.habitatIndex or -1
@@ -3648,24 +3775,18 @@ function HUD:update()
 		self.totalChickensLabel.Text = "Całkowita liczba kurczaków: " .. formatCompact(totalPop)
 	end
 
-	-- 4. Vehicles Modal Comparison Gauge & Slots
 	self:_updateVehiclesModal(farm)
 
-	-- 5. Research Modal Multi-tier view
 	self:_updateResearchModal(farm)
 	self:_updateEpicResearchModal(farm)
 
-	-- 6. Egg Upgrade Modal Refresh
 	self:_updateEggUpgradeModal(farm)
 
-	-- 7. Prestige & Rebirth Display Refresh
 	self:_updatePrestigeDisplay(farm)
 
-	-- 8. Shop Boosts Inventory & Active Slots Refresh
 	self:_updateShopModal(farm)
 end
 
--- Time-dependent quote maintenance stays live without repainting the HUD.
 function HUD:tick(nowMs)
 	self._quoteNowMs = nowMs
 	if self.shopFrame and self.shopFrame.Visible then
@@ -3695,7 +3816,6 @@ function HUD:_updateVehiclesModal(farm)
 		end
 	end
 
-	-- Update vehicle slot cards
 	local vehiclesList = (farm.fleet and farm.fleet.vehicles) or {}
 	local slotLimit=math.max(4,(farm.fleet and farm.fleet.slotLimit) or 4)
 	if isRoblox and self.fleetSlotsScroll then self.fleetSlotsScroll.CanvasSize=UDim2.fromOffset(0,slotLimit*56) end
@@ -3746,14 +3866,12 @@ function HUD:_updateResearchModal(farm)
 
 	local currentTier = self.selectedResearchTier or 1
 
-	-- Calculate total purchased research levels to evaluate tier unlocking
 	local totalPurchasedLevels = 0
 	local byId = {}
 	if type(farm.common) == "table" then
 		for _, r in ipairs(farm.common) do
 			byId[r.researchId] = r
 			totalPurchasedLevels += (tonumber(r.level) or 0)
-			-- Maintain individual research preview items for backend tests and quote hooks
 			self:_updateResearchItem(r, 0, false)
 		end
 	end
@@ -3766,19 +3884,18 @@ function HUD:_updateResearchModal(farm)
 			self.researchTierLockBanner.Visible = true
 			self.researchTierLockBanner.Text = string.format("🔒 Kategoria zablokowana! Wymaga %d zakupionych badań (masz %d)", requiredLevels, totalPurchasedLevels)
 			if isRoblox and self.shopListContainer then
-				self.shopListContainer.Position = UDim2.new(0, 12, 0, 138)
-				self.shopListContainer.Size = UDim2.new(1, -24, 1, -150)
+				self.shopListContainer.Position = UDim2.new(0, 12, 0, 134)
+				self.shopListContainer.Size = UDim2.new(1, -24, 1, -146)
 			end
 		else
 			self.researchTierLockBanner.Visible = false
 			if isRoblox and self.shopListContainer then
-				self.shopListContainer.Position = UDim2.new(0, 12, 0, 110)
-				self.shopListContainer.Size = UDim2.new(1, -24, 1, -122)
+				self.shopListContainer.Position = UDim2.new(0, 12, 0, 102)
+				self.shopListContainer.Size = UDim2.new(1, -24, 1, -114)
 			end
 		end
 	end
 
-	-- Render ONLY the 15 unified research groups (4 in Tab 1, 5 in Tab 2, 1 in Tab 3, 5 in Tab 4)
 	do
 		local visibleIdx = 0
 		for _, group in ipairs(UNIFIED_RESEARCH_GROUPS) do
@@ -3833,20 +3950,19 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 			Visible = shouldBeVisible,
 			Size = isRoblox and UDim2.new(1, -6, 0, 90) or nil,
 			Position = isRoblox and UDim2.new(0, 0, 0, (orderIdx - 1) * 96) or nil,
-			BackgroundColor3 = isRoblox and Color3.fromRGB(78, 52, 46) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(28, 38, 64) or nil,
 			Text = "",
 			AutoButtonColor = false,
 		}, self.shopListContainer or self.shopFrame)
-		addCornerAndStroke(card, 12, isRoblox and Color3.fromRGB(43, 24, 16) or nil, 2)
+		addCornerAndStroke(card, 12, isRoblox and Color3.fromRGB(70, 145, 255) or nil, 2)
 
-		-- Left Icon Badge (44x44)
 		local iconBadge = createGuiElement("Frame", {
 			Name = "IconBadge",
 			Size = isRoblox and UDim2.new(0, 44, 0, 44) or nil,
 			Position = isRoblox and UDim2.new(0, 8, 0, 8) or nil,
-			BackgroundColor3 = isRoblox and Color3.fromRGB(254, 243, 199) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(48, 95, 210) or nil,
 		}, card)
-		addCornerAndStroke(iconBadge, 10, isRoblox and Color3.fromRGB(217, 119, 6) or nil, 1.5)
+		addCornerAndStroke(iconBadge, 10, isRoblox and Color3.fromRGB(115, 185, 255) or nil, 1.5)
 
 		createGuiElement("TextLabel", {
 			Name = "IconEmoji",
@@ -3854,11 +3970,10 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 			BackgroundTransparency = 1,
 			Font = isRoblox and Enum.Font.FredokaOne or nil,
 			TextSize = 24,
-			TextColor3 = isRoblox and Color3.fromRGB(69, 26, 3) or nil,
+			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
 			Text = iconEmoji,
 		}, iconBadge)
 
-		-- Middle Column: Name, Subtitle, Level, Progress Bar
 		local nameLabel = createGuiElement("TextLabel", {
 			Name = "Title",
 			Size = isRoblox and UDim2.new(1, -210, 0, 18) or nil,
@@ -3883,7 +3998,7 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 			TextWrapped = true,
 			TextYAlignment = isRoblox and Enum.TextYAlignment.Top or nil,
 			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-			TextColor3 = isRoblox and Color3.fromRGB(214, 190, 178) or nil,
+			TextColor3 = isRoblox and Color3.fromRGB(195, 215, 245) or nil,
 			Text = cleanSubtitle,
 		}, card)
 
@@ -3900,12 +4015,11 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 		}, card)
 		addTextStroke(levelLabel, 1.5)
 
-		-- Mini Progress Bar
 		local progressTrack = createGuiElement("Frame", {
 			Name = "ProgressTrack",
 			Size = isRoblox and UDim2.new(1, -300, 0, 7) or nil,
 			Position = isRoblox and UDim2.new(0, 156, 0, 74) or nil,
-			BackgroundColor3 = isRoblox and Color3.fromRGB(43, 24, 16) or nil,
+			BackgroundColor3 = isRoblox and Color3.fromRGB(16, 22, 38) or nil,
 		}, card)
 		addCornerAndStroke(progressTrack, 3, nil, 0)
 
@@ -3916,14 +4030,12 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 		}, progressTrack)
 		addCornerAndStroke(progressFill, 3, nil, 0)
 
-		-- Invisible status label for test invariants
 		local statusLabel = createGuiElement("TextLabel", {
 			Name = "Status",
 			Visible = false,
 			Text = "BUY",
 		}, card)
 
-		-- 3D Tycoon Buy Button (+1 level, 92x48)
 		local buyBtn = createGuiElement("TextButton", {
 			Name = "BuyButton",
 			Size = isRoblox and UDim2.new(0, 92, 0, 48) or nil,
@@ -3958,7 +4070,6 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 		}, buyBtn)
 		addTextStroke(priceLabel, 1.8)
 
-		-- 3D Tycoon Buy MAX Button (MAX levels, 92x48)
 		local buyMaxBtn = createGuiElement("TextButton", {
 			Name = "BuyMaxButton",
 			Size = isRoblox and UDim2.new(0, 92, 0, 48) or nil,
@@ -4015,7 +4126,6 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 		}
 
 		local function triggerBuy()
-			-- Guard against clicks when disabled or already maxed (EDGE-01)
 			if not item.buyButton.Active or item.statusLabel.Text == "MAX" or item.statusLabel.Text == "LOCKED" then
 				return
 			end
@@ -4066,7 +4176,6 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 		})
 	end
 
-	-- Fresh quote validation (BUG-01)
 	local activeCurLvl = activeResearch and tonumber(activeResearch.level) or 0
 	if quote ~= nil and quote.nextLevel ~= nil and quote.nextLevel <= activeCurLvl then
 		quote = nil
@@ -4205,7 +4314,6 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 		}, self._legacyHolder or self.shopFrame)
 		addCornerAndStroke(card, 12, isRoblox and Color3.fromRGB(43, 24, 16) or nil, 2)
 
-		-- Left Icon Badge (44x44)
 		local iconBadge = createGuiElement("Frame", {
 			Name = "IconBadge",
 			Size = isRoblox and UDim2.new(0, 44, 0, 44) or nil,
@@ -4224,7 +4332,6 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 			Text = iconEmoji,
 		}, iconBadge)
 
-		-- Middle Column: Name, Subtitle, Level, Progress Bar
 		local nameLabel = createGuiElement("TextLabel", {
 			Name = "Title",
 			Size = isRoblox and UDim2.new(1, -205, 0, 18) or nil,
@@ -4266,7 +4373,6 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 		}, card)
 		addTextStroke(levelLabel, 1.5)
 
-		-- Mini Progress Bar
 		local progressTrack = createGuiElement("Frame", {
 			Name = "ProgressTrack",
 			Size = isRoblox and UDim2.new(1, -300, 0, 7) or nil,
@@ -4282,14 +4388,12 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 		}, progressTrack)
 		addCornerAndStroke(progressFill, 3, nil, 0)
 
-		-- Invisible status label for test invariants
 		local statusLabel = createGuiElement("TextLabel", {
 			Name = "Status",
 			Visible = false,
 			Text = "BUY",
 		}, card)
 
-		-- 3D Tycoon Buy Button (130x46)
 		local buyBtn = createGuiElement("TextButton", {
 			Name = "BuyButton",
 			Size = isRoblox and UDim2.new(0, 130, 0, 46) or nil,
@@ -4631,14 +4735,12 @@ function HUD:_updatePrestigeDisplay(farm)
 	local bonusPerCrystal = 10 + soulFoodLvl
 	local totalBonusPercent = if progress.earningBonus ~= nil then (if codec and codec.Real64 then math.floor(codec.Real64.decode(progress.earningBonus)) else tonumber(progress.earningBonus) or 0) else nil
 
-	-- Update Bottom-Left HUD Rebirth Label
 	if self.rebirthLabel ~= nil then
 		local curEgg = EGGS_DATA[farm.eggIndex or 0]
 		local eggName = if curEgg then curEgg.name else "Kurze"
 		self.rebirthLabel.Text = string.format("🟣 %s Prestiż (+%s) • 🥚 %s", formatCompact(currentSE), pendingText, eggName)
 	end
 
-	-- Update Prestige Modal if created
 	if self.prestigeCurrentCrystalsLabel then
 		self.prestigeCurrentCrystalsLabel.Text = "Posiadane Kryształy: 🟣 " .. formatCompact(currentSE)
 	end
@@ -4836,7 +4938,6 @@ function HUD:onQuoteReceived(quoteView)
 			end
 		end
 
-		-- Propagate fresh quote to the active unified research card (BUG-01 & BUG-02 & MAX)
 		if self.unifiedResearch then
 			for _, uItem in pairs(self.unifiedResearch) do
 				if uItem.activeId == target.args.researchId then
@@ -4936,7 +5037,6 @@ function HUD:onQuoteReceived(quoteView)
 	end
 end
 
--- Intent Actions
 
 function HUD:pressHatch(callback)
 	if self.audioController and type(self.audioController.playSFX) == "function" then
@@ -5045,7 +5145,6 @@ function HUD:buyResearch(researchId, mode, callback)
 	end
 end
 
--- Accessors for Verification & Tests
 
 function HUD:getSessionStatus() return self.sessionStatus end
 function HUD:getCashText() return if self.cashLabel then self.cashLabel.Text else "" end
@@ -5090,9 +5189,7 @@ function HUD:getEggUpgradeModal() return self.eggUpgradeModal end
 function HUD:getPetHatchModal() return self.petHatchModal end
 function HUD:getHatchAnimationOverlay() return self.hatchAnimationOverlay end
 
--- Read-only #82 diagnostic: which window/menu image keys are still awaiting an uploaded id.
--- Reports the shared StudUi binding state plus the module-level upload flag. It never invents an
--- id, so a reviewer can see exactly which bindings root still has to fill in UiAssets.
+-- Read-only #82 diagnostic for asset status
 function HUD:getAssetStatus()
 	local status = if self.ui and type(self.ui.assetStatus) == "function" then self.ui:assetStatus() else {}
 	status.uploadPending = (type(UiAssets) == "table" and UiAssets.uploadPending == true)
@@ -5128,6 +5225,130 @@ end
 
 function HUD:getAudioToggleButton()
 	return self.audioToggleButton
+end
+
+function HUD:applyTutorialStep(stepOrController: any, optionalInfo: any?)
+	local step = 5
+	local info = optionalInfo
+	local visMap = nil
+
+	if type(stepOrController) == "table" and type(stepOrController.getCurrentStepInfo) == "function" then
+		step = stepOrController.currentStep or 5
+		info = stepOrController:getCurrentStepInfo()
+		if type(stepOrController.getStepVisibility) == "function" then
+			visMap = stepOrController:getStepVisibility(step)
+		end
+	elseif type(stepOrController) == "number" then
+		step = math.clamp(stepOrController, 1, 5)
+	end
+
+	self.currentTutorialStep = step
+	local isDone = (step >= 5)
+
+	if visMap == nil then
+		visMap = {
+			HatcheryFrame = true,
+			TopBar = (step >= 2),
+			BottomLeftCluster = (step >= 2),
+			DiamondsPillFrame = (step >= 5),
+			PlayerFarmBadge = (step >= 3),
+			RightDock = (step >= 2),
+			ResearchMenuButton = (step >= 2),
+			HabitatsMenuButton = (step >= 3),
+			VehiclesMenuButton = (step >= 3),
+			CalendarMenuButton = (step >= 4),
+			ShopMenuButton = (step >= 5),
+			EpicResearchMenuButton = (step >= 5),
+			PrestigeMenuButton = (step >= 5),
+		}
+	end
+
+	if self.tutorialLabel then
+		self.tutorialLabel.Visible = false
+	end
+
+	if self.tutorialCardFrame then
+		self:_updateTutorialCardVisibility()
+		if not isDone and type(info) == "table" then
+			if self.tutorialStepBadge then
+				self.tutorialStepBadge.Text = string.format("KROK %d/4", step)
+			end
+			if self.tutorialTitleLabel then
+				self.tutorialTitleLabel.Text = "🎯 " .. tostring(info.title or "")
+			end
+			if self.tutorialBodyLabel then
+				self.tutorialBodyLabel.Text = tostring(info.instruction or "")
+			end
+		end
+	end
+
+	if self.hatcheryFrame then self.hatcheryFrame.Visible = (visMap.HatcheryFrame ~= false) end
+	if self.topBar then self.topBar.Visible = (visMap.TopBar == true) end
+	if self.playerFarmBadge then self.playerFarmBadge.Visible = (visMap.PlayerFarmBadge == true) end
+	if self.bottomLeftCluster then self.bottomLeftCluster.Visible = (visMap.BottomLeftCluster == true) end
+	if self.diamondsPillFrame then self.diamondsPillFrame.Visible = (visMap.DiamondsPillFrame == true) end
+	local rw = if isRoblox and self.rootGui and typeof(self.rootGui) == "Instance" then self.rootGui.AbsoluteSize.X else 1000
+	self:_layoutBottomRightCluster(rw)
+	if self.calendarToggleBtn then self.calendarToggleBtn.Visible = (visMap.CalendarMenuButton == true) end
+
+	local orderedRightBtns = {
+		{ btn = self.researchToggleBtn, key = "ResearchMenuButton" },
+		{ btn = self.habitatsToggleBtn, key = "HabitatsMenuButton" },
+		{ btn = self.shopToggleBtn, key = "ShopMenuButton" },
+		{ btn = self.vehiclesToggleBtn, key = "VehiclesMenuButton" },
+		{ btn = self.epicResearchToggleBtn, key = "EpicResearchMenuButton" },
+		{ btn = self.prestigeToggleBtn, key = "PrestigeMenuButton" },
+	}
+
+	local targetWidget = if type(info) == "table" then info.targetWidget else nil
+	local visibleRightCount = 0
+
+	for _, entry in ipairs(orderedRightBtns) do
+		local b = entry.btn
+		if b then
+			local showBtn = (visMap[entry.key] == true)
+			b.Visible = showBtn
+			if showBtn then
+				visibleRightCount += 1
+				if isRoblox then
+					b.Position = UDim2.new(0, 7, 0, 8 + (visibleRightCount - 1) * 63)
+					local stroke = b:FindFirstChildOfClass("UIStroke")
+					if stroke then
+						if targetWidget == entry.key and not isDone then
+							stroke.Color = Color3.fromRGB(255, 232, 64)
+							stroke.Thickness = 4.2
+						else
+							stroke.Color = Color3.fromRGB(14, 18, 30)
+							stroke.Thickness = 3.0
+						end
+					end
+				end
+			end
+		end
+	end
+
+	if isRoblox and self.calendarToggleBtn then
+		local stroke = self.calendarToggleBtn:FindFirstChildOfClass("UIStroke")
+		if stroke then
+			if targetWidget == "CalendarMenuButton" and not isDone then
+				stroke.Color = Color3.fromRGB(255, 232, 64)
+				stroke.Thickness = 4.2
+			else
+				stroke.Color = Color3.fromRGB(14, 18, 30)
+				stroke.Thickness = 3.0
+			end
+		end
+	end
+
+	if self.rightDock then
+		local showDock = (visMap.RightDock == true) and (visibleRightCount > 0)
+		self.rightDock.Visible = showDock
+		if isRoblox and showDock then
+			local newDockH = visibleRightCount * 63 + 10
+			self.rightDock.Size = UDim2.new(0, 76, 0, newDockH)
+			self.rightDock.Position = UDim2.new(1, -88, 0.5, -math.floor(newDockH / 2) - 16)
+		end
+	end
 end
 
 function HUD:destroy()

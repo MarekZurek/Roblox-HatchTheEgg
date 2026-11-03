@@ -324,8 +324,11 @@ if serverToClient then
 	end)
 end
 
--- Update tutorial banner when state changes
+-- Update tutorial banner and progressive HUD disclosure when state changes
 local localClockMs = 1000000
+if hud and type(hud.applyTutorialStep) == "function" then
+	hud:applyTutorialStep(tutorialController)
+end
 client:getStore():onStateChanged(function()
 	local obs = client:getStore():getServerObservedAt()
 	if type(obs) == "number" and obs > localClockMs then
@@ -333,41 +336,11 @@ client:getStore():onStateChanged(function()
 	end
 
 	local farm = client:getFarm()
-	if farm and hud and hud.tutorialLabel then
-		local totalPop = hud.totalChickensCount or 0
-		local hasResearch = false
-		for _, r in ipairs(farm.common or {}) do
-			if (r.level or 0) > 0 then
-				hasResearch = true
-				break
-			end
-		end
-		local hasUpgradedHab = false
-		for s = 1, 4 do
-			local h = farm.habitats and farm.habitats[s]
-			if h and ((s == 1 and (h.habitatIndex or 0) > 0) or (s > 1 and h.habitatIndex ~= nil)) then
-				hasUpgradedHab = true
-				break
-			end
-		end
-
-		if type(farm.tutorialStep) == "number" then
-			tutorialController:setStep(farm.tutorialStep)
-		elseif totalPop == 0 then
-			tutorialController:setStep(1)
-		elseif not hasResearch then
-			tutorialController:setStep(2)
-		elseif not hasUpgradedHab then
-			tutorialController:setStep(3)
-		else
-			tutorialController:setStep(4)
-		end
-
-		local info = tutorialController:getCurrentStepInfo()
-		if info.isCompleted then
-			hud.tutorialLabel.Text = "🎉 " .. info.title .. " " .. info.instruction
-		else
-			hud.tutorialLabel.Text = string.format("🎯 Krok %d/4: %s — %s", info.step, info.title, info.instruction)
+	if farm and hud then
+		local resolvedStep = TutorialController.resolveStepFromFarm(farm, hud.totalChickensCount or 0)
+		tutorialController:setStep(resolvedStep)
+		if type(hud.applyTutorialStep) == "function" then
+			hud:applyTutorialStep(tutorialController)
 		end
 
 		-- Refresh quotes for visible shop research items when shop is open

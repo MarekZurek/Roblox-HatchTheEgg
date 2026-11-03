@@ -23,6 +23,7 @@ Kod wcześniejszej płyty/UI opublikowano w6006f2b; #75–80 zamknięto. Nie pub
 - [CURRENT_SPEC](CURRENT_SPEC.md) — reguły i statusy N/S/R/P/H; dane referencyjne nie oznaczają testów implementacji.
 - [WORKING_CONTEXT](WORKING_CONTEXT.md) — kontekst dalszej pracy.
 - [TODO](TODO.md) — zadania i odłożone decyzje.
+- [ROBLOX_CREATOR_DASHBOARD_CHECKLIST](ROBLOX_CREATOR_DASHBOARD_CHECKLIST.md) — kompletna checklist platformy Roblox przed publikacją (Creator Hub).
 - [Workflow](workflow/README.md), [etapy](workflow/IMPLEMENTATION_STAGES.md) i [skills](workflow/SKILLS_PLAN.md) — organizacja przyszłej realizacji.
 
 ## Systemy

@@ -168,22 +168,45 @@ do
 end
 
 -- ============================================================================
--- Section 5: Client TutorialController
+-- Section 5: Client TutorialController & Progressive Disclosure Visibility
 -- ============================================================================
 do
 	local ctrl = TutorialController.new(nil, nil)
 	eq(ctrl.currentStep, 1, "client starts at step 1")
 	eq(ctrl:getTargetWidget(), "HatchButton", "step 1 targets HatchButton")
 	eq(ctrl:isCompleted(), false, "not completed at step 1")
+	eq(ctrl:isWidgetVisible("HatcheryFrame"), true, "step 1 shows HatcheryFrame")
+	eq(ctrl:isWidgetVisible("RightDock"), false, "step 1 hides RightDock")
+	eq(ctrl:isWidgetVisible("BottomLeftCluster"), false, "step 1 hides Cash pill")
+	eq(ctrl:isWidgetVisible("DiamondsPillFrame"), false, "step 1 hides Diamonds pill")
 
 	ctrl:setStep(2)
 	eq(ctrl.currentStep, 2, "client step set to 2")
 	eq(ctrl:getTargetWidget(), "ResearchMenuButton", "step 2 targets ResearchMenuButton")
+	eq(ctrl:isWidgetVisible("RightDock"), true, "step 2 reveals RightDock")
+	eq(ctrl:isWidgetVisible("ResearchMenuButton"), true, "step 2 reveals ResearchMenuButton")
+	eq(ctrl:isWidgetVisible("HabitatsMenuButton"), false, "step 2 keeps HabitatsMenuButton hidden")
+	eq(ctrl:isWidgetVisible("BottomLeftCluster"), true, "step 2 reveals Cash pill")
+	eq(ctrl:isWidgetVisible("TopBar"), true, "step 2 reveals TopBar rates")
+
+	ctrl:setStep(3)
+	eq(ctrl:isWidgetVisible("HabitatsMenuButton"), true, "step 3 reveals HabitatsMenuButton")
+	eq(ctrl:isWidgetVisible("VehiclesMenuButton"), true, "step 3 reveals VehiclesMenuButton")
+	eq(ctrl:isWidgetVisible("PlayerFarmBadge"), true, "step 3 reveals PlayerFarmBadge")
+	eq(ctrl:isWidgetVisible("CalendarMenuButton"), false, "step 3 keeps CalendarMenuButton hidden")
+
+	ctrl:setStep(4)
+	eq(ctrl:isWidgetVisible("CalendarMenuButton"), true, "step 4 reveals CalendarMenuButton")
+	eq(ctrl:isWidgetVisible("ShopMenuButton"), false, "step 4 keeps ShopMenuButton hidden")
 
 	ctrl:setStep(5)
 	eq(ctrl.currentStep, 5, "client step set to 5")
 	eq(ctrl:isCompleted(), true, "completed at step 5")
 	eq(ctrl.visible, false, "controller hidden on completion")
+	eq(ctrl:isWidgetVisible("ShopMenuButton"), true, "step 5 reveals ShopMenuButton")
+	eq(ctrl:isWidgetVisible("EpicResearchMenuButton"), true, "step 5 reveals EpicResearchMenuButton")
+	eq(ctrl:isWidgetVisible("PrestigeMenuButton"), true, "step 5 reveals PrestigeMenuButton")
+	eq(ctrl:isWidgetVisible("DiamondsPillFrame"), true, "step 5 reveals DiamondsPillFrame")
 end
 
 -- ============================================================================

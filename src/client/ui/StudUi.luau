@@ -25,59 +25,59 @@ local TOKENS = table.freeze({
 	font = "FredokaOne",
 	-- Minimum readable touch target for close buttons and every action button.
 	minTouch = 44,
-	radius = table.freeze({ window = 16, header = 12, card = 10, button = 10, tab = 8, slot = 10 }),
-	stroke = table.freeze({ window = 3.5, header = 2, card = 1.8, button = 2, tab = 1.6 }),
+	radius = table.freeze({ window = 14, header = 10, card = 10, button = 10, tab = 10, slot = 10 }),
+	stroke = table.freeze({ window = 4.0, header = 2.6, card = 2.2, button = 2.4, tab = 2.0 }),
 	-- Restrained stud pattern: one tiled overlay at very low opacity.
-	stud = table.freeze({ transparency = 0.94, tile = 64 }),
-	text = table.freeze({ body = { 240, 240, 240 }, dim = { 214, 196, 184 }, gold = { 255, 235, 95 } }),
+	stud = table.freeze({ transparency = 0.96, tile = 64 }),
+	text = table.freeze({ body = { 242, 246, 255 }, dim = { 196, 210, 238 }, gold = { 255, 232, 90 } }),
 	white = table.freeze({ 255, 255, 255 }),
-	black = table.freeze({ 24, 12, 10 }),
+	black = table.freeze({ 14, 18, 30 }),
 })
 
 StudUi.TOKENS = TOKENS
 
 
--- One family per migrated window: surface, border, header gradient, accent and heading colour.
+-- One family per migrated window: dark navy simulator body + vibrant coral/colored banner & border.
 local FAMILIES = table.freeze({
 	research = table.freeze({
-		surface = { 62, 39, 35 }, border = { 43, 24, 16 },
-		headerTop = { 104, 68, 60 }, header = { 74, 48, 42 },
-		accent = { 245, 158, 11 }, title = { 255, 235, 150 }, icon = "window.research",
+		surface = { 20, 26, 44 }, border = { 56, 152, 245 },
+		headerTop = { 82, 185, 255 }, header = { 38, 128, 228 },
+		accent = { 135, 225, 255 }, title = { 255, 255, 255 }, icon = "window.research",
 	}),
 	habitats = table.freeze({
-		surface = { 66, 38, 22 }, border = { 42, 22, 12 },
-		headerTop = { 122, 70, 36 }, header = { 88, 50, 26 },
-		accent = { 255, 205, 95 }, title = { 255, 240, 170 }, icon = "window.habitats",
+		surface = { 20, 26, 44 }, border = { 76, 208, 72 },
+		headerTop = { 118, 238, 92 }, header = { 58, 182, 54 },
+		accent = { 175, 255, 130 }, title = { 255, 255, 255 }, icon = "window.habitats",
 	}),
 	fleet = table.freeze({
-		surface = { 48, 62, 38 }, border = { 28, 38, 22 },
-		headerTop = { 84, 108, 64 }, header = { 60, 78, 46 },
-		accent = { 115, 245, 125 }, title = { 190, 255, 160 }, icon = "window.fleet",
+		surface = { 20, 26, 44 }, border = { 245, 168, 38 },
+		headerTop = { 255, 205, 78 }, header = { 228, 142, 24 },
+		accent = { 255, 232, 115 }, title = { 255, 255, 255 }, icon = "window.fleet",
 	}),
 	pets = table.freeze({
-		surface = { 65, 30, 60 }, border = { 36, 16, 34 },
-		headerTop = { 106, 52, 98 }, header = { 76, 36, 70 },
-		accent = { 245, 145, 255 }, title = { 255, 205, 255 }, icon = "window.pets",
+		surface = { 20, 26, 44 }, border = { 196, 88, 248 },
+		headerTop = { 222, 124, 255 }, header = { 168, 64, 226 },
+		accent = { 242, 175, 255 }, title = { 255, 255, 255 }, icon = "window.pets",
 	}),
 	shop = table.freeze({
-		surface = { 56, 32, 48 }, border = { 32, 16, 28 },
-		headerTop = { 100, 58, 84 }, header = { 72, 40, 62 },
-		accent = { 255, 215, 65 }, title = { 255, 235, 115 }, icon = "window.shop",
+		surface = { 19, 24, 42 }, border = { 228, 68, 62 },
+		headerTop = { 252, 102, 88 }, header = { 218, 56, 52 },
+		accent = { 255, 215, 75 }, title = { 255, 255, 255 }, icon = "window.shop",
 	}),
 	calendar = table.freeze({
-		surface = { 48, 32, 58 }, border = { 24, 14, 30 },
-		headerTop = { 84, 56, 100 }, header = { 60, 40, 72 },
-		accent = { 255, 175, 75 }, title = { 255, 225, 125 }, icon = "window.calendar",
+		surface = { 20, 26, 44 }, border = { 98, 218, 64 },
+		headerTop = { 136, 242, 88 }, header = { 74, 192, 48 },
+		accent = { 255, 228, 92 }, title = { 255, 255, 255 }, icon = "window.calendar",
 	}),
 	egg = table.freeze({
-		surface = { 68, 36, 22 }, border = { 40, 20, 12 },
-		headerTop = { 118, 68, 40 }, header = { 86, 48, 28 },
-		accent = { 255, 215, 65 }, title = { 255, 235, 130 }, icon = "window.egg",
+		surface = { 20, 26, 44 }, border = { 248, 184, 48 },
+		headerTop = { 255, 214, 88 }, header = { 224, 152, 28 },
+		accent = { 255, 238, 130 }, title = { 255, 255, 255 }, icon = "window.egg",
 	}),
 	hatch = table.freeze({
-		surface = { 55, 25, 55 }, border = { 30, 12, 30 },
-		headerTop = { 96, 48, 92 }, header = { 68, 34, 66 },
-		accent = { 120, 235, 140 }, title = { 255, 235, 110 }, icon = "window.hatch",
+		surface = { 20, 26, 44 }, border = { 236, 78, 148 },
+		headerTop = { 255, 116, 180 }, header = { 208, 56, 126 },
+		accent = { 255, 215, 90 }, title = { 255, 255, 255 }, icon = "window.hatch",
 	}),
 })
 
@@ -86,15 +86,15 @@ StudUi.FAMILIES = FAMILIES
 -- Button tones: fill + gradient top + border + text. State colours are shared by every window so
 -- "owned / claimed / disabled / loading" never looks different between two dialogs.
 local TONES = table.freeze({
-	primary = table.freeze({ fill = { 95, 235, 45 }, top = { 152, 255, 104 }, stroke = { 22, 48, 12 }, text = { 255, 255, 255 } }),
-	gold = table.freeze({ fill = { 245, 158, 11 }, top = { 255, 205, 80 }, stroke = { 120, 70, 10 }, text = { 40, 22, 4 } }),
-	boost = table.freeze({ fill = { 160, 60, 200 }, top = { 205, 118, 238 }, stroke = { 50, 15, 65 }, text = { 255, 255, 255 } }),
-	danger = table.freeze({ fill = { 235, 65, 65 }, top = { 255, 122, 112 }, stroke = { 85, 20, 20 }, text = { 255, 255, 255 } }),
-	neutral = table.freeze({ fill = { 78, 44, 66 }, top = { 116, 70, 100 }, stroke = { 32, 16, 28 }, text = { 255, 255, 255 } }),
-	locked = table.freeze({ fill = { 127, 29, 29 }, top = { 176, 60, 56 }, stroke = { 69, 10, 10 }, text = { 254, 226, 226 } }),
-	disabled = table.freeze({ fill = { 120, 120, 120 }, top = { 158, 158, 158 }, stroke = { 60, 60, 60 }, text = { 235, 235, 235 } }),
-	expensive = table.freeze({ fill = { 156, 163, 175 }, top = { 196, 202, 212 }, stroke = { 75, 85, 99 }, text = { 255, 255, 255 } }),
-	claimed = table.freeze({ fill = { 46, 120, 74 }, top = { 92, 176, 112 }, stroke = { 20, 60, 36 }, text = { 226, 255, 236 } }),
+	primary = table.freeze({ fill = { 78, 216, 44 }, top = { 138, 248, 86 }, stroke = { 18, 46, 14 }, text = { 255, 255, 255 } }),
+	gold = table.freeze({ fill = { 245, 172, 24 }, top = { 255, 218, 88 }, stroke = { 82, 46, 8 }, text = { 255, 255, 255 } }),
+	boost = table.freeze({ fill = { 56, 168, 248 }, top = { 112, 206, 255 }, stroke = { 16, 48, 84 }, text = { 255, 255, 255 } }),
+	danger = table.freeze({ fill = { 228, 62, 58 }, top = { 255, 108, 96 }, stroke = { 54, 14, 16 }, text = { 255, 255, 255 } }),
+	neutral = table.freeze({ fill = { 46, 62, 104 }, top = { 68, 92, 148 }, stroke = { 86, 128, 208 }, text = { 255, 255, 255 } }),
+	locked = table.freeze({ fill = { 132, 34, 42 }, top = { 178, 58, 64 }, stroke = { 48, 12, 16 }, text = { 255, 228, 228 } }),
+	disabled = table.freeze({ fill = { 64, 74, 96 }, top = { 88, 100, 126 }, stroke = { 26, 32, 46 }, text = { 188, 198, 218 } }),
+	expensive = table.freeze({ fill = { 78, 88, 114 }, top = { 104, 116, 146 }, stroke = { 32, 38, 54 }, text = { 232, 238, 252 } }),
+	claimed = table.freeze({ fill = { 42, 148, 78 }, top = { 78, 196, 112 }, stroke = { 16, 52, 28 }, text = { 232, 255, 240 } }),
 })
 
 StudUi.TONES = TONES
@@ -406,7 +406,7 @@ function StudUi:window(spec)
 		Size = self.UDim2.new(0, designWidth, 0, designHeight),
 		Position = self.UDim2.new(0.5, -designWidth / 2, 0.5, -designHeight / 2),
 		BackgroundColor3 = self:rgb(family.surface),
-		ZIndex = spec.zIndex or 10,
+		ZIndex = spec.zIndex or 50,
 	}, spec.parent)
 	self.decorate(frame, {
 		kind = "window", radius = TOKENS.radius.window,
@@ -417,13 +417,14 @@ function StudUi:window(spec)
 
 	local header = self.create("Frame", {
 		Name = "WindowHeader",
-		Size = self.UDim2.new(1, -24, 0, spec.headerHeight or 52),
-		Position = self.UDim2.new(0, 12, 0, 10),
+		Size = self.UDim2.new(0.68, 0, 0, spec.headerHeight or 54),
+		Position = self.UDim2.new(0, 12, 0, -14),
 		BackgroundColor3 = self:rgb(family.header),
+		ZIndex = (spec.zIndex or 50) + 2,
 	}, frame)
 	self.decorate(header, {
 		kind = "header", radius = TOKENS.radius.header,
-		stroke = family.border, thickness = TOKENS.stroke.header,
+		stroke = TOKENS.black, thickness = 3.2,
 		gradient = { top = family.headerTop, bottom = family.header },
 	})
 
@@ -433,37 +434,40 @@ function StudUi:window(spec)
 		Position = self.UDim2.new(0, 8, 1, -6),
 		BackgroundColor3 = self:rgb(family.accent),
 		BorderSizePixel = 0,
+		ZIndex = (spec.zIndex or 50) + 3,
 	}, header)
 	self.decorate(accent, { kind = "accent", radius = 2 })
 
 	local slot = self:iconSlot(header, {
-		key = spec.iconKey or family.icon, size = 38, position = { 0, 7, 0, 7 },
-		background = family.accent, border = family.border,
+		key = spec.iconKey or family.icon, size = 44, position = { 0, 8, 0.5, -22 },
+		background = family.headerTop, border = TOKENS.black,
 	})
-	local textLeft = if slot ~= nil then 52 else 14
+	local textLeft = if slot ~= nil then 58 else 14
 	local hasSubtitle = type(spec.subtitle) == "string" and spec.subtitle ~= ""
 
 	local title = self:heading(header, {
 		name = "WindowTitle",
-		size = { 1, -(textLeft + 56), 0, if hasSubtitle then 22 else 26 },
-		position = { 0, textLeft, 0, if hasSubtitle then 4 else 9 },
+		size = { 1, -(textLeft + 14), 0, if hasSubtitle then 24 else 30 },
+		position = { 0, textLeft, 0, if hasSubtitle then 4 else 10 },
 		text = spec.title or "",
 		color = family.title,
 		align = "Left",
 		maxTextSize = 26,
+		zIndex = (spec.zIndex or 50) + 4,
 	})
 
 	local subtitle = nil
 	if hasSubtitle then
 		subtitle = self:label(header, {
 			name = "WindowSubtitle",
-			size = { 1, -(textLeft + 56), 0, 16 },
-			position = { 0, textLeft, 0, 28 },
+			size = { 1, -(textLeft + 14), 0, 16 },
+			position = { 0, textLeft, 0, 29 },
 			text = spec.subtitle,
 			color = TOKENS.text.dim,
 			align = "Left",
 			textSize = 12,
-			textStroke = 0,
+			textStroke = 1.4,
+			zIndex = (spec.zIndex or 50) + 4,
 		})
 	end
 
@@ -633,14 +637,14 @@ function StudUi:setPillTone(pill, toneName)
 	if stroke ~= nil then stroke.Color = self:rgb(tone.stroke) end
 end
 
--- The window close control: 44x44, danger tone, image only when "control.close" is bound.
+-- The window close control: 46x46 protruding top-right danger badge, image only when "control.close" is bound.
 function StudUi:closeButton(parent, onClose, spec)
 	spec = spec or {}
-	local size = StudUi.touchTarget(spec.size or TOKENS.minTouch)
+	local size = StudUi.touchTarget(spec.size or 46)
 	local btn = self:button(parent, {
 		name = "CloseBtn", text = "X", tone = "danger",
-		size = { 0, size }, position = spec.position or { 1, -(size + 6), 0, 6 },
-		height = size, textStroke = 2.4, zIndex = 20,
+		size = { 0, size }, position = spec.position or { 1, -(size - 6), 0, -10 },
+		height = size, textStroke = 2.6, zIndex = 24,
 	})
 	local id = self:assetId(spec.key or "control.close")
 	if id ~= nil then

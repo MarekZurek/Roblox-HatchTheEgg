@@ -14,32 +14,48 @@ export type TutorialStepInfo = {
 	isCompleted: boolean,
 }
 
+export type TutorialVisibilityMap = {
+	HatcheryFrame: boolean,
+	TopBar: boolean,
+	BottomLeftCluster: boolean,
+	DiamondsPillFrame: boolean,
+	PlayerFarmBadge: boolean,
+	RightDock: boolean,
+	ResearchMenuButton: boolean,
+	HabitatsMenuButton: boolean,
+	VehiclesMenuButton: boolean,
+	CalendarMenuButton: boolean,
+	ShopMenuButton: boolean,
+	EpicResearchMenuButton: boolean,
+	PrestigeMenuButton: boolean,
+}
+
 local STEP_DEFINITIONS: { [number]: TutorialStepInfo } = table.freeze({
 	[1] = table.freeze({
 		step = 1,
 		title = "Wypuść pierwszego kurczaka",
-		instruction = "Naciśnij i przytrzymaj czerwony przycisk wylęgarni, aby wypuścić kury na farmę.",
+		instruction = "Wejdź na czerwoną płytę wylęgarni na środku farmy, aby wypuścić pierwsze kurczaki!",
 		targetWidget = "HatchButton",
 		isCompleted = false,
 	}),
 	[2] = table.freeze({
 		step = 2,
 		title = "Zbadaj pierwsze ulepszenie",
-		instruction = "Otwórz menu Badań i zakup pierwsze badanie powszechne (Wygodne gniazda).",
+		instruction = "Otwórz menu Badań po prawej stronie i zakup pierwsze ulepszenie!",
 		targetWidget = "ResearchMenuButton",
 		isCompleted = false,
 	}),
 	[3] = table.freeze({
 		step = 3,
 		title = "Ulepsz infrastrukturę farmy",
-		instruction = "Rozbuduj swój kurnik lub flotę pojazdów, aby pomieścić i wyeksportować więcej jaj.",
+		instruction = "Otwórz Kurniki lub Flotę po prawej stronie i rozbuduj swoją farmę.",
 		targetWidget = "HabitatsMenuButton",
 		isCompleted = false,
 	}),
 	[4] = table.freeze({
 		step = 4,
 		title = "Odbierz codzienny prezent",
-		instruction = "Otwórz kalendarz i odbierz swoją pierwszą nagrodę dzienną.",
+		instruction = "Otwórz Nagrody po lewej stronie ekranu i odbierz swój pierwszy prezent dzienny.",
 		targetWidget = "CalendarMenuButton",
 		isCompleted = false,
 	}),
@@ -51,6 +67,160 @@ local STEP_DEFINITIONS: { [number]: TutorialStepInfo } = table.freeze({
 		isCompleted = true,
 	}),
 })
+
+local STEP_VISIBILITY: { [number]: TutorialVisibilityMap } = table.freeze({
+	[1] = table.freeze({
+		HatcheryFrame = true,
+		TopBar = false,
+		BottomLeftCluster = false,
+		DiamondsPillFrame = false,
+		PlayerFarmBadge = false,
+		RightDock = false,
+		ResearchMenuButton = false,
+		HabitatsMenuButton = false,
+		VehiclesMenuButton = false,
+		CalendarMenuButton = false,
+		ShopMenuButton = false,
+		EpicResearchMenuButton = false,
+		PrestigeMenuButton = false,
+	}),
+	[2] = table.freeze({
+		HatcheryFrame = true,
+		TopBar = true,
+		BottomLeftCluster = true,
+		DiamondsPillFrame = false,
+		PlayerFarmBadge = false,
+		RightDock = true,
+		ResearchMenuButton = true,
+		HabitatsMenuButton = false,
+		VehiclesMenuButton = false,
+		CalendarMenuButton = false,
+		ShopMenuButton = false,
+		EpicResearchMenuButton = false,
+		PrestigeMenuButton = false,
+	}),
+	[3] = table.freeze({
+		HatcheryFrame = true,
+		TopBar = true,
+		BottomLeftCluster = true,
+		DiamondsPillFrame = false,
+		PlayerFarmBadge = true,
+		RightDock = true,
+		ResearchMenuButton = true,
+		HabitatsMenuButton = true,
+		VehiclesMenuButton = true,
+		CalendarMenuButton = false,
+		ShopMenuButton = false,
+		EpicResearchMenuButton = false,
+		PrestigeMenuButton = false,
+	}),
+	[4] = table.freeze({
+		HatcheryFrame = true,
+		TopBar = true,
+		BottomLeftCluster = true,
+		DiamondsPillFrame = false,
+		PlayerFarmBadge = true,
+		RightDock = true,
+		ResearchMenuButton = true,
+		HabitatsMenuButton = true,
+		VehiclesMenuButton = true,
+		CalendarMenuButton = true,
+		ShopMenuButton = false,
+		EpicResearchMenuButton = false,
+		PrestigeMenuButton = false,
+	}),
+	[5] = table.freeze({
+		HatcheryFrame = true,
+		TopBar = true,
+		BottomLeftCluster = true,
+		DiamondsPillFrame = true,
+		PlayerFarmBadge = true,
+		RightDock = true,
+		ResearchMenuButton = true,
+		HabitatsMenuButton = true,
+		VehiclesMenuButton = true,
+		CalendarMenuButton = true,
+		ShopMenuButton = true,
+		EpicResearchMenuButton = true,
+		PrestigeMenuButton = true,
+	}),
+})
+
+function TutorialController.resolveStepFromFarm(farm: any, fallbackTotalPop: number?): number
+	if type(farm) ~= "table" then
+		return 1
+	end
+	if type(farm.tutorialStep) == "number" then
+		return math.clamp(farm.tutorialStep, 1, 5)
+	end
+	local progress = farm.progress
+	if type(progress) == "table" and type(progress.tutorialStep) == "number" then
+		return math.clamp(progress.tutorialStep, 1, 5)
+	end
+
+	local dailyClaimed = (type(progress) == "table" and (tonumber(progress.numDailyGiftsCollected) or 0) > 0) or false
+	local hasPrestigedOrAdvanced = ((tonumber(farm.eggIndex) or 0) > 0)
+		or (type(progress) == "table" and (tonumber(progress.SE) or 0) > 0)
+	if dailyClaimed or hasPrestigedOrAdvanced then
+		return 5
+	end
+
+	local hasUpgradedInfra = false
+	if type(farm.habitats) == "table" then
+		for s = 1, 4 do
+			local h = farm.habitats[s]
+			if type(h) == "table" then
+				local idx = h.habitatIndex
+				if idx == nil then idx = h.typeIndex end
+				if (s == 1 and type(idx) == "number" and idx > 0) or (s > 1 and type(idx) == "number" and idx >= 0) then
+					hasUpgradedInfra = true
+					break
+				end
+			end
+		end
+	end
+	if not hasUpgradedInfra and type(farm.fleet) == "table" and type(farm.fleet.vehicles) == "table" then
+		if #farm.fleet.vehicles > 1 then
+			hasUpgradedInfra = true
+		elseif #farm.fleet.vehicles == 1 and (tonumber(farm.fleet.vehicles[1].vehicleIndex) or 0) > 0 then
+			hasUpgradedInfra = true
+		end
+	end
+	if hasUpgradedInfra then
+		return 4
+	end
+
+	local hasResearch = false
+	if type(farm.common) == "table" then
+		for k, r in pairs(farm.common) do
+			if type(r) == "table" and (tonumber(r.level) or 0) > 0 then
+				hasResearch = true
+				break
+			elseif type(k) == "string" and type(r) == "number" and r > 0 then
+				hasResearch = true
+				break
+			end
+		end
+	end
+	if hasResearch then
+		return 3
+	end
+
+	local totalPop = tonumber(fallbackTotalPop) or 0
+	if totalPop <= 0 and type(farm.habitats) == "table" then
+		for _, h in ipairs(farm.habitats) do
+			if type(h) == "table" then
+				totalPop += (tonumber(h.population) or 0) + (tonumber(h.reservedInTransit) or 0)
+			end
+		end
+	end
+	local cashNum = tonumber(farm.cash) or 0
+	if totalPop > 0 or cashNum > 0 then
+		return 2
+	end
+
+	return 1
+end
 
 function TutorialController.new(stateStore: any?, uiRoot: any?)
 	local self = setmetatable({
@@ -65,13 +235,48 @@ end
 function TutorialController:setStep(step: number)
 	local validStep = math.clamp(step, 1, 5)
 	self.currentStep = validStep
-	if validStep == 5 then
-		self.visible = false
-	end
+	self.visible = (validStep < 5)
 end
 
 function TutorialController:getCurrentStepInfo(): TutorialStepInfo
 	return STEP_DEFINITIONS[self.currentStep] or STEP_DEFINITIONS[5]
+end
+
+function TutorialController.getStepVisibility(selfOrStep: any, stepOverride: number?): TutorialVisibilityMap
+	local s = 5
+	if typeof(selfOrStep) == "number" then
+		s = selfOrStep
+	elseif typeof(selfOrStep) == "table" then
+		s = stepOverride or selfOrStep.currentStep or 1
+	elseif stepOverride then
+		s = stepOverride
+	end
+	s = math.clamp(s, 1, 5)
+	return STEP_VISIBILITY[s] or STEP_VISIBILITY[5]
+end
+
+function TutorialController.isWidgetVisible(selfOrWidget: any, widgetOrStep: any, stepOverride: number?): boolean
+	local widgetName = ""
+	local s = 5
+	if typeof(selfOrWidget) == "table" and selfOrWidget.currentStep ~= nil then
+		widgetName = tostring(widgetOrStep)
+		s = math.clamp(stepOverride or selfOrWidget.currentStep, 1, 5)
+	else
+		widgetName = tostring(widgetOrWidget or selfOrWidget)
+		if typeof(widgetOrStep) == "number" then
+			s = widgetOrStep
+		elseif stepOverride then
+			s = stepOverride
+		else
+			s = 1
+		end
+		s = math.clamp(s, 1, 5)
+	end
+	local vis = STEP_VISIBILITY[s] or STEP_VISIBILITY[5]
+	if (vis :: any)[widgetName] ~= nil then
+		return (vis :: any)[widgetName] == true
+	end
+	return s >= 5
 end
 
 function TutorialController:isCompleted(): boolean
