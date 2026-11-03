@@ -4332,7 +4332,7 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 	local cleanTitle, cleanSubtitle = string.match(rawName, "^(.-)%s*%((%+.-)%)%s*$")
 	if not cleanTitle then
 		cleanTitle = rawName
-		cleanSubtitle = "Ulepszenie farmy"
+		cleanSubtitle = "Farm upgrade"
 	end
 	local iconEmoji = RESEARCH_ICONS[id] or "🔬"
 	local maxLvl = COMMON_RESEARCH_MAX_LEVELS[id] or 25

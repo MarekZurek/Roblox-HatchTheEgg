@@ -190,7 +190,7 @@ local function createDefaultModel(groupId, index, startPos, container, chickenTe
 		body.Parent = model
 		model.PrimaryPart = body
 
-		-- Red Comb on Head (Grzebień)
+		-- Red Comb on Head (Comb)
 		makeChickenSubPart(
 			model,
 			"Comb",
@@ -200,7 +200,7 @@ local function createDefaultModel(groupId, index, startPos, container, chickenTe
 			baseCF
 		)
 
-		-- Orange Beak (Dziób)
+		-- Orange Beak (Beak)
 		makeChickenSubPart(
 			model,
 			"Beak",
