@@ -2586,7 +2586,7 @@ function HUD:_buildCalendarModal(root)
 
 		local dayRew = self.ui:label(dayCell, {
 			name = "RewardText", size = { 1, -4, 0.6, 0 }, position = { 0, 2, 0.38, 0 },
-			text = "Dane z serwera", color = { 255, 255, 255 },
+			text = "Loading...", color = { 255, 255, 255 },
 			textStroke = 1.4, maxTextSize = 14,
 		})
 
