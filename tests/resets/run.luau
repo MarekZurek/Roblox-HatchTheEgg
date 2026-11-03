@@ -777,20 +777,20 @@ do
 
 	local prompt = world:getEggUpgradePrompt()
 	ok(prompt ~= nil, "EggUpgradePrompt created on pedestal")
-	eq(prompt.ObjectText, "Stacja Badawcza Jaj")
-	eq(prompt.ActionText, "Zbadaj Nowe Jajo / Awansuj")
+	eq(prompt.ObjectText, "Egg Research Station")
+	eq(prompt.ActionText, "Research New Egg / Ascend")
 	eq(prompt.MaxActivationDistance, 15)
 
 	-- Update billboards from farmView
 	world:updateFromFarmView({ eggIndex = 0, habitats = {}, common = {} }, Catalog)
 	ok(#world.eggUpgradeBillboards >= 1, "at least 1 egg upgrade billboard registered")
-	eq(world.eggUpgradeBillboards[1].curLabel.Text, "🥚 Aktualne: KURZE")
-	eq(world.eggUpgradeBillboards[1].nextLabel.Text, "✨ Następne: KACZE")
+	eq(world.eggUpgradeBillboards[1].curLabel.Text, "🥚 Current: KURZE")
+	eq(world.eggUpgradeBillboards[1].nextLabel.Text, "✨ Next: KACZE")
 
 	-- Update for max egg (18)
 	world:updateFromFarmView({ eggIndex = 18, habitats = {}, common = {} }, Catalog)
-	eq(world.eggUpgradeBillboards[1].curLabel.Text, "🥚 Aktualne: ASTRALNEGO LEWIATANA (MAX)")
-	eq(world.eggUpgradeBillboards[1].nextLabel.Text, "🎉 Osiągnięto Oświecenie (MAX)!")
+	eq(world.eggUpgradeBillboards[1].curLabel.Text, "🥚 Current: ASTRALNEGO LEWIATANA (MAX)")
+	eq(world.eggUpgradeBillboards[1].nextLabel.Text, "🎉 Enlightenment Reached (MAX)!")
 
 	-- 7.5 Client HUD Modal & ClientBootstrap Verification
 	local mockRoot = { Name = "ScreenGui", Children = {} }

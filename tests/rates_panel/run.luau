@@ -6,7 +6,7 @@
 -- * Production and sales come straight from farm.producedEggsPerSecond / farm.soldEggsPerSecond.
 -- * Transport is the fleet CAPACITY converted with
 --   codec.BigAmount.divide(codec.BigAmount.decode(farm.fleet.shippingPerMinute), 60) before
---   formatCompact: 5000/min => "83.33 jaj/s" (never "5000/s"), never the current sold amount or cash.
+--   formatCompact: 5000/min => "83.33 eggs/s" (never "5000/s"), never the current sold amount or cash.
 --   The authoritative view is only read; the presentation view stays frozen and byte-identical.
 -- * Responsive geometry for 320x640, 360x640, 640x360 and 1200x700 stays on screen and clear of the
 --   48px sound toggle, the right dock and the GoldenEgg counter.
@@ -110,10 +110,10 @@ end
 -- Section 1: jaj/s formatting (production, sales and the jaj/min -> jaj/s capacity)
 -- ============================================================================
 do
-	eq(HUD.formatEggRate("0"), "0 jaj/s", "zero production keeps the jaj/s unit")
-	eq(HUD.formatEggRate(0), "0 jaj/s", "numeric zero production keeps the jaj/s unit")
-	eq(HUD.formatEggRate("24500"), "24.5K jaj/s", "production 24500/s renders as 24.5K jaj/s")
-	eq(HUD.formatEggRate("20000"), "20K jaj/s", "sales 20000/s renders as 20K jaj/s")
+	eq(HUD.formatEggRate("0"), "0 eggs/s", "zero production keeps the jaj/s unit")
+	eq(HUD.formatEggRate(0), "0 eggs/s", "numeric zero production keeps the jaj/s unit")
+	eq(HUD.formatEggRate("24500"), "24.5K eggs/s", "production 24500/s renders as 24.5K jaj/s")
+	eq(HUD.formatEggRate("20000"), "20K eggs/s", "sales 20000/s renders as 20K jaj/s")
 	eq(HUD.formatEggRate(nil), nil, "a missing production field yields no text")
 
 	eq(HUD.formatTransportRate(C, nil), nil, "a missing transport field yields no text")
@@ -121,12 +121,12 @@ do
 	eq(HUD.formatTransportRate(C, "not-a-decimal"), nil, "a rejected decimal yields no text")
 
 	near(HUD.transportRatePerSecond(C, "5000"), 5000 / 60, "5000/min converts to 83.33/s")
-	eq(HUD.formatTransportRate(C, "5000"), "83.33 jaj/s", "5000/min renders as 83.33 jaj/s")
-	ok(HUD.formatTransportRate(C, "5000") ~= "5000 jaj/s", "transport is never the raw per-minute number")
+	eq(HUD.formatTransportRate(C, "5000"), "83.33 eggs/s", "5000/min renders as 83.33 jaj/s")
+	ok(HUD.formatTransportRate(C, "5000") ~= "5000 eggs/s", "transport is never the raw per-minute number")
 	ok(HUD.formatTransportRate(C, "5000") ~= "83.33 jaj/min", "transport is a per-second rate")
-	eq(HUD.formatTransportRate(C, "60000"), "1K jaj/s", "60000/min renders as 1K jaj/s")
-	eq(HUD.formatTransportRate(C, "1200000"), "20K jaj/s", "1200000/min renders as 20K jaj/s")
-	eq(HUD.formatTransportRate(C, "0"), "0 jaj/s", "no vehicle capacity is a real zero, not a missing value")
+	eq(HUD.formatTransportRate(C, "60000"), "1K eggs/s", "60000/min renders as 1K jaj/s")
+	eq(HUD.formatTransportRate(C, "1200000"), "20K eggs/s", "1200000/min renders as 20K jaj/s")
+	eq(HUD.formatTransportRate(C, "0"), "0 eggs/s", "no vehicle capacity is a real zero, not a missing value")
 end
 
 -- ============================================================================
@@ -137,10 +137,10 @@ do
 	local hud = h.hud
 
 	ok(hud:getRatesPanel() ~= nil, "one rates panel exists")
-	eq(hud:getRatesHeadingText(1), "Produkcja", "cell 1 heading is Produkcja")
-	eq(hud:getRatesHeadingText(2), "Sprzedaż", "cell 2 heading is Sprzedaż")
-	eq(hud:getRatesHeadingText(3), "Limit transportu", "cell 3 heading is Limit transportu")
-	eq(hud:getRatesCaptionText(), "Transport określa maksymalną sprzedaż", "explanatory caption text")
+	eq(hud:getRatesHeadingText(1), "Production", "cell 1 heading is Production")
+	eq(hud:getRatesHeadingText(2), "Shipping", "cell 2 heading is Shipping")
+	eq(hud:getRatesHeadingText(3), "Fleet Limit", "cell 3 heading is Fleet Limit")
+	eq(hud:getRatesCaptionText(), "Shipping determines maximum sales", "explanatory caption text")
 
 	ok(hud.producedEggsLabel ~= nil and hud.soldEggsLabel ~= nil and hud.shippingLabel ~= nil,
 		"legacy value labels are preserved")
@@ -150,9 +150,9 @@ do
 		"each value label sits in its own panel cell")
 	ok(hud:getRatesCell(1):FindFirstChild("RatesHeading") ~= nil, "the heading is a separate visible label")
 
-	eq(hud:getProducedEggsText(), "0 jaj/s", "initial production placeholder is a jaj/s rate")
-	eq(hud:getSoldEggsText(), "0 jaj/s", "initial sales placeholder is a jaj/s rate")
-	eq(hud:getShippingText(), "0 jaj/s", "initial transport placeholder is a jaj/s rate")
+	eq(hud:getProducedEggsText(), "0 eggs/s", "initial production placeholder is a jaj/s rate")
+	eq(hud:getSoldEggsText(), "0 eggs/s", "initial sales placeholder is a jaj/s rate")
+	eq(hud:getShippingText(), "0 eggs/s", "initial transport placeholder is a jaj/s rate")
 
 	local bare = 0
 	for _, node in hud:getTopBar():GetDescendants() do
@@ -180,9 +180,9 @@ do
 		soldEggsPerSecond = "20000",
 		fleet = { vehicles = { { slotId = 1, vehicleIndex = 0 } }, shippingPerMinute = "5000", slotLimit = 4, upgrades = {} },
 	}))
-	eq(hud:getProducedEggsText(), "24.5K jaj/s", "production rate shown in jaj/s")
-	eq(hud:getSoldEggsText(), "20K jaj/s", "sales rate shown in jaj/s")
-	eq(hud:getShippingText(), "83.33 jaj/s", "5000/min transport capacity is 83.33 jaj/s")
+	eq(hud:getProducedEggsText(), "24.5K eggs/s", "production rate shown in jaj/s")
+	eq(hud:getSoldEggsText(), "20K eggs/s", "sales rate shown in jaj/s")
+	eq(hud:getShippingText(), "83.33 eggs/s", "5000/min transport capacity is 83.33 jaj/s")
 	ok(hud:getShippingText() ~= hud:getSoldEggsText(), "transport capacity is not the current sales rate")
 
 	-- Changed rates flow through the same panel.
@@ -191,9 +191,9 @@ do
 		producedEggsPerSecond = "120", soldEggsPerSecond = "60",
 		fleet = { vehicles = {}, shippingPerMinute = "600", slotLimit = 4, upgrades = {} },
 	}))
-	eq(hud:getProducedEggsText(), "120 jaj/s", "changed production rate is repainted")
-	eq(hud:getSoldEggsText(), "60 jaj/s", "changed sales rate is repainted")
-	eq(hud:getShippingText(), "10 jaj/s", "changed transport capacity is repainted")
+	eq(hud:getProducedEggsText(), "120 eggs/s", "changed production rate is repainted")
+	eq(hud:getSoldEggsText(), "60 eggs/s", "changed sales rate is repainted")
+	eq(hud:getShippingText(), "10 eggs/s", "changed transport capacity is repainted")
 
 	-- Real zeroes stay zeroes in every cell.
 	store:applySnapshot(makeSnapshot({
@@ -201,9 +201,9 @@ do
 		producedEggsPerSecond = "0", soldEggsPerSecond = "0",
 		fleet = { vehicles = {}, shippingPerMinute = "0", slotLimit = 4, upgrades = {} },
 	}))
-	eq(hud:getProducedEggsText(), "0 jaj/s", "zero production renders as 0 jaj/s")
-	eq(hud:getSoldEggsText(), "0 jaj/s", "zero sales render as 0 jaj/s")
-	eq(hud:getShippingText(), "0 jaj/s", "zero transport capacity renders as 0 jaj/s")
+	eq(hud:getProducedEggsText(), "0 eggs/s", "zero production renders as 0 jaj/s")
+	eq(hud:getSoldEggsText(), "0 eggs/s", "zero sales render as 0 jaj/s")
+	eq(hud:getShippingText(), "0 eggs/s", "zero transport capacity renders as 0 jaj/s")
 
 	-- Exact input immutability: the authoritative view the HUD reads is frozen and byte-identical
 	-- after a repaint, and writing the transport field through it is rejected.
@@ -227,9 +227,9 @@ do
 
 	eq(hud:getSessionStatus(), "CONNECTING", "status behavior unchanged before any view")
 	hud:update()
-	eq(hud:getProducedEggsText(), "0 jaj/s", "repaint without a view keeps the placeholder")
-	eq(hud:getSoldEggsText(), "0 jaj/s", "repaint without a view keeps the sales placeholder")
-	eq(hud:getShippingText(), "0 jaj/s", "repaint without a view keeps the transport placeholder")
+	eq(hud:getProducedEggsText(), "0 eggs/s", "repaint without a view keeps the placeholder")
+	eq(hud:getSoldEggsText(), "0 eggs/s", "repaint without a view keeps the sales placeholder")
+	eq(hud:getShippingText(), "0 eggs/s", "repaint without a view keeps the transport placeholder")
 
 	local partial = makeSnapshot({ streamId = "stream-rates-partial" })
 	partial.view.farm.producedEggsPerSecond = nil
@@ -237,9 +237,9 @@ do
 	partial.view.farm.fleet.shippingPerMinute = nil
 	store:applySnapshot(partial)
 	eq(hud:getSessionStatus(), "READY", "a ready view still reaches the HUD")
-	eq(hud:getProducedEggsText(), "0 jaj/s", "a view without production shows no invented rate")
-	eq(hud:getSoldEggsText(), "0 jaj/s", "a view without sales shows no invented rate")
-	eq(hud:getShippingText(), "0 jaj/s", "a view without transport shows no invented rate")
+	eq(hud:getProducedEggsText(), "0 eggs/s", "a view without production shows no invented rate")
+	eq(hud:getSoldEggsText(), "0 eggs/s", "a view without sales shows no invented rate")
+	eq(hud:getShippingText(), "0 eggs/s", "a view without transport shows no invented rate")
 
 	hud:destroy()
 end

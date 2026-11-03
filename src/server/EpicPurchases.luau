@@ -52,7 +52,7 @@ function E.prepare(p: any, id: string, catalog: any, products: any): (boolean, a
  s.pending=intent
  local granted=consume(p,intent)
  return true,{success=true,productId=productId,platformId=platformId,productType="developer_product",researchId=id,level=level,granted=granted,
-  description="1 poziom wybranego badania Epic. Opłacone ulepszenie tej grupy cenowej pozostaje na koncie do wykorzystania. Cena bazowa: "..nominal.." R$. Ostateczna cena w oknie Roblox."}
+  description="1 level of selected Epic Research. Paid upgrade remains on account. Base price: "..nominal.." R$. Final price in Roblox window."}
 end
 function E.receive(p: any, token: string, receipt: any, products: any, now: number): (boolean, any)
  local productId

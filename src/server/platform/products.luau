@@ -95,51 +95,51 @@ local CATALOG: { [string]: ProductDef } = table.freeze({
 		productType = "developer_product",
 		availableAtLaunch = true,
 		defaultGEAmount = 1000,
-		name = "Mała Paczka Diamentów (1,000 💎)",
+		name = "Small Diamond Pack (1,000 💎)",
 	}),
 	ge_pack_large = table.freeze({
 		productId = "ge_pack_large",
 		productType = "developer_product",
 		availableAtLaunch = true,
 		defaultGEAmount = 10000,
-		name = "Duża Paczka Diamentów (10,000 💎)",
+		name = "Large Diamond Pack (10,000 💎)",
 	}),
 	piggy_break = table.freeze({
 		productId = "piggy_break",
 		productType = "developer_product",
 		availableAtLaunch = true,
 		requiresPiggy = true,
-		name = "Rozbicie Skarbonki Diamentów",
+		name = "Break Diamond Piggy Bank",
 	}),
 	auto_hatch = table.freeze({
 		productId = "auto_hatch",
 		productType = "gamepass",
 		availableAtLaunch = Availability.isProductAvailable("auto_hatch"),
-		name = "Auto-Wylęg (Auto-Hatch)",
+		name = "Auto-Hatch",
 	}),
 	epic_tier_1 = table.freeze({
 		productId = "epic_tier_1",
 		productType = "developer_product",
 		availableAtLaunch = Availability.isProductAvailable("epic_tier_1"),
-		name = "Badanie Epickie (Tier 1 - 19 R$)",
+		name = "Epic Research (Tier 1 - 19 R$)",
 	}),
 	epic_tier_2 = table.freeze({
 		productId = "epic_tier_2",
 		productType = "developer_product",
 		availableAtLaunch = Availability.isProductAvailable("epic_tier_2"),
-		name = "Badanie Epickie (Tier 2 - 49 R$)",
+		name = "Epic Research (Tier 2 - 49 R$)",
 	}),
 	epic_tier_3 = table.freeze({
 		productId = "epic_tier_3",
 		productType = "developer_product",
 		availableAtLaunch = Availability.isProductAvailable("epic_tier_3"),
-		name = "Badanie Epickie (Tier 3 - 99 R$)",
+		name = "Epic Research (Tier 3 - 99 R$)",
 	}),
 	epic_tier_4 = table.freeze({
 		productId = "epic_tier_4",
 		productType = "developer_product",
 		availableAtLaunch = Availability.isProductAvailable("epic_tier_4"),
-		name = "Badanie Epickie (Tier 4 - 199 R$)",
+		name = "Epic Research (Tier 4 - 199 R$)",
 	}),
 	vip = table.freeze({
 		productId = "vip",
@@ -292,24 +292,24 @@ local function previewPurchase(
 		end
 		paidBonusAvailable = playerContext.paidRandomAllowed == true
 		if paidBonusAvailable then
-			desc = "Stała Przepustka PRO: 10 silosów (do 24h działania offline z badaniami), 5 aktywnych boostów i +10 p.p. szansy fuzji petów."
+			desc = "Permanent PRO Permit: 18h offline time, 5 active boosts, and +10% pet fusion chance."
 		else
-			desc = "Stała Przepustka PRO: 10 silosów (do 24h działania offline z badaniami) i 5 aktywnych boostów. Note: Paid random chance modifier is disabled for your account."
+			desc = "Permanent PRO Permit: 18h offline time and 5 active boosts. Note: Paid random chance modifier is disabled for your account."
 		end
 	elseif resolvedId == "buy_max" then
-		desc = "Kupuj MAX (Buy MAX): szybki zakup maksymalnej dostępnej liczby poziomów badań jednym kliknięciem. Nie zawiera Przepustki PRO."
+		desc = "Buy MAX: quickly purchase the maximum available research levels with a single click. Does not include PRO Permit."
 	elseif resolvedId == "double_cash" then
 		desc = "2x Cash (Double Cash): permanent x2 multiplier to all egg income."
 	elseif resolvedId == "auto_hatch" then
-		desc = "Auto-Wylęg (Auto-Hatch): automatyczny, ciągły wylęg kurczaków bez klikania."
+		desc = "Auto-Hatch: continuous automatic chicken hatching at max speed without holding."
 	elseif string.sub(resolvedId, 1, 9) == "epic_tier" then
-		desc = "Bezpośrednie odblokowanie Badania Epickiego za Robuxy."
+		desc = "Direct Epic Research unlock for Robux."
 	elseif resolvedId == "ge_pack_small" then
-		desc = "Mała Paczka Diamentów (1,000 💎): natychmiast zasila stan konta 1,000 Diamentami."
+		desc = "Small Diamond Pack (1,000 💎): instantly awards 1,000 Diamonds."
 	elseif resolvedId == "ge_pack_large" then
-		desc = "Duża Paczka Diamentów (10,000 💎): natychmiast zasila stan konta 10,000 Diamentami."
+		desc = "Large Diamond Pack (10,000 💎): instantly awards 10,000 Diamonds."
 	elseif resolvedId == "piggy_break" then
-		desc = "Rozbicie Skarbonki Diamentów: wypłaca wszystkie zebrane Diamenty ze Skarbonki."
+		desc = "Break Piggy Bank: unlocks and claims all stored Diamonds from your Piggy Bank."
 	end
 
 	return {

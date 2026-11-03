@@ -571,7 +571,7 @@ do
 	local prompt = world:getDeliveryPrompt()
 	ok(prompt ~= nil, "Delivery parcel ProximityPrompt exists")
 	eq(prompt.ObjectText, "Specjalna Oferta 2+1", "Prompt object text")
-	eq(prompt.ActionText, "Otwórz Paczkę", "Prompt action text")
+	eq(prompt.ActionText, "Open Parcel", "Prompt action text")
 end
 
 -- ============================================================================
@@ -632,8 +632,8 @@ do
 	-- 9.2 ProximityPrompt Verification
 	local prompt = world:getIncubatorPrompt()
 	ok(prompt ~= nil, "Incubator ProximityPrompt exists")
-	eq(prompt.ActionText, "Inkubuj Jajo", "Prompt ActionText is 'Inkubuj Jajo'")
-	eq(prompt.ObjectText, "Stacja Inkubacji Petów", "Prompt ObjectText is 'Stacja Inkubacji Petów'")
+	eq(prompt.ActionText, "Incubate Egg", "Prompt ActionText is 'Incubate Egg'")
+	eq(prompt.ObjectText, "Pet Incubation Station", "Prompt ObjectText is 'Pet Incubation Station'")
 
 	-- 9.3 Hovering Neon Incubator Egg
 	local egg = world:getIncubatorEgg()

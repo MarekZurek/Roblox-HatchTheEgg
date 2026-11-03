@@ -448,9 +448,9 @@ do
 	eq(hud:getSessionStatus(), "READY", "Status is READY after snapshot")
 	eq(hud:getCashText(), "$5.42M", "Cash formatted as $5.42M")
 	eq(hud:getCashRateText(), "+$500/s", "Cash rate formatted as +$500/s")
-	eq(hud:getProducedEggsText(), "24.5K jaj/s", "Produced eggs 24.5K jaj/s")
-	eq(hud:getSoldEggsText(), "20K jaj/s", "Sold eggs 20K jaj/s")
-	eq(hud:getShippingText(), "20K jaj/s", "Transport limit 1.2M/min -> 20K jaj/s")
+	eq(hud:getProducedEggsText(), "24.5K eggs/s", "Produced eggs 24.5K jaj/s")
+	eq(hud:getSoldEggsText(), "20K eggs/s", "Sold eggs 20K jaj/s")
+	eq(hud:getShippingText(), "20K eggs/s", "Transport limit 1.2M/min -> 20K jaj/s")
 
 	-- Hatchery
 	eq(hud:getHatcheryText(), "250 / 500", "Hatchery stock / capacity")
@@ -501,7 +501,7 @@ do
 	eq(hud:getHabitatText(1), "350 / 500", "Habitat 1 population updated to 350 / 500")
 	eq(hud:getHabitatRatio(1), 0.7, "Habitat 1 ratio updated to 0.7")
 	-- Other elements unchanged
-	eq(hud:getProducedEggsText(), "24.5K jaj/s", "Produced eggs preserved")
+	eq(hud:getProducedEggsText(), "24.5K eggs/s", "Produced eggs preserved")
 
 	hud:destroy()
 end
@@ -784,7 +784,7 @@ do
 	-- Card 4: Tier 19 (max)
 	local card4 = hud.habitatCards[4]
 	ok(string.find(card4:FindFirstChild("TitleLabel").Text, "Tier 19") ~= nil, "Card 4 displays Tier 19")
-	ok(string.find(card4:FindFirstChild("NextUpgradeLabel").Text, "Maksymalny") ~= nil, "Card 4 displays MAX")
+	ok(string.find(card4:FindFirstChild("NextUpgradeLabel").Text, "Max") ~= nil, "Card 4 displays MAX")
 
 	-- Trigger upgrade button on slot 2
 	local upgBtn2 = hud.habitatCards[2]:FindFirstChild("UpgradeHabitatBtn")
@@ -836,7 +836,7 @@ do
 		},
 	})
 	store:applySnapshot(snapSufficient)
-	eq(hud:getShippingComparisonStatus(), "Spedycja wystarczająca", "Status is Spedycja wystarczająca when rate >= production")
+	eq(hud:getShippingComparisonStatus(), "Shipping sufficient", "Status is Spedycja wystarczająca when rate >= production")
 
 	-- Test 9.2: Shipping < Production (Bottleneck)
 	local snapBottleneck = makeTestSnapshot({
@@ -850,7 +850,7 @@ do
 		},
 	})
 	store:applySnapshot(snapBottleneck)
-	eq(hud:getShippingComparisonStatus(), "Wąskie gardło spedycji!", "Status is Wąskie gardło spedycji when rate < production")
+	eq(hud:getShippingComparisonStatus(), "Shipping bottleneck!", "Status is Wąskie gardło spedycji when rate < production")
 
 	-- Test 9.3: Slot 1 active vs Slot 10 locked
 	local container = vModal:FindFirstChild("FleetSlotsContainer")
@@ -867,7 +867,7 @@ do
 
 	local slot10Card = container:FindFirstChild("VehicleSlotCard_10")
 	ok(slot10Card ~= nil, "VehicleSlotCard_10 exists")
-	ok(string.find(slot10Card:FindFirstChild("Title").Text, "Zablokowany") ~= nil, "Slot 10 is marked Zablokowany")
+	ok(string.find(slot10Card:FindFirstChild("Title").Text, "Locked") ~= nil, "Slot 10 is marked Locked")
 	eq(slot10Card:FindFirstChild("BuyVehicleButton").Active, false, "Slot 10 buy button disabled")
 
 	hud:destroy()
@@ -922,7 +922,7 @@ do
 	local lockBanner = resModal:FindFirstChild("TierLockBanner")
 	ok(lockBanner ~= nil, "TierLockBanner exists")
 	eq(lockBanner.Visible, true, "TierLockBanner is visible for locked Category 3")
-	ok(string.find(lockBanner.Text, "wymaga 30", 1, true) ~= nil or string.find(lockBanner.Text, "Wymaga 30", 1, true) ~= nil, "Banner mentions 30 required")
+	ok(string.find(lockBanner.Text, "Requires 30", 1, true) ~= nil or string.find(lockBanner.Text, "requires 30", 1, true) ~= nil, "Banner mentions 30 required")
 
 	-- Switch to Category 1: banner should be hidden
 	hud:selectResearchTier(1)
@@ -1086,7 +1086,7 @@ do
 	ok(bigCard ~= nil, "BoostCard_jimbos_purple_big exists")
 	local sub2 = bigCard:FindFirstChild("DurationSubtitle")
 	ok(sub2 ~= nil, "DurationSubtitle exists on jimbos_purple_big")
-	ok(string.find(sub2.Text, "3 godz", 1, true) ~= nil, "Shows 3 godz duration")
+	ok(string.find(sub2.Text, "3 hrs", 1, true) ~= nil, "Shows 3 hrs duration")
 
 	-- Tab 3: GamePasses
 	hud:selectShopTab(3)
@@ -1097,7 +1097,7 @@ do
 	-- Check regulatory notice
 	local notice = proCard:FindFirstChild("Notice")
 	ok(notice ~= nil, "Notice exists on Pro Permit card")
-	ok(string.find(notice.Text, "regulacjami", 1, true) ~= nil, "Notice mentions regulatory compliance")
+	ok(string.find(notice.Text, "regulations", 1, true) ~= nil, "Notice mentions regulatory compliance")
 
 	proCard:FindFirstChild("BuyPassButton").Activated:Fire()
 	eq(purchasedProduct, "pro_permit", "pro_permit buy button fired onPurchaseProduct")
@@ -1326,10 +1326,10 @@ do
 
 	eq(animOverlay.Visible, true, "HatchAnimationOverlay visible during reveal")
 	eq(hud.petRevealCard.Visible, true, "PetRevealCard visible in test mock")
-	eq(hud.revealPetName.Text, "Pies Farmer (Farmer Dog)", "Pet name displayed")
+	eq(hud.revealPetName.Text, "Farmer Dog", "Pet name displayed")
 	eq(hud.revealPetIcon.Text, "🐶", "Pet icon displayed")
 	eq(hud.revealPetRarity.Text, "LEGENDARY PET", "Pet rarity displayed")
-	eq(hud.revealPetStat.Text, "+50% Wartość Jaj", "Pet stat displayed")
+	eq(hud.revealPetStat.Text, "+50% Egg Value", "Pet stat displayed")
 
 	-- Quick Actions: Equip
 	if hud.revealEquipBtn and hud.revealEquipBtn.Activated then
@@ -1521,10 +1521,10 @@ do
  -- Do not call the HUD formatter to derive expectations from the tested code.
  ok(string.find(hud.eggUpgradeCurrentFvLabel.Text,"—",1,true)~=nil,"Missing FV is shown as unknown")
  ok(string.find(hud.eggUpgradeCurrentFvLabel.Text,"$0",1,true)==nil,"Missing FV must not invent zero")
- eq(hud.eggUpgradeBtn.Text,"OCZEKIWANIE NA WYCENĘ","Missing FV explains why advancement is unavailable")
+ eq(hud.eggUpgradeBtn.Text,"WAITING FOR VALUATION","Missing FV explains why advancement is unavailable")
  hud:_updateEggUpgradeModal({eggIndex=0,homeFV="0"})
  ok(string.find(hud.eggUpgradeCurrentFvLabel.Text,"$0",1,true)~=nil,"Authoritative zero is displayed as zero")
- eq(hud.eggUpgradeBtn.Text,"WYMAGANE WIĘKSZE FARM VALUE","Known zero is insufficient, not pending")
+ eq(hud.eggUpgradeBtn.Text,"HIGHER FARM VALUE REQUIRED","Known zero is insufficient, not pending")
  eq(hud.eggUpgradeBtn.Active,false,"Known zero does not enable advancement")
  hud:_updateEggUpgradeModal({eggIndex=0,homeFV="300000000"})
  ok(string.find(hud.eggUpgradeCurrentFvLabel.Text,"$300M",1,true)~=nil,"Server valuation is displayed without a local FV formula")
@@ -1548,11 +1548,11 @@ do
 	hud:_updateShopModal({ eggIndex = 0, progress = { proPermit = false, boostInventory = { jimbos_blue_v2 = "2", blank_check = "1" }, activeBoosts = {} } })
 	local jimbosCard = hud.shopProductCards["jimbos_blue_v2"]
 	ok(jimbosCard ~= nil, "jimbos_blue_v2 card exists")
-	eq(jimbosCard:FindFirstChild("OwnedCount").Text, "Posiadane: 2", "owned count displayed from boostInventory")
+	eq(jimbosCard:FindFirstChild("OwnedCount").Text, "Owned: 2", "owned count displayed from boostInventory")
 	local actBtn = jimbosCard:FindFirstChild("ActivateBoostButton")
 	ok(actBtn ~= nil, "ActivateBoostButton exists on boost card")
 	eq(actBtn.Active, true, "ActivateBoostButton enabled when owned > 0 and slot available")
-	eq(actBtn.Text, "AKTYWUJ", "ActivateBoostButton label is AKTYWUJ")
+	eq(actBtn.Text, "ACTIVATE", "ActivateBoostButton label is ACTIVATE")
 	actBtn.Activated:Fire()
 	eq(activatedBoost, "jimbos_blue_v2", "ActivateBoostButton triggers onActivateBoost")
 	-- Slot limit reached (2/2 standard) disables timed boosts, but allows instant cash boost (blank_check)
@@ -1572,7 +1572,7 @@ do
 	activatedBoost = nil
 	hud:_updateShopModal({ eggIndex = 18, progress = { proPermit = true, boostInventory = { jimbos_blue_v2 = "3", blank_check = "1" }, activeBoosts = {} } })
 	eq(actBtn.Active, false, "timed boost disabled on Enlightenment")
-	eq(actBtn.Text, "WYŁĄCZONE", "button shows WYŁĄCZONE on Enlightenment")
+	eq(actBtn.Text, "DISABLED", "button shows DISABLED on Enlightenment")
 	eq(blankActBtn.Active, false, "instant cash boost disabled on Enlightenment")
 	actBtn.Activated:Fire()
 	blankActBtn.Activated:Fire()

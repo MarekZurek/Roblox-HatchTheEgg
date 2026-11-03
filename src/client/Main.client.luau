@@ -284,8 +284,8 @@ if serverToClient then
 			end
 			local rw = message.reward
 			local hudRef = client:getHUD()
-			local desc = if rw and rw.type == "Cash" and hudRef and tonumber(rw.amount) then ("+" .. hudRef:formatCash(tonumber(rw.amount))) elseif rw and rw.formattedAmount then ("+" .. (string.gsub(tostring(rw.formattedAmount), " GE$", " 💎"))) elseif rw and rw.amount then ("+" .. tostring(rw.amount) .. " " .. (if rw.type == "GE" then "💎" else tostring(rw.type or ""))) else "+1 Nagroda"
-			showLootNotification("🎁 ZEBRANO PREZENT!", desc)
+			local desc = if rw and rw.type == "Cash" and hudRef and tonumber(rw.amount) then ("+" .. hudRef:formatCash(tonumber(rw.amount))) elseif rw and rw.formattedAmount then ("+" .. (string.gsub(tostring(rw.formattedAmount), " GE$", " 💎"))) elseif rw and rw.amount then ("+" .. tostring(rw.amount) .. " " .. (if rw.type == "GE" then "💎" else tostring(rw.type or ""))) else "+1 Reward"
+			showLootNotification("🎁 GIFT COLLECTED!", desc)
 			return
 		elseif type(message) == "table" and message.kind == "OfferClaimedPopup" then
 			if audio then
@@ -294,8 +294,8 @@ if serverToClient then
 			end
 			local rw = message.reward
 			local hudRef = client:getHUD()
-			local desc = if rw and rw.rewardType == "Cash" and hudRef and tonumber(rw.amountNumber) then ("+" .. hudRef:formatCash(tonumber(rw.amountNumber))) elseif rw and rw.amount then ("+" .. tostring(rw.amount) .. " " .. (if rw.rewardType == "GE" then "💎" else tostring(rw.rewardType or ""))) else "+1 Paczka Otwarta"
-			showLootNotification("📦 PACZKA 2+1 ODEBRANA!", desc)
+			local desc = if rw and rw.rewardType == "Cash" and hudRef and tonumber(rw.amountNumber) then ("+" .. hudRef:formatCash(tonumber(rw.amountNumber))) elseif rw and rw.amount then ("+" .. tostring(rw.amount) .. " " .. (if rw.rewardType == "GE" then "💎" else tostring(rw.rewardType or ""))) else "+1 Parcel Opened"
+			showLootNotification("📦 2+1 PARCEL COLLECTED!", desc)
 			return
 		elseif type(message) == "table" and message.kind == "PetHatched" then
 			if audio then
@@ -304,14 +304,14 @@ if serverToClient then
 			if hud and hud.playEggHatchAnimation then
 				hud:playEggHatchAnimation(message.pet)
 			else
-				showLootNotification("🐣 WYKLUŁEŚ PETA!", "+" .. tostring(message.pet and message.pet.speciesId or "Nowy Pet"))
+				showLootNotification("🐣 YOU HATCHED A PET!", "+" .. tostring(message.pet and message.pet.speciesId or "New Pet"))
 			end
 			return
 		elseif type(message) == "table" and message.kind == "PetHatchFailed" then
-			local reason = if message.error == "FEATURE_UNAVAILABLE" then "Inkubacja jest obecnie niedostępna."
-				elseif message.error == "INSUFFICIENT_GE" then "Niewystarczająco Diamentów."
-				else "Nie można teraz wykonać inkubacji."
-			showLootNotification("⚠️ BŁĄD INKUBACJI", reason)
+			local reason = if message.error == "FEATURE_UNAVAILABLE" then "Incubation is currently unavailable."
+				elseif message.error == "INSUFFICIENT_GE" then "Not enough Diamonds."
+				else "Cannot perform incubation right now."
+			showLootNotification("⚠️ INCUBATION ERROR", reason)
 			return
 		end
 
@@ -400,14 +400,14 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt, playerWhoTrigger
 		end
 	elseif pName == "DepotProximityPrompt" then
 		upgradeVehicleSlot(1)
-	elseif pName == "DeliveryPrompt" or pName == "ParcelPrompt" or prompt.ActionText == "Otwórz Paczkę" then
+	elseif pName == "DeliveryPrompt" or pName == "ParcelPrompt" or prompt.ActionText == "Open Parcel" then
 		local offer=client:getOrdinaryOffers()[1]
         if offer then client:claimOffer(offer.id) end
-	elseif pName == "EggUpgradePrompt" or pName == "EggUpgradeProximityPrompt" or prompt.ObjectText == "Stacja Badawcza Jaj" then
+	elseif pName == "EggUpgradePrompt" or pName == "EggUpgradeProximityPrompt" or prompt.ObjectText == "Egg Research Station" then
 		if hud then
 			hud:toggleEggUpgradeModal(true)
 		end
-	elseif pName == "IncubatorPrompt" or pName == "IncubatorProximityPrompt" or prompt.ObjectText == "Stacja Inkubacji Petów" then
+	elseif pName == "IncubatorPrompt" or pName == "IncubatorProximityPrompt" or prompt.ObjectText == "Pet Incubation Station" then
 		if hud then
 			hud:togglePetHatchModal(true)
 		end
@@ -435,7 +435,7 @@ local function bindInteractionWorld(world)
 	local function added(item)
 		-- Read attributes at use time: they may replicate after the instance.
 		if item:IsA("BasePart") and item.Name == "TouchPlate" then buyPads[item] = true end
-		if (item:IsA("ProximityPrompt") and (item.Name == "DeliveryPrompt" or item.Name == "ParcelPrompt" or item.Name == "ClaimOfferPrompt" or item.ActionText == "Otwórz Paczkę"))
+		if (item:IsA("ProximityPrompt") and (item.Name == "DeliveryPrompt" or item.Name == "ParcelPrompt" or item.Name == "ClaimOfferPrompt" or item.ActionText == "Open Parcel"))
 			or (item:IsA("BillboardGui") and item.Name == "ParcelBillboard") then
 			rewardPrompts[item] = true
 			lastOfferAvailability = nil

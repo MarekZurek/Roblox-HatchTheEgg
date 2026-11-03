@@ -977,7 +977,7 @@ function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startI
 		titleLbl.BackgroundTransparency = 1
 		titleLbl.Font = Enum.Font.FredokaOne
 		titleLbl.TextScaled = true
-		titleLbl.Text = if isElite then "👑 ZŁOTY PREZENT!" else "🎁 PREZENT!"
+		titleLbl.Text = if isElite then "👑 GOLDEN GIFT!" else "🎁 GIFT!"
 		titleLbl.TextColor3 = if isElite then Color3.fromRGB(255, 225, 60) else Color3.fromRGB(255, 245, 110)
 		titleLbl.Parent = bb
 		local st1 = Instance.new("UIStroke")
@@ -990,7 +990,7 @@ function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startI
 		subLbl.BackgroundTransparency = 1
 		subLbl.Font = Enum.Font.FredokaOne
 		subLbl.TextScaled = true
-		subLbl.Text = "[PODBIEGNIJ BY PODNIEŚĆ]"
+		subLbl.Text = "[WALK UP TO COLLECT]"
 		subLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
 		subLbl.Parent = bb
 		local st2 = Instance.new("UIStroke")
@@ -1057,7 +1057,7 @@ function RoutePresentation:updateDrones(nowMs: number, _dtSeconds: number?)
    end
    if d.landed and isRoblox then
     local sub=d.model:FindFirstChild('Subtitle',true)
-    if sub then sub.Text=string.format('[PODBIEGNIJ BY PODNIEŚĆ] (%ds...)',math.ceil((d.expiresAtMs-nowMs)/1000)) end
+    if sub then sub.Text=string.format('[WALK UP TO COLLECT] (%ds...)',math.ceil((d.expiresAtMs-nowMs)/1000)) end
    end
   end
  end

@@ -42,7 +42,7 @@ local studioMemory = studio and (script:GetAttribute("UseLocalMemoryStore") == t
 local storageMode = if studioMemory then "STUDIO_MEMORY" else "PERSISTENT"
 local persistentStore, storageError
 if not studioMemory then persistentStore, storageError = RobloxDataStorePort.open(DataStoreService) end
-local storageMessage = "Zapis jest chwilowo niedostępny. Spróbuj ponownie później."
+local storageMessage = "Save data is temporarily unavailable. Please try again later."
 if not studioMemory and not persistentStore then
     warn("[HatchTheEgg Server] Persistent storage unavailable: "..tostring(storageError))
     local function refusePlayer(player) player:Kick(storageMessage) end

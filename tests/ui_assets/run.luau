@@ -239,15 +239,15 @@ do
 
 	-- Migrated headings stay meaningful, carry no emoji, and draw their bound header icon + close icon.
 	local windows = {
-		{ label = "Research", win = hud:getResearchModal(), title = "BADANIA I TECHNOLOGIA", key = "window.research" },
-		{ label = "Habitats", win = hud:getHabitatsModal(), title = "TWOJE KURNIKI (PARCELE 1-4)", key = "window.habitats" },
-		{ label = "Fleet", win = hud:getVehiclesModal(), title = "FLOTA TRANSPORTOWA (DO 17 POJAZDÓW)", key = "window.fleet" },
-		{ label = "Pets", win = hud:getPetsModal(), title = "MOJE PETY I EWOLUCJA FUZYJNA", key = "window.pets" },
-		{ label = "Shop", win = hud:getShopModal(), title = "SKLEP DIAMENTÓW I PRZEPUSTEK", key = "window.shop" },
-		{ label = "Daily/Trophies", win = hud:getCalendarModal(), title = "KALENDARZ NAGRÓD", key = "window.calendar" },
-		{ label = "EggUpgrade", win = hud:getEggUpgradeModal(), title = "STACJA BADAWCZA JAJ", key = "window.egg" },
-		{ label = "PetHatch", win = hud:getPetHatchModal(), title = "INKUBACJA & WYKLUWANIE JAJ", key = "window.hatch" },
-		{ label = "EpicResearch", win = hud:getEpicResearchModal(), title = "BADANIA EPICKIE", key = "window.shop" },
+		{ label = "Research", win = hud:getResearchModal(), title = "RESEARCH & TECHNOLOGY", key = "window.research" },
+		{ label = "Habitats", win = hud:getHabitatsModal(), title = "YOUR HABITATS (PLOTS 1-4)", key = "window.habitats" },
+		{ label = "Fleet", win = hud:getVehiclesModal(), title = "SHIPPING FLEET (UP TO 17 VEHICLES)", key = "window.fleet" },
+		{ label = "Pets", win = hud:getPetsModal(), title = "MY PETS & FUSION EVOLUTION", key = "window.pets" },
+		{ label = "Shop", win = hud:getShopModal(), title = "DIAMONDS & PASSES SHOP", key = "window.shop" },
+		{ label = "Daily/Trophies", win = hud:getCalendarModal(), title = "DAILY REWARDS", key = "window.calendar" },
+		{ label = "EggUpgrade", win = hud:getEggUpgradeModal(), title = "EGG RESEARCH STATION", key = "window.egg" },
+		{ label = "PetHatch", win = hud:getPetHatchModal(), title = "INCUBATION & EGG HATCHING", key = "window.hatch" },
+		{ label = "EpicResearch", win = hud:getEpicResearchModal(), title = "EPIC RESEARCH", key = "window.shop" },
 	}
 	for _, w in ipairs(windows) do
 		ok(w.win ~= nil, w.label .. " window exists")
@@ -272,13 +272,13 @@ do
 
 	-- Menu dock buttons carry genuine icons, clear fallback text, and still open their matching windows.
 	local dockButtons = {
-		{ label = "Research", btn = hud.researchToggleBtn, key = "window.research", title = "Badania" },
-		{ label = "EpicResearch", btn = hud.epicResearchToggleBtn, key = "tab.ge", title = "Epickie" },
-		{ label = "Habitats", btn = hud.habitatsToggleBtn, key = "window.habitats", title = "Kurniki" },
-		{ label = "Fleet", btn = hud.vehiclesToggleBtn, key = "window.fleet", title = "Flota" },
-		{ label = "Pets", btn = hud.petsToggleBtn, key = "window.pets", title = "Pety" },
-		{ label = "Shop", btn = hud.shopToggleBtn, key = "window.shop", title = "Sklep" },
-		{ label = "Daily/Trophies", btn = hud.calendarToggleBtn, key = "window.calendar", title = "Nagrody" },
+		{ label = "Research", btn = hud.researchToggleBtn, key = "window.research", title = "Research" },
+		{ label = "EpicResearch", btn = hud.epicResearchToggleBtn, key = "tab.ge", title = "Epic" },
+		{ label = "Habitats", btn = hud.habitatsToggleBtn, key = "window.habitats", title = "Habitats" },
+		{ label = "Fleet", btn = hud.vehiclesToggleBtn, key = "window.fleet", title = "Vehicles" },
+		{ label = "Pets", btn = hud.petsToggleBtn, key = "window.pets", title = "Pets" },
+		{ label = "Shop", btn = hud.shopToggleBtn, key = "window.shop", title = "Shop" },
+		{ label = "Daily/Trophies", btn = hud.calendarToggleBtn, key = "window.calendar", title = "Rewards" },
 	}
 
 	for _, d in ipairs(dockButtons) do

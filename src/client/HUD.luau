@@ -111,9 +111,9 @@ function HUD.formatRate(selfOrAmount, maybeAmountOrUnit, maybeUnit)
 end
 
 -- Top Rates Panel Formatting
-HUD.RATES_HEADINGS = table.freeze({ "Produkcja", "Sprzedaż", "Limit transportu" })
-HUD.RATES_CAPTION = "Transport określa maksymalną sprzedaż"
-HUD.RATES_UNIT = " jaj/s"
+HUD.RATES_HEADINGS = table.freeze({ "Production", "Shipping", "Fleet Limit" })
+HUD.RATES_CAPTION = "Shipping determines maximum sales"
+HUD.RATES_UNIT = " eggs/s"
 
 local function rateText(amount)
 	if amount == nil then return nil end
@@ -149,8 +149,8 @@ end
 -- Hatch Status Helpers (#77)
 HUD.HATCH_STATUS_FULL = "CAPACITY_FULL"
 HUD.HATCH_STATUS_STOCK = "NO_STOCK"
-HUD.HATCH_STATUS_FULL_TEXT = "Brak miejsca w kurnikach"
-HUD.HATCH_STATUS_STOCK_TEXT = "Brak jaj do wylęgu — zapas się odnawia."
+HUD.HATCH_STATUS_FULL_TEXT = "Habitats full"
+HUD.HATCH_STATUS_STOCK_TEXT = "Hatchery empty — refilling eggs."
 
 local function stockBelowOne(codec, text)
 	if type(text) ~= "string" then return false end
@@ -984,7 +984,7 @@ function HUD:_buildInterface()
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
 		TextColor3 = isRoblox and Color3.fromRGB(24, 18, 8) or nil,
-		Text = "KROK 1/4",
+		Text = "STEP 1/4",
 		ZIndex = 21,
 	}, tutorialCard)
 	addCornerAndStroke(self.tutorialStepBadge, 8, isRoblox and Color3.fromRGB(16, 20, 34) or nil, 2.0)
@@ -998,7 +998,7 @@ function HUD:_buildInterface()
 		TextScaled = true,
 		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 232, 110) or nil,
-		Text = "Wypuść pierwszego kurczaka",
+		Text = "Hatch your first chicken",
 		ZIndex = 21,
 	}, tutorialCard)
 	addTextStroke(self.tutorialTitleLabel, 2.0)
@@ -1013,7 +1013,7 @@ function HUD:_buildInterface()
 		TextWrapped = true,
 		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
 		TextColor3 = isRoblox and Color3.fromRGB(240, 246, 255) or nil,
-		Text = "Wejdź na czerwoną płytę wylęgarni na środku farmy, aby wypuścić pierwsze kurczaki!",
+		Text = "Step onto the red hatchery pad in the center of the farm to release chickens!",
 		ZIndex = 21,
 	}, tutorialCard)
 	addTextStroke(self.tutorialBodyLabel, 1.8)
@@ -1077,7 +1077,7 @@ function HUD:_buildInterface()
 		TextScaled = true,
 		TextXAlignment = isRoblox and Enum.TextXAlignment.Center or nil,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-		Text = "Całkowita liczba kurczaków: 0",
+		Text = "Total chickens: 0",
 		ZIndex = 3,
 	}, xpTrack)
 	addTextStroke(self.totalChickensLabel, 2.0)
@@ -1091,7 +1091,7 @@ function HUD:_buildInterface()
 		TextScaled = true,
 		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 195, 115) or nil,
-		Text = "Odrodzenie 0 • 🥚 Farma Jajeczna",
+		Text = "Rebirth 0 • 🥚 Egg Farm",
 	}, playerBadge)
 	addTextStroke(self.rebirthLabel, 2.0)
 
@@ -1201,7 +1201,7 @@ function HUD:_buildInterface()
 		TextScaled = true,
 		TextXAlignment = isRoblox and Enum.TextXAlignment.Right or nil,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-		Text = "Diamenty: -",
+		Text = "Diamonds: -",
 	}, diamondsPill)
 	addTextStroke(self.goldenEggsLabel, 2.2)
 
@@ -1344,7 +1344,7 @@ function HUD:_buildInterface()
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-		Text = "Kurniki",
+		Text = "Habitats",
 	}, hatchStatusFrame)
 	addCornerAndStroke(self.hatchStatusActionBtn, 8, isRoblox and Color3.fromRGB(22, 48, 12) or nil, 2)
 	if self.hatchStatusActionBtn.Activated then
@@ -1649,7 +1649,7 @@ end
 function HUD:_buildHabitatsModal(root)
 	local win = self.ui:window({
 		parent = root, name = "HabitatsFrame", family = "habitats",
-		title = "TWOJE KURNIKI (PARCELE 1-4)",
+		title = "YOUR HABITATS (PLOTS 1-4)",
 		designWidth = 460, designHeight = 430,
 	})
 	local habitatsFrame = win.frame
@@ -1672,7 +1672,7 @@ function HUD:_buildHabitatsModal(root)
 
 		local titleLabel = self.ui:label(card, {
 			name = "TitleLabel", size = { 0.68, 0, 0, 24 }, position = { 0.03, 0, 0, 6 },
-			text = "Parcela #" .. tostring(slotId) .. ": Tier 1",
+			text = "Plot #" .. tostring(slotId) .. ": Tier 1",
 			color = { 255, 245, 160 }, align = "Left", textStroke = 1.8, maxTextSize = 20,
 		})
 
@@ -1684,12 +1684,12 @@ function HUD:_buildHabitatsModal(root)
 
 		local nextLabel = self.ui:label(card, {
 			name = "NextUpgradeLabel", size = { 0.68, 0, 0, 18 }, position = { 0.03, 0, 0, 50 },
-			text = "Następny: Tier 2", color = { 160, 240, 140 }, align = "Left",
+			text = "Next: Tier 2", color = { 160, 240, 140 }, align = "Left",
 			textStroke = 1.5, maxTextSize = 16,
 		})
 
 		local upgBtn = self.ui:button(card, {
-			name = "UpgradeHabitatBtn", text = "ULEPSZ", tone = "primary",
+			name = "UpgradeHabitatBtn", text = "UPGRADE", tone = "primary",
 			size = { 0.26, 0, 0, 44 }, position = { 0.71, 0, 0, 14 },
 			onClick = function()
 				if type(self.onQuickBuyHabitat) == "function" then
@@ -1707,7 +1707,7 @@ end
 function HUD:_buildVehiclesModal(root)
 	local win = self.ui:window({
 		parent = root, name = "VehiclesFrame", family = "fleet",
-		title = "FLOTA TRANSPORTOWA (DO 17 POJAZDÓW)",
+		title = "SHIPPING FLEET (UP TO 17 VEHICLES)",
 		designWidth = 500, designHeight = 520,
 	})
 	local vFrame = win.frame
@@ -1724,13 +1724,13 @@ function HUD:_buildVehiclesModal(root)
 
 	self.shippingComparisonStatusLabel = self.ui:label(gaugeFrame, {
 		name = "ComparisonStatusLabel", size = { 1, -12, 0, 24 }, position = { 0, 6, 0, 4 },
-		text = "Spedycja: 0/min vs Produkcja: 0/min", color = { 255, 255, 255 },
+		text = "Shipping: 0/min vs Production: 0/min", color = { 255, 255, 255 },
 		align = "Left", textStroke = 1.8, maxTextSize = 20,
 	})
 
 	local statusBadge = self.ui:pill(gaugeFrame, {
 		name = "StatusBadge", size = { 1, -12, 0, 22 }, position = { 0, 6, 0, 30 },
-		text = "Spedycja wystarczająca", tone = "primary", align = "Left",
+		text = "Shipping sufficient", tone = "primary", align = "Left",
 		maxTextSize = 18, radius = 6,
 	})
 
@@ -1757,7 +1757,7 @@ function HUD:_buildVehiclesModal(root)
 
 		local capLabel = self.ui:label(card, {
 			name = "Capacity", size = { 0.48, 0, 0.45, 0 }, position = { 0.02, 0, 0.5, 0 },
-			text = "Wydajność: 5K jaj/min", color = { 165, 255, 140 },
+			text = "Rate: 5K eggs/min", color = { 165, 255, 140 },
 			align = "Left", textStroke = 1.5, maxTextSize = 15,
 		})
 
@@ -1768,7 +1768,7 @@ function HUD:_buildVehiclesModal(root)
 		})
 
 		local upgBtn = self.ui:button(card, {
-			name = "BuyVehicleButton", text = "ULEPSZ", tone = "primary",
+			name = "BuyVehicleButton", text = "UPGRADE", tone = "primary",
 			size = { 0.22, 0, 0, 44 }, position = { 0.76, 0, 0, 2 },
 			onClick = function()
 				if type(self.onQuickBuyVehicle) == "function" then
@@ -1791,8 +1791,8 @@ function HUD:_buildResearchModal(root)
 	-- Shared stud-style research window (#82).
 	local win = self.ui:window({
 		parent = root, name = "ShopFrame", family = "research",
-		title = "BADANIA I TECHNOLOGIA",
-		subtitle = "Efekt badania: obecnie → kolejny poziom",
+		title = "RESEARCH & TECHNOLOGY",
+		subtitle = "Research effect: Current → Next level",
 		designWidth = 540, designHeight = 520,
 	})
 	local shopFrame = win.frame
@@ -1810,7 +1810,7 @@ function HUD:_buildResearchModal(root)
 	})
 	if isRoblox then tabsRow.CanvasSize = UDim2.new(0, 0, 0, 0) end
 
-	local tabNames = { "🧬 Genetyka", "🐣 Wylęg", "🏡 Kurniki", "🚚 Flota" }
+	local tabNames = { "🧬 Genetics", "🐣 Hatching", "🏡 Habitats", "🚚 Fleet" }
 	local tabOffset = 0
 	for idx, tabName in ipairs(tabNames) do
 		local tabWidth = 123
@@ -1830,7 +1830,7 @@ function HUD:_buildResearchModal(root)
 	self.researchTierLockBanner = self.ui:pill(shopFrame, {
 		name = "TierLockBanner", visible = false,
 		size = { 1, -24, 0, 26 }, position = { 0, 12, 0, 102 },
-		text = "Tier zablokowany! Wymaga więcej zakupionych badań",
+		text = "Tier locked! Requires more research purchased",
 		tone = "locked", align = "Center", maxTextSize = 18, radius = 6,
 	})
 
@@ -1915,8 +1915,8 @@ function HUD:_buildEpicResearchModal(root)
 		parent = root,
 		name = "EpicResearchModalFrame",
 		family = "shop",
-		title = "BADANIA EPICKIE",
-		subtitle = "Diamenty lub Robux. *Cena końcowa w oknie Roblox.",
+		title = "EPIC RESEARCH",
+		subtitle = "Diamonds or Robux. *Final price in Roblox window.",
 		designWidth = 920,
 		designHeight = 640,
 	})
@@ -1935,7 +1935,7 @@ function HUD:_buildEpicResearchModal(root)
 		name = "EpicGeBalancePill",
 		size = { 1, -28, 0, 36 },
 		position = { 0, 14, 0, 66 },
-		text = "Twoje Diamenty: 0 💎",
+		text = "Your Diamonds: 0 💎",
 		tone = "gold",
 		align = "Center",
 		maxTextSize = 18,
@@ -2008,7 +2008,7 @@ function HUD:_buildEpicResearchModal(root)
 			name = "LevelLabel",
 			size = { 0.24, 0, 0, 18 },
 			position = { 0.03, 0, 0, 58 },
-			text = "Poziom: 0 / " .. tostring(item.maxLevel),
+			text = "Level: 0 / " .. tostring(item.maxLevel),
 			color = { 180, 240, 180 },
 			align = "Left",
 			textStroke = 1.4,
@@ -2032,7 +2032,7 @@ function HUD:_buildEpicResearchModal(root)
 
 		local buyBtn = self.ui:button(card, {
 			name = "BuyEpicButton",
-			text = if UNSUPPORTED_EPIC_RESEARCH[item.id] then "WKRÓTCE" else formatCompact(EpicPricing.ge(item.basePriceGE)) .. " 💎",
+			text = if UNSUPPORTED_EPIC_RESEARCH[item.id] then "SOON" else formatCompact(EpicPricing.ge(item.basePriceGE)) .. " 💎",
 			tone = if UNSUPPORTED_EPIC_RESEARCH[item.id] then "ghost" else "primary",
 			size = { 0.17, 0, 0, 48 },
 			position = { 0.60, 0, 0, 18 },
@@ -2046,7 +2046,7 @@ function HUD:_buildEpicResearchModal(root)
 
 		local buyRobuxBtn = self.ui:button(card, {
 			name = "BuyRobuxButton",
-			text = "WKRÓTCE", active = false,
+			text = "SOON", active = false,
 			tone = "gold",
 			size = { 0.18, 0, 0, 48 },
 			position = { 0.79, 0, 0, 18 },
@@ -2082,7 +2082,7 @@ function HUD:_buildPetsModal(root)
 	-- Shared stud-style window (#82)
 	local win = self.ui:window({
 		parent = root, name = "PetsFrame", family = "pets",
-		title = "MOJE PETY I EWOLUCJA FUZYJNA",
+		title = "MY PETS & FUSION EVOLUTION",
 		designWidth = 520, designHeight = 540,
 	})
 	local pFrame = win.frame
@@ -2121,7 +2121,7 @@ function HUD:_buildPetsModal(root)
 
 	self.ui:label(invFrame, {
 		name = "InvTitle", size = { 1, -12, 0, 22 }, position = { 0, 8, 0, 4 },
-		text = "Inwentarz Petów (Kliknij by założyć / zablokować):",
+		text = "Pet Inventory (Click to equip / lock):",
 		color = { 255, 235, 145 }, align = "Left", textStroke = 1.8, maxTextSize = 18,
 	})
 
@@ -2134,7 +2134,7 @@ function HUD:_buildPetsModal(root)
 
 		local nameLbl = self.ui:button(pCard, {
 			name = "PetName",
-			text = if pIdx == 1 then "Piesek Farmerski (T1 Normalny)" elseif pIdx == 2 then "Robo-Kogut (T1 Złoty)" else "Piesek (T1 Normalny)",
+			text = if pIdx == 1 then "Farmer Dog (T1 Normal)" elseif pIdx == 2 then "Robo-Rooster (T1 Gold)" else "Pup (T1 Normal)",
 			tone = "neutral", size = { 0.55, 0, 0, 40 }, position = { 0.02, 0, 0, 2 },
 			textStroke = 1.6, maxTextSize = 16,
 		})
@@ -2142,11 +2142,11 @@ function HUD:_buildPetsModal(root)
 			local pet=self._visiblePets and self._visiblePets[pIdx]
 			if not pet or pet.locked or pet.equipped then return end
 			if not self.fusionBaseUid or self.fusionBaseUid==pet.uid then self:selectFusionBase(pet.uid) else self:toggleFusionMaterial(pet.uid) end
-			if self.fusionChanceLabel then self.fusionChanceLabel.Text="Baza: "..tostring(self.fusionBaseUid).." | materiały: "..tostring(#self.fusionMaterialUids) end
+			if self.fusionChanceLabel then self.fusionChanceLabel.Text="Base: "..tostring(self.fusionBaseUid).." | Materials: "..tostring(#self.fusionMaterialUids) end
 		end) end
 
 		local equipBtn = self.ui:button(pCard, {
-			name = "EquipBtn", text = "ZAŁÓŻ", tone = "primary",
+			name = "EquipBtn", text = "EQUIP", tone = "primary",
 			size = { 0.20, 0, 0, 40 }, position = { 0.58, 0, 0, 2 },
 			textStroke = 1.5, maxTextSize = 16,
 			onClick = function()
@@ -2158,7 +2158,7 @@ function HUD:_buildPetsModal(root)
 		})
 
 		local lockBtn = self.ui:button(pCard, {
-			name = "LockBtn", text = "ODBL.", tone = "gold",
+			name = "LockBtn", text = "UNLK", tone = "gold",
 			size = { 0.18, 0, 0, 40 }, position = { 0.80, 0, 0, 2 },
 			textStroke = 1.5, maxTextSize = 16,
 			onClick = function()
@@ -2180,25 +2180,25 @@ function HUD:_buildPetsModal(root)
 
 	self.fusionChanceLabel = self.ui:label(fusFrame, {
 		name = "FusionChanceLabel", size = { 0.68, 0, 0, 24 }, position = { 0.02, 0, 0, 6 },
-		text = "Wybierz bazę, potem materiały (kliknij nazwę peta)",
+		text = "Select base, then materials (click pet name)",
 		color = { 255, 235, 120 }, align = "Left", textStroke = 1.8, maxTextSize = 18,
 	})
 
 	self.fusionGuaranteeLabel = self.ui:label(fusFrame, {
 		name = "FusionGuaranteeLabel", size = { 0.68, 0, 0, 22 }, position = { 0.02, 0, 0, 32 },
-		text = "Receptura i gwarancja wymagają konfiguracji serwera",
+		text = "Recipe and guarantee require server config",
 		color = { 150, 245, 160 }, align = "Left", textStroke = 1.8, maxTextSize = 16,
 	})
 
 	self.fusionProPermitBadge = self.ui:label(fusFrame, {
 		name = "ProPermitBonusBadge", size = { 0.68, 0, 0, 20 }, position = { 0.02, 0, 0, 56 },
-		text = "Bonus Pro zależy od uprawnień konta",
+		text = "Pro bonus depends on account entitlements",
 		color = { 255, 175, 240 }, align = "Left", textStroke = 1.6, maxTextSize = 15,
 	})
 	addTextStroke(self.fusionProPermitBadge, 1.6)
 
 	self.fusePetsButton = self.ui:button(fusFrame, {
-		name = "FusePetsButton", text = "POŁĄCZ PETY", tone = "boost",
+		name = "FusePetsButton", text = "FUSE PETS", tone = "boost",
 		size = { 0.28, 0, 0, 48 }, position = { 0.70, 0, 0, 14 },
 		textStroke = 2.0, maxTextSize = 18,
 		onClick = function()
@@ -2214,7 +2214,7 @@ end
 function HUD:_buildShopModal(root)
 	local win = self.ui:window({
 		parent = root, name = "ShopModalFrame", family = "shop",
-		title = "SKLEP DIAMENTÓW I PRZEPUSTEK",
+		title = "DIAMONDS & PASSES SHOP",
 		designWidth = 880, designHeight = 560,
 	})
 	local sFrame = win.frame
@@ -2232,7 +2232,7 @@ function HUD:_buildShopModal(root)
 		size = { 1, -172, 0, 38 },
 		position = { 0, 156, 0, 48 },
 		height = 38,
-		text = "⭐ MEGA OFERTA: 2X DOCHÓD & PRZEPUSTKA PRO – SPRAWDŹ PRZEPUSTKI! ⭐",
+		text = "⭐ MEGA DEAL: 2X CASH & PRO PERMIT – CHECK PASSES! ⭐",
 		color = { 255, 255, 255 },
 		textStroke = 2.0,
 		maxTextSize = 16,
@@ -2251,7 +2251,7 @@ function HUD:_buildShopModal(root)
 		size = { 0, 128, 1, -68 }, position = { 0, 16, 0, 52 },
 	})
 
-	local sTabNames = { "Diamenty", "Boosty", "Przepustki" }
+	local sTabNames = { "Diamonds", "Boosts", "Passes" }
 	local sTabIcons = { "tab.ge", "tab.boosts", "tab.passes" }
 	for idx, sName in ipairs(sTabNames) do
 		local tabBtn = self.ui:tabButton(tabsRow, {
@@ -2293,25 +2293,25 @@ function HUD:_buildShopProducts(container)
 	local geProducts = {
 		{
 			id = "ge_pack_small",
-			title = "1,000 Diamentów",
-			badge = "Popularne",
+			title = "1,000 Diamonds",
+			badge = "Popular",
 			badgeFill = { 32, 128, 224 },
 			fill = { 54, 148, 238 },
 			top = { 118, 196, 255 },
 			border = { 28, 96, 178 },
-			desc = "Szybki zastrzyk 💎 na epickie badania i boosty",
+			desc = "Quick boost of 💎 for epic research and boosts",
 			btnText = "1,000 💎",
 			icon = "rbxassetid://123463156806216",
 		},
 		{
 			id = "ge_pack_large",
-			title = "10,000 Diamentów",
-			badge = "Najlepsza wartość (+50%)",
+			title = "10,000 Diamonds",
+			badge = "Best value (+50%)",
 			badgeFill = { 218, 132, 18 },
 			fill = { 236, 162, 34 },
 			top = { 255, 214, 86 },
 			border = { 168, 98, 14 },
-			desc = "Wielki zapas Diamentów 💎 (+50% Bonus)",
+			desc = "Huge stash of Diamonds 💎 (+50% Bonus)",
 			btnText = "10,000 💎",
 			isBestValue = true,
 			icon = "rbxassetid://123463156806216",
@@ -2386,7 +2386,7 @@ function HUD:_buildShopProducts(container)
 
 	self.activeBoostsSummaryLabel = self.ui:label(tab2Frame, {
 		name = "ActiveBoostsSummary", size = { 0.96, 0, 0, 32 }, position = { 0.02, 0, 0, 4 },
-		text = "Aktywne boosty: 0 / 2", color = { 255, 232, 95 },
+		text = "Active boosts: 0 / 2", color = { 255, 232, 95 },
 		align = "Left", textStroke = 1.8, maxTextSize = 16,
 	})
 
@@ -2403,7 +2403,7 @@ function HUD:_buildShopProducts(container)
 			align = "Left", textStroke = 1.6, maxTextSize = 14,
 		})
 
-		local durationIcon = if bSpec.duration == "Natychmiast" then "⚡ " else "⏱️ "
+		local durationIcon = if bSpec.duration == "Instant" then "⚡ " else "⏱️ "
 		self.ui:label(card, {
 			name = "DurationSubtitle", size = { 0.36, 0, 0, 20 }, position = { 0.02, 0, 0, 28 },
 			text = durationIcon .. bSpec.duration .. " • " .. bSpec.effect, color = { 255, 220, 100 },
@@ -2412,7 +2412,7 @@ function HUD:_buildShopProducts(container)
 
 		local ownedLbl = self.ui:label(card, {
 			name = "OwnedCount", size = { 0.14, 0, 0, 54 }, position = { 0.39, 0, 0, 0 },
-			text = "Posiadane: 0", color = { 185, 225, 255 },
+			text = "Owned: 0", color = { 185, 225, 255 },
 			align = "Center", textStroke = 1.4, maxTextSize = 13,
 		})
 
@@ -2424,7 +2424,7 @@ function HUD:_buildShopProducts(container)
 
 		local activateBtn
 		activateBtn = self.ui:button(card, {
-			name = "ActivateBoostButton", text = "BRAK", tone = "disabled", active = false,
+			name = "ActivateBoostButton", text = "NONE", tone = "disabled", active = false,
 			size = { 0.15, 0, 0, 44 }, position = { 0.67, 0, 0, 5 },
 			textStroke = 1.6, maxTextSize = 14,
 			onClick = function()
@@ -2436,7 +2436,7 @@ function HUD:_buildShopProducts(container)
 		})
 
 		local buyBtn = self.ui:button(card, {
-			name = "BuyBoostButton", text = "KUP", tone = "primary",
+			name = "BuyBoostButton", text = "BUY", tone = "primary",
 			size = { 0.15, 0, 0, 44 }, position = { 0.83, 0, 0, 5 },
 			textStroke = 1.6, maxTextSize = 16,
 			onClick = function()
@@ -2507,7 +2507,7 @@ function HUD:_buildShopProducts(container)
 
 		local isPassDisabled = not Availability.isProductAvailable(pass.id)
 		local buyBtn = self.ui:button(card, {
-			name = "BuyPassButton", active = not isPassDisabled, text = if isPassDisabled then "WKRÓTCE" else "ODBLOKUJ", tone = if isPassDisabled then "ghost" else "primary",
+			name = "BuyPassButton", active = not isPassDisabled, text = if isPassDisabled then "SOON" else "UNLOCK", tone = if isPassDisabled then "ghost" else "primary",
 			size = { 0.23, 0, 0, 52 }, position = { 0.74, 0, 0, 32 },
 			onClick = function()
 				if isPassDisabled then return end
@@ -2530,7 +2530,7 @@ function HUD:_buildCalendarModal(root)
 	-- Shared stud-style window (#82): 28-day daily rewards calendar.
 	local win = self.ui:window({
 		parent = root, name = "CalendarFrame", family = "calendar",
-		title = "KALENDARZ NAGRÓD",
+		title = "DAILY REWARDS",
 		designWidth = 560, designHeight = 520,
 	})
 	local cFrame = win.frame
@@ -2548,7 +2548,7 @@ function HUD:_buildCalendarModal(root)
 		visible = false,
 	})
 
-	local cTabNames = { "Kalendarz 28 Dni", "Trofea Jaj" }
+	local cTabNames = { "28-Day Calendar", "Egg Trophies" }
 	local cTabIcons = { "window.calendar", "tab.trophies" }
 	for idx, cName in ipairs(cTabNames) do
 		local tabBtn = self.ui:tabButton(tabsRow, {
@@ -2600,12 +2600,12 @@ function HUD:_buildCalendarModal(root)
 	self.calendarClaimStatusLabel = self.ui:label(cFrame, {
 		name = "CalendarClaimStatusLabel",
 		size = { 1, -28, 0, 20 }, position = { 0, 14, 1, -84 },
-		text = "Sprawdzanie dostępności nagrody...", color = { 255, 235, 120 },
+		text = "Checking reward availability...", color = { 255, 235, 120 },
 		align = "Center", textStroke = 1.6, maxTextSize = 16,
 	})
 
 	self.claimDailyGiftButton = self.ui:button(cFrame, {
-		name = "ClaimDailyGiftButton", text = "ODBIERZ DZISIEJSZĄ NAGRODĘ", tone = "primary",
+		name = "ClaimDailyGiftButton", text = "CLAIM TODAY'S REWARD", tone = "primary",
 		size = { 1, -28, 0, 48 }, position = { 0, 14, 1, -60 },
 		textStroke = 2.0, maxTextSize = 20,
 		onClick = function()
@@ -2624,7 +2624,7 @@ function HUD:_buildCalendarModal(root)
 	})
 
 	for eIdx = 0, 18 do
-		local egg = EGGS_DATA[eIdx] or { name = "Jajo " .. tostring(eIdx) }
+		local egg = EGGS_DATA[eIdx] or { name = "Egg " .. tostring(eIdx) }
 		local card = self.ui:card(trophContent, {
 			name = "TrophyCard_Egg_" .. tostring(eIdx), family = "calendar",
 			fill = { 56, 36, 68 }, top = { 84, 56, 100 }, border = { 28, 16, 34 },
@@ -2659,7 +2659,7 @@ function HUD:_buildEggUpgradeModal(root)
 	-- Shared stud-style egg window (#82)
 	local win = self.ui:window({
 		parent = root, name = "EggUpgradeModal", family = "egg",
-		title = "STACJA BADAWCZA JAJ",
+		title = "EGG RESEARCH STATION",
 		designWidth = 440, designHeight = 360,
 	})
 	local eggModal = win.frame
@@ -2669,43 +2669,43 @@ function HUD:_buildEggUpgradeModal(root)
 
 	self.eggUpgradeCurrentLabel = self.ui:label(eggModal, {
 		name = "CurrentEggLabel", size = { 1, -32, 0, 26 }, position = { 0, 16, 0, 74 },
-		text = "Aktualne: Jajo Kurze", color = { 255, 255, 255 },
+		text = "Current: Regular Egg", color = { 255, 255, 255 },
 		textStroke = 1.8, maxTextSize = 18,
 	})
 
 	self.eggUpgradeNextLabel = self.ui:label(eggModal, {
 		name = "NextEggLabel", size = { 1, -32, 0, 26 }, position = { 0, 16, 0, 104 },
-		text = "Następne: Jajo Kacze", color = { 115, 245, 115 },
+		text = "Next: Duck Egg", color = { 115, 245, 115 },
 		textStroke = 1.8, maxTextSize = 18,
 	})
 
 	self.eggUpgradeMultLabel = self.ui:label(eggModal, {
 		name = "MultiplierLabel", size = { 1, -32, 0, 24 }, position = { 0, 16, 0, 134 },
-		text = "Mnożnik Wartości: 5.0x", color = { 255, 215, 100 },
+		text = "Value Multiplier: 5.0x", color = { 255, 215, 100 },
 		textStroke = 1.8, maxTextSize = 17,
 	})
 
 	self.eggUpgradeCurrentFvLabel = self.ui:label(eggModal, {
 		name = "CurrentFvLabel", size = { 1, -32, 0, 24 }, position = { 0, 16, 0, 164 },
-		text = "Twoje Farm Value: $0", color = { 135, 225, 255 },
+		text = "Your Farm Value: $0", color = { 135, 225, 255 },
 		textStroke = 1.8, maxTextSize = 17,
 	})
 
 	self.eggUpgradeReqFvLabel = self.ui:label(eggModal, {
 		name = "RequiredFvLabel", size = { 1, -32, 0, 24 }, position = { 0, 16, 0, 192 },
-		text = "Wymagane Farm Value: $5.0M", color = { 255, 185, 115 },
+		text = "Required Farm Value: $5.0M", color = { 255, 185, 115 },
 		textStroke = 1.8, maxTextSize = 17,
 	})
 
 	self.eggUpgradeWarningLabel = self.ui:pill(eggModal, {
 		name = "WarningLabel", size = { 1, -32, 0, 52 }, position = { 0, 16, 0, 224 },
-		text = "Awans zresetuje bieżącą gotówkę, kurniki i pojazdy.\nPety, Diamenty i badania Epickie zostaną zachowane!",
+		text = "Ascending will reset current cash, habitats, and vehicles.\nPets, Diamonds, and Epic Research will be kept!",
 		tone = "locked", align = "Center", wrapped = true,
 		maxTextSize = 15, radius = 8, transparency = 0.15,
 	})
 
 	local upgEggBtn = self.ui:button(eggModal, {
-		name = "UpgradeEggButton", text = "AWANSUJ NASTĘPNE JAJO", tone = "primary",
+		name = "UpgradeEggButton", text = "UPGRADE NEXT EGG", tone = "primary",
 		size = { 1, -40, 0, 52 }, position = { 0, 20, 0, 292 },
 		textStroke = 2.4, maxTextSize = 20,
 		onClick = function()
@@ -2723,7 +2723,7 @@ end
 function HUD:_buildPetHatchModal(root)
 	local win = self.ui:window({
 		parent = root, name = "PetHatchModal", family = "hatch",
-		title = "INKUBACJA & WYKLUWANIE JAJ",
+		title = "INCUBATION & EGG HATCHING",
 		designWidth = 480, designHeight = 460,
 	})
 	local hFrame = win.frame
@@ -2733,7 +2733,7 @@ function HUD:_buildPetHatchModal(root)
 
 	self.ui:label(hFrame, {
 		name = "PetHatchSubtitle", size = { 1, -28, 0, 24 }, position = { 0, 14, 0, 70 },
-		text = "Inkubuj jajo i odkryj nowego zwierzaka ze specjalnym bonusem!",
+		text = "Incubate an egg and discover a new pet with a special bonus!",
 		color = { 240, 240, 240 }, align = "Left", textStroke = 1.6, maxTextSize = 16,
 	})
 
@@ -2750,30 +2750,30 @@ function HUD:_buildPetHatchModal(root)
 	if eggSlot == nil then
 		self.ui:label(card, {
 			name = "EggGraphicLabel", size = { 0, 90, 0, 90 }, position = { 0.5, -45, 0, 12 },
-			text = "Jajo", color = { 255, 235, 110 }, textStroke = 1.6, maxTextSize = 22,
+			text = "Egg", color = { 255, 235, 110 }, textStroke = 1.6, maxTextSize = 22,
 		})
 	end
 
 	self.ui:label(card, {
 		name = "EggNameLabel", size = { 1, -20, 0, 26 }, position = { 0, 10, 0, 112 },
-		text = "Standardowe Jajo Peta", color = { 255, 235, 110 },
+		text = "Standard Pet Egg", color = { 255, 235, 110 },
 		textStroke = 1.8, maxTextSize = 18,
 	})
 
 	self.ui:label(card, {
 		name = "EggChancesLabel", size = { 1, -20, 0, 46 }, position = { 0, 10, 0, 142 },
-		text = "Szanse:\nCommon (60%) • Rare (25%) • Epic (12%) • Legendary (3%)",
+		text = "Chances:\nCommon (60%) • Rare (25%) • Epic (12%) • Legendary (3%)",
 		color = { 220, 220, 240 }, wrapped = true, textStroke = 1.4, maxTextSize = 15,
 	})
 
 	self.ui:label(card, {
 		name = "EggCostLabel", size = { 1, -20, 0, 24 }, position = { 0, 10, 0, 198 },
-		text = "Koszt: 100 Diamentów (100 💎)", color = { 255, 215, 65 },
+		text = "Cost: 100 Diamonds (100 💎)", color = { 255, 215, 65 },
 		textStroke = 1.6, maxTextSize = 17,
 	})
 
 	local hatchBtn = self.ui:button(hFrame, {
-		name = "HatchButton", text = "WYSIADUJ / INKUBUJ (100 💎)", tone = "primary",
+		name = "HatchButton", text = "HATCH / INCUBATE (100 💎)", tone = "primary",
 		size = { 1, -28, 0, 52 }, position = { 0, 14, 1, -66 },
 		textStroke = 2.4, maxTextSize = 20,
 		onClick = function()
@@ -2834,7 +2834,7 @@ function HUD:_buildHatchAnimationOverlay(root)
 
 	self.ui:heading(revealCard, {
 		name = "RevealTitle", size = { 1, -20, 0, 36 }, position = { 0, 10, 0, 12 },
-		text = "WYKLUŁEŚ NOWEGO PETA!", color = { 255, 235, 110 },
+		text = "YOU HATCHED A NEW PET!", color = { 255, 235, 110 },
 		zIndex = 54, textStroke = 2.4, maxTextSize = 22,
 	})
 
@@ -2866,27 +2866,27 @@ function HUD:_buildHatchAnimationOverlay(root)
 
 	local statLabel = self.ui:label(revealCard, {
 		name = "PetStat", size = { 1, -20, 0, 28 }, position = { 0, 10, 0, 240 },
-		text = "+50% Wartość Jaj", color = { 120, 255, 140 },
+		text = "+50% Egg Value", color = { 120, 255, 140 },
 		zIndex = 54, textStroke = 2.0, maxTextSize = 18,
 	})
 	self.revealPetStat = statLabel
 
 	local equipBtn = self.ui:button(revealCard, {
-		name = "EquipNowBtn", text = "Załóż Peta", tone = "primary",
+		name = "EquipNowBtn", text = "Equip Pet", tone = "primary",
 		size = { 0.46, 0, 0, 46 }, position = { 0.03, 0, 0, 284 },
 		zIndex = 54, textStroke = 2.0, maxTextSize = 17,
 	})
 	self.revealEquipBtn = equipBtn
 
 	local lockBtn = self.ui:button(revealCard, {
-		name = "LockBtn", text = "Zablokuj", tone = "gold",
+		name = "LockBtn", text = "Lock Pet", tone = "gold",
 		size = { 0.46, 0, 0, 46 }, position = { 0.51, 0, 0, 284 },
 		zIndex = 54, textStroke = 2.0, maxTextSize = 17,
 	})
 	self.revealLockBtn = lockBtn
 
 	local confirmBtn = self.ui:button(revealCard, {
-		name = "ConfirmBtn", text = "Zatwierdź / Zamknij", tone = "boost",
+		name = "ConfirmBtn", text = "Confirm / Close", tone = "boost",
 		size = { 0.94, 0, 0, 48 }, position = { 0.03, 0, 0, 342 },
 		zIndex = 54, textStroke = 2.0, maxTextSize = 17,
 	})
@@ -2927,7 +2927,7 @@ function HUD:_buildPrestigeModal(root)
 		TextScaled = true,
 		TextColor3 = isRoblox and Color3.fromRGB(245, 220, 255) or nil,
 		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-		Text = "ODRODZENIE & PRESTIŻ",
+		Text = "REBIRTH & PRESTIGE",
 		ZIndex = 52,
 	}, header)
 	addTextStroke(titleLabel, 2.5)
@@ -2970,7 +2970,7 @@ function HUD:_buildPrestigeModal(root)
 		TextScaled = true,
 		TextColor3 = isRoblox and Color3.fromRGB(225, 140, 255) or nil,
 		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-		Text = "Posiadane Kryształy: 🟣 0",
+		Text = "Owned Crystals: 🟣 0",
 		ZIndex = 52,
 	}, currentCard)
 	addTextStroke(self.prestigeCurrentCrystalsLabel, 2.0)
@@ -2984,7 +2984,7 @@ function HUD:_buildPrestigeModal(root)
 		TextScaled = true,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 225, 100) or nil,
 		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-		Text = "Bonus do zarobków: +0% (+10% z każdego kryształu)",
+		Text = "Earnings bonus: +0% (+10% per crystal)",
 		ZIndex = 52,
 	}, currentCard)
 	addTextStroke(self.prestigeCurrentBonusLabel, 1.8)
@@ -2998,7 +2998,7 @@ function HUD:_buildPrestigeModal(root)
 		TextScaled = true,
 		TextColor3 = isRoblox and Color3.fromRGB(130, 250, 160) or nil,
 		TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
-		Text = "Po prestiżu: —",
+		Text = "After prestige: —",
 		ZIndex = 52,
 	}, currentCard)
 	addTextStroke(self.prestigeAfterBonusLabel, 1.8)
@@ -3021,7 +3021,7 @@ function HUD:_buildPrestigeModal(root)
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
 		TextColor3 = isRoblox and Color3.fromRGB(200, 210, 240) or nil,
-		Text = "KRYSZTAŁY DO ODEBRANIA:",
+		Text = "CRYSTALS TO CLAIM:",
 		ZIndex = 52,
 	}, pendingCard)
 	addTextStroke(pendingHeaderLabel, 1.5)
@@ -3034,7 +3034,7 @@ function HUD:_buildPrestigeModal(root)
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
 		TextColor3 = isRoblox and Color3.fromRGB(130, 250, 255) or nil,
-		Text = "+0 KRYSZTAŁÓW PRESTIŻU",
+		Text = "+0 PRESTIGE CRYSTALS",
 		ZIndex = 52,
 	}, pendingCard)
 	addTextStroke(self.prestigePendingLabel, 2.8)
@@ -3047,7 +3047,7 @@ function HUD:_buildPrestigeModal(root)
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
 		TextColor3 = isRoblox and Color3.fromRGB(180, 230, 255) or nil,
-		Text = "Zwiększaj dochód farmy, aby zdobyć jeszcze więcej kryształów!",
+		Text = "Increase farm income to earn even more crystals!",
 		ZIndex = 52,
 	}, pendingCard)
 	addTextStroke(pendingSubLabel, 1.4)
@@ -3072,7 +3072,7 @@ function HUD:_buildPrestigeModal(root)
 		TextScaled = true,
 		TextWrapped = true,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 210, 210) or nil,
-		Text = "🔴 RESET: gotówka, kurniki, flota, populacja kur, badania zwykłe.\n🟢 ZACHOWANE: wszystkie Kryształy Prestiżu, Diamenty 💎, Pety i ich poziomy, Badania Epickie, Trofea i Przepustki.",
+		Text = "🔴 RESET: Cash, habitats, vehicles, chicken population, regular research.\n🟢 KEPT: All Soul Eggs, Diamonds 💎, Pets & pet levels, Epic Research, Trophies, and Passes.",
 		ZIndex = 52,
 	}, warningPill)
 	addTextStroke(warningLabel, 1.6)
@@ -3085,7 +3085,7 @@ function HUD:_buildPrestigeModal(root)
 		Font = isRoblox and Enum.Font.FredokaOne or nil,
 		TextScaled = true,
 		TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-		Text = "ODRÓDŹ FARMĘ (+0 KRYSZTAŁÓW)",
+		Text = "PRESTIGE FARM (+0 CRYSTALS)",
 		ZIndex = 52,
 	}, modal)
 	addCornerAndStroke(prestigeActionBtn, 14, isRoblox and Color3.fromRGB(240, 180, 255) or nil, 3.2)
@@ -3121,7 +3121,7 @@ function HUD:playEggHatchAnimation(petData, onFinished)
 
 	local icon = PET_SPECIES_ICONS[pSpecies] or "🐾"
 	local name = PET_SPECIES_NAMES[pSpecies] or pSpecies
-	local statDesc = PET_STAT_DESCRIPTIONS[pSpecies] or "+Bonus Zwierzaka"
+	local statDesc = PET_STAT_DESCRIPTIONS[pSpecies] or "+Pet Bonus"
 
 	self.revealPetIcon.Text = icon
 	self.revealPetName.Text = name
@@ -3162,7 +3162,7 @@ function HUD:playEggHatchAnimation(petData, onFinished)
 			if type(self.onTogglePetLock) == "function" then
 				self.onTogglePetLock(pUid)
 			end
-			self.revealLockBtn.Text = "✅ Zablokowano"
+			self.revealLockBtn.Text = "✅ Locked"
 		end)
 	end
 
@@ -3591,7 +3591,7 @@ function HUD:showPurchasePreview(preview,confirm)
         Size=if isRoblox then UDim2.new(1,-20,.65,0) else nil,Position=if isRoblox then UDim2.new(0,10,0,10) else nil,
         BackgroundTransparency=1,TextColor3=if isRoblox then Color3.new(1,1,1) else nil,TextScaled=true},frame)
     local used=false
-    for i,label in {"Potwierdź","Anuluj"} do
+    for i,label in {"Confirm","Cancel"} do
         local button=createGuiElement("TextButton",{Name=if i==1 then "Confirm" else "Cancel",Text=label,ZIndex=51,
             Size=if isRoblox then UDim2.new(.45,0,.2,0) else nil,Position=if isRoblox then UDim2.new(.025+(i-1)*.5,0,.75,0) else nil},frame)
         if button.Activated then button.Activated:Connect(function()
@@ -3612,8 +3612,8 @@ end
 function HUD:onActionResult(response)
     self.lastActionResult=response
     local result=response.result
-    local text=if result and result.terminalStatus=="APPLIED" then (if result.actionKind=="PurchaseProduct" then "Otwieranie zakupu — oczekiwanie na platformę" elseif result.outcome=="FAILURE" then "Łączenie nieudane — pet bazowy zachowany" else "Operacja potwierdzona przez serwer")
-        else response.errorCode or (result and result.errorCode) or response.status or "Oczekiwanie na serwer"
+    local text=if result and result.terminalStatus=="APPLIED" then (if result.actionKind=="PurchaseProduct" then "Opening purchase — waiting for platform" elseif result.outcome=="FAILURE" then "Fusion failed — base pet preserved" else "Operation confirmed by server")
+        else response.errorCode or (result and result.errorCode) or response.status or "Waiting for server"
     if self.actionStatusLabel then self.actionStatusLabel.Text=text end
 end
 function HUD:update()
@@ -3621,9 +3621,9 @@ function HUD:update()
     local farm=(self.stateStore.getPresentationFarm or self.stateStore.getFarm)(self.stateStore)
     local progress=farm and farm.progress
     self._hasBuyMax = (progress and progress.buyMax == true) or false
-	if self.goldenEggsLabel then self.goldenEggsLabel.Text="Diamenty: "..(if progress then formatCompact(progress.GE) else "-") end
+	if self.goldenEggsLabel then self.goldenEggsLabel.Text="Diamonds: "..(if progress then formatCompact(progress.GE) else "-") end
     if self.fusionProPermitBadge and progress then
-        self.fusionProPermitBadge.Text=if progress.proBonusAvailable then "Pro +10 p.p.: aktywne" elseif progress.paidRandomPolicy=="unknown" then "Pro +10 p.p.: polityka nieznana" elseif not progress.proPermit then "Pro +10 p.p.: wymaga Pro" else "Pro +10 p.p.: niedostępne dla konta" end
+        self.fusionProPermitBadge.Text=if progress.proBonusAvailable then "Pro +10 p.p.: active" elseif progress.paidRandomPolicy=="unknown" then "Pro +10 p.p.: policy unknown" elseif not progress.proPermit then "Pro +10 p.p.: requires Pro" else "Pro +10 p.p.: unavailable for account" end
     self._visiblePets=if progress then progress.pets else {}
     local curUtc = math.floor((if isRoblox then workspace:GetServerTimeNow() else os.time()) / 86400)
     local lastDayUtc = (progress and progress.lastCalendarDayUtc) or -1
@@ -3640,7 +3640,7 @@ function HUD:update()
         local numLbl = cell:FindFirstChild("DayNumber")
         local rewStr = if reward then (if reward.rewardType == "GE" then "💎 " .. reward.amount else reward.rewardType .. " " .. reward.amount) else "-"
         if day <= claimedUpTo then
-            if label then label.Text = "✓ Odebrano" end
+            if label then label.Text = "✓ Claimed" end
             if numLbl then numLbl.Text = "D" .. tostring(day) .. " ✓" end
             if isRoblox and typeof(cell) == "Instance" then
                 cell.BackgroundColor3 = Color3.fromRGB(36, 68, 48)
@@ -3656,7 +3656,7 @@ function HUD:update()
                 if st then st.Color = Color3.fromRGB(255, 230, 100) end
             end
         else
-            if label then label.Text = if reward and reward.available then rewStr else "Niedostępne" end
+            if label then label.Text = if reward and reward.available then rewStr else "Unavailable" end
             if numLbl then numLbl.Text = "D" .. tostring(day) end
             if isRoblox and typeof(cell) == "Instance" then
                 cell.BackgroundColor3 = Color3.fromRGB(56, 36, 68)
@@ -3670,10 +3670,10 @@ function HUD:update()
     if self.calendarAlertBadge then self.calendarAlertBadge.Visible = not alreadyClaimed end
     if self.calendarClaimStatusLabel then
         if alreadyClaimed then
-            self.calendarClaimStatusLabel.Text = "✓ Dzisiejsza nagroda została odebrana! Kolejna dostępna jutro."
+            self.calendarClaimStatusLabel.Text = "✓ Today's reward has been claimed! Next available tomorrow."
             if isRoblox then self.calendarClaimStatusLabel.TextColor3 = Color3.fromRGB(120, 255, 150) end
         else
-            self.calendarClaimStatusLabel.Text = "★ Twoja dzisiejsza nagroda (Dzień " .. tostring(cycleDay) .. ") jest gotowa do odebrania!"
+            self.calendarClaimStatusLabel.Text = "★ Your reward for today (Day " .. tostring(cycleDay) .. ") is ready to claim!"
             if isRoblox then self.calendarClaimStatusLabel.TextColor3 = Color3.fromRGB(255, 235, 120) end
         end
     end
@@ -3684,7 +3684,7 @@ function HUD:update()
             else self.claimDailyGiftButton
         if alreadyClaimed then
             if type(btnLbl) == "table" or typeof(btnLbl) == "Instance" then
-                btnLbl.Text = "✓ DZISIEJSZA NAGRODA ODEBRANA (Wróć jutro!)"
+                btnLbl.Text = "✓ TODAY'S REWARD CLAIMED (Come back tomorrow!)"
             end
             if isRoblox and typeof(self.claimDailyGiftButton) == "Instance" then
                 self.claimDailyGiftButton.BackgroundColor3 = Color3.fromRGB(48, 88, 58)
@@ -3693,7 +3693,7 @@ function HUD:update()
             end
         else
             if type(btnLbl) == "table" or typeof(btnLbl) == "Instance" then
-                btnLbl.Text = "🎁 ODBIERZ DZISIEJSZĄ NAGRODĘ (Dzień " .. tostring(cycleDay) .. ")"
+                btnLbl.Text = "🎁 CLAIM TODAY'S REWARD (Day " .. tostring(cycleDay) .. ")"
             end
             if isRoblox and typeof(self.claimDailyGiftButton) == "Instance" then
                 self.claimDailyGiftButton.BackgroundColor3 = Color3.fromRGB(245, 178, 36)
@@ -3707,7 +3707,7 @@ function HUD:update()
         for i,card in self.petInventoryCards or {} do
             local pet=self._visiblePets[i]
             local label=card:FindFirstChild("PetName")
-            if label then label.Text=if pet then pet.speciesId.." T"..tostring(pet.tier).." "..pet.variant else "Puste miejsce" end
+            if label then label.Text=if pet then pet.speciesId.." T"..tostring(pet.tier).." "..pet.variant else "Empty slot" end
         end
     end
 	self:_updateHatchStatus(farm)
@@ -3774,16 +3774,16 @@ function HUD:update()
 				local card = self.habitatCards[slotId]
 				if card then
 					local currentIdx = hab.habitatIndex or -1
-					local currentName = HABITAT_DISPLAY_NAMES[currentIdx] or "Niezbudowany"
+					local currentName = HABITAT_DISPLAY_NAMES[currentIdx] or "Unbuilt"
 					local titleLabel = card:FindFirstChild("TitleLabel")
 					if titleLabel then
-						titleLabel.Text = string.format("Parcela #%d: %s", slotId, currentName)
+						titleLabel.Text = string.format("Plot #%d: %s", slotId, currentName)
 					end
 					local nextIdx = currentIdx + 1
 					local nextName = HABITAT_DISPLAY_NAMES[nextIdx] or "MAX"
 					local nextLabel = card:FindFirstChild("NextUpgradeLabel")
 					if nextLabel then
-						nextLabel.Text = if nextIdx <= 18 then ("Następny: " .. nextName) else "Maksymalny Kurnik"
+						nextLabel.Text = if nextIdx <= 18 then ("Next: " .. nextName) else "Max Habitat"
 					end
 					local button=self.habitatUpgBtns[slotId]
 					if button then
@@ -3796,7 +3796,7 @@ function HUD:update()
 	end
 	self.totalChickensCount = totalPop
 	if self.totalChickensLabel ~= nil then
-		self.totalChickensLabel.Text = "Całkowita liczba kurczaków: " .. formatCompact(totalPop)
+		self.totalChickensLabel.Text = "Total chickens: " .. formatCompact(totalPop)
 	end
 
 	if not isRoblox or isBoot or (self.vehiclesModal and self.vehiclesModal.Visible) then
@@ -3837,16 +3837,16 @@ function HUD:_updateVehiclesModal(farm)
 	local eggRatePerMin = eggPerSec * 60
 
 	if self.shippingComparisonStatusLabel then
-		self.shippingComparisonStatusLabel.Text = string.format("Spedycja: %s/min vs Produkcja: %s/min", formatCompact(fleetRate), formatCompact(eggRatePerMin))
+		self.shippingComparisonStatusLabel.Text = string.format("Shipping: %s/min vs Laying: %s/min", formatCompact(fleetRate), formatCompact(eggRatePerMin))
 	end
 
 	local badge = self.shippingComparisonBar and self.shippingComparisonBar:FindFirstChild("StatusBadge")
 	if badge then
 		if fleetRate >= eggRatePerMin then
-			badge.Text = "Spedycja wystarczająca"
+			badge.Text = "Shipping sufficient"
 			if isRoblox then badge.BackgroundColor3 = Color3.fromRGB(50, 180, 70) end
 		else
-			badge.Text = "Wąskie gardło spedycji!"
+			badge.Text = "Shipping bottleneck!"
 			if isRoblox then badge.BackgroundColor3 = Color3.fromRGB(220, 75, 45) end
 		end
 	end
@@ -3869,26 +3869,26 @@ function HUD:_updateVehiclesModal(farm)
 			slotData.card.Visible = (slotId <= 4 or isUnlocked)
 
 			if isUnlocked then
-				local vName = if vIdx~=nil then VEHICLE_DISPLAY_NAMES[vIdx] or ("Pojazd #" .. vIdx) else "Puste miejsce"
+				local vName = if vIdx~=nil then VEHICLE_DISPLAY_NAMES[vIdx] or ("Vehicle #" .. vIdx) else "Empty slot"
 				local vCap = if vIdx~=nil then VEHICLE_CAPACITIES[vIdx] or 0 else 0
 				slotData.titleLabel.Text = string.format("Slot #%d: %s", slotId, vName)
-				slotData.capLabel.Text = string.format("Wydajność: %s jaj/min", formatCompact(vCap))
+				slotData.capLabel.Text = string.format("Rate: %s eggs/min", formatCompact(vCap))
 				if upgrade and upgrade.blockedReason == "HYPERLOOP_LOCKED" then
-					slotData.upgBtn.Text = "WKRÓTCE"
+					slotData.upgBtn.Text = "SOON"
 					slotData.priceLabel.Text = "EGG TO THE MOON 🚀"
 					slotData.upgBtn.Active = false
 					if isRoblox then slotData.upgBtn.BackgroundColor3 = Color3.fromRGB(120, 120, 120) end
 				else
 					slotData.upgBtn.Text = if upgrade then HUD.formatCash(upgrade.price) elseif vIdx==11 then "MAX" else "…"
-					slotData.priceLabel.Text = if upgrade then "Następny pojazd" elseif vIdx==11 then "" else "Dane z serwera"
+					slotData.priceLabel.Text = if upgrade then "Next vehicle" elseif vIdx==11 then "" else "Server quote"
 					slotData.upgBtn.Active = upgrade~=nil and upgrade.available
 					if isRoblox then slotData.upgBtn.BackgroundColor3 = if (upgrade and upgrade.available) then Color3.fromRGB(95, 235, 45) else Color3.fromRGB(120, 120, 120) end
 				end
 			else
-				slotData.titleLabel.Text = string.format("Slot #%d: Zablokowany", slotId)
-				slotData.capLabel.Text = "Dodatkowe miejsce floty"
+				slotData.titleLabel.Text = string.format("Slot #%d: Locked", slotId)
+				slotData.capLabel.Text = "Extra fleet slot"
 				slotData.priceLabel.Text = "-"
-				slotData.upgBtn.Text = "ZABLOK."
+				slotData.upgBtn.Text = "LOCKED"
 				slotData.upgBtn.Active = false
 				if isRoblox then slotData.upgBtn.BackgroundColor3 = Color3.fromRGB(120, 120, 120) end
 			end
@@ -3917,7 +3917,7 @@ function HUD:_updateResearchModal(farm)
 	if self.researchTierLockBanner then
 		if not isCategoryUnlocked then
 			self.researchTierLockBanner.Visible = true
-			self.researchTierLockBanner.Text = string.format("🔒 Kategoria zablokowana! Wymaga %d zakupionych badań (masz %d)", requiredLevels, totalPurchasedLevels)
+			self.researchTierLockBanner.Text = string.format("🔒 Tier Locked! Requires %d purchased research levels (you have %d)", requiredLevels, totalPurchasedLevels)
 			if isRoblox and self.shopListContainer then
 				self.shopListContainer.Position = UDim2.new(0, 12, 0, 134)
 				self.shopListContainer.Size = UDim2.new(1, -24, 1, -146)
@@ -4046,7 +4046,7 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 			TextScaled = true,
 			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
 			TextColor3 = isRoblox and Color3.fromRGB(251, 191, 36) or nil,
-			Text = string.format("★ POZ. %d/%d", chainCurLvl, chainMaxLvl),
+			Text = string.format("★ LVL %d/%d", chainCurLvl, chainMaxLvl),
 		}, card)
 		addTextStroke(levelLabel, 1.5)
 
@@ -4089,7 +4089,7 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 			Font = isRoblox and Enum.Font.FredokaOne or nil,
 			TextScaled = true,
 			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-			Text = "KUP",
+			Text = "BUY",
 		}, buyBtn)
 		addTextStroke(btnActionLabel, 1.8)
 
@@ -4202,7 +4202,7 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 
 	item.level = chainCurLvl
 	item.subtitleLabel.Text = cleanSubtitle
-	item.levelLabel.Text = string.format("★ POZ. %d/%d", chainCurLvl, chainMaxLvl)
+	item.levelLabel.Text = string.format("★ LVL %d/%d", chainCurLvl, chainMaxLvl)
 	if item.progressFill and isRoblox then
 		item.progressFill.Size = UDim2.new(math.clamp(chainCurLvl / math.max(1, chainMaxLvl), 0, 1), 0, 1, 0)
 	end
@@ -4245,65 +4245,65 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 	if isMax then
 		item.statusLabel.Text = "MAX"
 		item.actionLabel.Text = "MAX"
-		item.priceLabel.Text = "WYKUPIONE"
+		item.priceLabel.Text = "MAXED"
 		item.priceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
 		item.buyButton.Active = false
 		if isRoblox then item.buyButton.BackgroundColor3 = Color3.fromRGB(55, 65, 81) end
 
 		item.maxActionLabel.Text = "MAX"
-		item.maxPriceLabel.Text = "WYKUPIONE"
+		item.maxPriceLabel.Text = "MAXED"
 		item.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
 		item.buyMaxButton.Active = false
 		if isRoblox then item.buyMaxButton.BackgroundColor3 = Color3.fromRGB(55, 65, 81) end
 	elseif not isAvailable then
 		item.statusLabel.Text = "LOCKED"
-		item.actionLabel.Text = "ZABLOK."
-		item.priceLabel.Text = "ZABLOKOWANE"
+		item.actionLabel.Text = "LOCKED"
+		item.priceLabel.Text = "LOCKED"
 		item.priceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
 		item.buyButton.Active = false
 		if isRoblox then item.buyButton.BackgroundColor3 = Color3.fromRGB(75, 85, 99) end
 
-		item.maxActionLabel.Text = "ZABLOK."
-		item.maxPriceLabel.Text = "ZABLOKOWANE"
+		item.maxActionLabel.Text = "LOCKED"
+		item.maxPriceLabel.Text = "LOCKED"
 		item.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
 		item.buyMaxButton.Active = false
 		if isRoblox then item.buyMaxButton.BackgroundColor3 = Color3.fromRGB(75, 85, 99) end
 	elseif quote ~= nil and not quote.available and quote.blockedReason == "INSUFFICIENT_CASH" then
 		item.statusLabel.Text = "INSUFFICIENT_CASH"
-		item.actionLabel.Text = "ZA MAŁO $"
+		item.actionLabel.Text = "NOT ENOUGH $"
 		item.priceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
 		item.buyButton.Active = false
 		if isRoblox then item.buyButton.BackgroundColor3 = Color3.fromRGB(107, 114, 128) end
 
 		if not self._hasBuyMax then
 			item.maxActionLabel.Text = "🔒 MAX"
-			item.maxPriceLabel.Text = "ODBLOKUJ"
+			item.maxPriceLabel.Text = "UNLOCK"
 			item.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(254, 240, 138) or nil
 			item.buyMaxButton.Active = true
 			if isRoblox then item.buyMaxButton.BackgroundColor3 = Color3.fromRGB(245, 158, 11) end
 		else
 			item.maxActionLabel.Text = "MAX"
-			item.maxPriceLabel.Text = "ZA MAŁO $"
+			item.maxPriceLabel.Text = "NOT ENOUGH $"
 			item.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
 			item.buyMaxButton.Active = false
 			if isRoblox then item.buyMaxButton.BackgroundColor3 = Color3.fromRGB(107, 114, 128) end
 		end
 	else
 		item.statusLabel.Text = "BUY"
-		item.actionLabel.Text = "KUP"
+		item.actionLabel.Text = "BUY"
 		item.priceLabel.TextColor3 = isRoblox and Color3.fromRGB(254, 240, 138) or nil
 		item.buyButton.Active = true
 		if isRoblox then item.buyButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94) end
 
 		if not self._hasBuyMax then
 			item.maxActionLabel.Text = "🔒 MAX"
-			item.maxPriceLabel.Text = "ODBLOKUJ"
+			item.maxPriceLabel.Text = "UNLOCK"
 			item.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(254, 240, 138) or nil
 			item.buyMaxButton.Active = true
 			if isRoblox then item.buyMaxButton.BackgroundColor3 = Color3.fromRGB(245, 158, 11) end
 		elseif maxQuote ~= nil and not maxQuote.available and maxQuote.blockedReason == "INSUFFICIENT_CASH" then
 			item.maxActionLabel.Text = "MAX"
-			item.maxPriceLabel.Text = "ZA MAŁO $"
+			item.maxPriceLabel.Text = "NOT ENOUGH $"
 			item.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
 			item.buyMaxButton.Active = false
 			if isRoblox then item.buyMaxButton.BackgroundColor3 = Color3.fromRGB(107, 114, 128) end
@@ -4408,7 +4408,7 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 			TextScaled = true,
 			TextXAlignment = isRoblox and Enum.TextXAlignment.Left or nil,
 			TextColor3 = isRoblox and Color3.fromRGB(251, 191, 36) or nil,
-			Text = string.format("★ POZ. %d/%d", curLvl, maxLvl),
+			Text = string.format("★ LVL %d/%d", curLvl, maxLvl),
 		}, card)
 		addTextStroke(levelLabel, 1.5)
 
@@ -4451,7 +4451,7 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 			Font = isRoblox and Enum.Font.FredokaOne or nil,
 			TextScaled = true,
 			TextColor3 = isRoblox and Color3.fromRGB(255, 255, 255) or nil,
-			Text = "KUP",
+			Text = "BUY",
 		}, buyBtn)
 		addTextStroke(btnActionLabel, 1.8)
 
@@ -4507,7 +4507,7 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 
 	item.level = curLvl
 	item.subtitleLabel.Text=cleanSubtitle
-	item.levelLabel.Text = string.format("★ POZ. %d/%d", curLvl, maxLvl)
+	item.levelLabel.Text = string.format("★ LVL %d/%d", curLvl, maxLvl)
 	if item.progressFill and isRoblox then
 		item.progressFill.Size = UDim2.new(math.clamp(curLvl / math.max(1, maxLvl), 0, 1), 0, 1, 0)
 	end
@@ -4542,7 +4542,7 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 		item.buyButton.Active = true
 		item.statusLabel.Text = "BUY"
 		if item.actionLabel then
-			item.actionLabel.Text = "KUP"
+			item.actionLabel.Text = "BUY"
 			item.actionLabel.Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil
 			item.actionLabel.Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil
 		end
@@ -4558,7 +4558,7 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 		item.statusLabel.Text = reasonText
 		if reasonText == "MAX_LEVEL" then
 			if item.actionLabel then
-				item.actionLabel.Text = "MAKS. POZ."
+				item.actionLabel.Text = "MAX LVL"
 				item.actionLabel.Size = isRoblox and UDim2.new(1, -6, 0.9, 0) or nil
 				item.actionLabel.Position = isRoblox and UDim2.new(0, 3, 0.05, 0) or nil
 			end
@@ -4570,7 +4570,7 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 			end
 		elseif reasonText == "TIER_LOCKED" then
 			if item.actionLabel then
-				item.actionLabel.Text = "ZABLOKOWANE"
+				item.actionLabel.Text = "LOCKED"
 				item.actionLabel.Size = isRoblox and UDim2.new(1, -6, 0.9, 0) or nil
 				item.actionLabel.Position = isRoblox and UDim2.new(0, 3, 0.05, 0) or nil
 			end
@@ -4582,7 +4582,7 @@ function HUD:_updateResearchItem(research, displayOrder, isTabVisible)
 			end
 		elseif reasonText == "INSUFFICIENT_CASH" then
 			if item.actionLabel then
-				item.actionLabel.Text = "ZA MAŁO $"
+				item.actionLabel.Text = "NOT ENOUGH $"
 				item.actionLabel.Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil
 				item.actionLabel.Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil
 			end
@@ -4626,7 +4626,7 @@ function HUD:_updateEpicResearchModal(farm)
 	end
 
 	if self.epicGePill then
-		self.epicGePill.Text = "Twoje Diamenty: " .. formatCompact(geNum) .. " 💎"
+		self.epicGePill.Text = "Your Diamonds: " .. formatCompact(geNum) .. " 💎"
 	end
 
 	local epicProgress = (p and p.epic) or {}
@@ -4651,7 +4651,7 @@ function HUD:_updateEpicResearchModal(farm)
 				local offer=self._epicRobuxOffers[item.id]
                 cardData.buyRobuxBtn.Visible = not UNSUPPORTED_EPIC_RESEARCH[item.id] and curLvl<maxLvl
                 cardData.buyRobuxBtn.Active = offer~=nil and offer.configured
-                cardData.buyRobuxBtn.Text = if not offer or not offer.configured then "WKRÓTCE" elseif offer.credits~="0" then "UŻYJ" else tostring(offer.nominalPriceRobux).." R$*"
+                cardData.buyRobuxBtn.Text = if not offer or not offer.configured then "SOON" elseif offer.credits~="0" then "USE" else tostring(offer.nominalPriceRobux).." R$*"
 			end
 
 			if UNSUPPORTED_EPIC_RESEARCH[item.id] then
@@ -4663,7 +4663,7 @@ function HUD:_updateEpicResearchModal(farm)
 				end
 			elseif curLvl >= maxLvl then
 				if cardData.lvlLabel then
-					cardData.lvlLabel.Text = "Poziom: " .. tostring(curLvl) .. " / " .. tostring(maxLvl) .. " (MAX)"
+					cardData.lvlLabel.Text = "Level: " .. tostring(curLvl) .. " / " .. tostring(maxLvl) .. " (MAX)"
 				end
 				if cardData.buyBtn then
 					cardData.buyBtn.Text = "MAX"
@@ -4682,7 +4682,7 @@ function HUD:_updateEpicResearchModal(farm)
 			else
 				local nextPrice = EpicPricing.ge((item.prices and item.prices[curLvl + 1]) or item.basePriceGE)
 				if cardData.lvlLabel then
-					cardData.lvlLabel.Text = "Poziom: " .. tostring(curLvl) .. " / " .. tostring(maxLvl)
+					cardData.lvlLabel.Text = "Level: " .. tostring(curLvl) .. " / " .. tostring(maxLvl)
 				end
 				local canAfford = (geNum >= nextPrice)
 				if cardData.buyBtn then
@@ -4713,41 +4713,41 @@ function HUD:_updateEggUpgradeModal(farm)
 	local codec = self.codec
 	local approxFv = if farm.homeFV ~= nil then (if codec and codec.BigAmount then codec.BigAmount.decode(farm.homeFV) else tonumber(farm.homeFV) or 0) else nil
 	if self.eggUpgradeCurrentLabel then
-		self.eggUpgradeCurrentLabel.Text = string.format("🥚 Aktualne Jajo: %s ($%s)", curEgg.name, formatCompact(curEgg.eggValueBase))
+		self.eggUpgradeCurrentLabel.Text = string.format("🥚 Current Egg: %s ($%s)", curEgg.name, formatCompact(curEgg.eggValueBase))
 	end
 
 	if nextEgg then
 		local reqFv = nextEgg.advanceFV
 		local mult = nextEgg.eggValueBase / curEgg.eggValueBase
 		if self.eggUpgradeNextLabel then
-			self.eggUpgradeNextLabel.Text = string.format("✨ Następne Jajo: %s ($%s)", nextEgg.name, formatCompact(nextEgg.eggValueBase))
+			self.eggUpgradeNextLabel.Text = string.format("✨ Next Egg: %s ($%s)", nextEgg.name, formatCompact(nextEgg.eggValueBase))
 		end
 		if self.eggUpgradeMultLabel then
-			self.eggUpgradeMultLabel.Text = string.format("📈 Mnożnik Wartości: %.1fx", mult)
+			self.eggUpgradeMultLabel.Text = string.format("📈 Value Multiplier: %.1fx", mult)
 		end
 		if self.eggUpgradeCurrentFvLabel then
-			self.eggUpgradeCurrentFvLabel.Text = string.format("💰 Twoje Farm Value: $%s", if approxFv ~= nil then formatCompact(approxFv) else "—")
+			self.eggUpgradeCurrentFvLabel.Text = string.format("💰 Your Farm Value: $%s", if approxFv ~= nil then formatCompact(approxFv) else "—")
 		end
 		if self.eggUpgradeReqFvLabel then
-			self.eggUpgradeReqFvLabel.Text = string.format("🎯 Wymagane Farm Value: $%s", formatCompact(reqFv))
+			self.eggUpgradeReqFvLabel.Text = string.format("🎯 Required Farm Value: $%s", formatCompact(reqFv))
 		end
 
 		if self.eggUpgradeBtn then
 			self.eggUpgradeBtn.Active = approxFv ~= nil and approxFv >= reqFv
 			if approxFv ~= nil and approxFv >= reqFv then
-				self.eggUpgradeBtn.Text = "AWANSUJ NASTĘPNE JAJO (" .. string.upper(nextEgg.name) .. ")"
+				self.eggUpgradeBtn.Text = "UPGRADE NEXT EGG (" .. string.upper(nextEgg.name) .. ")"
 				if isRoblox then self.eggUpgradeBtn.BackgroundColor3 = Color3.fromRGB(95, 235, 55) end
 			else
-				self.eggUpgradeBtn.Text = if approxFv == nil then "OCZEKIWANIE NA WYCENĘ" else "WYMAGANE WIĘKSZE FARM VALUE"
+				self.eggUpgradeBtn.Text = if approxFv == nil then "WAITING FOR VALUATION" else "HIGHER FARM VALUE REQUIRED"
 				if isRoblox then self.eggUpgradeBtn.BackgroundColor3 = Color3.fromRGB(140, 140, 140) end
 			end
 		end
 	else
-		if self.eggUpgradeNextLabel then self.eggUpgradeNextLabel.Text = "🎉 Osiągnięto Oświecenie (MAX)!" end
-		if self.eggUpgradeMultLabel then self.eggUpgradeMultLabel.Text = "Maksymalny gatunek osiągnięty" end
-		if self.eggUpgradeReqFvLabel then self.eggUpgradeReqFvLabel.Text = "Brak dalszych poziomów" end
+		if self.eggUpgradeNextLabel then self.eggUpgradeNextLabel.Text = "🎉 Enlightenment Reached (MAX)!" end
+		if self.eggUpgradeMultLabel then self.eggUpgradeMultLabel.Text = "Max egg species reached" end
+		if self.eggUpgradeReqFvLabel then self.eggUpgradeReqFvLabel.Text = "No further tiers" end
 		if self.eggUpgradeBtn then
-			self.eggUpgradeBtn.Text = "MAKSYMALNE JAJO"
+			self.eggUpgradeBtn.Text = "MAXIMUM EGG"
 			if isRoblox then self.eggUpgradeBtn.BackgroundColor3 = Color3.fromRGB(140, 140, 140) end
 		end
 	end
@@ -4773,33 +4773,33 @@ function HUD:_updatePrestigeDisplay(farm)
 	if self.rebirthLabel ~= nil then
 		local curEgg = EGGS_DATA[farm.eggIndex or 0]
 		local eggName = if curEgg then curEgg.name else "Kurze"
-		self.rebirthLabel.Text = string.format("🟣 %s Prestiż (+%s) • 🥚 %s", formatCompact(currentSE), pendingText, eggName)
+		self.rebirthLabel.Text = string.format("🟣 %s Prestige (+%s) • 🥚 %s", formatCompact(currentSE), pendingText, eggName)
 	end
 
 	if self.prestigeCurrentCrystalsLabel then
-		self.prestigeCurrentCrystalsLabel.Text = "Posiadane Kryształy: 🟣 " .. formatCompact(currentSE)
+		self.prestigeCurrentCrystalsLabel.Text = "Owned Crystals: 🟣 " .. formatCompact(currentSE)
 	end
 	if self.prestigeCurrentBonusLabel then
-		self.prestigeCurrentBonusLabel.Text = string.format("Bonus do zarobków: +%s%% (+%d%% z każdego kryształu)", if totalBonusPercent ~= nil then formatCompact(totalBonusPercent) else "—", bonusPerCrystal)
+		self.prestigeCurrentBonusLabel.Text = string.format("Earnings bonus: +%s%% (+%d%% per Soul Egg)", if totalBonusPercent ~= nil then formatCompact(totalBonusPercent) else "—", bonusPerCrystal)
 	end
 	if self.prestigeSubLabel then
 		local eventMult = if progress.prestigeEventMult ~= nil then (if codec and codec.Real64 then codec.Real64.decode(progress.prestigeEventMult) else tonumber(progress.prestigeEventMult) or 1) else 1
-		self.prestigeSubLabel.Text = if eventMult > 1 then string.format("Aktywny event: ×%s Prestiż!", formatCompact(eventMult)) else "Zwiększaj dochód farmy, aby zdobyć jeszcze więcej kryształów!"
+		self.prestigeSubLabel.Text = if eventMult > 1 then string.format("Active Event: ×%s Prestige!", formatCompact(eventMult)) else "Grow your farm earnings to collect even more Soul Eggs!"
 	end
 	if self.prestigeAfterBonusLabel then
 		local afterPercent = if progress.earningBonusAfter ~= nil then (if codec and codec.Real64 then math.floor(codec.Real64.decode(progress.earningBonusAfter)) else tonumber(progress.earningBonusAfter) or 0) else nil
 		if afterPercent ~= nil and totalBonusPercent ~= nil then
-			self.prestigeAfterBonusLabel.Text = string.format("Po prestiżu: +%s%% (+%s%%)", formatCompact(afterPercent), formatCompact(afterPercent - totalBonusPercent))
+			self.prestigeAfterBonusLabel.Text = string.format("After prestige: +%s%% (+%s%%)", formatCompact(afterPercent), formatCompact(afterPercent - totalBonusPercent))
 		else
-			self.prestigeAfterBonusLabel.Text = "Po prestiżu: —"
+			self.prestigeAfterBonusLabel.Text = "After prestige: —"
 		end
 	end
 	if self.prestigePendingLabel then
-		self.prestigePendingLabel.Text = string.format("+%s KRYSZTAŁÓW PRESTIŻU", pendingText)
+		self.prestigePendingLabel.Text = string.format("+%s PRESTIGE CRYSTALS", pendingText)
 	end
 	if self.prestigeActionBtn then
 		self.prestigeActionBtn.Active = pendingSE ~= nil
-		self.prestigeActionBtn.Text = string.format("ODRÓDŹ FARMĘ (+%s KRYSZTAŁÓW)", pendingText)
+		self.prestigeActionBtn.Text = string.format("PRESTIGE FARM (+%s CRYSTALS)", pendingText)
 	end
 end
 
@@ -4814,9 +4814,9 @@ function HUD:_updateShopModal(farm)
 
 	if self.activeBoostsSummaryLabel then
 		if isEnlightenment then
-			self.activeBoostsSummaryLabel.Text = string.format("Aktywne boosty: %d / %d (Wstrzymane na Oświeceniu)", #activeBoosts, maxSlots)
+			self.activeBoostsSummaryLabel.Text = string.format("Active boosts: %d / %d (Paused on Enlightenment)", #activeBoosts, maxSlots)
 		elseif #activeBoosts == 0 then
-			self.activeBoostsSummaryLabel.Text = string.format("Aktywne boosty: 0 / %d", maxSlots)
+			self.activeBoostsSummaryLabel.Text = string.format("Active boosts: 0 / %d", maxSlots)
 		else
 			local parts = {}
 			for _, b in ipairs(activeBoosts) do
@@ -4826,7 +4826,7 @@ function HUD:_updateShopModal(farm)
 				local name = if bSpec then bSpec.name else tostring(b.id)
 				table.insert(parts, string.format("%s (%dm)", name, mins))
 			end
-			self.activeBoostsSummaryLabel.Text = string.format("Aktywne boosty: %d / %d • %s", #activeBoosts, maxSlots, table.concat(parts, ", "))
+			self.activeBoostsSummaryLabel.Text = string.format("Active boosts: %d / %d • %s", #activeBoosts, maxSlots, table.concat(parts, ", "))
 		end
 	end
 
@@ -4846,7 +4846,7 @@ function HUD:_updateShopModal(farm)
 
 			local ownedLbl = card:FindFirstChild("OwnedCount")
 			if ownedLbl then
-				ownedLbl.Text = string.format("Posiadane: %s", formatCompact(ownedNum))
+				ownedLbl.Text = string.format("Owned: %s", formatCompact(ownedNum))
 			end
 
 			local activateBtn = card:FindFirstChild("ActivateBoostButton")
@@ -4856,16 +4856,16 @@ function HUD:_updateShopModal(farm)
 				local canActivate = (ownedNum > 0) and (not isEnlightenment) and (not slotsFull)
 				activateBtn.Active = canActivate
 				if isEnlightenment then
-					activateBtn.Text = "WYŁĄCZONE"
+					activateBtn.Text = "DISABLED"
 					self.ui:setButtonTone(activateBtn, "disabled")
 				elseif ownedNum <= 0 then
-					activateBtn.Text = "BRAK"
+					activateBtn.Text = "NONE"
 					self.ui:setButtonTone(activateBtn, "disabled")
 				elseif slotsFull then
 					activateBtn.Text = "LIMIT"
 					self.ui:setButtonTone(activateBtn, "disabled")
 				else
-					activateBtn.Text = "AKTYWUJ"
+					activateBtn.Text = "ACTIVATE"
 					self.ui:setButtonTone(activateBtn, "boost")
 				end
 			end
@@ -4884,12 +4884,12 @@ function HUD:_updateShopModal(farm)
 		if buyBtn then
 			if isOwned then
 				buyBtn.Active = false
-				buyBtn.Text = "POSIADANE"
+				buyBtn.Text = "OWNED"
 				self.ui:setButtonTone(buyBtn, "disabled")
 			else
 				local isPassDisabled = not Availability.isProductAvailable(passId)
 				buyBtn.Active = not isPassDisabled
-				buyBtn.Text = if isPassDisabled then "WKRÓTCE" else "ODBLOKUJ"
+				buyBtn.Text = if isPassDisabled then "SOON" else "UNLOCK"
 				self.ui:setButtonTone(buyBtn, if isPassDisabled then "ghost" else "primary")
 			end
 		end
@@ -4914,7 +4914,7 @@ function HUD:onQuoteReceived(quoteView)
 				item.buyButton.Active = true
 				item.statusLabel.Text = "BUY"
 				if item.actionLabel then
-					item.actionLabel.Text = "KUP"
+					item.actionLabel.Text = "BUY"
 					item.actionLabel.Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil
 					item.actionLabel.Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil
 				end
@@ -4931,7 +4931,7 @@ function HUD:onQuoteReceived(quoteView)
 				local reason = quoteView.blockedReason or "LOCKED"
 				item.statusLabel.Text = reason
 				if item.actionLabel then
-					item.actionLabel.Text = if reason == "INSUFFICIENT_CASH" then "ZA MAŁO $" elseif reason == "MAX_LEVEL" then "MAKS. POZ." elseif reason == "TIER_LOCKED" then "ZABLOKOWANE" elseif reason == "HYPERLOOP_LOCKED" then "WKRÓTCE: EGG TO THE MOON 🚀" else reason
+					item.actionLabel.Text = if reason == "INSUFFICIENT_CASH" then "NOT ENOUGH $" elseif reason == "MAX_LEVEL" then "MAX LEVEL" elseif reason == "TIER_LOCKED" then "LOCKED" elseif reason == "HYPERLOOP_LOCKED" then "COMING SOON: EGG TO THE MOON 🚀" else reason
 					if reason == "INSUFFICIENT_CASH" then
 						item.actionLabel.Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil
 						item.actionLabel.Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil
@@ -4984,7 +4984,7 @@ function HUD:onQuoteReceived(quoteView)
 						if uItem.statusLabel.Text ~= "MAX" and uItem.statusLabel.Text ~= "LOCKED" then
 							if not self._hasBuyMax or quoteView.blockedReason == "BUY_MAX_REQUIRED" then
 								uItem.maxActionLabel.Text = "🔒 MAX"
-								uItem.maxPriceLabel.Text = "ODBLOKUJ"
+								uItem.maxPriceLabel.Text = "UNLOCK"
 								uItem.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(254, 240, 138) or nil
 								uItem.buyMaxButton.Active = true
 								if isRoblox then
@@ -5010,7 +5010,7 @@ function HUD:onQuoteReceived(quoteView)
 								local reason = quoteView.blockedReason or "LOCKED"
 								uItem.buyMaxButton.Active = false
 								uItem.maxActionLabel.Text = "MAX"
-								uItem.maxPriceLabel.Text = if reason == "INSUFFICIENT_CASH" then "ZA MAŁO $" else reason
+								uItem.maxPriceLabel.Text = if reason == "INSUFFICIENT_CASH" then "NOT ENOUGH $" else reason
 								uItem.maxPriceLabel.TextColor3 = isRoblox and Color3.fromRGB(156, 163, 175) or nil
 								if isRoblox then
 									uItem.buyMaxButton.BackgroundColor3 = Color3.fromRGB(107, 114, 128)
@@ -5031,7 +5031,7 @@ function HUD:onQuoteReceived(quoteView)
 								uItem.buyButton.Active = true
 								uItem.statusLabel.Text = "BUY"
 								if uItem.actionLabel then
-									uItem.actionLabel.Text = "KUP"
+									uItem.actionLabel.Text = "BUY"
 									uItem.actionLabel.Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil
 									uItem.actionLabel.Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil
 								end
@@ -5052,7 +5052,7 @@ function HUD:onQuoteReceived(quoteView)
 								uItem.statusLabel.Text = reason
 								if reason == "INSUFFICIENT_CASH" then
 									if uItem.actionLabel then
-										uItem.actionLabel.Text = "ZA MAŁO $"
+										uItem.actionLabel.Text = "NOT ENOUGH $"
 										uItem.actionLabel.Size = isRoblox and UDim2.new(1, 0, 0.48, 0) or nil
 										uItem.actionLabel.Position = isRoblox and UDim2.new(0, 0, 0.04, 0) or nil
 									end
@@ -5308,7 +5308,7 @@ function HUD:applyTutorialStep(stepOrController: any, optionalInfo: any?)
 		self:_updateTutorialCardVisibility()
 		if not isDone and type(info) == "table" then
 			if self.tutorialStepBadge then
-				self.tutorialStepBadge.Text = string.format("KROK %d/4", step)
+				self.tutorialStepBadge.Text = string.format("STEP %d/4", step)
 			end
 			if self.tutorialTitleLabel then
 				self.tutorialTitleLabel.Text = "🎯 " .. tostring(info.title or "")

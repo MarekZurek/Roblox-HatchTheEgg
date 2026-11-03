@@ -77,7 +77,7 @@ FarmPlotBuilder.ROUTE_WAYPOINTS = table.freeze({
 -- User-visible habitat type names (#78): index 0 => "Tier 1" ... index 18 => "Tier 19".
 -- Internal catalog names/IDs are unchanged; an empty slot stays "Wolna Parcela", never "Tier 0".
 local HABITAT_DISPLAY_NAMES = table.freeze({
-	[-1] = "Wolna Parcela",
+	[-1] = "Empty Plot",
 	[0] = "Tier 1",
 	[1] = "Tier 2",
 	[2] = "Tier 3",
@@ -128,10 +128,10 @@ local function habitatCapacityText(catalog, typeIndex)
 	if catalog and type(catalog.getHabitat) == "function" then
 		local ok, row = pcall(catalog.getHabitat, typeIndex)
 		if ok and type(row) == "table" and type(row.capacity) == "number" then
-			return "Pojemność bazowa: " .. formatCompact(row.capacity)
+			return "Base Capacity: " .. formatCompact(row.capacity)
 		end
 	end
-	return "Pojemność bazowa: —"
+	return "Base Capacity: —"
 end
 
 -- ============================================================================
@@ -308,7 +308,7 @@ local function createBuyPad(parent, config)
 			Name = "Line1_Title",
 			Size = UDim2.new(1, 0, 0.30, 0),
 			Position = UDim2.new(0, 0, 0, 0),
-			Text = config.line1 or "[Ulepszenie]",
+			Text = config.line1 or "[Upgrade]",
 			TextColor3 = config.line1Color or Color3.fromRGB(255, 130, 245),
 			StrokeThickness = 2.5,
 		})
@@ -317,7 +317,7 @@ local function createBuyPad(parent, config)
 			Name = "Line2_Effect",
 			Size = UDim2.new(1, 0, 0.28, 0),
 			Position = UDim2.new(0, 0, 0.30, 0),
-			Text = config.line2 or "+Efekt",
+			Text = config.line2 or "+Effect",
 			TextColor3 = Color3.fromRGB(255, 255, 255),
 			StrokeThickness = 2.5,
 		})
@@ -378,8 +378,8 @@ local function createEggUpgradePedestal(parent, pos, self)
 	if isRoblox then
 		prompt = Instance.new("ProximityPrompt")
 		prompt.Name = "EggUpgradeProximityPrompt"
-		prompt.ObjectText = "Stacja Badawcza Jaj"
-		prompt.ActionText = "Zbadaj Nowe Jajo / Awansuj"
+		prompt.ObjectText = "Egg Research Station"
+		prompt.ActionText = "Research New Egg / Ascend"
 		prompt.KeyboardKeyCode = Enum.KeyCode.G
 		prompt.HoldDuration = 0
 		prompt.MaxActivationDistance = 15
@@ -399,7 +399,7 @@ local function createEggUpgradePedestal(parent, pos, self)
 			Name = "CurrentEggLabel",
 			Size = UDim2.new(1, 0, 0.33, 0),
 			Position = UDim2.new(0, 0, 0, 0),
-			Text = "🥚 Aktualne: Jajo Kurze",
+			Text = "🥚 Current: Regular Egg",
 			TextColor3 = Color3.fromRGB(255, 235, 100),
 			StrokeThickness = 2.8,
 		})
@@ -408,7 +408,7 @@ local function createEggUpgradePedestal(parent, pos, self)
 			Name = "NextEggLabel",
 			Size = UDim2.new(1, 0, 0.33, 0),
 			Position = UDim2.new(0, 0, 0.33, 0),
-			Text = "✨ Następne: Jajo Kacze",
+			Text = "✨ Next: Duck Egg",
 			TextColor3 = Color3.fromRGB(115, 245, 115),
 			StrokeThickness = 2.8,
 		})
@@ -417,7 +417,7 @@ local function createEggUpgradePedestal(parent, pos, self)
 			Name = "RequiredFvLabel",
 			Size = UDim2.new(1, 0, 0.33, 0),
 			Position = UDim2.new(0, 0, 0.66, 0),
-			Text = "Wymagane FV: $5.0M",
+			Text = "Required FV: $5.0M",
 			TextColor3 = Color3.fromRGB(255, 255, 255),
 			StrokeThickness = 2.8,
 		})
@@ -433,8 +433,8 @@ local function createEggUpgradePedestal(parent, pos, self)
 	else
 		prompt = {
 			Name = "EggUpgradeProximityPrompt",
-			ObjectText = "Stacja Badawcza Jaj",
-			ActionText = "Zbadaj Nowe Jajo / Awansuj",
+			ObjectText = "Egg Research Station",
+			ActionText = "Research New Egg / Ascend",
 			KeyboardKeyCode = "G",
 			MaxActivationDistance = 15,
 			HoldDuration = 0,
@@ -443,9 +443,9 @@ local function createEggUpgradePedestal(parent, pos, self)
 		if pedestal.Children then
 			table.insert(pedestal.Children, prompt)
 		end
-		local curLabel = { Text = "🥚 Aktualne: Jajo Kurze" }
-		local nextLabel = { Text = "✨ Następne: Jajo Kacze" }
-		local reqLabel = { Text = "Wymagane FV: $5.0M" }
+		local curLabel = { Text = "🥚 Current: Regular Egg" }
+		local nextLabel = { Text = "✨ Next: Duck Egg" }
+		local reqLabel = { Text = "Required FV: $5.0M" }
 		if self and self.eggUpgradeBillboards then
 			table.insert(self.eggUpgradeBillboards, {
 				bb = { Name = "EggUpgradeBillboard" },
@@ -1158,8 +1158,8 @@ function FarmPlotBuilder:_buildHatchery(worldFolder)
 	if isRoblox then
 		local prompt = Instance.new("ProximityPrompt")
 		prompt.Name = "HatchProximityPrompt"
-		prompt.ObjectText = "Główna Wylęgarnia"
-		prompt.ActionText = "Wylęgaj kurczaki"
+		prompt.ObjectText = "Main Hatchery"
+		prompt.ActionText = "Hatch chickens"
 		prompt.KeyboardKeyCode = Enum.KeyCode.E
 		prompt.HoldDuration = 0
 		prompt.MaxActivationDistance = 18
@@ -1178,7 +1178,7 @@ function FarmPlotBuilder:_buildHatchery(worldFolder)
 		makeOutlinedText(bb, {
 			Name = "Title",
 			Size = UDim2.new(1, 0, 0.6, 0),
-			Text = "🐣 WYLĘGARNIA KURCZĄT",
+			Text = "🐣 CHICKEN HATCHERY",
 			TextColor3 = Color3.fromRGB(255, 235, 85),
 			StrokeThickness = 3,
 		})
@@ -1186,7 +1186,7 @@ function FarmPlotBuilder:_buildHatchery(worldFolder)
 			Name = "Subtitle",
 			Size = UDim2.new(1, 0, 0.4, 0),
 			Position = UDim2.new(0, 0, 0.6, 0),
-			Text = "Wejdź na czerwony przycisk lub naciśnij [E]!",
+			Text = "Step on the red button or press [E]!",
 			TextColor3 = Color3.fromRGB(255, 255, 255),
 			StrokeThickness = 2.2,
 		})
@@ -1232,7 +1232,7 @@ function FarmPlotBuilder:_buildHatchery(worldFolder)
 		makeOutlinedText(plateBb, {
 			Name = "ActionLabel",
 			Size = UDim2.new(1, 0, 0.55, 0),
-			Text = "🐣 WYLĘGAJ TERAZ!",
+			Text = "🐣 HATCH NOW!",
 			TextColor3 = Color3.fromRGB(255, 110, 130),
 			StrokeThickness = 3.0,
 		})
@@ -1240,7 +1240,7 @@ function FarmPlotBuilder:_buildHatchery(worldFolder)
 			Name = "HintLabel",
 			Size = UDim2.new(1, 0, 0.45, 0),
 			Position = UDim2.new(0, 0, 0.55, 0),
-			Text = "[Stań tutaj]",
+			Text = "[Stand here]",
 			TextColor3 = Color3.fromRGB(255, 255, 140),
 			StrokeThickness = 2.4,
 		})
@@ -1296,8 +1296,8 @@ function FarmPlotBuilder:_buildHabitats(worldFolder)
 		if isRoblox then
 			prompt = Instance.new("ProximityPrompt")
 			prompt.Name = "HabitatProximityPrompt"
-			prompt.ObjectText = "Kurnik #" .. tostring(slotId)
-			prompt.ActionText = "Rozbuduj kurnik"
+			prompt.ObjectText = "Habitat #" .. tostring(slotId)
+			prompt.ActionText = "Upgrade Habitat"
 			prompt.KeyboardKeyCode = Enum.KeyCode.E
 			prompt.HoldDuration = 0
 			prompt.MaxActivationDistance = 16
@@ -1316,7 +1316,7 @@ function FarmPlotBuilder:_buildHabitats(worldFolder)
 			titleLabel = makeOutlinedText(bb, {
 				Name = "HabitatTitle",
 				Size = UDim2.new(1, 0, 0.34, 0),
-				Text = string.format("🏠 Kurnik #%d (%s)", slotId, HABITAT_DISPLAY_NAMES[initialType]),
+				Text = string.format("🏠 Habitat #%d (%s)", slotId, HABITAT_DISPLAY_NAMES[initialType]),
 				TextColor3 = Color3.fromRGB(255, 235, 115),
 				StrokeThickness = 2.6,
 			})
@@ -1351,7 +1351,7 @@ function FarmPlotBuilder:_buildHabitats(worldFolder)
 			popLabel = makeOutlinedText(barBg, {
 				Name = "PopulationLabel",
 				Size = UDim2.new(1, 0, 1, 0),
-				Text = if initialType >= 0 then "0 / 250 🐔" else "Niezbudowany",
+				Text = if initialType >= 0 then "0 / 250 🐔" else "Unbuilt",
 				TextColor3 = Color3.fromRGB(255, 255, 255),
 				StrokeThickness = 2.0,
 			})
@@ -1373,8 +1373,8 @@ function FarmPlotBuilder:_buildHabitats(worldFolder)
 			slotId = slotId,
 			pos = plotInfo.padPos,
 			padColor = { 95, 235, 45 },
-			line1 = string.format("[Kurnik #%d]", slotId),
-			line2 = if initialType == -1 then "+Zbuduj Tier 1 (250 miejsc)" else "+Ulepsz do Tier 2 (500 miejsc)",
+			line1 = string.format("[Habitat #%d]", slotId),
+			line2 = if initialType == -1 then "+Build Tier 1 (250 spots)" else "+Upgrade to Tier 2 (500 spots)",
 			line3 = if initialType == -1 then "$100" else "$500",
 			line1Color = isRoblox and Color3.fromRGB(255, 130, 245) or nil,
 		})
@@ -1449,8 +1449,8 @@ function FarmPlotBuilder:_buildShippingDepot(worldFolder)
 	if isRoblox then
 		local prompt = Instance.new("ProximityPrompt")
 		prompt.Name = "DepotProximityPrompt"
-		prompt.ObjectText = "Stacja Transportowa"
-		prompt.ActionText = "Flota pojazdów"
+		prompt.ObjectText = "Shipping Station"
+		prompt.ActionText = "Vehicles"
 		prompt.KeyboardKeyCode = Enum.KeyCode.E
 		prompt.HoldDuration = 0
 		prompt.MaxActivationDistance = 18
@@ -1469,7 +1469,7 @@ function FarmPlotBuilder:_buildShippingDepot(worldFolder)
 		makeOutlinedText(bb, {
 			Name = "Title",
 			Size = UDim2.new(1, 0, 1, 0),
-			Text = "🚚 STACJA TRANSPORTU JAJ",
+			Text = "🚚 EGG SHIPPING DEPOT",
 			TextColor3 = Color3.fromRGB(255, 215, 75),
 			StrokeThickness = 2.8,
 		})
@@ -1529,7 +1529,7 @@ function FarmPlotBuilder:_buildShippingDepot(worldFolder)
 		parcelPrompt = Instance.new("ProximityPrompt")
 		parcelPrompt.Name = "ClaimOfferPrompt"
 		parcelPrompt.ObjectText = "Specjalna Oferta 2+1"
-		parcelPrompt.ActionText = "Otwórz Paczkę"
+		parcelPrompt.ActionText = "Open Parcel"
 		parcelPrompt.KeyboardKeyCode = Enum.KeyCode.E
 		parcelPrompt.HoldDuration = 0
 		parcelPrompt.MaxActivationDistance = 18
@@ -1552,14 +1552,14 @@ function FarmPlotBuilder:_buildShippingDepot(worldFolder)
 		makeOutlinedText(pbb, {
 			Name = "ParcelLabel",
 			Size = UDim2.new(1, 0, 1, 0),
-			Text = "🎁 PACZKA 2+1!\n[NACIŚNIJ E]",
+			Text = "🎁 2+1 PARCEL!\n[PRESS E]",
 			TextColor3 = Color3.fromRGB(255, 245, 95),
 			StrokeThickness = 2.4,
 		})
 	else
 		parcelPrompt = {
 			Name = "ClaimOfferPrompt",
-			ActionText = "Otwórz Paczkę",
+			ActionText = "Open Parcel",
 			ObjectText = "Specjalna Oferta 2+1",
 		}
 	end
@@ -1605,8 +1605,8 @@ function FarmPlotBuilder:_buildResearchStall(worldFolder)
 	if isRoblox then
 		local prompt = Instance.new("ProximityPrompt")
 		prompt.Name = "ResearchProximityPrompt"
-		prompt.ObjectText = "Laboratorium Badawcze"
-		prompt.ActionText = "Otwórz Badania"
+		prompt.ObjectText = "Research Lab"
+		prompt.ActionText = "Open Research"
 		prompt.KeyboardKeyCode = Enum.KeyCode.E
 		prompt.HoldDuration = 0
 		prompt.MaxActivationDistance = 16
@@ -1625,7 +1625,7 @@ function FarmPlotBuilder:_buildResearchStall(worldFolder)
 		makeOutlinedText(bb, {
 			Name = "Title",
 			Size = UDim2.new(1, 0, 1, 0),
-			Text = "🔬 BUDYNEK BADAŃ [E]",
+			Text = "🔬 RESEARCH LAB [E]",
 			TextColor3 = Color3.fromRGB(115, 235, 255),
 			StrokeThickness = 2.8,
 		})
@@ -1679,14 +1679,14 @@ function FarmPlotBuilder:updateFromFarmView(farmView, catalog)
 
 				if hEntry.titleLabel then
 					hEntry.titleLabel.Text = string.format(
-						"🏠 Kurnik #%d • %s",
+						"🏠 Habitat #%d • %s",
 						slotId,
-						HABITAT_DISPLAY_NAMES[hIdx] or "Kurnik"
+						HABITAT_DISPLAY_NAMES[hIdx] or "Habitat"
 					)
 				end
 				if hEntry.popLabel then
 					if hIdx == -1 then
-						hEntry.popLabel.Text = "Kup na płytce obok!"
+						hEntry.popLabel.Text = "Buy on adjacent pad!"
 					else
 						hEntry.popLabel.Text = string.format("%s / %s 🐔", formatCompact(popNum), formatCompact(capNum))
 					end
@@ -1698,7 +1698,7 @@ function FarmPlotBuilder:updateFromFarmView(farmView, catalog)
 						else Color3.fromRGB(95, 235, 55)
 				end
 				if hEntry.fullLabel then
-					hEntry.fullLabel.Text = if (capNum > 0 and popNum >= capNum) then "⚠️ PEŁNY! (FULL)" else ""
+					hEntry.fullLabel.Text = if (capNum > 0 and popNum >= capNum) then "⚠️ FULL!" else ""
 				end
 
 				-- Update Habitat Step-On Buy Pad text (#78: current/next labels use the Tier names).
@@ -1709,12 +1709,12 @@ function FarmPlotBuilder:updateFromFarmView(farmView, catalog)
 				if bp then
 					local nextIdx = hIdx + 1
 					if hIdx >= 18 or hab.nextHabitatId == nil then
-						bp.line1Label.Text = string.format("[Kurnik #%d • MAX]", slotId)
-						bp.line2Label.Text = "Maksymalny poziom!"
+						bp.line1Label.Text = string.format("[Habitat #%d • MAX]", slotId)
+						bp.line2Label.Text = "Max Level!"
 						bp.line3Label.Text = "MAX"
 					else
 						local nextName = HABITAT_DISPLAY_NAMES[nextIdx] or ("Tier " .. tostring(nextIdx + 1))
-						bp.line1Label.Text = string.format("[Kurnik #%d -> %s]", slotId, nextName)
+						bp.line1Label.Text = string.format("[Habitat #%d -> %s]", slotId, nextName)
 						bp.line2Label.Text = habitatCapacityText(catalog, nextIdx)
 						bp.line3Label.Text = if type(hab.upgradePrice) == "string"
 							then "$" .. formatCompact(hab.upgradePrice)
@@ -1738,23 +1738,23 @@ function FarmPlotBuilder:updateFromFarmView(farmView, catalog)
 				local nextName = nextEgg.name
 				local reqFV = nextEgg.advanceFV
 				if entry.curLabel then
-					entry.curLabel.Text = string.format("🥚 Aktualne: %s", curName)
+					entry.curLabel.Text = string.format("🥚 Current: %s", curName)
 				end
 				if entry.nextLabel then
-					entry.nextLabel.Text = string.format("✨ Następne: %s", nextName)
+					entry.nextLabel.Text = string.format("✨ Next: %s", nextName)
 				end
 				if entry.reqLabel then
-					entry.reqLabel.Text = string.format("Wymagane FV: $%s", formatCompact(reqFV))
+					entry.reqLabel.Text = string.format("Required FV: $%s", formatCompact(reqFV))
 				end
 			else
 				if entry.curLabel then
-					entry.curLabel.Text = string.format("🥚 Aktualne: %s (MAX)", curName)
+					entry.curLabel.Text = string.format("🥚 Current: %s (MAX)", curName)
 				end
 				if entry.nextLabel then
-					entry.nextLabel.Text = "🎉 Osiągnięto Oświecenie (MAX)!"
+					entry.nextLabel.Text = "🎉 Enlightenment Reached (MAX)!"
 				end
 				if entry.reqLabel then
-					entry.reqLabel.Text = "Brak dalszych jaj"
+					entry.reqLabel.Text = "No further eggs"
 				end
 			end
 		end
@@ -1899,7 +1899,7 @@ function FarmPlotBuilder:_buildPetIncubatorStation(worldFolder)
 		title.BackgroundTransparency = 1
 		title.Font = Enum.Font.FredokaOne
 		title.TextScaled = true
-		title.Text = "🐣 STACJA INKUBACJI PETÓW"
+		title.Text = "🐣 PET INCUBATION STATION"
 		title.TextColor3 = Color3.fromRGB(255, 235, 110)
 		title.Parent = bb
 
@@ -1914,7 +1914,7 @@ function FarmPlotBuilder:_buildPetIncubatorStation(worldFolder)
 		sub.BackgroundTransparency = 1
 		sub.Font = Enum.Font.FredokaOne
 		sub.TextScaled = true
-		sub.Text = "[E] Wykluj Nowego Peta (100 💎)"
+		sub.Text = "[E] Hatch New Pet (100 💎)"
 		sub.TextColor3 = Color3.fromRGB(255, 255, 255)
 		sub.Parent = bb
 
@@ -1925,8 +1925,8 @@ function FarmPlotBuilder:_buildPetIncubatorStation(worldFolder)
 
 		prompt = Instance.new("ProximityPrompt")
 		prompt.Name = "IncubatorProximityPrompt"
-		prompt.ObjectText = "Stacja Inkubacji Petów"
-		prompt.ActionText = "Inkubuj Jajo"
+		prompt.ObjectText = "Pet Incubation Station"
+		prompt.ActionText = "Incubate Egg"
 		prompt.KeyboardKeyCode = Enum.KeyCode.E
 		prompt.MaxActivationDistance = 15
 		prompt.HoldDuration = 0
@@ -1934,8 +1934,8 @@ function FarmPlotBuilder:_buildPetIncubatorStation(worldFolder)
 	else
 		prompt = {
 			Name = "IncubatorProximityPrompt",
-			ObjectText = "Stacja Inkubacji Petów",
-			ActionText = "Inkubuj Jajo",
+			ObjectText = "Pet Incubation Station",
+			ActionText = "Incubate Egg",
 			KeyboardKeyCode = "E",
 			MaxActivationDistance = 15,
 			HoldDuration = 0,

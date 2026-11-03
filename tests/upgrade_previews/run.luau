@@ -22,24 +22,24 @@ local function harness(mutate)
 end
 do
 	local h=harness();local farm=h.client:getFarm()
-	eq(h.hud.shopResearch.comfy_nests.subtitleLabel.Text,'Tempo znoszenia: +0% → +10%')
-	eq(h.hud.shopResearch.internal_hatchery1.subtitleLabel.Text,'Kurczaki/min/kurnik: +0 → +2')
-	eq(h.hud.unifiedResearch.comfy_nests.levelLabel.Text,'★ POZ. 0/180','unified comfy_nests starts at 0/180')
-	eq(h.hud.unifiedResearch.internal_hatchery1.levelLabel.Text,'★ POZ. 0/345','unified internal_hatchery starts at 0/345')
-	eq(h.hud.goldenEggsLabel.Text,'Diamenty: 10','GE visible without opening a modal')
+	eq(h.hud.shopResearch.comfy_nests.subtitleLabel.Text,'Laying Rate: +0% → +10%')
+	eq(h.hud.shopResearch.internal_hatchery1.subtitleLabel.Text,'Chickens/min/hab: +0 → +2')
+	eq(h.hud.unifiedResearch.comfy_nests.levelLabel.Text,'★ LVL 0/180','unified comfy_nests starts at 0/180')
+	eq(h.hud.unifiedResearch.internal_hatchery1.levelLabel.Text,'★ LVL 0/345','unified internal_hatchery starts at 0/345')
+	eq(h.hud.goldenEggsLabel.Text,'Diamonds: 10','GE visible without opening a modal')
 	for i=1,4 do
 		eq(h.hud.vehicleCards[i].card.Visible,true,'four base slots visible')
 		eq(h.hud.vehicleCards[i].upgBtn.Active,true,'four base slots purchasable')
 	end
-	eq(h.hud.vehicleCards[2].titleLabel.Text,'Slot #2: Puste miejsce')
+	eq(h.hud.vehicleCards[2].titleLabel.Text,'Slot #2: Empty slot')
 	eq(h.hud.vehicleCards[2].upgBtn.Text,'$22.41','price replaces upgrade action')
 	eq(h.hud.habitatUpgBtns[1].Text,'$466.67','server SHACK price')
 	eq(farm.habitats[2].nextHabitatId,'COOP','empty plot builds COOP')
 	eq(h.hud.vehicleCards[5].card.Visible,false,'no fabricated fifth base slot')
 	local result
 	h.client:buyResearch('comfy_nests',function(r)result=r end);eq(result.status,'APPLIED');h.sync()
-	eq(h.hud.shopResearch.comfy_nests.subtitleLabel.Text,'Tempo znoszenia: +10% → +20%','effect updates after purchase')
-	eq(h.hud.unifiedResearch.comfy_nests.levelLabel.Text,'★ POZ. 1/180','unified comfy_nests advances to 1/180')
+	eq(h.hud.shopResearch.comfy_nests.subtitleLabel.Text,'Laying Rate: +10% → +20%','effect updates after purchase')
+	eq(h.hud.unifiedResearch.comfy_nests.levelLabel.Text,'★ LVL 1/180','unified comfy_nests advances to 1/180')
 	h.client:buyHabitat(1,'SHACK',function(r)result=r end);eq(result.status,'APPLIED');h.sync()
 	eq(h.client:getFarm().habitats[1].nextHabitatId,'SUPER SHACK','next target advances past SHACK')
 	local quote
@@ -52,11 +52,11 @@ do
 	eq(Schema.validate(saved,'1'),true,'gapped fleet has a valid persistent representation')
 	h.b:tick(.3);eq(h.b:getCoordinator('1').snapshots().ready,true,'empty slots do not break production')
 	eq(h.client:getFarm().fleet.vehicles[2].slotId,4,'occupied fleet can have a gap')
-	eq(h.hud.vehicleCards[2].titleLabel.Text,'Slot #2: Puste miejsce','gap is not a vehicle')
+	eq(h.hud.vehicleCards[2].titleLabel.Text,'Slot #2: Empty slot','gap is not a vehicle')
 	eq(h.hud.vehicleCards[4].titleLabel.Text,'Slot #4: Tier 1','slot identity, not list index')
 	h.client:claimDailyGift(function(r)result=r end)
 	eq(result.status,'APPLIED')
-	eq(h.hud.goldenEggsLabel.Text,'Diamenty: 202','GE counter reacts to new server balance')
+	eq(h.hud.goldenEggsLabel.Text,'Diamonds: 202','GE counter reacts to new server balance')
 	eq(h.b:playerLeaving('1'),true);eq(h.b:playerJoined('1').status,'JOINED')
 	h.client:connect('fleet-reconnect')
 	eq(h.hud.vehicleCards[4].titleLabel.Text,'Slot #4: Tier 1','reconnect preserves slot identities')
@@ -79,8 +79,8 @@ do
 	end)
 	eq(h.hud.habitatUpgBtns[1].Text,'MAX');eq(h.hud.habitatUpgBtns[1].Active,false)
 	eq(h.hud.vehicleCards[1].upgBtn.Text,'MAX');eq(h.hud.vehicleCards[1].upgBtn.Active,false)
-	eq(h.hud.shopResearch.comfy_nests.subtitleLabel.Text,'Tempo znoszenia: +500% (MAX)')
-	eq(h.hud.unifiedResearch.comfy_nests.levelLabel.Text,'★ POZ. 50/180','unified comfy_nests tracks cumulative chain levels')
+	eq(h.hud.shopResearch.comfy_nests.subtitleLabel.Text,'Laying Rate: +500% (MAX)')
+	eq(h.hud.unifiedResearch.comfy_nests.levelLabel.Text,'★ LVL 50/180','unified comfy_nests tracks cumulative chain levels')
 	eq(h.hud.shopResearch.coordinated_clucking.subtitleLabel.Text:find('%%'),nil,'RCB limit is additive, not percent')
 	h.client:destroy();h.b:close()
 end
@@ -138,7 +138,7 @@ do
 	eq(uComfyF2p.buyMaxButton ~= nil, true, "buyMaxButton exists")
 	eq(uComfyF2p.buyMaxButton.Active, true, "buyMaxButton remains clickable for F2P to trigger paywall")
 	eq(uComfyF2p.maxActionLabel.Text, "🔒 MAX", "F2P buyMaxButton shows paywall lock")
-	eq(uComfyF2p.maxPriceLabel.Text, "ODBLOKUJ", "F2P buyMaxButton shows unlock CTA")
+	eq(uComfyF2p.maxPriceLabel.Text, "UNLOCK", "F2P buyMaxButton shows unlock CTA")
 
 	local promptedProduct = nil
 	hF2p.hud.onPurchaseProduct = function(prodId)
@@ -185,7 +185,7 @@ do
 	eq(maxRes.result.actionKind, "BuyResearch")
 	eq(maxRes.result.level > 1, true, "BuyResearch max upgraded multiple levels at once")
 	h.sync()
-	local expectedStr = "★ POZ. " .. tostring(maxRes.result.level) .. "/180"
+	local expectedStr = "★ LVL " .. tostring(maxRes.result.level) .. "/180"
 	eq(uComfy.levelLabel.Text, expectedStr, "unified level label updated after MAX purchase")
 	h.client:destroy(); h.b:close()
 end

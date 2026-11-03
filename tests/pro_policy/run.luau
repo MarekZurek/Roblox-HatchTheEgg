@@ -236,7 +236,7 @@ do
  client:connect('owned-boot');eq(client:getStore():getFarm().progress.proBonusAvailable,true)
  h.cell.value=nil;client.transport:sendRefreshState()
  eq(client:getStore():getFarm().progress.proBonusAvailable,false)
- eq(string.find(client.hud.fusionProPermitBadge.Text,'nieznana',1,true)~=nil,true)
+ eq(string.find(client.hud.fusionProPermitBadge.Text,'unknown',1,true)~=nil,true)
  client:destroy()
 end
 

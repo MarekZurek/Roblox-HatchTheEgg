@@ -166,13 +166,13 @@ do
 	h.store:applySnapshot(snapFull)
 	eq(hud:getHatchStatusReason(), "CAPACITY_FULL", "full: reason is CAPACITY_FULL")
 	eq(hud:getHatchStatusVisible(), true, "full: status visible")
-	eq(hud:getHatchStatusText(), "Brak miejsca w kurnikach", "full: main message only, no appended hint")
-	eq(hud:getHatchStatusActionVisible(), true, "full: Kurniki action available")
+	eq(hud:getHatchStatusText(), "Habitats full", "full: main message only, no appended hint")
+	eq(hud:getHatchStatusActionVisible(), true, "full: Habitats action available")
 
 	-- The action opens the existing habitat panel; it is not a new remote or a new purchase path.
 	local action = hud:getHatchStatusActionButton()
 	ok(action ~= nil, "full: action button instance exists")
-	eq(action.Text, "Kurniki", "full: action label is Kurniki")
+	eq(action.Text, "Habitats", "full: action label is Habitats")
 	action.Activated:Fire()
 	eq(hud:getHabitatsModal().Visible, true, "full: action opens the existing habitats panel")
 	hud:toggleHabitatsModal(false)
@@ -237,8 +237,8 @@ do
 		h.store:applySnapshot(snapStock)
 		eq(hud:getHatchStatusReason(), "NO_STOCK", "stock " .. case.stock .. ": reason is NO_STOCK")
 		eq(hud:getHatchStatusVisible(), true, "stock " .. case.stock .. ": status visible")
-		contains(hud:getHatchStatusText(), "Brak jaj do wylęgu", "stock " .. case.stock .. ": base message")
-		contains(hud:getHatchStatusText(), "zapas się odnawia", "stock " .. case.stock .. ": refill note")
+		contains(hud:getHatchStatusText(), "Hatchery empty", "stock " .. case.stock .. ": base message")
+		contains(hud:getHatchStatusText(), "refilling eggs", "stock " .. case.stock .. ": refill note")
 		eq(hud:getHatchStatusActionVisible(), false, "stock " .. case.stock .. ": no Kurniki action")
 	end
 
@@ -267,8 +267,8 @@ do
 	})
 	h.store:applySnapshot(snapBoth)
 	eq(hud:getHatchStatusReason(), "CAPACITY_FULL", "both blocked: capacity wins")
-	contains(hud:getHatchStatusText(), "Brak miejsca w kurnikach", "both blocked: capacity message")
-	missing(hud:getHatchStatusText(), "Brak jaj do wylęgu", "both blocked: stock message suppressed")
+	contains(hud:getHatchStatusText(), "Habitats full", "both blocked: capacity message")
+	missing(hud:getHatchStatusText(), "Hatchery empty", "both blocked: stock message suppressed")
 
 
 	-- 1.8 Restoring capacity through a delta clears the message (whole-section replacement).
@@ -353,7 +353,7 @@ do
 	h.store:applySnapshot(snapExactFull)
 	eq(hud:getHatchStatusReason(), "CAPACITY_FULL", "exact >2^53 counts block hatching")
 	eq(hud:getHatchStatusVisible(), true, "exact >2^53 counts keep the status visible")
-	eq(hud:getHatchStatusText(), "Brak miejsca w kurnikach", "no upgrade is promised when none exists")
+	eq(hud:getHatchStatusText(), "Habitats full", "no upgrade is promised when none exists")
 	ok(string.find(hud:getHabitatText(1), " / ", 1, true) ~= nil, "exact counts still render in the parcel card")
 
 	local snapExactVacant = makeSnapshot({
@@ -434,14 +434,14 @@ do
 		h.store:applySnapshot(snap)
 		local card = hud.habitatCards[1]
 		ok(card ~= nil, "habitat card 1 exists for index " .. tostring(index))
-		eq(card:FindFirstChild("TitleLabel").Text, "Parcela #1: Tier " .. tostring(index + 1),
+		eq(card:FindFirstChild("TitleLabel").Text, "Plot #1: Tier " .. tostring(index + 1),
 			"habitat index " .. tostring(index) .. " shows Tier " .. tostring(index + 1))
 		local nextText = card:FindFirstChild("NextUpgradeLabel").Text
 		if index < 18 then
-			eq(nextText, "Następny: Tier " .. tostring(index + 2),
+			eq(nextText, "Next: Tier " .. tostring(index + 2),
 				"habitat index " .. tostring(index) .. " next is Tier " .. tostring(index + 2))
 		else
-			contains(nextText, "Maksymalny", "habitat index 18 is the maximum tier")
+			contains(nextText, "Max", "habitat index 18 is the maximum tier")
 		end
 	end
 
@@ -456,7 +456,7 @@ do
 	})
 	h.store:applySnapshot(snapEmpty)
 	local emptyTitle = hud.habitatCards[2]:FindFirstChild("TitleLabel").Text
-	eq(emptyTitle, "Parcela #2: Niezbudowany", "empty parcel stays empty")
+	eq(emptyTitle, "Plot #2: Unbuilt", "empty parcel stays empty")
 	missing(emptyTitle, "Tier 0", "empty parcel is not Tier 0")
 
 	hud:destroy()
@@ -489,8 +489,8 @@ do
 			"vehicle index " .. tostring(index) .. " shows Tier " .. tostring(index + 1))
 	end
 	-- Capacity labels still come from the unchanged reference table.
-	eq(hud.vehicleCards[1].capLabel.Text, "Wydajność: 5K jaj/min", "Tier 1 capacity label unchanged")
-	eq(hud.vehicleCards[12].capLabel.Text, "Wydajność: 50M jaj/min", "Tier 12 capacity label unchanged")
+	eq(hud.vehicleCards[1].capLabel.Text, "Rate: 5K eggs/min", "Tier 1 capacity label unchanged")
+	eq(hud.vehicleCards[12].capLabel.Text, "Rate: 50M eggs/min", "Tier 12 capacity label unchanged")
 
 	-- The tier belongs to the type, never to the fleet slot: gaps keep their slot identity.
 	local snapGap = makeSnapshot({
@@ -505,14 +505,14 @@ do
 	ok(Protocol.validateServer(snapGap), "gap snapshot is valid under ProtocolSchemas")
 	h.store:applySnapshot(snapGap)
 	eq(hud.vehicleCards[1].titleLabel.Text, "Slot #1: Tier 1", "slot 1 keeps Tier 1")
-	eq(hud.vehicleCards[2].titleLabel.Text, "Slot #2: Puste miejsce", "gap slot 2 stays empty")
-	eq(hud.vehicleCards[3].titleLabel.Text, "Slot #3: Puste miejsce", "gap slot 3 stays empty")
+	eq(hud.vehicleCards[2].titleLabel.Text, "Slot #2: Empty slot", "gap slot 2 stays empty")
+	eq(hud.vehicleCards[3].titleLabel.Text, "Slot #3: Empty slot", "gap slot 3 stays empty")
 	eq(hud.vehicleCards[4].titleLabel.Text, "Slot #4: Tier 2", "slot identity is the slotId, not the list index")
 
 	-- The existing fleet panel purchase path and prices stay available.
 	eq(hud.vehicleCards[1].upgBtn.Active, true, "fleet panel buy path stays available")
 	eq(hud.vehicleCards[1].upgBtn.Text, "$100", "fleet panel price unchanged")
-	eq(hud.vehicleCards[1].priceLabel.Text, "Następny pojazd", "fleet panel offer label unchanged")
+	eq(hud.vehicleCards[1].priceLabel.Text, "Next vehicle", "fleet panel offer label unchanged")
 	hud.vehicleCards[1].upgBtn.Activated:Fire()
 	eq(clickedSlot, 1, "fleet panel buy path still targets the clicked slot")
 
@@ -541,7 +541,7 @@ do
 	ok(world:getDeliveryTruck() ~= nil, "delivery truck still exists")
 	ok(world:getDeliveryParcel() ~= nil, "2+1 offer parcel still exists")
 	eq(world:getDeliveryPrompt().ObjectText, "Specjalna Oferta 2+1", "offer prompt object text unchanged")
-	eq(world:getDeliveryPrompt().ActionText, "Otwórz Paczkę", "offer delivery prompt unchanged")
+	eq(world:getDeliveryPrompt().ActionText, "Open Parcel", "offer delivery prompt unchanged")
 	ok(world.vehiclesModels[1] ~= nil, "parked vehicle presentation still exists")
 	eq(world.vehiclesModels[1].Name, "Vehicle_Slot1_Body", "parked vehicle part name unchanged")
 
@@ -565,12 +565,12 @@ do
 		},
 	}, Catalog)
 
-	eq(world.habitats[1].buyPad.line1Label.Text, "[Kurnik #1 -> Tier 2]", "slot 1 pad offers Tier 2")
-	eq(world.habitats[2].buyPad.line1Label.Text, "[Kurnik #2 -> Tier 1]", "unbuilt slot 2 pad offers Tier 1")
-	eq(world.habitats[3].buyPad.line1Label.Text, "[Kurnik #3 • MAX]", "max tier pad shows MAX")
-	eq(world.habitats[4].buyPad.line1Label.Text, "[Kurnik #4 -> Tier 7]", "slot 4 (Tier 6) pad offers Tier 7")
-	eq(world.habitats[2].buyPad.line2Label.Text, "Pojemność bazowa: 250", "unbuilt pad describes the Tier 1 base capacity")
-	eq(world.habitats[1].buyPad.line2Label.Text, "Pojemność bazowa: 500", "pad line 2 describes the target base capacity without a delta")
+	eq(world.habitats[1].buyPad.line1Label.Text, "[Habitat #1 -> Tier 2]", "slot 1 pad offers Tier 2")
+	eq(world.habitats[2].buyPad.line1Label.Text, "[Habitat #2 -> Tier 1]", "unbuilt slot 2 pad offers Tier 1")
+	eq(world.habitats[3].buyPad.line1Label.Text, "[Habitat #3 • MAX]", "max tier pad shows MAX")
+	eq(world.habitats[4].buyPad.line1Label.Text, "[Habitat #4 -> Tier 7]", "slot 4 (Tier 6) pad offers Tier 7")
+	eq(world.habitats[2].buyPad.line2Label.Text, "Base Capacity: 250", "unbuilt pad describes the Tier 1 base capacity")
+	eq(world.habitats[1].buyPad.line2Label.Text, "Base Capacity: 500", "pad line 2 describes the target base capacity without a delta")
 	missing(world.habitats[1].buyPad.line2Label.Text, "+", "pad line 2 never implies a delta")
 	eq(world.habitats[1].buyPad.line3Label.Text, "$804", "pad price is the authoritative upgradePrice, not the catalog zero-owned price")
 	missing(world.habitats[1].buyPad.line3Label.Text, "467", "pad never shows the catalog sameTypeOwned=0 price")
@@ -585,15 +585,15 @@ do
 			{ slotId = 1, habitatIndex = 0, population = "0", reservedInTransit = "0", capacity = "250" },
 		},
 	}, Catalog)
-	eq(world.habitats[1].buyPad.line1Label.Text, "[Kurnik #1 • MAX]", "absent nextHabitatId shows MAX")
+	eq(world.habitats[1].buyPad.line1Label.Text, "[Habitat #1 • MAX]", "absent nextHabitatId shows MAX")
 	eq(world.habitats[1].buyPad.line3Label.Text, "MAX", "absent nextHabitatId never fabricates a price")
 	missing(world.habitats[1].buyPad.line3Label.Text, "$", "absent nextHabitatId has no dollar price")
 
 	-- World titles use the tier names; empty slots stay empty.
-	eq(world.habitats[1].titleLabel.Text, "🏠 Kurnik #1 • Tier 1", "world slot 1 title")
-	eq(world.habitats[2].titleLabel.Text, "🏠 Kurnik #2 • Wolna Parcela", "world slot 2 stays empty")
-	eq(world.habitats[3].titleLabel.Text, "🏠 Kurnik #3 • Tier 19", "world slot 3 title")
-	eq(world.habitats[4].titleLabel.Text, "🏠 Kurnik #4 • Tier 6", "world slot 4 title")
+	eq(world.habitats[1].titleLabel.Text, "🏠 Habitat #1 • Tier 1", "world slot 1 title")
+	eq(world.habitats[2].titleLabel.Text, "🏠 Habitat #2 • Empty Plot", "world slot 2 stays empty")
+	eq(world.habitats[3].titleLabel.Text, "🏠 Habitat #3 • Tier 19", "world slot 3 title")
+	eq(world.habitats[4].titleLabel.Text, "🏠 Habitat #4 • Tier 6", "world slot 4 title")
 
 
 	-- Internal IDs, model names and the reference catalog are untouched.
@@ -630,7 +630,7 @@ do
 		"shared pad infrastructure stays for habitat pads")
 	eq(string.find(worldSource, "\"Szopa (Shack)\"", 1, true), nil, "old habitat display name removed from the world")
 	eq(string.find(worldSource, "Kurniczek", 1, true), nil, "old pad offer name removed from the world")
-	ok(string.find(worldSource, "ActionText = \"Flota pojazdów\"", 1, true) ~= nil,
+	ok(string.find(worldSource, "ActionText = \"Vehicles\"", 1, true) ~= nil,
 		"depot still routes to the fleet panel")
 
 	local hudSource = fs.readFile("src/client/HUD.luau")
