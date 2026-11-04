@@ -3192,6 +3192,7 @@ function HUD:isAnyModalOpen()
 		or (self.eggUpgradeModal and self.eggUpgradeModal.Visible == true)
 		or (self.epicResearchModal and self.epicResearchModal.Visible == true)
 		or (self.prestigeModal and self.prestigeModal.Visible == true)
+		or (self.purchasePreviewFrame and self.purchasePreviewFrame.Visible == true)
 		or false
 end
 
@@ -4158,6 +4159,7 @@ function HUD:_updateUnifiedGroup(group, byId, displayOrder, isTabVisible)
 	end
 
 	item.activeId = activeSubId
+	item.displayOrder = displayOrder
 
 	if isTabVisible ~= nil then
 		item.card.Visible = isTabVisible
@@ -5356,6 +5358,7 @@ function HUD:applyTutorialStep(stepOrController: any, optionalInfo: any?)
 			if targetWidget=='CalendarMenuButton' and not isDone then self.rightDock.CanvasPosition=Vector2.new(0,math.max(0,newDockH-viewH)) end
 		end
 	end
+	if self._mobileLayout then self._mobileLayout:refresh() end
 end
 
 function HUD:destroy()

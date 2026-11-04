@@ -5,6 +5,11 @@
   "tree": {
     "$className": "DataModel",
     "$ignoreUnknownInstances": true,
+    "StarterGui": {
+      "$className": "StarterGui",
+      "$ignoreUnknownInstances": true,
+      "$properties": { "ScreenOrientation": "Sensor" }
+    },
     "Lighting": {
       "$className": "Lighting",
       "$ignoreUnknownInstances": true,

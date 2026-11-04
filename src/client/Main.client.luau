@@ -21,6 +21,7 @@ local ProximityPromptService = game:GetService("ProximityPromptService")
 
 local ClientBootstrap = require(script.Parent.Bootstrap)
 local TutorialController = require(script.Parent.onboarding.TutorialController)
+local MobileLayout = require(script.Parent.ui.MobileLayout)
 
 local localPlayer = Players.LocalPlayer
 if not localPlayer then
@@ -178,6 +179,7 @@ _G.HatchTheEggClient = client
 shared.HatchTheEggClient = client
 
 local hud = client:getHUD()
+if hud then hud._mobileLayout = MobileLayout.attach(hud, screenGui) end
 if hud then
 	hud.onQuickBuyResearch = function(researchId)
 		buyResearchWithQuote(researchId or "comfy_nests")

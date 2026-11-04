@@ -1,0 +1,349 @@
+{
+  "baseCommit": "fafd2bd9a9355bdfb71748c1cdaf81148c7ec7b9",
+  "studio": "b6787e07-e1a4-429e-8c0e-ca052c18d537",
+  "device": "iPhone XR",
+  "events": [
+    {
+      "name": "orientation-locked-baseline",
+      "observed": {
+        "TouchEnabled": true,
+        "ScreenOrientation": "LandscapeSensor",
+        "CurrentScreenOrientation": "LandscapeRight",
+        "viewport": [
+          801,
+          413
+        ]
+      }
+    },
+    {
+      "name": "baseline-portrait-step1-geometry",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"touch\":true,\"touchGui\":{\"1\":{\"size\":\"413, 756\",\"name\":\"TouchControlFrame\",\"pos\":\"0, 0\"},\"3\":{\"size\":\"513, 402.399994\",\"name\":\"DynamicThumbstickFrame\",\"pos\":\"-100, 453.599976\"},\"2\":{\"size\":\"70, 70\",\"name\":\"JumpButton\",\"pos\":\"318, 666\"},\"5\":{\"size\":\"36, 36\",\"name\":\"ThumbstickEnd\",\"pos\":\"48, 682\"},\"4\":{\"size\":\"74, 74\",\"name\":\"ThumbstickStart\",\"pos\":\"29, 663\"}},\"orientation\":\"Portrait\",\"root\":\"413, 756\",\"viewport\":\"413, 814\",\"widgets\":{\"1\":{\"visible\":false,\"size\":\"315, 92\",\"name\":\"TopBar\",\"position\":\"6, 6\"},\"8\":{\"visible\":false,\"size\":\"76, 396\",\"name\":\"RightDock\",\"position\":\"325, 164\"},\"3\":{\"visible\":false,\"size\":\"236, 72\",\"name\":\"PlayerFarmBadge\",\"position\":\"14, 10\"},\"2\":{\"visible\":true,\"size\":\"280, 110\",\"name\":\"TutorialObjectiveCard\",\"position\":\"66.5, 571\"},\"5\":{\"visible\":false,\"size\":\"182, 48\",\"name\":\"DiamondsPillFrame\",\"position\":\"215, 696\"},\"4\":{\"visible\":false,\"size\":\"210, 48\",\"name\":\"BottomLeftCluster\",\"position\":\"189, 696\"},\"7\":{\"visible\":false,\"size\":\"301, 52\",\"name\":\"HatchStatusFrame\",\"position\":\"16, 640\"},\"6\":{\"visible\":true,\"size\":\"210, 52\",\"name\":\"HatcheryFrame\",\"position\":\"101.5, 694\"}}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "baseline-landscape-prestige-outside",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"viewport\":\"801, 413\",\"window\":{\"size\":\"560, 335\",\"pos\":\"120.5, 10\"},\"root\":\"801, 355\",\"prestigeButton\":{\"size\":\"524, 60\",\"pos\":\"138.5, 484\"}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "portrait-native-touch-tutorial-phase1",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"sequence\":\"250\",\"common\":{\"nutritional_sup\":1},\"id\":\"11647593962\",\"habitats\":{\"1\":{\"population\":\"250\",\"assignedInTransit\":\"0\",\"capacity\":\"250\",\"typeIndex\":0,\"fractionalIHR\":\"0\"},\"4\":{\"population\":\"0\",\"assignedInTransit\":\"0\",\"capacity\":\"0\",\"typeIndex\":-1,\"fractionalIHR\":\"0\"},\"3\":{\"population\":\"0\",\"assignedInTransit\":\"0\",\"capacity\":\"0\",\"typeIndex\":-1,\"fractionalIHR\":\"0\"},\"2\":{\"population\":\"0\",\"assignedInTransit\":\"0\",\"capacity\":\"250\",\"typeIndex\":0,\"fractionalIHR\":\"0\"}},\"GE\":\"202\",\"cash\":\"1270.7773080604543\"}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "final-source-landscape-tutorial-native-touch",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"inputs\":{\"1\":{\"type\":\"Touch\",\"processed\":true},\"8\":{\"type\":\"Touch\",\"processed\":true},\"3\":{\"type\":\"Touch\",\"processed\":true},\"2\":{\"type\":\"Touch\",\"processed\":true},\"5\":{\"type\":\"Touch\",\"processed\":true},\"4\":{\"type\":\"Touch\",\"processed\":true},\"7\":{\"type\":\"Touch\",\"processed\":true},\"6\":{\"type\":\"Touch\",\"processed\":true}},\"tutorial\":false,\"status\":\"READY\",\"claim\":\"✓ TODAY'S REWARD CLAIMED (Come back tomorrow!)\",\"orientation\":\"LandscapeLeft\",\"root\":\"801, 355\"}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "portrait-native-window-audit-phase2",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"root\":\"413, 756\",\"windows\":{\"1\":{\"small\":[],\"name\":\"ShopFrame\",\"size\":\"393, 529\",\"kind\":\"research\",\"inside\":true,\"pos\":\"10, 113.5\"},\"3\":{\"small\":[],\"name\":\"VehiclesFrame\",\"size\":\"393, 520\",\"kind\":\"vehicles\",\"inside\":true,\"pos\":\"10, 118\"},\"2\":{\"small\":[],\"name\":\"HabitatsFrame\",\"size\":\"393, 430\",\"kind\":\"habitats\",\"inside\":true,\"pos\":\"10, 163\"},\"5\":{\"small\":{\"1\":{\"name\":\"HeroPromoBanner\",\"size\":\"369, 32\"}},\"name\":\"ShopModalFrame\",\"size\":\"393, 560\",\"kind\":\"shop\",\"inside\":true,\"pos\":\"10, 98\"},\"4\":{\"small\":[],\"name\":\"CalendarFrame\",\"size\":\"393, 529\",\"kind\":\"calendar\",\"inside\":true,\"pos\":\"10, 113.5\"},\"7\":{\"small\":[],\"name\":\"PrestigeModal\",\"size\":\"393, 580\",\"kind\":\"prestige\",\"inside\":true,\"pos\":\"10, 88\"},\"6\":{\"small\":[],\"name\":\"EpicResearchModalFrame\",\"size\":\"393, 640\",\"kind\":\"epic\",\"inside\":true,\"pos\":\"10, 58\"},\"9\":{\"small\":[],\"name\":\"PetsFrame\",\"size\":\"393, 540\",\"kind\":\"pets\",\"inside\":true,\"pos\":\"10, 108\"},\"8\":{\"small\":[],\"name\":\"EggUpgradeModal\",\"size\":\"393, 360\",\"kind\":\"egg\",\"inside\":true,\"pos\":\"10, 198\"},\"10\":{\"small\":[],\"name\":\"PetHatchModal\",\"size\":\"393, 460\",\"kind\":\"hatch\",\"inside\":true,\"pos\":\"10, 148\"}},\"orientation\":\"Portrait\"}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "final-portrait-step1-clear-touch-controls",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"touch\":true,\"touchGui\":{\"1\":{\"size\":\"413, 756\",\"name\":\"TouchControlFrame\",\"pos\":\"0, 0\"},\"3\":{\"size\":\"513, 402.399994\",\"name\":\"DynamicThumbstickFrame\",\"pos\":\"-100, 453.599976\"},\"2\":{\"size\":\"70, 70\",\"name\":\"JumpButton\",\"pos\":\"318, 666\"},\"5\":{\"size\":\"45, 45\",\"name\":\"ThumbstickEnd\",\"pos\":\"42.5, 727.099976\"},\"4\":{\"size\":\"0, 0\",\"name\":\"ThumbstickStart\",\"pos\":\"65, 749.599976\"},\"6\":{\"size\":\"8, 8\",\"name\":\"ThumbstickMiddle\",\"pos\":\"61, 712.599976\"}},\"orientation\":\"Portrait\",\"root\":\"413, 756\",\"viewport\":\"413, 814\",\"widgets\":{\"1\":{\"visible\":false,\"size\":\"315, 92\",\"name\":\"TopBar\",\"position\":\"6, 6\"},\"8\":{\"visible\":false,\"size\":\"72, 73\",\"name\":\"RightDock\",\"position\":\"331, 110\"},\"3\":{\"visible\":false,\"size\":\"313, 80\",\"name\":\"PlayerFarmBadge\",\"position\":\"8, 108\"},\"2\":{\"visible\":true,\"size\":\"313, 116\",\"name\":\"TutorialObjectiveCard\",\"position\":\"8, 200\"},\"5\":{\"visible\":false,\"size\":\"182, 44\",\"name\":\"DiamondsPillFrame\",\"position\":\"8, 498\"},\"4\":{\"visible\":false,\"size\":\"210, 44\",\"name\":\"BottomLeftCluster\",\"position\":\"8, 548\"},\"7\":{\"visible\":false,\"size\":\"313, 48\",\"name\":\"HatchStatusFrame\",\"position\":\"8, 438\"},\"6\":{\"visible\":true,\"size\":\"210, 44\",\"name\":\"HatcheryFrame\",\"position\":\"8, 598\"}}}"
+          }
+        ],
+        "isError": false
+      },
+      "joystickMovement": {
+        "beforeZ": 264,
+        "afterZ": 264.45733642578125
+      }
+    },
+    {
+      "name": "final-portrait-complete-tutorial-native-touch",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"inputs\":{\"1\":{\"type\":\"Touch\",\"processed\":false},\"3\":{\"type\":\"Touch\",\"processed\":true},\"2\":{\"type\":\"Touch\",\"processed\":true},\"5\":{\"type\":\"Touch\",\"processed\":true},\"4\":{\"type\":\"Touch\",\"processed\":true},\"7\":{\"type\":\"Touch\",\"processed\":true},\"6\":{\"type\":\"Touch\",\"processed\":true},\"9\":{\"type\":\"Touch\",\"processed\":true},\"8\":{\"type\":\"Touch\",\"processed\":true},\"10\":{\"type\":\"Touch\",\"processed\":true}},\"tutorial\":false,\"status\":\"READY\",\"claim\":\"✓ TODAY'S REWARD CLAIMED (Come back tomorrow!)\",\"step\":\"🎯 Claim daily gift\",\"orientation\":\"Portrait\"}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "final-portrait-authoritative-onboarding-result",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"sequence\":\"250\",\"common\":{\"nutritional_sup\":1},\"id\":\"11647593962\",\"habitats\":{\"1\":{\"population\":\"250\",\"assignedInTransit\":\"0\",\"capacity\":\"250\",\"typeIndex\":0,\"fractionalIHR\":\"0\"},\"4\":{\"population\":\"0\",\"assignedInTransit\":\"0\",\"capacity\":\"0\",\"typeIndex\":-1,\"fractionalIHR\":\"0\"},\"3\":{\"population\":\"0\",\"assignedInTransit\":\"0\",\"capacity\":\"0\",\"typeIndex\":-1,\"fractionalIHR\":\"0\"},\"2\":{\"population\":\"0\",\"assignedInTransit\":\"0\",\"capacity\":\"250\",\"typeIndex\":0,\"fractionalIHR\":\"0\"}},\"GE\":\"202\",\"cash\":\"545.39770806045385\"}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "final-portrait-ten-window-bounds-and-touch-audit",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"root\":\"413, 756\",\"windows\":{\"1\":{\"small\":[],\"name\":\"ShopFrame\",\"size\":\"393, 529\",\"kind\":\"research\",\"inside\":true,\"pos\":\"10, 113.5\"},\"3\":{\"small\":[],\"name\":\"VehiclesFrame\",\"size\":\"393, 520\",\"kind\":\"vehicles\",\"inside\":true,\"pos\":\"10, 118\"},\"2\":{\"small\":[],\"name\":\"HabitatsFrame\",\"size\":\"393, 430\",\"kind\":\"habitats\",\"inside\":true,\"pos\":\"10, 163\"},\"5\":{\"small\":[],\"name\":\"ShopModalFrame\",\"size\":\"393, 560\",\"kind\":\"shop\",\"inside\":true,\"pos\":\"10, 98\"},\"4\":{\"small\":[],\"name\":\"CalendarFrame\",\"size\":\"393, 529\",\"kind\":\"calendar\",\"inside\":true,\"pos\":\"10, 113.5\"},\"7\":{\"small\":[],\"name\":\"PrestigeModal\",\"size\":\"393, 580\",\"kind\":\"prestige\",\"inside\":true,\"pos\":\"10, 88\"},\"6\":{\"small\":[],\"name\":\"EpicResearchModalFrame\",\"size\":\"393, 640\",\"kind\":\"epic\",\"inside\":true,\"pos\":\"10, 58\"},\"9\":{\"small\":[],\"name\":\"PetsFrame\",\"size\":\"393, 540\",\"kind\":\"pets\",\"inside\":true,\"pos\":\"10, 108\"},\"8\":{\"small\":[],\"name\":\"EggUpgradeModal\",\"size\":\"393, 360\",\"kind\":\"egg\",\"inside\":true,\"pos\":\"10, 198\"},\"10\":{\"small\":[],\"name\":\"PetHatchModal\",\"size\":\"393, 460\",\"kind\":\"hatch\",\"inside\":true,\"pos\":\"10, 148\"}},\"orientation\":\"Portrait\"}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "native-touch-horizontal-research-tabs",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"width\":369,\"canvas\":\"{0, 516}, {0, 0}\",\"position\":\"0.650245667, 0\"}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "final-native-four-categories-and-Fleet-tap",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"tabs\":{\"1\":{\"text\":\"🧬 Genetics\",\"size\":\"181, 44\",\"pos\":\"22, 165.5\"},\"4\":{\"text\":\"🚚 Fleet\",\"size\":\"181, 44\",\"pos\":\"209, 213.5\"},\"3\":{\"text\":\"🏡 Habitats\",\"size\":\"173.759995, 42.2399979\",\"pos\":\"22, 213.5\"},\"2\":{\"text\":\"🐣 Hatching\",\"size\":\"181, 44\",\"pos\":\"209, 165.5\"}},\"visibleCards\":{\"1\":\"UnifiedResearchCard_leafsprings\",\"3\":\"UnifiedResearchCard_driver_training\",\"2\":\"UnifiedResearchCard_vehicle_reliablity\",\"5\":\"UnifiedResearchCard_micro_coupling\",\"4\":\"UnifiedResearchCard_hover_upgrades\"}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "final-native-portrait-audit-after-category-fix",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"root\":\"413, 756\",\"windows\":{\"1\":{\"small\":{\"1\":{\"name\":\"TierTab_🏡 Habitats\",\"size\":\"173.759995, 42.2399979\"}},\"name\":\"ShopFrame\",\"size\":\"393, 529\",\"kind\":\"research\",\"inside\":true,\"pos\":\"10, 113.5\"},\"3\":{\"small\":[],\"name\":\"VehiclesFrame\",\"size\":\"393, 520\",\"kind\":\"vehicles\",\"inside\":true,\"pos\":\"10, 118\"},\"2\":{\"small\":[],\"name\":\"HabitatsFrame\",\"size\":\"393, 430\",\"kind\":\"habitats\",\"inside\":true,\"pos\":\"10, 163\"},\"5\":{\"small\":[],\"name\":\"ShopModalFrame\",\"size\":\"393, 560\",\"kind\":\"shop\",\"inside\":true,\"pos\":\"10, 98\"},\"4\":{\"small\":[],\"name\":\"CalendarFrame\",\"size\":\"393, 529\",\"kind\":\"calendar\",\"inside\":true,\"pos\":\"10, 113.5\"},\"7\":{\"small\":[],\"name\":\"PrestigeModal\",\"size\":\"393, 580\",\"kind\":\"prestige\",\"inside\":true,\"pos\":\"10, 88\"},\"6\":{\"small\":[],\"name\":\"EpicResearchModalFrame\",\"size\":\"393, 640\",\"kind\":\"epic\",\"inside\":true,\"pos\":\"10, 58\"},\"9\":{\"small\":[],\"name\":\"PetsFrame\",\"size\":\"393, 540\",\"kind\":\"pets\",\"inside\":true,\"pos\":\"10, 108\"},\"8\":{\"small\":[],\"name\":\"EggUpgradeModal\",\"size\":\"393, 360\",\"kind\":\"egg\",\"inside\":true,\"pos\":\"10, 198\"},\"10\":{\"small\":[],\"name\":\"PetHatchModal\",\"size\":\"393, 460\",\"kind\":\"hatch\",\"inside\":true,\"pos\":\"10, 148\"}},\"orientation\":\"Portrait\"}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "final-portrait-ten-windows-zero-small-targets",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"root\":\"413, 756\",\"windows\":{\"1\":{\"small\":[],\"name\":\"ShopFrame\",\"size\":\"393, 529\",\"kind\":\"research\",\"inside\":true,\"pos\":\"10, 113.5\"},\"3\":{\"small\":[],\"name\":\"VehiclesFrame\",\"size\":\"393, 520\",\"kind\":\"vehicles\",\"inside\":true,\"pos\":\"10, 118\"},\"2\":{\"small\":[],\"name\":\"HabitatsFrame\",\"size\":\"393, 430\",\"kind\":\"habitats\",\"inside\":true,\"pos\":\"10, 163\"},\"5\":{\"small\":[],\"name\":\"ShopModalFrame\",\"size\":\"393, 560\",\"kind\":\"shop\",\"inside\":true,\"pos\":\"10, 98\"},\"4\":{\"small\":[],\"name\":\"CalendarFrame\",\"size\":\"393, 529\",\"kind\":\"calendar\",\"inside\":true,\"pos\":\"10, 113.5\"},\"7\":{\"small\":[],\"name\":\"PrestigeModal\",\"size\":\"393, 580\",\"kind\":\"prestige\",\"inside\":true,\"pos\":\"10, 88\"},\"6\":{\"small\":[],\"name\":\"EpicResearchModalFrame\",\"size\":\"393, 640\",\"kind\":\"epic\",\"inside\":true,\"pos\":\"10, 58\"},\"9\":{\"small\":[],\"name\":\"PetsFrame\",\"size\":\"393, 540\",\"kind\":\"pets\",\"inside\":true,\"pos\":\"10, 108\"},\"8\":{\"small\":[],\"name\":\"EggUpgradeModal\",\"size\":\"393, 360\",\"kind\":\"egg\",\"inside\":true,\"pos\":\"10, 198\"},\"10\":{\"small\":[],\"name\":\"PetHatchModal\",\"size\":\"393, 460\",\"kind\":\"hatch\",\"inside\":true,\"pos\":\"10, 148\"}},\"orientation\":\"Portrait\"}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "final-landscape-ten-window-bounds-and-touch-audit",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"root\":\"801, 355\",\"windows\":{\"1\":{\"small\":[],\"name\":\"ShopFrame\",\"size\":\"560, 335\",\"kind\":\"research\",\"inside\":true,\"pos\":\"120.5, 10\"},\"3\":{\"small\":[],\"name\":\"VehiclesFrame\",\"size\":\"500, 335\",\"kind\":\"vehicles\",\"inside\":true,\"pos\":\"150.5, 10\"},\"2\":{\"small\":[],\"name\":\"HabitatsFrame\",\"size\":\"460, 335\",\"kind\":\"habitats\",\"inside\":true,\"pos\":\"170.5, 10\"},\"5\":{\"small\":[],\"name\":\"ShopModalFrame\",\"size\":\"781, 335\",\"kind\":\"shop\",\"inside\":true,\"pos\":\"10, 10\"},\"4\":{\"small\":[],\"name\":\"CalendarFrame\",\"size\":\"560, 335\",\"kind\":\"calendar\",\"inside\":true,\"pos\":\"120.5, 10\"},\"7\":{\"small\":[],\"name\":\"PrestigeModal\",\"size\":\"560, 335\",\"kind\":\"prestige\",\"inside\":true,\"pos\":\"120.5, 10\"},\"6\":{\"small\":[],\"name\":\"EpicResearchModalFrame\",\"size\":\"781, 335\",\"kind\":\"epic\",\"inside\":true,\"pos\":\"10, 10\"},\"9\":{\"small\":[],\"name\":\"PetsFrame\",\"size\":\"560, 335\",\"kind\":\"pets\",\"inside\":true,\"pos\":\"120.5, 10\"},\"8\":{\"small\":[],\"name\":\"EggUpgradeModal\",\"size\":\"440, 335\",\"kind\":\"egg\",\"inside\":true,\"pos\":\"180.5, 10\"},\"10\":{\"small\":[],\"name\":\"PetHatchModal\",\"size\":\"480, 335\",\"kind\":\"hatch\",\"inside\":true,\"pos\":\"160.5, 10\"}},\"orientation\":\"LandscapeLeft\"}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "landscape-all-seven-menus-without-swiping",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"buttons\":{\"1\":{\"size\":\"54, 50\",\"name\":\"ResearchMenuButton\",\"pos\":\"549, 88\"},\"3\":{\"size\":\"54, 50\",\"name\":\"ShopMenuButton\",\"pos\":\"669, 88\"},\"2\":{\"size\":\"54, 50\",\"name\":\"HabitatsMenuButton\",\"pos\":\"609, 88\"},\"5\":{\"size\":\"54, 50\",\"name\":\"EpicResearchMenuButton\",\"pos\":\"549, 144\"},\"4\":{\"size\":\"54, 50\",\"name\":\"VehiclesMenuButton\",\"pos\":\"729, 88\"},\"7\":{\"size\":\"54, 50\",\"name\":\"CalendarMenuButton\",\"pos\":\"669, 144\"},\"6\":{\"size\":\"54, 50\",\"name\":\"PrestigeMenuButton\",\"pos\":\"609, 144\"}},\"open\":true,\"dock\":{\"size\":\"246, 118\",\"scrolling\":false,\"pos\":\"543, 82\"}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "final-native-prestige-first-swipe-partial",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"button\":{\"size\":\"524, 60\",\"pos\":\"138.5, 452\"},\"root\":\"801, 355\",\"scroll\":\"0, 32.1014824\"}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "final-landscape-grid-and-windows-audit",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"root\":\"801, 355\",\"windows\":{\"1\":{\"small\":[],\"name\":\"ShopFrame\",\"size\":\"560, 335\",\"kind\":\"research\",\"inside\":true,\"pos\":\"120.5, 10\"},\"3\":{\"small\":[],\"name\":\"VehiclesFrame\",\"size\":\"500, 335\",\"kind\":\"vehicles\",\"inside\":true,\"pos\":\"150.5, 10\"},\"2\":{\"small\":[],\"name\":\"HabitatsFrame\",\"size\":\"460, 335\",\"kind\":\"habitats\",\"inside\":true,\"pos\":\"170.5, 10\"},\"5\":{\"small\":[],\"name\":\"ShopModalFrame\",\"size\":\"781, 335\",\"kind\":\"shop\",\"inside\":true,\"pos\":\"10, 10\"},\"4\":{\"small\":[],\"name\":\"CalendarFrame\",\"size\":\"560, 335\",\"kind\":\"calendar\",\"inside\":true,\"pos\":\"120.5, 10\"},\"7\":{\"small\":[],\"name\":\"PrestigeModal\",\"size\":\"560, 335\",\"kind\":\"prestige\",\"inside\":true,\"pos\":\"120.5, 10\"},\"6\":{\"small\":[],\"name\":\"EpicResearchModalFrame\",\"size\":\"781, 335\",\"kind\":\"epic\",\"inside\":true,\"pos\":\"10, 10\"},\"9\":{\"small\":[],\"name\":\"PetsFrame\",\"size\":\"560, 335\",\"kind\":\"pets\",\"inside\":true,\"pos\":\"120.5, 10\"},\"8\":{\"small\":[],\"name\":\"EggUpgradeModal\",\"size\":\"440, 335\",\"kind\":\"egg\",\"inside\":true,\"pos\":\"180.5, 10\"},\"10\":{\"small\":[],\"name\":\"PetHatchModal\",\"size\":\"480, 335\",\"kind\":\"hatch\",\"inside\":true,\"pos\":\"160.5, 10\"}},\"orientation\":\"LandscapeLeft\"}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "final-landscape-native-prestige-scroll-active",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"canvas\":\"560, 486\",\"position\":\"0, 221\",\"PrestigeActionButton\":{\"size\":\"524, 60\",\"position\":\"138.5, 263\"},\"active\":true,\"size\":\"560, 265\"}"
+          }
+        ],
+        "isError": false
+      }
+    }
+  ],
+  "faultInjection": [
+    {
+      "name": "compressed-research",
+      "status": "DETECTED",
+      "exit": 1,
+      "replaceFrom": "local compact=width<480",
+      "replaceTo": "local compact=false",
+      "output": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\mobile-ui-fault-o6k_mk4_\\tests/mobile_ui/run:9: phone research keeps readable description width\n[Stack Begin]\n    Script '[C]' - function 'assert'\n    Script 'C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\mobile-ui-fault-o6k_mk4_\\tests/mobile_ui/run', Line 9\n    Script 'C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\mobile-ui-fault-o6k_mk4_\\tests/mobile_ui/run', Line 39\n[Stack End]\n\n"
+    },
+    {
+      "name": "portrait-lock",
+      "status": "DETECTED",
+      "exit": 1,
+      "replaceFrom": "\"ScreenOrientation\": \"Sensor\"",
+      "replaceTo": "\"ScreenOrientation\": \"LandscapeSensor\"",
+      "output": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\mobile-ui-fault-o6k_mk4_\\tests/mobile_ui/run:9: both device orientations enabled: expected Sensor, got LandscapeSensor\n[Stack Begin]\n    Script '[C]' - function 'assert'\n    Script 'C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\mobile-ui-fault-o6k_mk4_\\tests/mobile_ui/run', Line 9\n    Script 'C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\mobile-ui-fault-o6k_mk4_\\tests/mobile_ui/run', Line 10\n    Script 'C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\mobile-ui-fault-o6k_mk4_\\tests/mobile_ui/run', Line 56\n[Stack End]\n\n"
+    },
+    {
+      "name": "small-promo-target",
+      "status": "DETECTED",
+      "exit": 1,
+      "replaceFrom": "rect(12,110,w-24,44)",
+      "replaceTo": "rect(12,110,w-24,32)",
+      "output": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\mobile-ui-fault-o6k_mk4_\\tests/mobile_ui/run:9: promo banner is a full touch target\n[Stack Begin]\n    Script '[C]' - function 'assert'\n    Script 'C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\mobile-ui-fault-o6k_mk4_\\tests/mobile_ui/run', Line 9\n    Script 'C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\mobile-ui-fault-o6k_mk4_\\tests/mobile_ui/run', Line 50\n[Stack End]\n\n"
+    },
+    {
+      "name": "lost-bottom-anchored-control",
+      "status": "DETECTED",
+      "exit": 1,
+      "replaceFrom": "yScale*designHeight+yOffset",
+      "replaceTo": "yOffset",
+      "output": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\mobile-ui-fault-o6k_mk4_\\tests/mobile_ui/run:9: bottom-anchored hatch action preserved in scroll body: expected 334, got -126\n[Stack Begin]\n    Script '[C]' - function 'assert'\n    Script 'C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\mobile-ui-fault-o6k_mk4_\\tests/mobile_ui/run', Line 9\n    Script 'C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\mobile-ui-fault-o6k_mk4_\\tests/mobile_ui/run', Line 10\n    Script 'C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\mobile-ui-fault-o6k_mk4_\\tests/mobile_ui/run', Line 42\n[Stack End]\n\n"
+    }
+  ],
+  "finalCleanup": {
+    "mode": "Edit",
+    "scripts": 50,
+    "mismatch": [],
+    "probes": [],
+    "orientation": "Sensor",
+    "localMemory": true,
+    "emulator": false
+  },
+  "sourceSha256": {
+    "src/client/AudioController.luau": "d9c01f699c111b825ac30749f5f81fb413114ac36cf88b81842cdcfb999ba2e3",
+    "src/client/Bootstrap.luau": "fcf58bbd167830ad4651b6821bcb543d0e5e01e278e0bc7e17f8bfdb81e806b7",
+    "src/client/ClientStateStore.luau": "9328112e68048d19c0d0e84cee0003f686d4ec77da643ec1044c23d3c7829694",
+    "src/client/ClientTransport.luau": "e17d513ff9c08fc76f927b6927562b1b08edf8b3400433e1849014f6ab183c23",
+    "src/client/HUD.luau": "27fec2326defd59a3fc3f46304af4e6913f5ab5c5f5cafd1b092f782ed18cbea",
+    "src/client/IntentControllers.luau": "2a94003cd116ee2aa87dd3cae808ea8995251e6ed8e071063b5847f6ceeb53a1",
+    "src/client/Main.client.luau": "4e32fa363bb08463edd04f69a443455f0a55a184a063de4dcd013ec5489e26ba",
+    "src/client/onboarding/TutorialController.luau": "3c3eda398a7c6221a23e863bbad91ea35d803eb3fde0376f3cb37fac4e9083e4",
+    "src/client/RoutePresentation.luau": "e11e43b3866e93d82829a525fdcb7485fe2f841eca9564848041a1b1814d99cd",
+    "src/client/ui/HoldToBuy.luau": "5b219358fca44218279ec12beec5269faeec06182b13ef36540dbc3b0cd8c0a7",
+    "src/client/ui/MobileLayout.luau": "73fd8c4f18f9b594a88dd80f8946f059f734c1da20efe4e31f659933ab8b2c8d",
+    "src/client/ui/StudUi.luau": "1d02deab7b0f1cf9fcf161f056348b41375bd83d0c08777989d5895adb4384a3",
+    "src/client/ui/UiAssets.luau": "c5bbbb55f392190689b8f2c84737082777bf06d86a42b2ee5300937d95e0971b",
+    "src/server/ActionReferenceData.luau": "6aa552755a7bb7d0ab05fe80a17637107b165f730644156b6e9d117d8c90bd0a",
+    "src/server/Bootstrap.luau": "bf1e997d76c9b55ebb9184822b01f5e5fa3338d3ff62aec28002c46cd4a9b566",
+    "src/server/CatalogRegistry/Data.luau": "01ea357fe64008fd54e5dafb0cb1a6c2baf356a8aa8e280568eed63dea1b3f39",
+    "src/server/CatalogRegistry/init.luau": "6d9a70f59c0616343b96b3572d0ae4c164cb2e07ac7aaf91dfb86f8e6f24729c",
+    "src/server/EffectsManager.luau": "96351605b979d099d44bf1b7787dff8e6772be78e0746fc03578876fe7c770ec",
+    "src/server/EpicPurchases.luau": "bd454e0b16f0d3ad29964743c2791e9d830e01348e55c6b6e310eab84630a515",
+    "src/server/FarmActions.luau": "779e96cf1f74d5907a33eaae0a4e2ef2be64e6dc182304119a79bbb48a7af4d0",
+    "src/server/FarmMath/fv_se.luau": "a1f6e2e975cabaa39bda6618469cd162eb3c5be34721d5f9130df873988eb2ae",
+    "src/server/FarmMath/hatching_rcb.luau": "b87ff673979640cd0a9b6426605e9912152b6fa7d6b487897964137de946f3e4",
+    "src/server/FarmMath/ihr.luau": "346314f4264d96aa69244ab22ad29481c1cded2e342ba0849c23b4d0b1840ffd",
+    "src/server/FarmMath/PopulationMath.luau": "d69246b2db2cbca2a3a49f8133a8895489ca3901bf66373c32cabe4246e3f527",
+    "src/server/FarmMath/production_research.luau": "8efe10e2668b5b39f4e68ce5a4762a9e9568e4da56f6a215243f9cb2c4c59988",
+    "src/server/GiftDrops.luau": "6e138fdfe453f20369645caf00156c33772abc659aef2de7e553f5bad510e227",
+    "src/server/Main.server.luau": "49270dded5fcc9c4c5e25d08cafb62684f2a8c21cd1f5d1514a74c951ce1f3d0",
+    "src/server/NetworkGateway.luau": "1ababdfc8425a8e03c8e43a3c486626ee65d4f215442e26186894ae3bb97a8d2",
+    "src/server/onboarding/manager.luau": "4115c5ee3e66665d2a35a774c6f86781b8eb2b73d2319cd7a0dd2543ce98c000",
+    "src/server/PersistenceData.luau": "9009b448dfae5311b69339b07e274688451d2dcf2c3d73501a9b743957afaa48",
+    "src/server/pets/equipment.luau": "bedd7dc2d34de16663000cf75a5a89cdca1843a02ec5e6a36d3530bf3af095e2",
+    "src/server/pets/fusion.luau": "80db419efe0dc516ea377f5b0987abef71cf49859730b1d2484d63442541a0da",
+    "src/server/platform/products.luau": "2ef7e7d032ada35e6f6805272ce0e0139823fcf9d6970c5cc027753e6bb94f1e",
+    "src/server/PlayerCoordinator.luau": "ff4cf7da056f0f3b9eacfed7fc817e3f6cfe4c643a49e452b0a29d3c5f45a686",
+    "src/server/ProfileSchema.luau": "4ed88c95420fd512148e3114c1fe67002e503811b7ff377139d17002c641785c",
+    "src/server/ProgressActions.luau": "009f08340412046f5a7475ff0ee5c12435d09b800e598e529736da011a0e4726",
+    "src/server/rewards/calendar.luau": "060e451b228bdf66844a7fa6a4ddd6a9bb54e7506759aba90e07358447364e2b",
+    "src/server/rewards/drones.luau": "0c5cb4183ccefab16f4210fbd94e54bd2bf545a169e9e0e5f2f7af54afc828eb",
+    "src/server/rewards/offers.luau": "c40c70874ce12cdc1dd9200a3197a73d1274125e0f716c61343d6a32d25b0d74",
+    "src/server/rewards/trophies.luau": "86f38c2652b8761c4cca6817baa386b6dae95e41456c2408dd823dc4d36a78b2",
+    "src/server/RobloxDataStorePort.luau": "0a85ea4bc3aa0c87a290c915f7cdfe42a0a84d3d0128d5a3f750d0360d8af902",
+    "src/server/SessionRepository.luau": "15098c50ea2ad62bea94956b10d048cf127be2a32922fafac07c067959431343",
+    "src/server/TimelineSimulation.luau": "9e7af5602f210b66a593ea4b8c043116205d40abb09c4ed49ebf008182c88825",
+    "src/server/ViewProjector.luau": "c14feb774aafe2cf636ce8394c03389ffcd8db2276166448b6a7cc915c16805d",
+    "src/server/world/FarmPlotBuilder.luau": "4ddc4ecc598da51219999dea305f559219e6bd9d0b3f11a910df02ce3970f9c8",
+    "src/server/world/FarmWorld.luau": "171d8e85beccb6645404d6b588bf73df25580bc69e9211406d0b124665b9e93f",
+    "src/shared/EpicPricing.luau": "26d78b6eb639eadb5ddb412b88075f38fd8a003fa77fcead90c573de28838cc9",
+    "src/shared/FeatureAvailability.luau": "0479d2ead7f3565a6e924bf388ebf3af8cc1b57d61055552386aec1c956cfd63",
+    "src/shared/NumericCodec.luau": "f9c97ced4fe8e3a1c59f085b7fa8b153921f0716e34779958e11dc3b06261074",
+    "src/shared/ProtocolSchemas.luau": "a3d96640f1078ac5e678b4662f30c58f81a80af3bbe37124ce43f25976e40378"
+  },
+  "manifestSha256": "1cef019eb0a06f09bfef2ac5b5ed95d7b3070a4a3d07a1f79aade289879eb6b1",
+  "savedStudioFile": {
+    "scripts": 50,
+    "mismatch": [],
+    "probes": []
+  },
+  "finalTests": {
+    "command": "tools/test.ps1 -PythonExecutable <pinned local Python>",
+    "exitCode": 0,
+    "luneSuites": 57,
+    "mobileAssertions": 234,
+    "log": "Action reference tables: PASS\nCatalog generator check PASS\nIndependent catalog oracle check PASS\nPopulation oracle check PASS: 490 exact cases\nIndependent calendar oracle: 280 reward rows PASS\nBuilding project 'HatchTheEgg'\nBuilt project to HatchTheEgg.rbxlx\nCreated sourcemap at build/sourcemap.json\nRojo mapping PASS_STATIC_BUILD: 48 modules, 2 entrypoint scripts\n{\"arithmeticPairs\":756,\"assertions\":15702,\"codecVersion\":1,\"dataStoreTested\":false,\"floatVectors\":3011,\"level\":\"L\",\"status\":\"PASS\",\"studioTested\":false,\"uint64Vectors\":449}\nClient performance regressions PASS: 23 assertions\nIndependent plate acceptance PASS: 89 assertions\nUI #77-80 independent integration PASS: 32 assertions\nFresh cash purchases PASS: 308 assertions\nGround gifts PASS: 105 assertions\nRemaining fixes PASS: 195 assertions\nRetired timed doubler PASS: 32 assertions\nEpic Robux PASS: 127 assertions\nUpgrade previews PASS: 976 assertions\nMobile UI regressions PASS: 234 assertions\nFarm islands regressions PASS: 64 assertions\nPASS deferred prophecy purchase cannot spend Diamonds or Robux credits\nPASS deferred trophy command rejects without granting resources\nPASS shop blocks unavailable boost purchase and trophy navigation\nPASS Mystery preserves the approved day-28 reward, replay and reconnect\nPASS PRO offer discloses current benefits and unavailable fusion\nPASS PRO can be confirmed for either eligible policy while fusion is deferred\nPASS shop names prestige effects without promising premium currency\nPASS release at 0.32 seconds buys only once\nPASS long hold repeats and release adds no extra purchase\nPASS cancelled mouse hold does not swallow gamepad activation\nPASS disabled button stops a held repeat\nReview fixes PASS: 78 assertions\n...\n----------------------------------------------------------------------\nRan 3 tests in 0.005s\n\nOK\nCatalogRegistry PASS: 45031 assertions; 2330 common prices, 2386 common effects, 656 epic prices, 679 epic effects, 76 habitat prices, 204 vehicle prices\nProtocol schemas: 747 assertions PASS\n{\"assertions\":211,\"dataStoreTested\":false,\"level\":\"L\",\"realDataStoreApiTested\":false,\"status\":\"PASS\",\"studioTested\":false}\nFarmMath production/research PASS: 587 assertions\nFarmMath fv_se PASS: 357 assertions\nIHR PASS: 91 assertions\n{\"assertions\":594,\"crossModuleSeam\":true,\"dataStoreTested\":false,\"level\":\"L\",\"moduloVectors\":490,\"realRouteTested\":false,\"status\":\"PASS\",\"studioTested\":false}\ncoordinator: 221 assertions PASS\ntimeline: 58 assertions PASS\nintegration89: 70 assertions PASS\npurchases: 165 assertions PASS\nProgressActions & Resets PASS: 1148 assertions\nEffectsManager & Effect Boundaries PASS: 328 assertions\nPet Effects PASS: 224 assertions\nPet Fusion PASS: 108 assertions\nDrones PASS: 96 assertions\nOffers 2+1 & Delivery PASS: 73 assertions\nCalendar, Trophies & Claims PASS: 76 assertions\nPurchase Recovery & Products PASS: 112 assertions\nOnboarding & Tutorial PASS: 81 assertions\nNetworkGateway & ViewProjector: 283 assertions PASS\nClientTransport and ClientStateStore: 160 assertions PASS\nRoutePresentation: 425 assertions PASS\nPlate hatching (server-authoritative): 160 assertions PASS\nPlate visuals (client representative stream): 55 assertions PASS\nRates panel (top jaj/s metrics): 93 assertions PASS\nHUD and IntentControllers: 489 assertions PASS\nUI tasks #77-#80 (hatch status, tier names, world vehicle pads): 230 assertions PASS\nUI assets (#82): 269 assertions PASS\nIntegration game loop smoke test PASS: 121 assertions\n======================================================================\nHatchTheEgg - Acceptance Test Suite (docs/29 §5: A01 - A16)\n======================================================================\n[A01] New profile & corrupt profile validation / session gate :  38 assertions (PASS)\n[A02] Hatch intents start/refresh/stop, stock, vacancy, expiry :  25 assertions (PASS)\n[A03] In-transit chickens, vacancy reservation, 3D invariance :  15 assertions (PASS)\n[A04] Production vs shipping (greater, equal, lower)          :  12 assertions (PASS)\n[A05] IHR fractions, full slot, vacancy-weighted sharing      :  18 assertions (PASS)\n[A06] Common research purchases & currentFarmCash preservation:  19 assertions (PASS)\n[A07] sameTypeOwned scaling for habitats/vehicles & pop intact:  15 assertions (PASS)\n[A08] Quote protection, quoteId & expectedRevision validation :  11 assertions (PASS)\n[A09] Duplicate operationId replay & conflict detection       :  11 assertions (PASS)\n[A10] Admission refusal when unready & zero ghost queuing     :   7 assertions (PASS)\n[A11] Session fencing against stale owner write attempt       :  17 assertions (PASS)\n[A12] Online vs Away silo limits & zero silo away handling    :  12 assertions (PASS)\n[A13] Checkpoint phase interruption & bitwise resumed match   :   9 assertions (PASS)\n[A14] viewSeq gap detection, RefreshState resync, no rollback :  14 assertions (PASS)\n[A15] Multi-player isolation, no token leaks, anti-spoofing  :  12 assertions (PASS)\n[A16] Complete end-to-end farm loop & reconnect persistence   :  29 assertions (PASS)\n======================================================================\nTOTAL: 264 assertions across 16 scenarios - PASS L only (no S/D/H claim)\n======================================================================\n======================================================================\nHatchTheEgg - Release Candidate Integration Suite (REL-01 / #36)\n======================================================================\n\n--- Local check 1: Absence of Backdoors / Devgrants & Unauthorized Actions ---\n--- Local check 2: Onboarding & New Account Baseline Verification (docs/31 §4) ---\n--- Local check 3: State Invariants & Currency Monotonicity ---\n--- Local check 4: Session Fencing, Retention Limits & Idempotency (docs/34 §4) ---\n--- Local check 5: Rojo Static Build & Module Boundaries ---\n--- Local check 6: Deferred Balance Boundary Quarantined (docs/17..21) ---\n\nAll 6 Release Gates PASSED!\n\n--- Running End-to-End Player Lifecycle Simulation ---\n\nLocal domain composition PASSED (12 stages; not full runtime acceptance)!\n======================================================================\nREL-01 Release Candidate Test Suite: 125 assertions PASS L only (release readiness not evaluated)\n======================================================================\nReward security #51-53: 174 assertions PASS\nProduction context #54-55: 147 assertions PASS\nGame behavior acceptance: 2296 assertions PASS\nFull calendar cycles: 9812 assertions PASS (10 x 28 days)\nPersistent startup fail-closed: 160 assertions PASS\nPro account policy: 207 assertions PASS\nHistorical earnings event time: 105 assertions PASS\nSession IDs, prestige collection and constant research multiplier: 142 assertions PASS\nConstant research multiplier real income (issue #81): 212 assertions PASS\nFarm integration gaps #66-70: 145 assertions PASS\nEntitlement / farm regressions #71-74: 192 assertions PASS\n======================================================================\nHatchTheEgg - Epic Research Integration Suite\n======================================================================\n--- [A] ProtocolSchemas Validation for BuyEpicResearch ---\n--- [B] Successful Epic Research Purchase & Balance Update ---\n--- [C] Price Scaling on Subsequent Levels (1 -> 2 -> 3) ---\n--- [D] Rejection on Insufficient GE (INSUFFICIENT_GE) ---\n--- [E] Rejection on Max Level (MAX_LEVEL) ---\n--- [F] Rejection on Unsupported Research ID (UNSUPPORTED_RESEARCH) ---\n--- [G] Idempotency & Replay Protection ---\n--- [H] ViewProjector Epic Progress & Delta Generation ---\n--- [I] Real Economic Impact on Quotes (FarmActions.createQuote) ---\n--- [J] ClientBootstrap & ClientStateStore End-to-End Flow ---\n--- [K] All 23 Active Epic Research Items Integrity & Purchasing Coverage ---\n======================================================================\nEpic Research test suite PASS: 265 assertions\n======================================================================\ncash: KILLED\n...........\n----------------------------------------------------------------------\nRan 11 tests in 0.090s\n\nOK\ntest_actual_local_results_do_not_approve_release (__main__.EvidenceTests.test_actual_local_results_do_not_approve_release) ... ok\ntest_assertion_sum_must_match_cases (__main__.EvidenceTests.test_assertion_sum_must_match_cases) ... ok\ntest_assertions_cannot_be_promoted_to_coverage_percent (__main__.EvidenceTests.test_assertions_cannot_be_promoted_to_coverage_percent) ... ok\ntest_blanket_release_flags_are_rejected (__main__.EvidenceTests.test_blanket_release_flags_are_rejected) ... ok\ntest_external_level_requires_its_own_evidence (__main__.EvidenceTests.test_external_level_requires_its_own_evidence) ... ok\ntest_human_scenario_cannot_be_downgraded_to_local_requirement (__main__.EvidenceTests.test_human_scenario_cannot_be_downgraded_to_local_requirement) ... ok\ntest_missing_main_wiring_not_accepted (__main__.EvidenceTests.test_missing_main_wiring_not_accepted) ... ok\ntest_missing_scenario_cannot_be_hidden_by_total (__main__.EvidenceTests.test_missing_scenario_cannot_be_hidden_by_total) ... ok\ntest_mixed_level_from_old_runner_is_rejected (__main__.EvidenceTests.test_mixed_level_from_old_runner_is_rejected) ... ok\ntest_mock_cloud_or_studio_flag_is_rejected (__main__.EvidenceTests.test_mock_cloud_or_studio_flag_is_rejected) ... ok\ntest_passing_tests_do_not_override_missing_external_evidence (__main__.EvidenceTests.test_passing_tests_do_not_override_missing_external_evidence) ... ok\n\n----------------------------------------------------------------------\nRan 11 tests in 0.014s\n\nOK\n======================================================================\nHatchTheEgg - Scoped Local Evidence Checks (REL-01 / #60)\n======================================================================\nChecking absence of devgrants/backdoors in src/ ...\n  PASS: Selected forbidden tokens absent; this scan does not prove absence of all privileged handlers.\nChecking quarantine of deferred balance docs/17..21 ...\n  PASS: Deferred files exist; selected import references absent (not a balance audit).\nChecking that all tests/ suites are registered in tools/test.ps1 ...\n  PASS: All test suites registered in test runner.\nChecking Rojo static build artifact ...\n  PASS: 48 Rojo modules mapped, 2 entrypoint scripts.\nChecking Release Candidate test results ...\n  PASS: local evidence metadata consistent; S/D/H NOT_VERIFIED; release readiness NOT_APPROVED.\n======================================================================\nLOCAL CHECKS PASSED; RELEASE NOT APPROVED; S/D/H NOT VERIFIED\n======================================================================\n",
+    "logSha256": "46b4002c439cb9f01ad0c87793440130026c5032e86ad934cb0f238a10502025",
+    "economyDiff": []
+  }
+}

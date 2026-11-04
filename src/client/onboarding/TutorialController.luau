@@ -55,7 +55,7 @@ local STEP_DEFINITIONS: { [number]: TutorialStepInfo } = table.freeze({
 	[4] = table.freeze({
 		step = 4,
 		title = "Claim daily gift",
-		instruction = "Open Rewards on the left side of the screen and claim your first daily gift.",
+		instruction = "Open Rewards on the right side of the screen and claim your first daily gift.",
 		targetWidget = "CalendarMenuButton",
 		isCompleted = false,
 	}),

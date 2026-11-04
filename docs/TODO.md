@@ -1,5 +1,8 @@
 # TODO — stan 26.10.2026
 
+- [x] Mobilny tutorial i UI w pionie/poziomie: emulator iPhone XR, naprawy układu i przewijania, regresje ([raport](workflow/mobile_ui_2026_11_04.md)); ceny i balans bez zmian.
+- [ ] Przed release: smoke UI na fizycznym telefonie (pion/poziom), klawiatura ekranowa i wydajność urządzenia; emulator nie zamyka tego odbioru.
+
 - [x] STUDIO-01/02: Rewards dostępne przy włączonym czacie, cztery osobne wyspy wokół centrum; tutorial i widok farm sprawdzone na dwóch klientach ([dowody](workflow/farm_islands_2026_11_04.md)). Lokalny test pamięci; chmura i płatności poza tym odbiorem.
 
 - [x] Naprawy po review 04.11.2026: blokady odłożonych funkcji, opisy sklepu, przytrzymanie, checklista i testy ([dowody](workflow/review_fixes_2026_11_04.md)); Mystery zachowane, ceny i balans bez zmian.
