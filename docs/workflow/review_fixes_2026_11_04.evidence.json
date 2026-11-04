@@ -1,0 +1,83 @@
+{
+  "date": "2026-11-04",
+  "level": "L",
+  "status": "PASS_LOCAL_CHECKS",
+  "baseCommit": "a94b85c7d85cabe6dd1745681f9abc90e22fd6aa",
+  "workingTreeNotCommitted": true,
+  "sourceSha256": {
+    "docs/28_modules_and_client_server_contract.md": "c2e37a276a98823c21a0570c565b23b1cd4aba215e1b20a40b9e545d4effeb67",
+    "docs/CURRENT_SPEC.md": "a8f49a4a368bdd1824bcec754fd94badc84b1a6d2ec4973326cbe7e79b58a894",
+    "docs/ROBLOX_CREATOR_DASHBOARD_CHECKLIST.md": "4b06a18e261c80bb0e4b91c530cbe984b2898622f6fb9764d62bf5e3d2ef0b10",
+    "docs/TODO.md": "8b4ee68e3cccae5d0abf6cded53707e6913f6ae7bf6ed04fb73b87de2095b464",
+    "src/client/Bootstrap.luau": "163b355f5dd941ccb96fea0c0214ed16e8810a81e99825f105da33d0432e2ade",
+    "src/client/HUD.luau": "779d212ac5853c29790c2480cd890a90519f2822ce93a02449d20e8987282df1",
+    "src/client/ui/HoldToBuy.luau": "5b219358fca44218279ec12beec5269faeec06182b13ef36540dbc3b0cd8c0a7",
+    "src/client/ui/UiAssets.luau": "bbcb9542eda9352d1ca44b627d840671a0a67806509927e6ac9f73f9c2ba5f8e",
+    "src/server/Bootstrap.luau": "bf1e997d76c9b55ebb9184822b01f5e5fa3338d3ff62aec28002c46cd4a9b566",
+    "src/server/platform/products.luau": "2ef7e7d032ada35e6f6805272ce0e0139823fcf9d6970c5cc027753e6bb94f1e",
+    "src/shared/FeatureAvailability.luau": "0479d2ead7f3565a6e924bf388ebf3af8cc1b57d61055552386aec1c956cfd63",
+    "src/shared/ProtocolSchemas.luau": "a3d96640f1078ac5e678b4662f30c58f81a80af3bbe37124ce43f25976e40378",
+    "tests/epic_research/run.luau": "e54cb3a4b8a7d29b699fd1f0f5f562013b1a5448e819f8e14cafe2eba3b1ebbd",
+    "tests/game_behavior/run.luau": "670b0db54102de5dc3640483909e0d679b527f30ccb48a0adee57a647ac839b3",
+    "tests/pro_policy/run.luau": "7a45e406d3faf68c9b1513daa1178ed6026ca604da32b6bf706057ecdb66b220",
+    "tests/purchase_recovery/run.luau": "981dddba74f68c3b5a06f74e7657e0963a6c0b82931b90a19eb57847c165f911",
+    "tests/release_candidate/run.luau": "f6ba1a0f513fd3f4ef1ab5a0b4b4b4a35b03633c421f6dbc77f334f71a9dab42",
+    "tests/review_fixes/run.luau": "3b66b07dfba7a3059052adeb4e6f28630fd1093f81467d594aa89648ac38f7d1",
+    "tests/review_fixes/test_checklist.py": "7ad43018553a9b5eccbf9eb2e82de9dfd0e254d5753e73542a01899b0cc258e6",
+    "tests/support/HudHeaderHarness.luau": "ce14d951182feb2143dbfed6c5edb97198a53fa1c07e6063cb04f0061d7147ff",
+    "tests/ui/run.luau": "3eb024dd34263850d9848565d64d3910085b126ad5c90469cd15f8f9b872f255",
+    "tools/test.ps1": "207e78ec1bba7e19b0342860deeb49ee4d1a65eff7f6303f9734d231103131d2",
+    "tools/verify_build.py": "78011ebd302476741eec3a744b1d0af01c221d408696b6049d322e11c916d4a6",
+    "tools/verify_release.py": "7eeb2d550d74990403eb491dfc59ec15cbce4cc204eda032d3830948743fa023"
+  },
+  "tools": {
+    "python": "3.14.4",
+    "lune": "0.11.1",
+    "rojo": "7.7.1"
+  },
+  "baseline": {
+    "luauExitCode": 1,
+    "failingCases": [
+      "FAIL deferred prophecy purchase cannot spend Diamonds or Robux credits: C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\review-baseline\\tests/review_fixes/run:18: BuyEpicResearch rejects deferred research: expected REJECTED, got APPLIED",
+      "FAIL deferred trophy command rejects without granting resources: C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\review-baseline\\tests/review_fixes/run:18: deferred trophy unavailable: expected REJECTED, got APPLIED",
+      "FAIL shop blocks unavailable boost purchase and trophy navigation: C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\review-baseline\\tests/review_fixes/run:18: boost purchase disabled: expected false, got true",
+      "FAIL PRO offer discloses current benefits and unavailable fusion: C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\review-baseline\\tests/review_fixes/run:18: fusion not currently available: expected false, got true",
+      "FAIL shop names prestige effects without promising premium currency: C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\review-baseline\\tests/review_fixes/run:18: Soul Egg research currency: expected nil, got 30",
+      "FAIL release at 0.32 seconds buys only once: C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\review-baseline\\tests/review_fixes/run:18: release must not add a second purchase before hold begins: expected 1, got 2",
+      "FAIL long hold repeats and release adds no extra purchase: C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\review-baseline\\tests/review_fixes/run:18: release has no extra purchase: expected 3, got 4",
+      "FAIL cancelled mouse hold does not swallow gamepad activation: C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\review-baseline\\tests/review_fixes/run:18: gamepad is a separate activation: expected 2, got 1"
+    ],
+    "checklistExitCode": 1,
+    "checklistFailures": 3
+  },
+  "semanticFault": {
+    "target": "src/client/Bootstrap.luau",
+    "fault": "Compare current account policy with paidBonusAvailable instead of paidRandomAllowed",
+    "exitCode": 1,
+    "assertion": "base PRO confirmation does not require an active fusion bonus: expected 1, got 0"
+  },
+  "after": {
+    "command": "./tools/test.ps1 -PythonExecutable 'C:/Users/Marek/AppData/Local/Python/pythoncore-3.14-64/python.exe'",
+    "exitCode": 0,
+    "luneSuites": 55,
+    "newLuauAssertions": 78,
+    "newChecklistTests": 3,
+    "existingPythonTests": 22,
+    "staticModules": 46,
+    "entrypoints": 2
+  },
+  "logSha256": {
+    "build/review-fixes-test.log": "88137935194999ea970bd7d3aeef5cae059e9bbbfb432b3bbc2b9c2f77a75830",
+    "build/review-fixes-baseline-behavior.log": "546826cce88b8c96f3846097d7c81e94417438720e8c91df1b746218c9ae4a4f",
+    "build/review-fixes-baseline-checklist.log": "eb8362f508c52a3608dcba434e99a38bf4eb22a8d07693b7a26eb3345b10c07d",
+    "build/review-fixes-pro-confirmation-fault.log": "926ab5e63c265a7ac35c39e5334c44061632b21b706bd91206114935d9e912a3"
+  },
+  "pricingAndBalanceDataChanged": false,
+  "mysteryReward": "Existing day-28 reward retained by user decision; no replacement Diamonds introduced",
+  "limitations": [
+    "No fresh native Studio/touch/visual validation",
+    "No real payments or cloud persistence tests",
+    "No Roblox publication",
+    "Prices and progression calibration remain deferred"
+  ]
+}

@@ -5,6 +5,9 @@ local Client=require('../../src/client/Bootstrap')
 local C=require('../../src/shared/NumericCodec')
 local Data=require('../../src/server/PersistenceData')
 local Schema=require('../../src/server/ProfileSchema').new(C)
+local Trophies=require('../../src/server/rewards/trophies')
+local trophyCatalog={}
+for key,row in require('../../src/server/ActionReferenceData').trophies do trophyCatalog[tonumber(key)]=row end
 local fs,serde=require('@lune/fs'),require('@lune/serde')
 local assertions=0
 local function eq(a,b,why) assertions+=1;assert(a==b,(why or '')..' expected '..tostring(b)..' got '..tostring(a)) end
@@ -127,24 +130,34 @@ for _,day in {4,10,15,18,22} do
  h.client:destroy()
 end
 
--- All 95 trophy payouts use JSON oracles, not the embedded trophy fixture table.
+-- v1.1: all 95 trophy routes are unavailable, even for eligible populations.
+-- Retain the independent JSON payout oracles on isolated reference-domain copies.
 for _,egg in read('infrastructure').eggs do
  for tier=1,5 do
   local threshold=egg.trophyPopulations[tier]
   local h=harness(function(p)p.farm.eggIndex=egg.index;p.farm.habitats[1].population=tostring(threshold);p.farm.habitats[1].typeIndex=18 end)
+  local before=assets(h.profile());local sent=#h.sent
   h.client.hud.trophyCards[egg.index]:FindFirstChild('CupBtn_'..tostring(tier)).Activated:Fire()
-  h.expect(h.client.hud.lastActionResult,'APPLIED')
-  eq(h.profile().permanent.GE,tostring(10+egg.trophyGoldenEggRewards[tier]))
-  near(C.BigAmount.decode(h.profile().permanent.SE),egg.trophySoulEggRewards[tier])
-  eq(h.profile().permanent.PE,tostring(egg.trophyProphecyEggRewards[tier]))
-  h.expect(h.call('claimTrophy',egg.index,tier),'REJECTED','ALREADY_CLAIMED')
+  eq(#h.sent,sent,'hidden trophy button sends no intent')
+  h.expect(h.call('claimTrophy',egg.index,tier),'REJECTED','FEATURE_UNAVAILABLE')
+  eq(assets(h.profile()),before,'deferred trophy does not change assets')
+  local reference=Data.copy(h.profile())
+  eq(Trophies.claimTrophy(reference,egg.index,tier,threshold,trophyCatalog),true,'reference reward remains available to domain tests only')
+  eq(reference.permanent.GE,tostring(10+egg.trophyGoldenEggRewards[tier]))
+  near(C.BigAmount.decode(reference.permanent.SE),egg.trophySoulEggRewards[tier])
+  eq(reference.permanent.PE,tostring(egg.trophyProphecyEggRewards[tier]))
+  local granted,_,reason=Trophies.claimTrophy(reference,egg.index,tier,threshold,trophyCatalog)
+  eq(granted,false);eq(reason,'ALREADY_CLAIMED','reference duplicate still guarded')
   h.client:destroy()
  end
 end
+
 do
  local h=harness(function(p)p.farm.habitats[1].population='9999999';p.farm.habitats[1].typeIndex=18 end)
- h.expect(h.call('claimTrophy',0,1),'REJECTED','POPULATION_TOO_LOW')
- h.expect(h.call('claimTrophy',1,1),'REJECTED','WRONG_EGG');eq(h.profile().permanent.SE,'0')
+ h.expect(h.call('claimTrophy',0,1),'REJECTED','FEATURE_UNAVAILABLE')
+ h.expect(h.call('claimTrophy',1,1),'REJECTED','FEATURE_UNAVAILABLE');eq(h.profile().permanent.SE,'0')
+ local granted,_,reason=Trophies.claimTrophy(Data.copy(h.profile()),0,1,9999999,trophyCatalog)
+ eq(granted,false);eq(reason,'POPULATION_TOO_LOW','reference population boundary remains guarded')
  h.client:destroy()
 end
 

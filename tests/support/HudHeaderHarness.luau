@@ -7,6 +7,7 @@ local Availability=require('../../src/shared/FeatureAvailability')
 local EpicPricing=require('../../src/shared/EpicPricing')
 local StudUi=require('../../src/client/ui/StudUi')
 local UiAssets=require('../../src/client/ui/UiAssets')
+local HoldToBuy=require('../../src/client/ui/HoldToBuy')
 return function()
  local nodes={}
  local function signal()return {Connect=function()return {Disconnect=function()end}end}end
@@ -32,6 +33,7 @@ return function()
    if path=='../shared/EpicPricing' then return EpicPricing end
    if path=='./ui/StudUi' then return StudUi end
    if path=='./ui/UiAssets' then return UiAssets end
+   if path=='./ui/HoldToBuy' then return HoldToBuy end
    error('Unexpected header dependency: '..tostring(path))
   end,
  }})()

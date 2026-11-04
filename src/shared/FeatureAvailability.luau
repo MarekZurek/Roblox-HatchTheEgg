@@ -3,12 +3,16 @@
 local blockedEpic: {[string]: boolean} = table.freeze({
  video_doubler_time=true, afx_mission_time=true, afx_mission_capacity=true,
  hold_to_research=true, epic_silo_quality=true, silo_capacity=true, warp_shift=true,
+ prophecy_bonus=true,
 })
 local blockedProducts: {[string]: boolean} = table.freeze({
  auto_hatch=true,
  epic_tier_1=true, epic_tier_2=true, epic_tier_3=true, epic_tier_4=true,
 })
 return table.freeze({
+ eggTrophies=false,
+ boostPurchases=false,
+ petFusion=false,
  blockedEpic=blockedEpic,
  isEpicAvailable=function(id: string): boolean return blockedEpic[id] ~= true end,
  isProductAvailable=function(id: string): boolean return blockedProducts[id] ~= true end,

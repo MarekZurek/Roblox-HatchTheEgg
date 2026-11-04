@@ -226,7 +226,7 @@ function ProtocolSchemas.new(codec)
                     rewardType=id, amount=amount, day=index, cycle=index,
                     petUid=id, locked=boolean, productId=id, platformId=instant,
                     productType=enum({gamepass=true,developer_product=true}), description=function(v) if type(v)~="string" then fail() end end,
-                    paidBonusAvailable=boolean,
+                    paidBonusAvailable=boolean, paidRandomAllowed=boolean,
                     boostId=id, remainingSeconds=amount, effect=amount, dimension=index
                 })(value)
                 return

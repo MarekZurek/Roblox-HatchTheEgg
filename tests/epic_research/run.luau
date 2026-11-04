@@ -290,19 +290,19 @@ do
 	local server = ServerBootstrap.new({ clock = mockClock, initialNowMs = nowMs })
 	local fixture = ProfileSchema.createReference("104", nowMs)
 	fixture.permanent.GE = "10000000"
-	fixture.permanent.epic = { prophecy_bonus = 5 } -- prophecy_bonus maxLevel is 5
+	fixture.permanent.epic = { hold_to_hatch = 15 } -- available research at its maximum
 	server:playerJoined("104", fixture)
 
 	local res = server:dispatch("104", {
 		protocolVersion = 1, requestId = "req-e-1", kind = "BuyEpicResearch",
-		operationId = "op-e-1", expectedRevision = "0", args = { researchId = "prophecy_bonus" },
+		operationId = "op-e-1", expectedRevision = "0", args = { researchId = "hold_to_hatch" },
 	})
 	eq(res.status, "REJECTED", "Purchase at maxLevel rejected")
 	eq(res.result.errorCode, "MAX_LEVEL", "errorCode is MAX_LEVEL")
 
 	local coord = server:getCoordinator("104")
 	local durable = coord.snapshots().durable
-	eq(durable.permanent.epic.prophecy_bonus, 5, "Level stays at 5")
+	eq(durable.permanent.epic.hold_to_hatch, 15, "Level stays at 15")
 	eq(durable.permanent.GE, "10000000", "GE balance unchanged")
 
 	server:playerLeaving("104")

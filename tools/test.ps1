@@ -59,6 +59,11 @@ try {
     $taskSuite = 'upgrade_previews'
     & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
     if ($LASTEXITCODE -ne 0) { throw 'Upgrade preview regressions failed.' }
+    $taskSuite = 'review_fixes'
+    & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
+    if ($LASTEXITCODE -ne 0) { throw 'Review fix regressions failed.' }
+    & $PythonExecutable tests/review_fixes/test_checklist.py
+    if ($LASTEXITCODE -ne 0) { throw 'Product checklist regressions failed.' }
     foreach ($taskSuite in @('catalog', 'protocol', 'persistence', 'math', 'fv_se', 'ihr', 'hatching', 'coordinator', 'timeline', 'integration89', 'purchases', 'resets', 'effect_boundaries', 'pet_effects', 'fusion', 'drones', 'offers', 'claims', 'purchase_recovery', 'tutorial', 'gateway', 'client_state', 'presentation', 'plate_hatching', 'plate_visuals', 'rates_panel', 'ui', 'ui_tasks_77_80', 'ui_assets', 'integration', 'acceptance', 'release_candidate', 'reward_security', 'production_context', 'game_behavior', 'calendar_cycle', 'persistence_startup', 'pro_policy', 'event_time', 'session_prestige_rcb', 'rcb_income', 'farm_gaps', 'entitlement_farm_regressions', 'epic_research')) {
         & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
         if ($LASTEXITCODE -ne 0) { throw ('Tests failed: ' + $taskSuite) }

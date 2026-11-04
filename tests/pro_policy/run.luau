@@ -59,7 +59,7 @@ for _,state in {'allowed','restricted','unknown'}do
  local p=Schema.createReference('1',1000000)
  local context=if state=='unknown' then nil else {paidRandomAllowed=state=='allowed'}
  local preview=Products.previewPurchase(p,'pro_permit',context)
- eq(preview.paidBonusAvailable,state=='allowed')
+ eq(preview.paidBonusAvailable,false,'fusion bonus is deferred in purchase preview')
  eq(preview.isAvailable,state~='unknown')
  if state=='restricted' then eq(string.find(preview.description,'disabled',1,true)~=nil,true)end
  if state=='unknown' then eq(preview.error,'POLICY_UNAVAILABLE')end
@@ -236,7 +236,7 @@ do
  client:connect('owned-boot');eq(client:getStore():getFarm().progress.proBonusAvailable,true)
  h.cell.value=nil;client.transport:sendRefreshState()
  eq(client:getStore():getFarm().progress.proBonusAvailable,false)
- eq(string.find(client.hud.fusionProPermitBadge.Text,'unknown',1,true)~=nil,true)
+ eq(client.hud.fusionProPermitBadge.Text,'Pet fusion: SOON','deferred fusion badge cannot imply an active benefit')
  client:destroy()
 end
 

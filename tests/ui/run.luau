@@ -1074,7 +1074,9 @@ do
 	local boostCard = cont:FindFirstChild("Tab2_Boosts"):FindFirstChild("BoostCard_jimbos_blue_v2")
 	ok(boostCard ~= nil, "BoostCard_jimbos_blue_v2 exists")
 	boostCard:FindFirstChild("BuyBoostButton").Activated:Fire()
-	eq(purchasedBoost, "jimbos_blue_v2", "jimbos_blue_v2 buy button fired onBuyBoost")
+	eq(purchasedBoost, nil, "Deferred boost purchase cannot invoke onBuyBoost")
+	eq(boostCard:FindFirstChild("BuyBoostButton").Text, "SOON", "Deferred boost purchase disclosed")
+	eq(boostCard:FindFirstChild("BuyBoostButton").Active, false, "Deferred boost purchase disabled")
 
 	local pCard = cont:FindFirstChild("Tab2_Boosts"):FindFirstChild("BoostCard_jimbos_purple_v2")
 	ok(pCard ~= nil, "BoostCard_jimbos_purple_v2 exists")
@@ -1097,7 +1099,7 @@ do
 	-- Check regulatory notice
 	local notice = proCard:FindFirstChild("Notice")
 	ok(notice ~= nil, "Notice exists on Pro Permit card")
-	ok(string.find(notice.Text, "regulations", 1, true) ~= nil, "Notice mentions regulatory compliance")
+	ok(string.find(notice.Text, "not available in this version", 1, true) ~= nil, "Notice discloses deferred fusion")
 
 	proCard:FindFirstChild("BuyPassButton").Activated:Fire()
 	eq(purchasedProduct, "pro_permit", "pro_permit buy button fired onPurchaseProduct")
@@ -1166,10 +1168,10 @@ do
 
 	-- Tab 2: Trophies
 	hud:selectCalendarTab(2)
-	eq(hud:getCurrentCalendarTab(), 2, "Selected calendar tab 2 (Trophies)")
+	eq(hud:getCurrentCalendarTab(), 1, "Deferred trophies cannot replace the daily calendar")
 	local trophTab2 = cModal:FindFirstChild("TrophiesContent_Tab2")
 	ok(trophTab2 ~= nil, "TrophiesContent_Tab2 exists")
-	ok(trophTab2.Visible, "Trophies tab visible")
+	eq(trophTab2.Visible, false, "Deferred trophies remain hidden")
 
 	local egg0Card = trophTab2:FindFirstChild("TrophyCard_Egg_0")
 	ok(egg0Card ~= nil, "TrophyCard_Egg_0 exists")
@@ -1180,8 +1182,8 @@ do
 
 	-- Click Gold Cup (tier 3) on Egg 0
 	egg0Card:FindFirstChild("CupBtn_3").Activated:Fire()
-	eq(trophyClaimEgg, 0, "Egg 0 trophy claimed")
-	eq(trophyClaimTier, 3, "Tier 3 trophy claimed")
+	eq(trophyClaimEgg, nil, "Deferred trophy does not dispatch a claim")
+	eq(trophyClaimTier, nil, "Deferred trophy tier does not dispatch")
 
 	hud:destroy()
 end

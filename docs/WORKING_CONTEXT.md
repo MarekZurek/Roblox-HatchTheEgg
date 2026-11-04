@@ -1,4 +1,7 @@
-# Bieżący kontekst — 03.11.2026
+# Bieżący kontekst — 04.11.2026
+
+**Naprawy po review — 04.11.2026:** [zakres, decyzja Mystery i dowody FAIL→PASS](workflow/review_fixes_2026_11_04.md). Poprawiono dostępność odłożonych funkcji, opisy sklepu, przytrzymanie badań, checklistę i testy; ceny i balans bez zmian. Bez nowego odbioru Studio/chmury.
+
 
 **Samouczek Progressive Disclosure i Reaktywny Wskaźnik Kalendarza — 03.11.2026:** [raport dostawy i walidacji](workflow/progressive_tutorial_and_calendar_2026_11_03.md). Wdrożono samouczek Progressive Disclosure z responsywną kartą celu `TutorialObjectiveCard` i sekwencyjnym odkrywaniem HUD w 5 krokach. Wprowadzono pełną izolację okien modalnych (`isAnyModalOpen()`, bazowy `ZIndex = 50` w `StudUi.luau`), co gwarantuje automatyczne ukrywanie karty celu po otwarciu dowolnego modala i eliminuje kolizje (m.in. zasłanianie odbioru nagród w Kroku 4). Przeniesiono `CalendarMenuButton` pod wskaźnik farmy (`0, 16, 0, 96`), wyczyszczono odniesienia do „Wygodnych gniazd” i zaktualizowano instrukcję wylęgu na czerwoną płytę 30/s na środku farmy. Wdrożono reaktywny cykl wskaźnika powiadomień `!` (`AlertBadge`) przy kalendarzu bazujący na `lastCalendarDayUtc` i `workspace:GetServerTimeNow()`, z optymistycznym wygaszaniem po kliknięciu `ClaimDailyGiftButton`. Rozmiar `src/client/HUD.luau` utrzymany w limicie: **198 046 bajtów** (< 200 KB). Pełny runner `tools/test.ps1` (Rojo 45+2 PASS_STATIC_BUILD, 54 suity Lune PASS L, oracles Python) zakończony sukcesem. Wszystkie 47 skryptów zsynchronizowane bezpośrednio z instancją Roblox Studio (`HatchTheEgg.rbxlx`).
 

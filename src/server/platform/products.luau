@@ -290,11 +290,14 @@ local function previewPurchase(
 				description="Pro availability has not been verified. Try again when account policy is available.",
 				paidBonusAvailable=false,isAvailable=false,error="POLICY_UNAVAILABLE"}
 		end
-		paidBonusAvailable = playerContext.paidRandomAllowed == true
+		paidBonusAvailable = Availability.petFusion and playerContext.paidRandomAllowed == true
 		if paidBonusAvailable then
-			desc = "Permanent PRO Permit: 18h offline time, 5 active boosts, and +10% pet fusion chance."
+			desc = "Permanent PRO Permit: 18h offline time (instead of 6h), 100% offline income (instead of 50%), 5 active boosts, and +10 percentage points to pet fusion chance."
 		else
-			desc = "Permanent PRO Permit: 18h offline time and 5 active boosts. Note: Paid random chance modifier is disabled for your account."
+			desc = "PRO: 18h offline (vs 6h), 100% offline income (vs 50%), 5 active boosts (vs 2). Pet fusion and its +10 percentage point bonus are not available in this version."
+			if playerContext.paidRandomAllowed == false then
+				desc ..= " The paid random chance modifier is also disabled for your account."
+			end
 		end
 	elseif resolvedId == "buy_max" then
 		desc = "Buy MAX: quickly purchase the maximum available research levels with a single click. Does not include PRO Permit."

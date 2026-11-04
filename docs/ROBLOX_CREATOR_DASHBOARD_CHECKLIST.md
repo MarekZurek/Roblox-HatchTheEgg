@@ -1,6 +1,6 @@
 # Roblox Creator Hub — Kompletna Checklist Przedpublikacyjna (HatchTheEgg)
 
-Dokument stanowi oficjalny, operacyjny przewodnik wdrożeniowy dla gry **HatchTheEgg** na platformie **Roblox Creator Hub** (`create.roblox.com`) przed oficjalnym otwarciem gry dla graczy (Go-Live).
+Stan sprawdzony z kodem: **04.11.2026**. Lista czynności przed publikacją; odhaczenie punktów wymaga dowodu z docelowego środowiska. Dokument nie zatwierdza wydania ani nowych cen. Dotychczasowe propozycje cen zachowano bez zmian; końcowa cena jest widoczna w oknie Roblox.
 
 ---
 
@@ -10,14 +10,14 @@ Dokument stanowi oficjalny, operacyjny przewodnik wdrożeniowy dla gry **HatchTh
   * Rekomendacja: `Hatch the Egg 🥚 [SIMULATOR]` lub `Hatch the Egg! 🐣`
   * Limit: do 50 znaków. Tytuł powinien zawierać emoji oraz jednoznaczny gatunek.
 * [ ] **Opis Doświadczenia (Description):**
-  * Opis pętli gry: Wylęgaj kurczaki, rozbudowuj kurniki, zarządzaj flotą transportową, odkrywaj nowe jaja, łącz legendarne pety i odradzaj się w systemie Prestiżu!
+  * Angielski opis pętli gry: `Hatch chickens, expand your farm, upgrade your fleet, discover new eggs, and prestige!`
   * Sekcja społecznościowa:
-    * `👍 ZOSTAW LAJKA DLA NOWYCH KODÓW I AKTUALIZACJI!`
-    * `🎁 KOD NA START: RELEASE (wpisz w grze, aby odebrać 100 Diamentów!)`
+    * `👍 LIKE THE GAME FOR MORE UPDATES!`
+    * Nie reklamować kodu `RELEASE`, nagrody ani innych funkcji bez potwierdzonej implementacji i odbioru.
   * Słowa kluczowe (SEO): *Simulator, Idle, Incremental, Farm, Tycoon, Pets, Hatching, Prestige*.
 * [ ] **Właściciel gry (Creator Entity):**
   * **KRYTYCZNE:** Doświadczenie powinno być przypisane do **Grupy Roblox** (Group-Owned), a nie profilu osobistego. Zapewnia to:
-    * Bezpieczny podział przychodów (Group Payouts) i automatyczną kwalifikację do DevEx.
+    * Zarządzanie podziałem przychodów (Group Payouts).
     * Bezpieczne zarządzanie uprawnieniami programistów i moderatorów bez udostępniania konta głównego.
 * [ ] **Gatunek (Genre):**
   * Ustawienie: **Simulation** (lub **Roleplay / Adventure** jako alternatywa).
@@ -31,52 +31,70 @@ Dokument stanowi oficjalny, operacyjny przewodnik wdrożeniowy dla gry **HatchTh
   * **Strach / Horror:** Zaznaczyć `None`.
   * **Alkohol, Tytoń, Niebezpieczne substancje:** Zaznaczyć `None`.
   * **Hazard i Płatne Elementy Losowe (Paid Random Items):**
-    * *Uwaga prawna dotycząca inkubatorów petów:* W *HatchTheEgg* pety są losowane z inkubatorów za Diamenty (walutę premium kupowaną za Robux). W rozumieniu polityki Roblox (oraz przepisów w Korei Płd., Holandii i Belgii) jest to mechanika **Paid Random Items**.
-    * Zaznaczyć obecność płatnych elementów losowych w kwestionariuszu.
-    * Potwierdzić, że gra zawiera wbudowane zabezpieczenie regionalne (`paidRandomAllowed` i polityka z `docs/26` / `docs/31` #58 w [`src/server/platform/products.luau`](../src/server/platform/products.luau)), które wyłącza płatne losowe modyfikatory dla graczy z krajów o zaostrzonych regulacjach.
-* [ ] **Kwalifikacja wiekowa:** Gra powinna uzyskać rekomendację **All Ages** (dla każdego) lub **9+**.
+    * Wypełnić według faktycznie udostępnionych funkcji. Produkcyjna fuzja i zakup boostów pozostają odłożone; sam port testowy nie dowodzi wdrożenia.
+    * Przed uruchomieniem płatnego losowania sprawdzić ujawnienie wszystkich wyników i liczbowych szans oraz bieżące `ArePaidRandomItemsRestricted` dla gracza. Nie zastępować odpowiedzi API stałą listą krajów. [Oficjalne wytyczne Roblox](https://create.roblox.com/docs/production/monetization/paid-random-items).
+    * Obecna kontrola polityki konta dla bonusu Pro nie jest odbiorem wszystkich przyszłych inkubatorów. Nie reklamować aktywnego bonusu fuzji przed wdrożeniem tej funkcji.
+* [ ] **Kwalifikacja wiekowa:** Zapisać wynik aktualnego kwestionariusza dla rzeczywistej zawartości; nie zakładać konkretnego wyniku na podstawie tej listy.
 
 ---
 
 ## 3. Monetyzacja — Przepustki i Produkty (Creator Hub -> Monetization)
 
-Wszystkie produkty zdefiniowane w architekturze gry ([`src/server/platform/products.luau`](../src/server/platform/products.luau) oraz [docs/25](../docs/25_approved_product_structure.md)) muszą zostać utworzone w Creator Hub, a ich unikalne numeryczne identyfikatory wprowadzone do kodu gry.
+Tworzyć i włączać tylko produkty z aktualnej listy poniżej. Stałe uprawnienia to [game passy](https://create.roblox.com/docs/production/monetization/passes), a pakiety diamentów i jednostki ulepszeń Epic to [developer products](https://create.roblox.com/docs/production/monetization/developer-products). Auto-Hatch, Piggy, VIP oraz stare `epic_tier_1..4` nie są produktami do uruchomienia w tym kroku.
 
 ### 3.1. Przepustki Jednorazowe (Game Passes)
-Tworzone w: *Creator Hub -> Experiences -> HatchTheEgg -> Monetization -> Passes*
 
-| Identyfikator w kodzie | Nazwa w Creator Hub | Sugerowana cena | Ikona (512×512) | Opis dla gracza |
-|---|---|---|---|---|
-| `pro_permit` | **Przepustka PRO 👑** | **399–799 R$** | Korona VIP / Złote pióro | 18h produkcji offline (zamiast 6h), 100% zysków offline, 5 slotów na boosty, +10 p.p. do fuzji petów! |
-| `buy_max` | **Buy MAX Research ⚡** | **149–299 R$** | Błyskawica MAX | Odblokowuje przycisk natychmiastowego zakupu maksymalnej liczby badań jednym kliknięciem! |
-| `double_cash` | **2x Cash (Podwójna Kasa) ⭐** | **299–499 R$** | Worek monet 2x | Trwale podwaja wszystkie zyski gotówki ze sprzedaży jaj i farmy! |
-| `auto_hatch` | **Auto-Wylęg (Egg Bot) 🤖** | *v1.1 (wkrótce)* | Robot / Jajko | Automatycznie wylęga kurczaki bez konieczności stania na płycie. |
-
-### 3.2. Produkty Dewelopera — Zakupy Wielokrotne (Developer Products)
-Tworzone w: *Creator Hub -> Experiences -> HatchTheEgg -> Monetization -> Developer Products*
-
-| Identyfikator w kodzie | Nazwa w Creator Hub | Kwota Diamentów / Rola | Sugerowana cena |
+| Identyfikator w kodzie | Nazwa dla gracza | Dotychczasowa propozycja ceny | Działająca korzyść |
 |---|---|---|---|
-| `ge_pack_small` | **Mała Paczka Diamentów 💎** | 1,000 Diamentów | **99 R$** |
-| `ge_pack_large` | **Duża Paczka Diamentów 💎** | 10,000 Diamentów (+50% bonus) | **799 R$** |
-| `piggy_break` | **Rozbicie Skarbonki Diamentów 🐷** | Wypłata zawartości Skarbonki | *Zależna od balansu* |
-| `epic_tier_1` | **Badanie Epickie — Szybki Zakup (Tier 1)** | Bezpośrednie odblokowanie poziomu | **19 R$** |
-| `epic_tier_2` | **Badanie Epickie — Szybki Zakup (Tier 2)** | Bezpośrednie odblokowanie poziomu | **49 R$** |
-| `epic_tier_3` | **Badanie Epickie — Szybki Zakup (Tier 3)** | Bezpośrednie odblokowanie poziomu | **99 R$** |
-| `epic_tier_4` | **Badanie Epickie — Szybki Zakup (Tier 4)** | Bezpośrednie odblokowanie poziomu | **199 R$** |
+| `pro_permit` | **PRO Permit** | **399–799 R$** | 18h zamiast 6h offline, 100% zamiast 50% dochodu offline, 5 zamiast 2 aktywnych boostów. Fuzja i jej bonus +10 punktów procentowych są niedostępne w tej wersji. |
+| `buy_max` | **Buy MAX Research** | **149–299 R$** | Zakup maksymalnej dostępnej liczby poziomów badań jednym kliknięciem; poziomy nadal kosztują gotówkę gracza. Osobny pass poza PRO. |
+| `double_cash` | **2x Cash** | **299–499 R$** | Stały mnożnik ×2 dochodu ze sprzedaży jaj. |
 
-### 3.3. Krok Krytyczny w Kodzie po Utworzeniu Produktów:
-* [ ] Pobrać wygenerowane przez Roblox numeryczne ID i zaktualizować tabele mapowania w [`src/server/platform/products.luau`](../src/server/platform/products.luau):
-  ```luau
-  local PRODUCT_ID_TO_CATALOG_ID = {
-      [TWOJE_ROBLOX_ID_GE_SMALL] = "ge_pack_small",
-      [TWOJE_ROBLOX_ID_GE_LARGE] = "ge_pack_large",
-      [TWOJE_ROBLOX_ID_PRO_PERMIT] = "pro_permit",
-      [TWOJE_ROBLOX_ID_BUY_MAX] = "buy_max",
-      [TWOJE_ROBLOX_ID_DOUBLE_CASH] = "double_cash",
-      -- ...
-  }
-  ```
+### 3.2. Produkty Dewelopera — Zakupy Wielokrotne
+
+| Identyfikator w kodzie | Nazwa / zawartość | Zachowana cena lub propozycja |
+|---|---|---|
+| `ge_pack_small` | **Diamond Pack — 1,000 Diamonds** | propozycja **99 R$** |
+| `ge_pack_large` | **Large Diamond Pack — 10,000 Diamonds** | propozycja **799 R$** |
+| `epic_upgrade_9` | Jednostka ulepszenia Epic z pierwszego pasma cenowego | cena próbna **9 R$** |
+| `epic_upgrade_19` | Jednostka ulepszenia Epic z drugiego pasma cenowego | cena próbna **19 R$** |
+| `epic_upgrade_39` | Jednostka ulepszenia Epic z trzeciego pasma cenowego | cena próbna **39 R$** |
+| `epic_upgrade_79` | Jednostka ulepszenia Epic z czwartego pasma cenowego | cena próbna **79 R$** |
+
+- [ ] Nie dodawać hasła „+50% bonus” do dużego pakietu: nie wynika ono z podanych ilości i proponowanych cen.
+- [ ] Ceny próbne Epic pochodzą z `src/shared/EpicPricing.luau`. Nie przywracać wycofanych 19/49/99/199 R$ ze starej listy tierów. Uzgodnienie relacji cen Epic do pakietów diamentów pozostaje odłożone; ten przegląd nie zmienia cen ani balansu.
+- [ ] Zakup boostów za diamenty pozostaje oznaczony SOON; aktywowanie posiadanych boostów nadal działa.
+- [ ] Dzień 28 pozostaje „Mystery” z dotychczasową wypłatą według decyzji 04.11.2026. Trofea i zakup `prophecy_bonus` są zablokowane do v1.2; nie reklamować ich jako aktywnych.
+
+### 3.3. Podłączenie ID produktów
+
+- [ ] Utworzyć produkty we właściwym doświadczeniu, zapisać ich rzeczywiste numeryczne ID i sprawdzić typ każdego produktu.
+- [ ] Na skrypcie **`ServerScriptService.HatchTheEgg.Main`** ustawić atrybuty typu **Number**, każdy z dodatnim całkowitym ID Roblox:
+
+| Atrybut skryptu Main | Typ produktu |
+|---|---|
+| `pro_permit_PlatformId` | Game pass |
+| `buy_max_PlatformId` | Game pass |
+| `double_cash_PlatformId` | Game pass |
+| `ge_pack_small_PlatformId` | Developer product |
+| `ge_pack_large_PlatformId` | Developer product |
+| `epic_upgrade_9_PlatformId` | Developer product |
+| `epic_upgrade_19_PlatformId` | Developer product |
+| `epic_upgrade_39_PlatformId` | Developer product |
+| `epic_upgrade_79_PlatformId` | Developer product |
+
+- [ ] Każde ID musi być unikalne. `Main.server.luau` czyta atrybuty przy starcie; samo edytowanie domyślnych map w `products.luau` nie konfiguruje ofert. Domyślne ID 1001/2001 itd. to wartości fixture'ów, nie ID do wdrożenia.
+- [ ] Utrwalić atrybuty w procesie przygotowania miejsca i sprawdzić je po synchronizacji/buildzie. Obecny `default.project.json` nie zapisuje tych wartości; nie zakładać, że sam build Rojo zawiera konfigurację płatności.
+- [ ] Uruchomić ponownie serwer po konfiguracji. Brak atrybutu pozostawia produkt nieskonfigurowany; nie omijać tej blokady.
+
+### 3.4. Kontrola zakupów przed publikacją
+
+- [ ] W izolowanym środowisku z trwałym zapisem sprawdzić podgląd produktu, finalną cenę w oknie Roblox, anulowanie i ponowne wejście gracza.
+- [ ] Dla developer products sprawdzić jednokrotną wypłatę oraz ponowienie `ProcessReceipt` po utracie odpowiedzi. Samo zamknięcie okna zakupu nie potwierdza wypłaty.
+- [ ] Dla Epic sprawdzić otrzymanie jednej jednostki, wykorzystanie jej tylko raz oraz zachowanie niewykorzystanej jednostki po reconnect.
+- [ ] Dla passów sprawdzić posiadanie po reconnect oraz brak ponownego zakupu już posiadanego passa.
+- [ ] Dla Buy MAX sprawdzić odrzucenie komendy bez passa i zakup za gotówkę z passem.
+- [ ] Nie uznawać trybu `STUDIO_MEMORY` za test płatności lub chmury — zakupy platformowe są w nim wyłączone.
 
 ---
 
@@ -84,10 +102,8 @@ Tworzone w: *Creator Hub -> Experiences -> HatchTheEgg -> Monetization -> Develo
 
 W *Creator Hub -> Experience Settings -> Security* lub *Roblox Studio -> Game Settings -> Security*:
 
-* [ ] **`Allow HTTP Requests`:** **WŁĄCZONE (True)**
-  * Wymagane dla logowania telemetrycznego, webhooków Discorda i synchronizacji.
-* [ ] **`Enable Studio Access to API Services`:** **WŁĄCZONE (True)**
-  * Wymagane, aby deweloperzy mogli testować bazy danych `DataStoreService`, mechanizm sesji `ProfileService` i `MemoryStoreService` w Studio.
+* [ ] **`Allow HTTP Requests`:** Ustalić według faktycznych wywołań HTTP w wydawanej wersji. Lokalny warsztat synchronizacji nie jest dowodem, że produkcyjna gra wymaga webhooków lub zewnętrznej telemetrii.
+* [ ] **`Enable Studio Access to API Services`:** Skonfigurować dla izolowanego testu trwałego zapisu w Studio. Projekt korzysta z `RobloxDataStorePort` i własnej obsługi sesji; nie zakładać instalacji zewnętrznego ProfileService. Tryb pamięci lokalnej nie sprawdza DataStore.
 * [ ] **`Third-Party Teleports`:** **WYŁĄCZONE (False)** (zwiększa bezpieczeństwo przed nieautoryzowanym przekierowaniem graczy).
 * [ ] **`Third-Party Sales`:** **WYŁĄCZONE (False)** (zapobiega nieautoryzowanym zakupom przedmiotów spoza uniwersum gry).
 
@@ -98,8 +114,8 @@ W *Creator Hub -> Experience Settings -> Security* lub *Roblox Studio -> Game Se
 W *Creator Hub -> Places -> Start Place -> Configuration*:
 
 * [ ] **Limit graczy na serwerze (Max Players):**
-  * Ustawić na: **8–12 graczy** (maksymalnie 15).
-  * *Uzasadnienie wydajnościowe:* Każdy gracz posiada osobną trójwymiarową farmę z 4 kurnikami, stanowiskami floty transportowej, animacjami do 32 biegających kurczaków oraz inkubatorami. Utrzymanie limitu 8–12 graczy gwarantuje stałe 60 FPS na urządzeniach mobilnych (ponad 50% bazy graczy).
+  * Dotychczasowa propozycja do pomiaru: **8–12 graczy** (maksymalnie 15). Nie jest to wynik wykonanego profilu wydajności.
+  * *Uzasadnienie wydajnościowe:* Każdy gracz posiada osobną trójwymiarową farmę z 4 kurnikami, stanowiskami floty transportowej, animacjami do 32 biegających kurczaków oraz inkubatorami. To propozycja limitu, nie gwarancja 60 FPS; wymaga pomiaru na docelowych urządzeniach mobilnych przy pełnym serwerze.
 * [ ] **Wypełnianie serwerów (Server Fill):**
   * Ustawić na: **Roblox optimizes server fill** (rekomendowane dla symulatorów, sprzyja spotykaniu innych graczy).
 * [ ] **Prywatne serwery (Private Servers / VIP Servers):**
@@ -130,11 +146,12 @@ W *Creator Hub -> Experience Settings -> Basic Settings*:
 * [ ] **Miniatury (Thumbnails):**
   * Wymiary: **1920×1080 px** (proporcje 16:9).
   * Przygotować min. 3–5 profesjonalnych miniatur:
-    1. *Miniatura Główna:* Wielki kurnik, dziesiątki kurczaków i hasło „Zbuduj największą fermę!”.
-    2. *Pety i Fuzja:* Prezentacja rzadkich petów Rainbow/Golden wykluwających się z inkubatora.
-    3. *Flota i Kosmos:* Pojazdy transportowe oraz stacja rakietowa „Egg to the Moon 🚀”.
+    1. *Miniatura Główna:* Wielki kurnik, dziesiątki kurczaków i hasło „Build the biggest farm!”.
+    2. *Rozbudowa Farmy:* Pokazać wyłącznie funkcje dostępne w wydawanej wersji; nie reklamować niedostępnej fuzji.
+    3. *Flota:* Dostępne pojazdy transportowe; odłożonego „Egg to the Moon” nie przedstawiać jako działającej funkcji.
     4. *System Prestiżu:* Efektowna infografika korzyści po odrodzeniu farmy.
-* [ ] **Odznaki dla Graczy (Badges):**
+* [ ] **Odznaki dla Graczy (Badges) — propozycje:**
+  * Nie traktować listy jako wdrożonych nagród. Włączenie wymaga przypiętych ID i sprawdzonego serwerowego przyznawania; nie reklamować brakującej funkcji.
   * Tworzone w: *Monetization -> Badges* (ikony 512×512 px wpisujące się w koło):
     1. 🐣 *Witaj na Farmie!* (Za wylęg pierwszego kurczaka).
     2. 🚜 *Pierwszy Transport* (Za zakup pierwszego pojazdu).
@@ -149,17 +166,15 @@ W *Creator Hub -> Experience Settings -> Basic Settings*:
 
 W *Creator Hub -> Audience -> Localization*:
 
-* [ ] **Język podstawowy (Source Language):** `Polski (pl)` lub `English (en-US)`.
-* [ ] **Automatyczne tłumaczenia (Auto-Localization):** **WŁĄCZONE (True)**.
-  * Roblox automatycznie przetłumaczy teksty UI na języki: angielski, hiszpański, portugalski, francuski, niemiecki, japoński, koreański i wietnamski.
-* [ ] **Weryfikacja kluczowych pojęć w słowniku:**
-  * Upewnić się, że terminy takie jak *Diamenty (Diamonds)*, *Gotówka (Cash)*, *Wylęgarnia (Hatchery)*, *Prestiż (Prestige)* nie są błędnie tłumaczone przez translator automatyczny.
+* [ ] **Język podstawowy (Source Language):** `English (en-US)` zgodnie z #104.
+* [ ] **Automatyczne tłumaczenia:** Nie włączać jako części tego wydania; obecny zakres to English-only. Przejrzeć teksty gry oraz opisy produktów i doświadczenia po angielsku.
+* [ ] **Terminologia:** `Diamonds` = waluta premium (`GE` w zapisie), `Soul Eggs` = waluta prestiżu (`SE`), `Cash` = gotówka. Soul Beacony wzmacniają `Prestige Earnings`, nie Diamonds.
 
 ---
 
 ## 9. Analityka i Monitorowanie (Creator Analytics)
 
-Po publikacji gry regularnie weryfikować metryki w *Creator Hub -> Analytics*:
+Po publikacji gry regularnie weryfikować metryki w *Creator Hub -> Analytics*. Poniższe dotychczasowe cele są propozycjami do weryfikacji, nie dowodem osiągniętej jakości:
 
 * [ ] **Retencja (Retention):** Cel D1 >= 35–40%, Cel D7 >= 12–15%.
 * [ ] **Średni czas sesji (Average Session Time):** Cel >= 12–18 minut.
@@ -172,10 +187,11 @@ Po publikacji gry regularnie weryfikować metryki w *Creator Hub -> Analytics*:
 ## 10. Procedura Uruchomienia Produkcyjnego (Go-Live Step-by-Step)
 
 1. [ ] **Przełączenie bazy danych z pamięci na DataStore:**
-   * W `src/server/Main.server.luau` upewnić się, że flaga `UseLocalMemoryStore` wynosi `false` (w trybie produkcyjnym używany jest zaufany `DataStoreService` z ProfileService).
+   * W izolowanym teście Studio opublikowanego miejsca ustawić atrybut `UseLocalMemoryStore=false` na skrypcie Main. Na produkcji serwer zawsze wymaga `DataStoreService` przez `RobloxDataStorePort`; brak trwałego magazynu blokuje start zamiast przełączać grę na pamięć.
 2. [ ] **Synchronizacja sceny i skryptów:**
    * Zbudować finalny plik gry: `rojo build default.project.json --output build/HatchTheEgg.rbxlx`.
-   * Otworzyć i opublikować w Roblox Studio: *File -> Publish to Roblox as...* pod oficjalny Place gry.
+   * Otworzyć wynik w Roblox Studio, ustawić i sprawdzić atrybuty produktów z §3.3 oraz zapisać skonfigurowane miejsce. Przed publikacją sprawdzić, że ponowny build/synchronizacja nie usunął atrybutów.
+   * Publikować sprawdzone miejsce pod właściwym Place po testach niepublicznych, z zachowaniem konfiguracji produktów.
 3. [ ] **Testy w trybie niepublicznym (Soft Launch / Friends & QA):**
    * Ustawić *Access* na: **Private** lub **Friends / Specific Users**.
    * Przetestować na urządzeniu mobilnym i PC: wylęg na czerwonej płycie, zakup badań, otwarcie kalendarza, odbiór nagród, zakup gamepassa w trybie testowym.

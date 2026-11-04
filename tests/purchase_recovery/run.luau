@@ -93,7 +93,7 @@ do
 
 	-- Qualified player: paidRandomAllowed = true
 	local prevQual = Products.previewPurchase(p, "pro_permit", { paidRandomAllowed = true })
-	eq(prevQual.paidBonusAvailable, true, "plus10 available for qualified")
+	eq(prevQual.paidBonusAvailable, false, "plus10 unavailable until production fusion is enabled")
 
 	-- Non-qualified player: paidRandomAllowed = false (Variant A)
 	local prevNonQual = Products.previewPurchase(p, "pro_permit", { paidRandomAllowed = false })

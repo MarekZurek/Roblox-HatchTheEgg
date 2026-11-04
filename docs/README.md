@@ -1,5 +1,8 @@
 # HatchTheEgg — dokumentacja
 
+**Naprawy po review — 04.11.2026:** [zakres, decyzja Mystery i dowody FAIL→PASS](workflow/review_fixes_2026_11_04.md). Poprawiono dostępność odłożonych funkcji, opisy sklepu, przytrzymanie badań, checklistę i testy; ceny i balans bez zmian. Bez nowego odbioru Studio/chmury.
+
+
 **Prezenty spadające — 28.10.2026:** [generator, serwerowy odbiór po lądowaniu,15s na ziemi i regresje](workflow/ground_gifts_2026_10_28.md). Klikanie jest wycofane; oferty2+1 zachowują swoje reguły.
 
 **Wzmocnienie testów po review — 28.10.2026:** [naprawa oczekiwań, izolacja mutacji i dowody FAIL→PASS](workflow/test_oracle_repairs_2026_10_28.md). Bieżące opisy RCB dotyczą stałego mnożnika badań; mechaniki gry i dane referencyjne bez zmian.

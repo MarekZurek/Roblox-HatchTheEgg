@@ -339,7 +339,10 @@ function ClientBootstrap:_command(kind,args,callback)
                         if response.result.actionKind=="BuyEpicRobux" and p and p.epic and (p.epic[response.result.researchId] or 0)>=response.result.level then
                             self.transport:sendRefreshState();return
                         end
-                        if response.result.productId=="pro_permit" and (not p or p.paidRandomPolicy=="unknown" or (p.paidRandomPolicy=="allowed")~=response.result.paidBonusAvailable) then
+                        -- Account eligibility and a currently available product benefit are separate.
+                        local disclosedPolicy = response.result.paidRandomAllowed
+                        if disclosedPolicy == nil then disclosedPolicy = response.result.paidBonusAvailable end
+                        if response.result.productId=="pro_permit" and (not p or p.paidRandomPolicy=="unknown" or (p.paidRandomPolicy=="allowed")~=disclosedPolicy) then
                             self.hud:onActionResult({status="NOT_ACCEPTED",errorCode="POLICY_CHANGED"});return
                         end
                         prompt(response.result)

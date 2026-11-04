@@ -727,7 +727,8 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
                     if ok then result.rewardType=def.rewardType;result.amount=self.codec.BigAmount.encode(def.amountNumber);result.day=day;result.cycle=m end
                 end
             elseif op.kind=="ClaimTrophy" then
-                if args.eggIndex~=draft.farm.eggIndex then code="WRONG_EGG"
+                if not Availability.eggTrophies then code="FEATURE_UNAVAILABLE"
+                elseif args.eggIndex~=draft.farm.eggIndex then code="WRONG_EGG"
                 else
                     local pop=self.codec.ExactUInt.decode("0")
                     for _,hab in draft.farm.habitats do pop=self.codec.ExactUInt.add(pop,self.codec.ExactUInt.decode(hab.population)) end
@@ -846,6 +847,7 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
                         if preview.isAvailable then
                             ok=true;result.productId=preview.productId;result.platformId=spec.platformId;result.productType=preview.productType
                             result.description=preview.description;result.paidBonusAvailable=preview.paidBonusAvailable
+                            if args.productId=="pro_permit" then result.paidRandomAllowed=allowed end
                         else code=preview.error end
                     else code="POLICY_UNAVAILABLE" end
                 end

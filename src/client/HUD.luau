@@ -25,6 +25,8 @@ local StudUi = resolveModule(function()
 	return script.Parent.ui.StudUi
 end, "./ui/StudUi")
 
+local HoldToBuy = resolveModule(function() return script.Parent.ui.HoldToBuy end, "./ui/HoldToBuy")
+
 local UiAssets = resolveModule(function()
 	return script.Parent.ui.UiAssets
 end, "./ui/UiAssets")
@@ -185,9 +187,8 @@ local RESEARCH_DISPLAY_NAMES = _cat.RESEARCH_DISPLAY_NAMES
 local RESEARCH_ICONS = _cat.RESEARCH_ICONS
 local COMMON_RESEARCH_MAX_LEVELS = _cat.COMMON_RESEARCH_MAX_LEVELS
 local UNSUPPORTED_EPIC_RESEARCH = Availability.blockedEpic
-local DEFERRED_V1_2_EPIC = { prophecy_bonus = true }
 local function isEpicUnsupported(id: string): boolean
-	return UNSUPPORTED_EPIC_RESEARCH[id] == true or DEFERRED_V1_2_EPIC[id] == true
+	return UNSUPPORTED_EPIC_RESEARCH[id] == true
 end
 local EPIC_RESEARCH_CATALOG = _cat.EPIC_RESEARCH_CATALOG
 local BOOSTS_CATALOG = _cat.BOOSTS_CATALOG
@@ -476,55 +477,15 @@ local function bindBouncyButton(btn)
 end
 
 local function bindHoldToBuy(btn, actionFn)
-	local isHolding = false
-	local holdToken = 0
-	local lastPressTime = 0
-
-	local function stopHold()
-		isHolding = false
-		holdToken += 1
-	end
-
-	if isRoblox then
-		btn.MouseButton1Down:Connect(function()
-			stopHold()
-			isHolding = true
-			lastPressTime = os.clock()
-			local myToken = holdToken
-			local success = actionFn()
-			if success == false then
-				stopHold()
-				return
-			end
-			task.spawn(function()
-				task.wait(0.35)
-				while isHolding and holdToken == myToken do
-					if not btn.Active or not btn.Visible then
-						stopHold()
-						break
-					end
-					local res = actionFn()
-					if res == false then
-						stopHold()
-						break
-					end
-					task.wait(0.20)
-				end
-			end)
-		end)
-
-		btn.MouseButton1Up:Connect(stopHold)
-		btn.MouseLeave:Connect(stopHold)
-	end
-
-	if btn.Activated ~= nil then
-		btn.Activated:Connect(function()
-			if isRoblox and (os.clock() - lastPressTime) < 0.3 then
-				return
-			end
-			actionFn()
-		end)
-	end
+ HoldToBuy.bind(btn, actionFn, {
+  native = isRoblox,
+  spawn = if isRoblox then task.spawn else function() end,
+  wait = if isRoblox then task.wait else function() end,
+  isPointerActivation = function(input)
+   return input == nil or input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch
+  end,
+ })
 end
 
 local function addShimmerEffect(frame)
@@ -2440,11 +2401,12 @@ function HUD:_buildShopProducts(container)
 		})
 
 		local buyBtn = self.ui:button(card, {
-			name = "BuyBoostButton", text = "BUY", tone = "primary",
+			name = "BuyBoostButton", text = if Availability.boostPurchases then "BUY" else "SOON",
+			active = Availability.boostPurchases, tone = if Availability.boostPurchases then "primary" else "ghost",
 			size = { 0.15, 0, 0, 44 }, position = { 0.83, 0, 0, 5 },
 			textStroke = 1.6, maxTextSize = 16,
 			onClick = function()
-				if type(self.onBuyBoost) == "function" then
+				if Availability.boostPurchases and type(self.onBuyBoost) == "function" then
 					self.onBuyBoost(bSpec.id)
 				end
 			end,
@@ -2648,7 +2610,7 @@ function HUD:_buildCalendarModal(root)
 				size = { 0.11, 0, 0, 44 }, position = { 0.38 + (tIdx - 1) * 0.12, 0, 0, 5 },
 				textStroke = 1.2, maxTextSize = 12,
 				onClick = function()
-					if type(self.onClaimTrophy) == "function" then
+					if Availability.eggTrophies and type(self.onClaimTrophy) == "function" then
 						self.onClaimTrophy(eIdx, tIdx)
 					end
 				end,
@@ -3473,6 +3435,7 @@ function HUD:selectShopTab(tabIndex)
 end
 
 function HUD:selectCalendarTab(tabIndex)
+	if tabIndex == 2 and not Availability.eggTrophies then tabIndex = 1 end
 	self.selectedCalendarTab = tabIndex
 	for idx, btn in ipairs(self.calendarTabButtons) do
 		local isActive = (idx == tabIndex)
@@ -3627,7 +3590,7 @@ function HUD:update()
     self._hasBuyMax = (progress and progress.buyMax == true) or false
 	if self.goldenEggsLabel then self.goldenEggsLabel.Text="Diamonds: "..(if progress then formatCompact(progress.GE) else "-") end
     if self.fusionProPermitBadge and progress then
-        self.fusionProPermitBadge.Text=if progress.proBonusAvailable then "Pro +10 p.p.: active" elseif progress.paidRandomPolicy=="unknown" then "Pro +10 p.p.: policy unknown" elseif not progress.proPermit then "Pro +10 p.p.: requires Pro" else "Pro +10 p.p.: unavailable for account" end
+        self.fusionProPermitBadge.Text=if not Availability.petFusion then "Pet fusion: SOON" elseif progress.proBonusAvailable then "Pro +10 p.p.: active" elseif progress.paidRandomPolicy=="unknown" then "Pro +10 p.p.: policy unknown" elseif not progress.proPermit then "Pro +10 p.p.: requires Pro" else "Pro +10 p.p.: unavailable for account" end
     self._visiblePets=if progress then progress.pets else {}
     local curUtc = math.floor((if isRoblox then workspace:GetServerTimeNow() else os.time()) / 86400)
     local lastDayUtc = (progress and progress.lastCalendarDayUtc) or -1
