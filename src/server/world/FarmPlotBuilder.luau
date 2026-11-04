@@ -185,6 +185,13 @@ local function makePart(props, parent, isDecorative)
 	elseif props.Position then
 		part.Position = props.Position
 	end
+	-- Canonical coordinates stay local to a farm, including rebuilt habitat tiers.
+	local ancestor = parent
+	while ancestor do
+		local origin = ancestor:GetAttribute("FarmOrigin")
+		if origin then part.CFrame += origin; break end
+		ancestor = ancestor.Parent
+	end
 	part.Color = props.Color or Color3.fromRGB(255, 255, 255)
 	part.Material = props.Material or Enum.Material.SmoothPlastic
 	part.Transparency = props.Transparency or 0
@@ -816,6 +823,9 @@ function FarmPlotBuilder.new(deps)
 	deps = deps or {}
 	local self = setmetatable({
 		workspace = deps.workspace or (isRoblox and game:GetService("Workspace") or { Name = "Workspace", Children = {} }),
+		name = deps.name or "HatchTheEggWorld",
+		origin = deps.origin or {x=0,y=0,z=0},
+		farmOnly = deps.farmOnly == true,
 		worldFolder = nil,
 		spawnLocation = nil,
 		pressurePlate = nil,
@@ -843,7 +853,7 @@ end
 
 function FarmPlotBuilder:build()
 	if isRoblox then
-		local existing = self.workspace:FindFirstChild("HatchTheEggWorld")
+		local existing = self.workspace:FindFirstChild(self.name)
 		if existing then
 			existing:Destroy()
 		end
@@ -857,24 +867,25 @@ function FarmPlotBuilder:build()
 	local worldFolder
 	if isRoblox then
 		worldFolder = Instance.new("Folder")
-		worldFolder.Name = "HatchTheEggWorld"
+		worldFolder.Name = self.name
+		worldFolder:SetAttribute("FarmOrigin", Vector3.new(self.origin.x,self.origin.y,self.origin.z))
 		worldFolder.Parent = self.workspace
 	else
-		worldFolder = { Name = "HatchTheEggWorld", Children = {} }
+		worldFolder = { Name = self.name, Children = {} }
 	end
 	self.worldFolder = worldFolder
 
 	-- 0. Configure Bright Sunny Sky & Lighting
-	self:_configureSunnyLighting()
+	if not self.farmOnly then self:_configureSunnyLighting() end
 
 	-- 1. Bright Turquoise Ocean Water with Foam Ripples
-	self:_buildOceanWater(worldFolder)
+	if not self.farmOnly then self:_buildOceanWater(worldFolder) end
 
 	-- 2. Main Player Farm Island (Golden sandy beach & lime-green studded grass!)
 	self:_buildFarmIslandBase(worldFolder)
 
 	-- 3. Central Rainbow Hub Island & Bridges (Screenshot 2 inspiration!)
-	buildGiantRainbowAndHub(worldFolder, self)
+	if not self.farmOnly then buildGiantRainbowAndHub(worldFolder, self) end
 
 	-- 4. Paved Cobblestone / Sandy Chicken Roads matching RoutePresentation
 	self:_buildChickenPaths(worldFolder)
@@ -1043,9 +1054,9 @@ function FarmPlotBuilder:_buildFarmIslandBase(worldFolder)
 		spawn.CanCollide = true
 		spawn.Size = Vector3.new(8, 0.6, 8)
 		spawn.Position = Vector3.new(
-			FarmPlotBuilder.SPAWN_LOCATION_POS.x,
-			FarmPlotBuilder.SPAWN_LOCATION_POS.y,
-			FarmPlotBuilder.SPAWN_LOCATION_POS.z
+			FarmPlotBuilder.SPAWN_LOCATION_POS.x + self.origin.x,
+			FarmPlotBuilder.SPAWN_LOCATION_POS.y + self.origin.y,
+			FarmPlotBuilder.SPAWN_LOCATION_POS.z + self.origin.z
 		)
 		spawn.Color = Color3.fromRGB(255, 235, 110)
 		spawn.TopSurface = Enum.SurfaceType.Studs

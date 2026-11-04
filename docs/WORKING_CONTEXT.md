@@ -1,5 +1,7 @@
 # Bieżący kontekst — 04.11.2026
 
+**Cztery wyspy i blokery Studio — 04.11.2026:** [naprawa i ponowny test dwóch klientów](workflow/farm_islands_2026_11_04.md). Osobna farma/spawn dla każdego z maksymalnie czterech właścicieli, wspólna wyspa centralna, Rewards w prawym przewijanym panelu. Obaj gracze ukończyli tutorial natywnie; stan modeli farm, cudza płyta, respawn i zwolnienie działki sprawdzone w lokalnym Studio. Ceny i balans bez zmian; kod, testy i dokumentacja objęte wspólnym commitem na zlecenie użytkownika, bez publikacji Roblox. Ograniczenia i dowody w raporcie.
+
 **Naprawy po review — 04.11.2026:** [zakres, decyzja Mystery i dowody FAIL→PASS](workflow/review_fixes_2026_11_04.md). Poprawiono dostępność odłożonych funkcji, opisy sklepu, przytrzymanie badań, checklistę i testy; ceny i balans bez zmian. Bez nowego odbioru Studio/chmury.
 
 

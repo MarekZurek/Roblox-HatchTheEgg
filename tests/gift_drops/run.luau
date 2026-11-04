@@ -137,7 +137,7 @@ end
 do
  local Main=require('../support/MainHarness');local options={assertEqual=eq,loopSeconds=12};local t=Main.new(options);t.join()
  eq(t.server.giftDrops~=nil,true,'SPEC/production entrypoint enables gifts')
- local human={Health=0};local root={Position={X=0,Y=3,Z=18}}
+ local human={Health=0};local root={Position={X=0,Y=3,Z=258}} -- local z=18 on southern island
  t.player.Character={FindFirstChildOfClass=function()return human end,FindFirstChild=function()return root end}
  eq(t.server.giftDrops.observe('1'),nil,'SPEC/production dead character has no pickup position')
  human.Health=100;eq(t.server.giftDrops.observe('1').z,18,'SPEC/production observes actual character')
@@ -161,7 +161,7 @@ do
  local found=false;local selected
  for _,gift in t.profile().rewards.droneSpawns or {} do if gift.kind=='GROUND_GIFT' then found=true;selected=gift end end
  eq(found,true,'SPEC/production loop generates gifts')
- root.Position={X=selected.position.x,Y=3,Z=selected.position.z};options.loopSeconds=3
+ root.Position={X=selected.position.x,Y=3,Z=selected.position.z+240};options.loopSeconds=3
  local ok,err=pcall(t.runJob,loopJob)
  eq(ok,false,'SPEC/pickup loop bounded');eq(tostring(err):find('TEST_LOOP_STOP',1,true)~=nil,true,'SPEC/pickup loop safely stops')
  eq(t.profile().rewards.droneSpawns[selected.spawnId].claimed,true,'SPEC/production loop collects near landed gift')

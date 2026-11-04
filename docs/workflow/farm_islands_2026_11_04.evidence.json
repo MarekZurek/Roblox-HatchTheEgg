@@ -1,0 +1,413 @@
+{
+  "baseCommit": "865e73534e299106325538e682ec63597fb674ad",
+  "edit": "b6787e07-e1a4-429e-8c0e-ca052c18d537",
+  "server": "16f32e8e-5f30-4d92-a54c-686fef18483a",
+  "client1": "153610fb-7609-4422-9d62-e99ade6e90e1",
+  "client2": "65d31d9a-6ff9-4324-b1cb-8114ac38537b",
+  "events": [
+    {
+      "name": "tutorial-step4-native-Rewards-hit-test",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"visible\":true,\"pos\":\"808, 435\",\"parent\":\"RightDock\",\"hits\":{\"1\":\"Players.Player1.PlayerGui.HatchTheEggHUD.RightDock.CalendarMenuButton.ButtonIcon\",\"3\":\"Players.Player1.PlayerGui.HatchTheEggHUD.RightDock\",\"2\":\"Players.Player1.PlayerGui.HatchTheEggHUD.RightDock.CalendarMenuButton\"},\"step\":\"🎯 Claim daily gift\",\"chat\":true}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "player1-native-tutorial-complete-two-distinct-farms",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"players\":{\"1\":{\"sequence\":\"250\",\"slot\":1,\"id\":\"1001\",\"cash\":\"615.36919139378767\",\"name\":\"Player1\",\"position\":\"0.5937590599060059, 3.7969329357147217, 267.44158935546875\",\"common\":{\"nutritional_sup\":1},\"habitats\":{\"1\":{\"type\":0,\"label\":\"250 / 250 🐔\",\"pop\":\"250\",\"geometry\":\"-35, 7.59999942779541, 205\",\"slot\":1},\"4\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"35, 1.875, 255\",\"slot\":4},\"3\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"-35, 1.875, 255\",\"slot\":3},\"2\":{\"type\":0,\"label\":\"0 / 250 🐔\",\"pop\":\"0\",\"geometry\":\"35, 7.59999942779541, 205\",\"slot\":2}},\"origin\":\"0, 0, 240\",\"GE\":\"202\"},\"2\":{\"sequence\":\"0\",\"slot\":2,\"id\":\"1002\",\"cash\":\"0\",\"name\":\"Player2\",\"position\":\"239.999755859375, 3.4464516639709473, 32.51438903808594\",\"common\":[],\"habitats\":{\"1\":{\"type\":0,\"label\":\"0 / 250 🐔\",\"pop\":\"0\",\"geometry\":\"205, 7.59999942779541, -35\",\"slot\":1},\"4\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"275, 1.875, 15\",\"slot\":4},\"3\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"205, 1.875, 15\",\"slot\":3},\"2\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"275, 1.875, -35\",\"slot\":2}},\"origin\":\"240, 0, 0\",\"GE\":\"10\"}}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "player2-native-tutorial-complete",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"badge\":false,\"shop\":true,\"tutorial\":false,\"status\":\"READY\",\"routes\":{\"start\":{\"y\":0,\"x\":240,\"z\":45,\"Y\":0,\"X\":240,\"Z\":45},\"groups\":0,\"finish\":{\"y\":0,\"x\":210,\"z\":-30,\"Y\":0,\"X\":210,\"Z\":-30}},\"claimed\":\"✓ TODAY'S REWARD CLAIMED (Come back tomorrow!)\"}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "different-habitat-capacities-after-native-upgrade",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"players\":{\"1\":{\"sequence\":\"250\",\"slot\":1,\"id\":\"1001\",\"cash\":\"1660.7940626360405\",\"name\":\"Player1\",\"position\":\"0.5937590599060059, 3.7969329357147217, 267.44158935546875\",\"common\":{\"nutritional_sup\":1},\"habitats\":{\"1\":{\"type\":1,\"label\":\"250 / 500 🐔\",\"pop\":\"250\",\"geometry\":\"-35, 11.200000762939453, 205\",\"slot\":1},\"4\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"35, 1.875, 255\",\"slot\":4},\"3\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"-35, 1.875, 255\",\"slot\":3},\"2\":{\"type\":0,\"label\":\"0 / 250 🐔\",\"pop\":\"0\",\"geometry\":\"35, 7.59999942779541, 205\",\"slot\":2}},\"origin\":\"0, 0, 240\",\"GE\":\"202\"},\"2\":{\"sequence\":\"250\",\"slot\":2,\"id\":\"1002\",\"cash\":\"1365.7350080604535\",\"name\":\"Player2\",\"position\":\"239.999755859375, 3.695369005203247, 27.691829681396484\",\"common\":{\"nutritional_sup\":1},\"habitats\":{\"1\":{\"type\":0,\"label\":\"250 / 250 🐔\",\"pop\":\"250\",\"geometry\":\"205, 7.59999942779541, -35\",\"slot\":1},\"4\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"275, 1.875, 15\",\"slot\":4},\"3\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"205, 1.875, 15\",\"slot\":3},\"2\":{\"type\":0,\"label\":\"0 / 250 🐔\",\"pop\":\"0\",\"geometry\":\"275, 7.59999942779541, -35\",\"slot\":2}},\"origin\":\"240, 0, 0\",\"GE\":\"202\"}}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "foreign-plate-no-hatching",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"farms\":{\"players\":{\"1\":{\"sequence\":\"250\",\"slot\":1,\"id\":\"1001\",\"cash\":\"1785.6065626360407\",\"name\":\"Player1\",\"position\":\"239.999755859375, 3.972716808319092, 37.00056457519531\",\"common\":{\"nutritional_sup\":1},\"habitats\":{\"1\":{\"type\":1,\"label\":\"250 / 500 🐔\",\"pop\":\"250\",\"geometry\":\"-35, 11.200000762939453, 205\",\"slot\":1},\"4\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"35, 1.875, 255\",\"slot\":4},\"3\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"-35, 1.875, 255\",\"slot\":3},\"2\":{\"type\":0,\"label\":\"0 / 250 🐔\",\"pop\":\"0\",\"geometry\":\"35, 7.59999942779541, 205\",\"slot\":2}},\"origin\":\"0, 0, 240\",\"GE\":\"202\"},\"2\":{\"sequence\":\"250\",\"slot\":2,\"id\":\"1002\",\"cash\":\"1490.5475080604538\",\"name\":\"Player2\",\"position\":\"239.999755859375, 3.695369005203247, 27.691829681396484\",\"common\":{\"nutritional_sup\":1},\"habitats\":{\"1\":{\"type\":0,\"label\":\"250 / 250 🐔\",\"pop\":\"250\",\"geometry\":\"205, 7.59999942779541, -35\",\"slot\":1},\"4\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"275, 1.875, 15\",\"slot\":4},\"3\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"205, 1.875, 15\",\"slot\":3},\"2\":{\"type\":0,\"label\":\"0 / 250 🐔\",\"pop\":\"0\",\"geometry\":\"275, 7.59999942779541, -35\",\"slot\":2}},\"origin\":\"240, 0, 0\",\"GE\":\"202\"}}},\"presence\":{\"p2\":{\"held\":false,\"sinceMs\":0,\"streamId\":\"stream-1002-g1-3\",\"holdElapsed\":0,\"lastObservedMs\":1793815175819,\"expiresAtMs\":0},\"p1\":{\"held\":false,\"sinceMs\":0,\"streamId\":\"stream-1001-g1-2\",\"holdElapsed\":0,\"lastObservedMs\":1793815175819,\"expiresAtMs\":0}}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "own-plate-hatching-after-foreign-plate-negative",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"farms\":{\"players\":{\"1\":{\"sequence\":\"601\",\"slot\":1,\"id\":\"1001\",\"cash\":\"2470.8752293027078\",\"name\":\"Player1\",\"position\":\"0, 3.968810558319092, 276.99639892578125\",\"common\":{\"nutritional_sup\":1},\"habitats\":{\"1\":{\"type\":1,\"label\":\"419 / 500 🐔\",\"pop\":\"419\",\"geometry\":\"-35, 11.200000762939453, 205\",\"slot\":1},\"4\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"35, 1.875, 255\",\"slot\":4},\"3\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"-35, 1.875, 255\",\"slot\":3},\"2\":{\"type\":0,\"label\":\"171 / 250 🐔\",\"pop\":\"171\",\"geometry\":\"35, 7.59999942779541, 205\",\"slot\":2}},\"origin\":\"0, 0, 240\",\"GE\":\"202\"},\"2\":{\"sequence\":\"250\",\"slot\":2,\"id\":\"1002\",\"cash\":\"1851.818341393787\",\"name\":\"Player2\",\"position\":\"239.999755859375, 3.695369005203247, 27.691829681396484\",\"common\":{\"nutritional_sup\":1},\"habitats\":{\"1\":{\"type\":0,\"label\":\"250 / 250 🐔\",\"pop\":\"250\",\"geometry\":\"205, 7.59999942779541, -35\",\"slot\":1},\"4\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"275, 1.875, 15\",\"slot\":4},\"3\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"205, 1.875, 15\",\"slot\":3},\"2\":{\"type\":0,\"label\":\"0 / 250 🐔\",\"pop\":\"0\",\"geometry\":\"275, 7.59999942779541, -35\",\"slot\":2}},\"origin\":\"240, 0, 0\",\"GE\":\"202\"}}},\"presence\":{\"p2\":{\"held\":false,\"sinceMs\":0,\"streamId\":\"stream-1002-g1-3\",\"holdElapsed\":0,\"lastObservedMs\":1793815210303,\"expiresAtMs\":0},\"p1\":{\"held\":true,\"sinceMs\":1793815176322,\"streamId\":\"stream-1001-g1-2\",\"holdElapsed\":0.028668338432908059,\"lastObservedMs\":1793815210303,\"expiresAtMs\":1793815211303}}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "respawn-keeps-assigned-island",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"players\":{\"1\":{\"sequence\":\"604\",\"slot\":1,\"id\":\"1001\",\"cash\":\"3531.5044376360529\",\"name\":\"Player1\",\"position\":\"0.21094071865081787, 3.8984971046447754, 263.9337158203125\",\"common\":{\"nutritional_sup\":1},\"habitats\":{\"1\":{\"type\":1,\"label\":\"424 / 500 🐔\",\"pop\":\"424\",\"geometry\":\"-35, 11.200000762939453, 205\",\"slot\":1},\"4\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"35, 1.875, 255\",\"slot\":4},\"3\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"-35, 1.875, 255\",\"slot\":3},\"2\":{\"type\":0,\"label\":\"180 / 250 🐔\",\"pop\":\"180\",\"geometry\":\"35, 7.59999942779541, 205\",\"slot\":2}},\"origin\":\"0, 0, 240\",\"GE\":\"202\"},\"2\":{\"sequence\":\"250\",\"slot\":2,\"id\":\"1002\",\"cash\":\"2291.4016747271198\",\"name\":\"Player2\",\"position\":\"239.999755859375, 3.695369005203247, 27.691829681396484\",\"common\":{\"nutritional_sup\":1},\"habitats\":{\"1\":{\"type\":0,\"label\":\"250 / 250 🐔\",\"pop\":\"250\",\"geometry\":\"205, 7.59999942779541, -35\",\"slot\":1},\"4\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"275, 1.875, 15\",\"slot\":4},\"3\":{\"type\":-1,\"label\":\"Buy on adjacent pad!\",\"pop\":\"0\",\"geometry\":\"205, 1.875, 15\",\"slot\":3},\"2\":{\"type\":0,\"label\":\"0 / 250 🐔\",\"pop\":\"0\",\"geometry\":\"275, 7.59999942779541, -35\",\"slot\":2}},\"origin\":\"240, 0, 0\",\"GE\":\"202\"}}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "natural-gifts-owner-island-coordinates",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"now\":1793815279450,\"players\":{\"1\":{\"id\":\"1001\",\"GE\":\"202\",\"gifts\":{\"1\":{\"expires\":1793815284644,\"landed\":1793815269644,\"reward\":{\"formattedAmount\":\"$1.25K\",\"type\":\"Cash\",\"amount\":\"1247.7778869488529\"},\"position\":{\"y\":1.15,\"x\":-12,\"z\":18}}},\"cash\":\"5451.5846579182507\"},\"2\":{\"id\":\"1002\",\"GE\":\"202\",\"gifts\":[],\"cash\":\"3124.6005352257589\"}}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "recent-natural-gift-ledger",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"1\":{\"record\":{\"terms\":{\"config\":{\"epicDroneRewardsLvl\":0},\"rolls\":{\"u1\":0.993352572568364,\"u2\":0.39972203053603758},\"petEliteMult\":1,\"position\":{\"y\":1.15,\"x\":-12,\"z\":18},\"farmValue\":1559722.358686066,\"groundGift\":true,\"rollElite\":0.006499567508332947,\"curve0FarmValue\":1559722.358686066},\"spawnId\":\"gift-1-1793815267141-27\",\"fixedReward\":{\"formattedAmount\":\"$1.25K\",\"type\":\"Cash\",\"amount\":\"1247.7778869488529\"},\"expiresAtMs\":1793815284644,\"ownerId\":\"1001\",\"reward\":{\"formattedAmount\":\"$1.25K\",\"type\":\"Cash\",\"amount\":\"1247.7778869488529\"},\"claimed\":true,\"position\":{\"y\":1.15,\"x\":-12,\"z\":18},\"createdAtMs\":1793815267144,\"kind\":\"GROUND_GIFT\",\"landedAtMs\":1793815269644,\"isElite\":false},\"player\":\"1001\",\"key\":\"gift-1-1793815267141-27\"},\"2\":{\"record\":{\"terms\":{\"rolls\":{\"u1\":0.345215105812012,\"u2\":0.22621152507777046},\"curve0FarmValue\":693660.0339566323,\"petEliteMult\":1,\"position\":{\"y\":1.15,\"x\":-12,\"z\":18},\"farmValue\":693660.0339566323,\"groundGift\":true,\"rollElite\":0.3161711392733148,\"config\":{\"epicDroneRewardsLvl\":0}},\"spawnId\":\"gift-1-1793815288074-28\",\"fixedReward\":{\"formattedAmount\":\"$554.93\",\"type\":\"Cash\",\"amount\":\"554.92802716530582\"},\"ownerId\":\"1002\",\"expiresAtMs\":1793815305577,\"claimed\":false,\"position\":{\"y\":1.15,\"x\":-12,\"z\":18},\"createdAtMs\":1793815288077,\"kind\":\"GROUND_GIFT\",\"landedAtMs\":1793815290577,\"isElite\":false},\"player\":\"1002\",\"key\":\"gift-1-1793815288074-28\"}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "final-client-farm-labels-153610fb-7609-4422-9d62-e99ade6e90e1",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"farms\":{\"1\":{\"first\":\"424 / 500 🐔\",\"slot\":1,\"second\":\"180 / 250 🐔\"},\"2\":{\"first\":\"250 / 250 🐔\",\"slot\":2,\"second\":\"0 / 250 🐔\"}},\"player\":\"Player1\"}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "final-client-farm-labels-65d31d9a-6ff9-4324-b1cb-8114ac38537b",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"farms\":{\"1\":{\"first\":\"424 / 500 🐔\",\"slot\":1,\"second\":\"180 / 250 🐔\"},\"2\":{\"first\":\"250 / 250 🐔\",\"slot\":2,\"second\":\"0 / 250 🐔\"}},\"player\":\"Player2\"}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "disconnect-releases-one-farm-only",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"releasedPopulation\":\"0 / 250 🐔\",\"remainingOwner\":\"1002\",\"released\":\"\",\"players\":1,\"remainingPopulation\":\"250 / 250 🐔\"}"
+          }
+        ],
+        "isError": false
+      }
+    }
+  ],
+  "cleanup": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"sources\":49,\"probes\":[],\"mismatches\":[],\"running\":false,\"memory\":true,\"http\":true}"
+      }
+    ],
+    "isError": false
+  },
+  "logs": {
+    "16f32e8e-5f30-4d92-a54c-686fef18483a": {
+      "content": [
+        {
+          "type": "text",
+          "text": "[HatchTheEgg Server] Explicit Studio memory mode: no persistence; platform purchases disabled.\n[Roblox][sabuiltin_Assistant.rbxm.Assistant.Packages._Index.AssistantUI.AssistantUI.Actions.ExecuteLuauActions] The execute_luau changed camera type. Resetting from Enum.CameraType.Scriptable back to Enum.CameraType.Fixed"
+        }
+      ],
+      "isError": false
+    },
+    "153610fb-7609-4422-9d62-e99ade6e90e1": {
+      "content": [
+        {
+          "type": "text",
+          "text": "[Roblox][CoreGui.RobloxGui.Modules.PlayerPermissionsModule] Invalid value for enum CreatorType\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.PlayerPermissionsModule', Line 252\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.PlayerList.Thunks.MakePlayerInfoRequests] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.PlayerList.Thunks.MakePlayerInfoRequests', Line 10\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.PlayerList.Components.Connection.PlayerServiceConnector] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.PlayerList.Components.Connection.PlayerServiceConnector', Line 14\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.PlayerList.Components.Connection.EventConnections] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.PlayerList.Components.Connection.EventConnections', Line 8\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.PlayerList.Components.Presentation.PlayerListApp] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.PlayerList.Components.Presentation.PlayerListApp', Line 33\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.PlayerList.PlayerListSwitcher] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.PlayerList.PlayerListSwitcher', Line 14\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.PlayerList.PlayerListController] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.PlayerList.PlayerListController', Line 34\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.PlayerList.PlayerListManager] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.PlayerList.PlayerListManager', Line 5\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.TopBar.Components.GamepadConnector] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.TopBar.Components.GamepadConnector', Line 55\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.TopBar.Components.TopBarScrim] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.TopBar.Components.TopBarScrim', Line 11\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.TopBar] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.TopBar', Line 48\nStack End\n[Roblox][Script Context.StarterScript] Failure to Start CoreScript module TopBar.\nRequested module experienced an error while loading\n[Roblox][Script Context.StarterScript] Failure to Start CoreScript module PlayerListManager.\nRequested module experienced an error while loading\n[Roblox][CoreGui.RobloxGui.CoreScripts/InspectAndBuy] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.CoreScripts/InspectAndBuy', Line 17\nStack End\n[Roblox][Script Context.StarterScript] Script Context.StarterScript:507: Invalid value for enum CreatorType\nStack Begin\nScript 'Script Context.StarterScript', Line 507\nStack End\nPlayers.Player1.PlayerScripts.HatchTheEggClient.__HTEQABridge:1: attempt to call missing method 'getRoutePresentation' of table\nStack Begin\nScript 'Players.Player1.PlayerScripts.HatchTheEggClient.__HTEQABridge', Line 1\nStack End\nPlayers.Player1.PlayerScripts.HatchTheEggClient.__HTEQABridge:1: attempt to call missing method 'getRoutePresentation' of table\nStack Begin\nScript 'AssistantCommand', Line 1\nStack End"
+        }
+      ],
+      "isError": false
+    },
+    "65d31d9a-6ff9-4324-b1cb-8114ac38537b": {
+      "content": [
+        {
+          "type": "text",
+          "text": "[Roblox][CoreGui.RobloxGui.Modules.PlayerPermissionsModule] Invalid value for enum CreatorType\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.PlayerPermissionsModule', Line 252\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.PlayerList.Thunks.MakePlayerInfoRequests] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.PlayerList.Thunks.MakePlayerInfoRequests', Line 10\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.PlayerList.Components.Connection.PlayerServiceConnector] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.PlayerList.Components.Connection.PlayerServiceConnector', Line 14\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.PlayerList.Components.Connection.EventConnections] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.PlayerList.Components.Connection.EventConnections', Line 8\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.PlayerList.Components.Presentation.PlayerListApp] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.PlayerList.Components.Presentation.PlayerListApp', Line 33\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.PlayerList.PlayerListSwitcher] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.PlayerList.PlayerListSwitcher', Line 14\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.PlayerList.PlayerListController] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.PlayerList.PlayerListController', Line 34\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.PlayerList.PlayerListManager] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.PlayerList.PlayerListManager', Line 5\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.TopBar.Components.GamepadConnector] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.TopBar.Components.GamepadConnector', Line 55\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.TopBar.Components.TopBarScrim] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.TopBar.Components.TopBarScrim', Line 11\nStack End\n[Roblox][CoreGui.RobloxGui.Modules.TopBar] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.Modules.TopBar', Line 48\nStack End\n[Roblox][Script Context.StarterScript] Failure to Start CoreScript module TopBar.\nRequested module experienced an error while loading\n[Roblox][Script Context.StarterScript] Failure to Start CoreScript module PlayerListManager.\nRequested module experienced an error while loading\n[Roblox][CoreGui.RobloxGui.CoreScripts/InspectAndBuy] Requested module experienced an error while loading\nStack Begin\nScript 'CoreGui.RobloxGui.CoreScripts/InspectAndBuy', Line 17\nStack End\n[Roblox][Script Context.StarterScript] Script Context.StarterScript:507: Invalid value for enum CreatorType\nStack Begin\nScript 'Script Context.StarterScript', Line 507\nStack End\nPlayers.Player2.PlayerScripts.HatchTheEggClient.__HTEQABridge:1: attempt to call missing method 'getRoutePresentation' of table\nStack Begin\nScript 'Players.Player2.PlayerScripts.HatchTheEggClient.__HTEQABridge', Line 1\nStack End\nPlayers.Player2.PlayerScripts.HatchTheEggClient.__HTEQABridge:1: attempt to call missing method 'getRoutePresentation' of table\nStack Begin\nScript 'AssistantCommand', Line 1\nStack End"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "sources": [
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\client\\AudioController.luau",
+      "Hash": "D9C01F699C111B825AC30749F5F81FB413114AC36CF88B81842CDCFB999BA2E3"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\client\\Bootstrap.luau",
+      "Hash": "FCF58BBD167830AD4651B6821BCB543D0E5E01E278E0BC7E17F8BFDB81E806B7"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\client\\ClientStateStore.luau",
+      "Hash": "9328112E68048D19C0D0E84CEE0003F686D4EC77DA643EC1044C23D3C7829694"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\client\\ClientTransport.luau",
+      "Hash": "E17D513FF9C08FC76F927B6927562B1B08EDF8B3400433E1849014F6AB183C23"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\client\\HUD.luau",
+      "Hash": "B8B90BC334FFB2F1B51D9F8F0AFE42829D6D22D65169A7BA2B59B5DC738B0941"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\client\\IntentControllers.luau",
+      "Hash": "2A94003CD116EE2AA87DD3CAE808EA8995251E6ED8E071063B5847F6CEEB53A1"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\client\\Main.client.luau",
+      "Hash": "7FA748AC779353058158ACDE5AA45B96CD870B9D86322A95D6A65056008A75B9"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\client\\RoutePresentation.luau",
+      "Hash": "E11E43B3866E93D82829A525FDCB7485FE2F841ECA9564848041A1B1814D99CD"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\client\\onboarding\\TutorialController.luau",
+      "Hash": "5EDEC1AFC2BC278B5E19C6ABB0E9EDD514284CA049554933088C88A60CAD1136"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\client\\ui\\HoldToBuy.luau",
+      "Hash": "5B219358FCA44218279EC12BEEC5269FAEEC06182B13EF36540DBC3B0CD8C0A7"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\client\\ui\\StudUi.luau",
+      "Hash": "1D02DEAB7B0F1CF9FCF161F056348B41375BD83D0C08777989D5895ADB4384A3"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\client\\ui\\UiAssets.luau",
+      "Hash": "C5BBBB55F392190689B8F2C84737082777BF06D86A42B2EE5300937D95E0971B"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\ActionReferenceData.luau",
+      "Hash": "6AA552755A7BB7D0AB05FE80A17637107B165F730644156B6E9D117D8C90BD0A"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\Bootstrap.luau",
+      "Hash": "BF1E997D76C9B55EBB9184822B01F5E5FA3338D3FF62AEC28002C46CD4A9B566"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\EffectsManager.luau",
+      "Hash": "96351605B979D099D44BF1B7787DFF8E6772BE78E0746FC03578876FE7C770EC"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\EpicPurchases.luau",
+      "Hash": "BD454E0B16F0D3AD29964743C2791E9D830E01348E55C6B6E310EAB84630A515"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\FarmActions.luau",
+      "Hash": "779E96CF1F74D5907A33EAAE0A4E2EF2BE64E6DC182304119A79BBB48A7AF4D0"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\GiftDrops.luau",
+      "Hash": "6E138FDFE453F20369645CAF00156C33772ABC659AEF2DE7E553F5BAD510E227"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\Main.server.luau",
+      "Hash": "49270DDED5FCC9C4C5E25D08CAFB62684F2A8C21CD1F5D1514A74C951CE1F3D0"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\NetworkGateway.luau",
+      "Hash": "1ABABDFC8425A8E03C8E43A3C486626EE65D4F215442E26186894AE3BB97A8D2"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\PersistenceData.luau",
+      "Hash": "9009B448DFAE5311B69339B07E274688451D2DCF2C3D73501A9B743957AFAA48"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\PlayerCoordinator.luau",
+      "Hash": "FF4CF7DA056F0F3B9EACFED7FC817E3F6CFE4C643A49E452B0A29D3C5F45A686"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\ProfileSchema.luau",
+      "Hash": "4ED88C95420FD512148E3114C1FE67002E503811B7FF377139D17002C641785C"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\ProgressActions.luau",
+      "Hash": "009F08340412046F5A7475FF0EE5C12435D09B800E598E529736DA011A0E4726"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\RobloxDataStorePort.luau",
+      "Hash": "0A85EA4BC3AA0C87A290C915F7CDFE42A0A84D3D0128D5A3F750D0360D8AF902"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\SessionRepository.luau",
+      "Hash": "15098C50EA2AD62BEA94956B10D048CF127BE2A32922FAFAC07C067959431343"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\TimelineSimulation.luau",
+      "Hash": "9E7AF5602F210B66A593EA4B8C043116205D40ABB09C4ED49EBF008182C88825"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\ViewProjector.luau",
+      "Hash": "C14FEB774AAFE2CF636CE8394C03389FFCD8DB2276166448B6A7CC915C16805D"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\CatalogRegistry\\Data.luau",
+      "Hash": "01EA357FE64008FD54E5DAFB0CB1A6C2BAF356A8AA8E280568EED63DEA1B3F39"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\CatalogRegistry\\init.luau",
+      "Hash": "6D9A70F59C0616343B96B3572D0AE4C164CB2E07AC7AAF91DFB86F8E6F24729C"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\FarmMath\\fv_se.luau",
+      "Hash": "A1F6E2E975CABAA39BDA6618469CD162EB3C5BE34721D5F9130DF873988EB2AE"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\FarmMath\\hatching_rcb.luau",
+      "Hash": "B87FF673979640CD0A9B6426605E9912152B6FA7D6B487897964137DE946F3E4"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\FarmMath\\ihr.luau",
+      "Hash": "346314F4264D96AA69244AB22AD29481C1CDED2E342BA0849C23B4D0B1840FFD"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\FarmMath\\PopulationMath.luau",
+      "Hash": "D69246B2DB2CBCA2A3A49F8133A8895489CA3901BF66373C32CABE4246E3F527"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\FarmMath\\production_research.luau",
+      "Hash": "8EFE10E2668B5B39F4E68CE5A4762A9E9568E4DA56F6A215243F9CB2C4C59988"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\onboarding\\manager.luau",
+      "Hash": "4115C5EE3E66665D2A35A774C6F86781B8EB2B73D2319CD7A0DD2543CE98C000"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\pets\\equipment.luau",
+      "Hash": "BEDD7DC2D34DE16663000CF75A5A89CDCA1843A02EC5E6A36D3530BF3AF095E2"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\pets\\fusion.luau",
+      "Hash": "80DB419EFE0DC516EA377F5B0987ABEF71CF49859730B1D2484D63442541A0DA"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\platform\\products.luau",
+      "Hash": "2EF7E7D032ADA35E6F6805272CE0E0139823FCF9D6970C5CC027753E6BB94F1E"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\rewards\\calendar.luau",
+      "Hash": "060E451B228BDF66844A7FA6A4DDD6A9BB54E7506759ABA90E07358447364E2B"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\rewards\\drones.luau",
+      "Hash": "0C5CB4183CCEFAB16F4210FBD94E54BD2BF545A169E9E0E5F2F7AF54AFC828EB"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\rewards\\offers.luau",
+      "Hash": "C40C70874CE12CDC1DD9200A3197A73D1274125E0F716C61343D6A32D25B0D74"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\rewards\\trophies.luau",
+      "Hash": "86F38C2652B8761C4CCA6817BAA386B6DAE95E41456C2408DD823DC4D36A78B2"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\world\\FarmPlotBuilder.luau",
+      "Hash": "4DDC4ECC598DA51219999DEA305F559219E6BD9D0B3F11A910DF02CE3970F9C8"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\server\\world\\FarmWorld.luau",
+      "Hash": "171D8E85BECCB6645404D6B588BF73DF25580BC69E9211406D0B124665B9E93F"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\shared\\EpicPricing.luau",
+      "Hash": "26D78B6EB639EADB5DDB412B88075F38FD8A003FA77FCEAD90C573DE28838CC9"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\shared\\FeatureAvailability.luau",
+      "Hash": "0479D2EAD7F3565A6E924BF388EBF3AF8CC1B57D61055552386AEC1C956CFD63"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\shared\\NumericCodec.luau",
+      "Hash": "F9C97CED4FE8E3A1C59F085B7FA8B153921F0716E34779958E11DC3B06261074"
+    },
+    {
+      "Path": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\src\\shared\\ProtocolSchemas.luau",
+      "Hash": "A3D96640F1078AC5E678B4662F30C58F81A80AF3BBE37124CE43F25976E40378"
+    }
+  ],
+  "faultChecks": [
+    {
+      "name": "chat-overlap",
+      "status": "DETECTED",
+      "exit": 1,
+      "replaceFrom": "local btnParent = rightDock",
+      "replaceTo": "local btnParent = if dSpec.name == 'CalendarMenuButton' then root else rightDock",
+      "output": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\farm-island-fault-cese1g2v\\tests/farm_islands/run:9: Rewards is in the right dock, outside upper-left chat: expected table: 0x000002766b04dbb0, got table: 0x000002766b02ff80\n[Stack Begin]\n    Script '[C]' - function 'assert'\n    Script 'C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\farm-island-fault-cese1g2v\\tests/farm_islands/run', Line 9\n    Script 'C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\farm-island-fault-cese1g2v\\tests/farm_islands/run', Line 13\n[Stack End]\n\n"
+    },
+    {
+      "name": "shared-first-farm",
+      "status": "DETECTED",
+      "exit": 1,
+      "replaceFrom": "farmWorld:get(pId)",
+      "replaceTo": "farmWorld:get('1')",
+      "output": "C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\farm-island-fault-cese1g2v\\tests/farm_islands/run:9: second Bootstrap cannot write first world: expected 1, got 2\n[Stack Begin]\n    Script '[C]' - function 'assert'\n    Script 'C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\farm-island-fault-cese1g2v\\tests/farm_islands/run', Line 9\n    Script 'C:\\Users\\Marek\\Documents\\rob\\HatchTheEgg\\build\\farm-island-fault-cese1g2v\\tests/farm_islands/run', Line 66\n[Stack End]\n\n"
+    }
+  ],
+  "localTests": {
+    "command": "./tools/test.ps1 -PythonExecutable C:/Users/Marek/AppData/Local/Python/pythoncore-3.14-64/python.exe",
+    "exitCode": 0,
+    "luneSuites": 56,
+    "log": "Action reference tables: PASS\r\nCatalog generator check PASS\r\nIndependent catalog oracle check PASS\r\nPopulation oracle check PASS: 490 exact cases\r\nIndependent calendar oracle: 280 reward rows PASS\r\nBuilding project 'HatchTheEgg'\r\nBuilt project to HatchTheEgg.rbxlx\r\nCreated sourcemap at build/sourcemap.json\r\nRojo mapping PASS_STATIC_BUILD: 47 modules, 2 entrypoint scripts\r\n{\"arithmeticPairs\":756,\"assertions\":15702,\"codecVersion\":1,\"dataStoreTested\":false,\"floatVectors\":3011,\"level\":\"L\",\"status\":\"PASS\",\"studioTested\":false,\"uint64Vectors\":449}\r\nClient performance regressions PASS: 23 assertions\r\nIndependent plate acceptance PASS: 89 assertions\r\nUI #77-80 independent integration PASS: 32 assertions\r\nFresh cash purchases PASS: 308 assertions\r\nGround gifts PASS: 105 assertions\r\nRemaining fixes PASS: 195 assertions\r\nRetired timed doubler PASS: 32 assertions\r\nEpic Robux PASS: 127 assertions\r\nUpgrade previews PASS: 976 assertions\r\nFarm islands regressions PASS: 64 assertions\r\nPASS deferred prophecy purchase cannot spend Diamonds or Robux credits\r\nPASS deferred trophy command rejects without granting resources\r\nPASS shop blocks unavailable boost purchase and trophy navigation\r\nPASS Mystery preserves the approved day-28 reward, replay and reconnect\r\nPASS PRO offer discloses current benefits and unavailable fusion\r\nPASS PRO can be confirmed for either eligible policy while fusion is deferred\r\nPASS shop names prestige effects without promising premium currency\r\nPASS release at 0.32 seconds buys only once\r\nPASS long hold repeats and release adds no extra purchase\r\nPASS cancelled mouse hold does not swallow gamepad activation\r\nPASS disabled button stops a held repeat\r\nReview fixes PASS: 78 assertions\r\n...\r\n----------------------------------------------------------------------\r\nRan 3 tests in 0.006s\r\n\r\nOK\r\nCatalogRegistry PASS: 45031 assertions; 2330 common prices, 2386 common effects, 656 epic prices, 679 epic effects, 76 habitat prices, 204 vehicle prices\r\nProtocol schemas: 747 assertions PASS\r\n{\"assertions\":211,\"dataStoreTested\":false,\"level\":\"L\",\"realDataStoreApiTested\":false,\"status\":\"PASS\",\"studioTested\":false}\r\nFarmMath production/research PASS: 587 assertions\r\nFarmMath fv_se PASS: 357 assertions\r\nIHR PASS: 91 assertions\r\n{\"assertions\":594,\"crossModuleSeam\":true,\"dataStoreTested\":false,\"level\":\"L\",\"moduloVectors\":490,\"realRouteTested\":false,\"status\":\"PASS\",\"studioTested\":false}\r\ncoordinator: 221 assertions PASS\r\ntimeline: 58 assertions PASS\r\nintegration89: 70 assertions PASS\r\npurchases: 165 assertions PASS\r\nProgressActions & Resets PASS: 1148 assertions\r\nEffectsManager & Effect Boundaries PASS: 328 assertions\r\nPet Effects PASS: 224 assertions\r\nPet Fusion PASS: 108 assertions\r\nDrones PASS: 96 assertions\r\nOffers 2+1 & Delivery PASS: 73 assertions\r\nCalendar, Trophies & Claims PASS: 76 assertions\r\nPurchase Recovery & Products PASS: 112 assertions\r\nOnboarding & Tutorial PASS: 81 assertions\r\nNetworkGateway & ViewProjector: 283 assertions PASS\r\nClientTransport and ClientStateStore: 160 assertions PASS\r\nRoutePresentation: 425 assertions PASS\r\nPlate hatching (server-authoritative): 160 assertions PASS\r\nPlate visuals (client representative stream): 55 assertions PASS\r\nRates panel (top jaj/s metrics): 93 assertions PASS\r\nHUD and IntentControllers: 489 assertions PASS\r\nUI tasks #77-#80 (hatch status, tier names, world vehicle pads): 230 assertions PASS\r\nUI assets (#82): 269 assertions PASS\r\nIntegration game loop smoke test PASS: 121 assertions\r\n======================================================================\r\nHatchTheEgg - Acceptance Test Suite (docs/29 §5: A01 - A16)\r\n======================================================================\r\n[A01] New profile & corrupt profile validation / session gate :  38 assertions (PASS)\r\n[A02] Hatch intents start/refresh/stop, stock, vacancy, expiry :  25 assertions (PASS)\r\n[A03] In-transit chickens, vacancy reservation, 3D invariance :  15 assertions (PASS)\r\n[A04] Production vs shipping (greater, equal, lower)          :  12 assertions (PASS)\r\n[A05] IHR fractions, full slot, vacancy-weighted sharing      :  18 assertions (PASS)\r\n[A06] Common research purchases & currentFarmCash preservation:  19 assertions (PASS)\r\n[A07] sameTypeOwned scaling for habitats/vehicles & pop intact:  15 assertions (PASS)\r\n[A08] Quote protection, quoteId & expectedRevision validation :  11 assertions (PASS)\r\n[A09] Duplicate operationId replay & conflict detection       :  11 assertions (PASS)\r\n[A10] Admission refusal when unready & zero ghost queuing     :   7 assertions (PASS)\r\n[A11] Session fencing against stale owner write attempt       :  17 assertions (PASS)\r\n[A12] Online vs Away silo limits & zero silo away handling    :  12 assertions (PASS)\r\n[A13] Checkpoint phase interruption & bitwise resumed match   :   9 assertions (PASS)\r\n[A14] viewSeq gap detection, RefreshState resync, no rollback :  14 assertions (PASS)\r\n[A15] Multi-player isolation, no token leaks, anti-spoofing  :  12 assertions (PASS)\r\n[A16] Complete end-to-end farm loop & reconnect persistence   :  29 assertions (PASS)\r\n======================================================================\r\nTOTAL: 264 assertions across 16 scenarios - PASS L only (no S/D/H claim)\r\n======================================================================\r\n======================================================================\r\nHatchTheEgg - Release Candidate Integration Suite (REL-01 / #36)\r\n======================================================================\r\n\r\n--- Local check 1: Absence of Backdoors / Devgrants & Unauthorized Actions ---\r\n--- Local check 2: Onboarding & New Account Baseline Verification (docs/31 §4) ---\r\n--- Local check 3: State Invariants & Currency Monotonicity ---\r\n--- Local check 4: Session Fencing, Retention Limits & Idempotency (docs/34 §4) ---\r\n--- Local check 5: Rojo Static Build & Module Boundaries ---\r\n--- Local check 6: Deferred Balance Boundary Quarantined (docs/17..21) ---\r\n\r\nAll 6 Release Gates PASSED!\r\n\r\n--- Running End-to-End Player Lifecycle Simulation ---\r\n\r\nLocal domain composition PASSED (12 stages; not full runtime acceptance)!\r\n======================================================================\r\nREL-01 Release Candidate Test Suite: 125 assertions PASS L only (release readiness not evaluated)\r\n======================================================================\r\nReward security #51-53: 174 assertions PASS\r\nProduction context #54-55: 147 assertions PASS\r\nGame behavior acceptance: 2296 assertions PASS\r\nFull calendar cycles: 9812 assertions PASS (10 x 28 days)\r\nPersistent startup fail-closed: 160 assertions PASS\r\nPro account policy: 207 assertions PASS\r\nHistorical earnings event time: 105 assertions PASS\r\nSession IDs, prestige collection and constant research multiplier: 142 assertions PASS\r\nConstant research multiplier real income (issue #81): 212 assertions PASS\r\nFarm integration gaps #66-70: 145 assertions PASS\r\nEntitlement / farm regressions #71-74: 192 assertions PASS\r\n======================================================================\r\nHatchTheEgg - Epic Research Integration Suite\r\n======================================================================\r\n--- [A] ProtocolSchemas Validation for BuyEpicResearch ---\r\n--- [B] Successful Epic Research Purchase & Balance Update ---\r\n--- [C] Price Scaling on Subsequent Levels (1 -> 2 -> 3) ---\r\n--- [D] Rejection on Insufficient GE (INSUFFICIENT_GE) ---\r\n--- [E] Rejection on Max Level (MAX_LEVEL) ---\r\n--- [F] Rejection on Unsupported Research ID (UNSUPPORTED_RESEARCH) ---\r\n--- [G] Idempotency & Replay Protection ---\r\n--- [H] ViewProjector Epic Progress & Delta Generation ---\r\n--- [I] Real Economic Impact on Quotes (FarmActions.createQuote) ---\r\n--- [J] ClientBootstrap & ClientStateStore End-to-End Flow ---\r\n--- [K] All 23 Active Epic Research Items Integrity & Purchasing Coverage ---\r\n======================================================================\r\nEpic Research test suite PASS: 265 assertions\r\n======================================================================\r\ncash: KILLED\r\n...........\r\n----------------------------------------------------------------------\r\nRan 11 tests in 0.070s\r\n\r\nOK\r\ntest_actual_local_results_do_not_approve_release (__main__.EvidenceTests.test_actual_local_results_do_not_approve_release) ... ok\r\ntest_assertion_sum_must_match_cases (__main__.EvidenceTests.test_assertion_sum_must_match_cases) ... ok\r\ntest_assertions_cannot_be_promoted_to_coverage_percent (__main__.EvidenceTests.test_assertions_cannot_be_promoted_to_coverage_percent) ... ok\r\ntest_blanket_release_flags_are_rejected (__main__.EvidenceTests.test_blanket_release_flags_are_rejected) ... ok\r\ntest_external_level_requires_its_own_evidence (__main__.EvidenceTests.test_external_level_requires_its_own_evidence) ... ok\r\ntest_human_scenario_cannot_be_downgraded_to_local_requirement (__main__.EvidenceTests.test_human_scenario_cannot_be_downgraded_to_local_requirement) ... ok\r\ntest_missing_main_wiring_not_accepted (__main__.EvidenceTests.test_missing_main_wiring_not_accepted) ... ok\r\ntest_missing_scenario_cannot_be_hidden_by_total (__main__.EvidenceTests.test_missing_scenario_cannot_be_hidden_by_total) ... ok\r\ntest_mixed_level_from_old_runner_is_rejected (__main__.EvidenceTests.test_mixed_level_from_old_runner_is_rejected) ... ok\r\ntest_mock_cloud_or_studio_flag_is_rejected (__main__.EvidenceTests.test_mock_cloud_or_studio_flag_is_rejected) ... ok\r\ntest_passing_tests_do_not_override_missing_external_evidence (__main__.EvidenceTests.test_passing_tests_do_not_override_missing_external_evidence) ... ok\r\n\r\n----------------------------------------------------------------------\r\nRan 11 tests in 0.015s\r\n\r\nOK\r\n======================================================================\r\nHatchTheEgg - Scoped Local Evidence Checks (REL-01 / #60)\r\n======================================================================\r\nChecking absence of devgrants/backdoors in src/ ...\r\n  PASS: Selected forbidden tokens absent; this scan does not prove absence of all privileged handlers.\r\nChecking quarantine of deferred balance docs/17..21 ...\r\n  PASS: Deferred files exist; selected import references absent (not a balance audit).\r\nChecking that all tests/ suites are registered in tools/test.ps1 ...\r\n  PASS: All test suites registered in test runner.\r\nChecking Rojo static build artifact ...\r\n  PASS: 47 Rojo modules mapped, 2 entrypoint scripts.\r\nChecking Release Candidate test results ...\r\n  PASS: local evidence metadata consistent; S/D/H NOT_VERIFIED; release readiness NOT_APPROVED.\r\n======================================================================\r\nLOCAL CHECKS PASSED; RELEASE NOT APPROVED; S/D/H NOT VERIFIED\r\n======================================================================\r\n"
+  }
+}

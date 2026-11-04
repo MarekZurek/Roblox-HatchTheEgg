@@ -1333,12 +1333,15 @@ function HUD:_buildInterface()
 	local dockButtonsSpec = _cat.DOCK_BUTTONS_METADATA or {}
 
 	local dockHeight = 6 * 64 + 12
-	local rightDock = createGuiElement("Frame", {
+	local rightDock = createGuiElement("ScrollingFrame", {
 		Name = "RightDock",
 		Size = isRoblox and UDim2.new(0, 76, 0, dockHeight) or nil,
 		Position = isRoblox and UDim2.new(1, -88, 0.5, -math.floor(dockHeight / 2) - 16) or nil,
 		BackgroundColor3 = isRoblox and Color3.fromRGB(18, 24, 42) or nil,
 		BackgroundTransparency = 0.08,
+		ScrollBarThickness = 4,
+		CanvasSize = isRoblox and UDim2.new(0,0,0,dockHeight) or nil,
+		ClipsDescendants = true,
 	}, root)
 	self.rightDock = rightDock
 	addCornerAndStroke(rightDock, 14, isRoblox and Color3.fromRGB(10, 14, 24) or nil, 3.2)
@@ -1350,11 +1353,7 @@ function HUD:_buildInterface()
 		local btnPos = UDim2.new(0, 0, 0, 0)
 		local btnParent = rightDock
 
-		if dSpec.sideLeft then
-			btnSize = UDim2.new(0, 68, 0, 68)
-			btnPos = UDim2.new(0, 16, 0, 96)
-			btnParent = root
-		elseif isVisible then
+		if isVisible then
 			rightIdx += 1
 			local yOffset = 8 + (rightIdx - 1) * 63
 			btnPos = UDim2.new(0, 7, 0, yOffset)
@@ -1397,7 +1396,7 @@ function HUD:_buildInterface()
 		}, btn)
 		addTextStroke(caption, 2.2)
 
-		if dSpec.sideLeft then
+		if dSpec.name == 'CalendarMenuButton' then
 			local notifDot = createGuiElement("TextLabel", {
 				Name = "AlertBadge",
 				Size = isRoblox and UDim2.new(0, 22, 0, 22) or nil,
@@ -5302,6 +5301,7 @@ function HUD:applyTutorialStep(stepOrController: any, optionalInfo: any?)
 		{ btn = self.vehiclesToggleBtn, key = "VehiclesMenuButton" },
 		{ btn = self.epicResearchToggleBtn, key = "EpicResearchMenuButton" },
 		{ btn = self.prestigeToggleBtn, key = "PrestigeMenuButton" },
+		{ btn = self.calendarToggleBtn, key = "CalendarMenuButton" },
 	}
 
 	local targetWidget = if type(info) == "table" then info.targetWidget else nil
@@ -5349,8 +5349,11 @@ function HUD:applyTutorialStep(stepOrController: any, optionalInfo: any?)
 		self.rightDock.Visible = showDock
 		if isRoblox and showDock then
 			local newDockH = visibleRightCount * 63 + 10
-			self.rightDock.Size = UDim2.new(0, 76, 0, newDockH)
-			self.rightDock.Position = UDim2.new(1, -88, 0.5, -math.floor(newDockH / 2) - 16)
+			local viewH=math.min(newDockH,math.max(73,self.rightDock.Parent.AbsoluteSize.Y-180))
+			self.rightDock.CanvasSize=UDim2.new(0,0,0,newDockH)
+			self.rightDock.Size = UDim2.new(0, 76, 0, viewH)
+			self.rightDock.Position = UDim2.new(1, -88, 0.5, -math.floor(viewH / 2) - 16)
+			if targetWidget=='CalendarMenuButton' and not isDone then self.rightDock.CanvasPosition=Vector2.new(0,math.max(0,newDockH-viewH)) end
 		end
 	end
 end

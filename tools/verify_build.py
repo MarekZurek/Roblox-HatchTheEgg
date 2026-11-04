@@ -39,6 +39,7 @@ def main():
                  "rewards/drones", "rewards/offers", "rewards/calendar", "rewards/trophies",
                  "platform/products", "onboarding/manager",
                  "world/FarmPlotBuilder",
+                 "world/FarmWorld",
                  "ViewProjector", "NetworkGateway", "Bootstrap"):
         assert private + name in modules, name
     for name in ("ClientTransport", "ClientStateStore", "RoutePresentation",

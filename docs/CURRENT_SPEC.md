@@ -1,5 +1,7 @@
 # Bieżąca specyfikacja i status ustaleń
 
+> **R — układ farm 04.11.2026:** na zlecenie użytkownika cztery identyczne wyspy farm wokół jednej wyspy centralnej. Każdy gracz otrzymuje osobną farmę i spawn; stan modeli oraz płyta wylęgu odnoszą się do właściciela. Przesunięcie sceny nie zmienia lokalnych tras, czasu dotarcia, cen ani balansu. [Implementacja i ograniczony odbiór Studio](workflow/farm_islands_2026_11_04.md).
+
 > **R — doprecyzowanie 04.11.2026:** Dzień 28 pozostaje w UI jako „Mystery”, z dotychczasową nagrodą i jej księgowaniem (PE w pierwszych 24 cyklach, następnie dotychczasowe GE). Nie wprowadzać nagrody zastępczej ani nowej kwoty diamentów. Trofea i nowe zakupy `prophecy_bonus` pozostają zablokowane do v1.2; zachować już zapisane PE i poziomy badań.
 
 > **R — decyzja użytkownika28.10.2026: spadające prezenty zastępują klikalne drony.** Generator działa na serwerze; właściciel odbiera prezent podejściem/dotknięciem dopiero po lądowaniu. Prezent znika15s po lądowaniu, bez klikania. Serwer weryfikuje czas, własność i pozycję oraz wypłaca raz. [Realizacja, testy i ograniczenia](workflow/ground_gifts_2026_10_28.md). Historyczne zasady zestrzelenia są H; reguły oferty2+1 pozostają osobne.

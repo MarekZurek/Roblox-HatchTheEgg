@@ -676,7 +676,7 @@ local catalogs = table.freeze({
 		{ name = "VehiclesMenuButton", title = "Vehicles", iconKey = "window.fleet", bg = { 248, 178, 36 } },
 		{ name = "EpicResearchMenuButton", title = "Epic", iconKey = "tab.ge", bg = { 168, 72, 248 } },
 		{ name = "PrestigeMenuButton", title = "Prestige", iconKey = "control.upgrade", emoji = "🟣", bg = { 238, 68, 162 } },
-		{ name = "CalendarMenuButton", title = "Rewards", iconKey = "window.calendar", bg = { 98, 224, 56 }, sideLeft = true },
+		{ name = "CalendarMenuButton", title = "Rewards", iconKey = "window.calendar", bg = { 98, 224, 56 } },
 		{ name = "PetsMenuButton", title = "Pets", iconKey = "window.pets", bg = { 150, 60, 190 }, hidden = true },
 	}),
 	QUICK_BUTTONS_METADATA = table.freeze({

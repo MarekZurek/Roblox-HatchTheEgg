@@ -25,6 +25,7 @@ local RunService = game:GetService("RunService")
 
 local ServerBootstrap = require(script.Parent.Bootstrap)
 local FarmPlotBuilder = require(script.Parent.world.FarmPlotBuilder)
+local FarmWorld = require(script.Parent.world.FarmWorld)
 local RobloxDataStorePort = require(script.Parent.RobloxDataStorePort)
 local Products = require(script.Parent.platform.products)
 
@@ -92,8 +93,7 @@ local serverClock = {
 }
 
 -- 3. Generate the 3D Farm Island World in Workspace
-local worldBuilder = FarmPlotBuilder.new()
-worldBuilder:build()
+local farmWorld = FarmWorld.new():build()
 
 -- 4. Initialize Authoritative ServerBootstrap
 local configuredProducts={}
@@ -113,7 +113,9 @@ local function giftPosition(id)
  local root=player.Character:FindFirstChild('HumanoidRootPart')
  if not humanoid or humanoid.Health<=0 or not root then return nil end
  local p=root.Position
- return {x=p.X,y=p.Y,z=p.Z}
+ local plot=farmWorld:get(id)
+ if not plot then return nil end
+ return {x=p.X-plot.origin.x,y=p.Y-plot.origin.y,z=p.Z-plot.origin.z}
 end
 local server = ServerBootstrap.new({
     giftDrops={observe=giftPosition},
@@ -143,7 +145,8 @@ local function syncWorldAndDelta(pId, playerObj)
 	-- Update 3D Diegetic Billboards & Buy Pads in Workspace from authoritative projection
 	local pState = server:getGateway():getPlayerState(pId)
 	if pState and pState.previousOwnView and pState.previousOwnView.farm then
-		worldBuilder:updateFromFarmView(pState.previousOwnView.farm, server.catalog)
+		local plot=farmWorld:get(pId)
+		if plot then plot:updateFromFarmView(pState.previousOwnView.farm, server.catalog) end
 	end
 end
 
@@ -172,18 +175,27 @@ local function onPlayerAdded(player)
 	local pId = resolveNumericPlayerId(player)
     if joining[pId] or server:getPlayer(pId) or refusedPlayers[pId]==player then return end
     joining[pId] = true
+    local plot,slot=farmWorld:assign(pId)
+    if not plot then
+        joining[pId]=nil;refusedPlayers[pId]=player
+        player:Kick('All four farms are occupied. Please join another server.')
+        return
+    end
     invalidatePolicy(player)
     local opened, joinRes, err = pcall(server.playerJoined, server, pId)
     joining[pId] = nil
     if not opened or not joinRes then
+        farmWorld:release(pId)
         refusedPlayers[pId] = player
         pendingBootstrap[pId] = nil
         warn("[HatchTheEgg Server] Session unavailable: " .. tostring(if opened then err else joinRes))
         player:Kick(storageMessage)
         return
     end
-    if player.Parent ~= Players then server:playerLeaving(pId); return end
+    if player.Parent ~= Players then server:playerLeaving(pId);farmWorld:release(pId);return end
     activePlayerObjects[pId] = player
+    player:SetAttribute('FarmSlot',slot)
+    player.RespawnLocation=plot.spawnLocation
     local boot = pendingBootstrap[pId]
     pendingBootstrap[pId] = nil
     if boot then
@@ -193,18 +205,20 @@ local function onPlayerAdded(player)
 
     task.spawn(refreshPolicy,player)
     -- Position character on the Farm SpawnLocation when character loads
-	player.CharacterAdded:Connect(function(character)
+	local function positionCharacter(character)
 		task.defer(function()
 			local hrp = character:WaitForChild("HumanoidRootPart", 5)
-			if hrp then
+			if hrp and player.Character==character and farmWorld:get(pId)==plot then
 				hrp.CFrame = CFrame.new(
-					FarmPlotBuilder.SPAWN_LOCATION_POS.x,
-					FarmPlotBuilder.SPAWN_LOCATION_POS.y + 3.5,
-					FarmPlotBuilder.SPAWN_LOCATION_POS.z
+					FarmPlotBuilder.SPAWN_LOCATION_POS.x + plot.origin.x,
+					FarmPlotBuilder.SPAWN_LOCATION_POS.y + 3.5 + plot.origin.y,
+					FarmPlotBuilder.SPAWN_LOCATION_POS.z + plot.origin.z
 				)
 			end
 		end)
-	end)
+	end
+    player.CharacterAdded:Connect(positionCharacter)
+    if player.Character then positionCharacter(player.Character) end
 
 	-- Asynchronously check and grant owned GamePasses (Pro Permit, Buy MAX)
     local grantSession = server:getPlayer(pId)
@@ -234,6 +248,7 @@ local function onPlayerRemoving(player)
     if policyByPlayer[pId] and policyByPlayer[pId].player==player then policyByPlayer[pId]=nil end
 	if refusedPlayers[pId]==player then refusedPlayers[pId]=nil end
 	server:playerLeaving(pId)
+    farmWorld:release(pId)
 end
 
 Players.PlayerAdded:Connect(onPlayerAdded)
@@ -310,7 +325,8 @@ clientToServer.OnServerEvent:Connect(function(player, message)
 
 	if message.kind == "Bootstrap" or message.kind == "RefreshState" then
 		if response and response.view and response.view.farm then
-			worldBuilder:updateFromFarmView(response.view.farm, server.catalog)
+			local plot=farmWorld:get(pId)
+			if plot then plot:updateFromFarmView(response.view.farm, server.catalog) end
 		end
 	elseif
 		message.kind == "BuyResearch"
@@ -406,13 +422,14 @@ local function plateHoldsCharacter(plate, character)
 		and math.abs(localPoint.Z) <= half.Z + PLATE_STAND_MARGIN_STUDS
 		and math.abs(localPoint.Y) <= half.Y + PLATE_STAND_MARGIN_VERTICAL
 end
-if type(worldBuilder.getPressurePlate) == "function" then
+do
 	task.spawn(function()
 		while true do
 			task.wait(PLATE_SAMPLE_INTERVAL_SECONDS)
-			local plate = worldBuilder:getPressurePlate()
 			for pId, playerObj in pairs(activePlayerObjects) do
 				if playerObj.Parent == Players and server:getPlayer(pId) ~= nil then
+					local plot=farmWorld:get(pId)
+					local plate=plot and plot:getPressurePlate()
 					local standing = plate ~= nil and plate.Parent ~= nil and plateHoldsCharacter(plate, playerObj.Character)
 					server:setPlatePresence(pId, standing)
 				end

@@ -1,5 +1,7 @@
 # TODO — stan 26.10.2026
 
+- [x] STUDIO-01/02: Rewards dostępne przy włączonym czacie, cztery osobne wyspy wokół centrum; tutorial i widok farm sprawdzone na dwóch klientach ([dowody](workflow/farm_islands_2026_11_04.md)). Lokalny test pamięci; chmura i płatności poza tym odbiorem.
+
 - [x] Naprawy po review 04.11.2026: blokady odłożonych funkcji, opisy sklepu, przytrzymanie, checklista i testy ([dowody](workflow/review_fixes_2026_11_04.md)); Mystery zachowane, ceny i balans bez zmian.
 
 > **R — doprecyzowanie 04.11.2026:** Dzień 28 pozostaje w UI jako „Mystery”, z dotychczasową nagrodą i jej księgowaniem (PE w pierwszych 24 cyklach, następnie dotychczasowe GE). Nie wprowadzać nagrody zastępczej ani nowej kwoty diamentów. Trofea i nowe zakupy `prophecy_bonus` pozostają zablokowane do v1.2; zachować już zapisane PE i poziomy badań.

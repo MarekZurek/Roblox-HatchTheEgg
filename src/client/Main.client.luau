@@ -41,6 +41,21 @@ local remotesFolder = hteRoot and hteRoot:WaitForChild("Remotes", 15)
 local clientToServer = remotesFolder and remotesFolder:WaitForChild("ClientToServer", 15)
 local serverToClient = remotesFolder and remotesFolder:WaitForChild("ServerToClient", 15)
 
+-- Assignment is authoritative and stable for the lifetime of this Player.
+local assignmentDeadline=os.clock()+20
+while not localPlayer:GetAttribute('FarmSlot') and os.clock()<assignmentDeadline do task.wait(.05) end
+local worldRoot=Workspace:WaitForChild('HatchTheEggWorld',20)
+local slot=localPlayer:GetAttribute('FarmSlot')
+local ownFarm=worldRoot and slot and worldRoot:WaitForChild('Farm_'..tostring(slot),20)
+if not ownFarm then warn('[HatchTheEgg Client] Farm assignment unavailable');return end
+local farmOrigin=ownFarm:GetAttribute('FarmOrigin')
+if typeof(farmOrigin)~='Vector3' then warn('[HatchTheEgg Client] Farm origin unavailable');return end
+local function restrictForeignPrompt(item)
+	if item:IsA('ProximityPrompt') and not item:IsDescendantOf(ownFarm) then item.Enabled=false end
+end
+for _,item in worldRoot:GetDescendants() do restrictForeignPrompt(item) end
+worldRoot.DescendantAdded:Connect(restrictForeignPrompt)
+
 -- Container in Workspace for 3D running chickens and flying drones
 local chickensContainer = Workspace:FindFirstChild("HatchTheEggVisualActors")
 if not chickensContainer then
@@ -151,6 +166,7 @@ client = ClientBootstrap.new({
 	playerId = resolveNumericPlayerId(localPlayer),
 	guiRoot = screenGui,
 	modelsContainer = chickensContainer,
+	worldOrigin = {x=farmOrigin.X,y=farmOrigin.Y,z=farmOrigin.Z},
 	wire = function(msg)
 		if clientToServer then
 			clientToServer:FireServer(msg)
@@ -372,6 +388,7 @@ end)
 
 ProximityPromptService.PromptTriggered:Connect(function(prompt, playerWhoTriggered)
 	if playerWhoTriggered ~= localPlayer then return end
+	if not prompt:IsDescendantOf(ownFarm) then return end
 	if not client:getStore():isReady() then return end
 
 	local pName = prompt.Name
@@ -483,7 +500,7 @@ RunService.RenderStepped:Connect(function(dt)
 
     -- No local reward IDs or fallback schedules. Empty/unconfigured channels stay inactive.
     local offerAvailable=#client:getOrdinaryOffers()>0
-    local rewardWorld=Workspace:FindFirstChild("HatchTheEggWorld")
+    local rewardWorld=ownFarm
     if rewardWorld~=rewardPromptWorld then bindInteractionWorld(rewardWorld) end
     if lastOfferAvailability~=offerAvailable then
         for widget in rewardPrompts do widget.Enabled=offerAvailable end
@@ -492,7 +509,7 @@ RunService.RenderStepped:Connect(function(dt)
 
 	-- Physical Step-On Pads check
 	local character = localPlayer.Character
-	local worldFolder = Workspace:FindFirstChild("HatchTheEggWorld")
+	local worldFolder = ownFarm
 	if not character or not worldFolder or not client:getStore():isReady() then
 		return
 	end

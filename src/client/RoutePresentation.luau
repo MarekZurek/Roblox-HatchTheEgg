@@ -550,10 +550,23 @@ function RoutePresentation.new(deps)
 	local container = if typeof(d) == "Instance" then d elseif type(d) == "table" then (d.container or d.modelsContainer) else nil
 	local baseSpeed = if type(d) == "table" then (d.baseSpeed or DEFAULT_SPEED) else DEFAULT_SPEED
 	local routes = if type(d) == "table" and d.routes then d.routes elseif baseSpeed == DEFAULT_SPEED then CANONICAL_ROUTES else generateCanonicalRoutes(baseSpeed)
+	local origin=d.worldOrigin or {x=0,y=0,z=0}
+	if origin.x~=0 or origin.y~=0 or origin.z~=0 then
+		local translated={}
+		for i,route in routes do
+			local points={}
+			for _,p in route.waypoints do table.insert(points,createPoint(p.x+origin.x,p.y+origin.y,p.z+origin.z)) end
+			local speeds={}
+			for j,segment in route.segments do speeds[j]=segment.speed end
+			translated[i]=buildRoute(i,points,speeds,baseSpeed)
+		end
+		routes=translated
+	end
 
 	local self = setmetatable({
 		baseSpeed = baseSpeed,
 		routes = routes,
+		worldOrigin = origin,
 		maxVisualsPerGroup = d.maxVisualsPerGroup or 5,
 		maxActiveVisuals = d.maxActiveVisuals or DEFAULT_MAX_ACTIVE_VISUALS,
 		maxSpawnsPerSecond = d.maxSpawnsPerSecond or DEFAULT_MAX_VISUAL_SPAWNS_PER_SECOND,
@@ -853,6 +866,10 @@ function RoutePresentation:spawnDrone(droneId: string, isElite: boolean?, startI
   p0=createPoint(pos.x,48,pos.z);p1=createPoint(pos.x,50,pos.z);p2=createPoint(pos.x,20,pos.z)
  end
 	local startPos = p0
+	local o=self.worldOrigin
+	local function toWorld(p) return createPoint(p.x+o.x,p.y+o.y,p.z+o.z) end
+	p0,p1,p2,p3=toWorld(p0),toWorld(p1),toWorld(p2),toWorld(p3)
+	startPos=p0
 	local endPos = p3
 
 	local model

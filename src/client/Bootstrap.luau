@@ -86,6 +86,7 @@ function ClientBootstrap.new(deps)
 		baseSpeed = deps.baseSpeed,
 		chickenTemplate = deps.chickenTemplate,
 		modelsContainer = deps.modelsContainer,
+		worldOrigin = deps.worldOrigin,
 	})
 
 	local hud = deps.hud or HUD.new({

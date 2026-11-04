@@ -59,6 +59,9 @@ try {
     $taskSuite = 'upgrade_previews'
     & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
     if ($LASTEXITCODE -ne 0) { throw 'Upgrade preview regressions failed.' }
+    $taskSuite = 'farm_islands'
+    & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
+    if ($LASTEXITCODE -ne 0) { throw 'Farm island isolation regressions failed.' }
     $taskSuite = 'review_fixes'
     & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
     if ($LASTEXITCODE -ne 0) { throw 'Review fix regressions failed.' }

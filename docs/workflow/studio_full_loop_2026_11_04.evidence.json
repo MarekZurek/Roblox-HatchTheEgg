@@ -1,0 +1,215 @@
+{
+  "commit": "865e73534e299106325538e682ec63597fb674ad",
+  "server": "88fe2a03-2bec-4a41-ab29-aa5bdc30ef9c",
+  "client1": "8cd3b0c7-d196-468d-9c84-e1655fdb6cde",
+  "client2": "235a6d58-51dc-4093-9817-2f109d477386",
+  "mode": "STUDIO_MEMORY",
+  "events": [
+    {
+      "name": "native-research-release-320ms",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"time\":1793813228806,\"players\":{\"1\":{\"egg\":0,\"stock\":\"135.49200000000027\",\"commonLevels\":{\"nutritional_sup\":2},\"id\":\"1001\",\"GE\":\"10\",\"SE\":\"0\",\"population\":250,\"prestige\":\"0\",\"name\":\"Player1\",\"position\":{\"y\":3.7964446544647219,\"x\":0.5830166935920715,\"z\":27.383230209350587},\"inTransit\":0,\"common\":{\"nutritional_sup\":3},\"sequence\":\"250\",\"cash\":\"302.77819420961072\"},\"2\":{\"egg\":0,\"stock\":\"250\",\"commonLevels\":[],\"id\":\"1002\",\"GE\":\"10\",\"SE\":\"0\",\"population\":0,\"prestige\":\"0\",\"name\":\"Player2\",\"position\":{\"y\":3.8965437412261965,\"x\":0.03515678644180298,\"z\":22.921735763549806},\"inTransit\":0,\"common\":[],\"sequence\":\"0\",\"cash\":\"4.3942422387037814\"}}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "measured-native-research-320ms",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"events\":{\"1\":{\"time\":262.3229972999543,\"event\":\"down\"},\"3\":{\"time\":262.68980020005258,\"id\":\"nutritional_sup\",\"kind\":\"BuyResearch\",\"event\":\"send\",\"mode\":\"single\"},\"2\":{\"time\":262.3233020999469,\"id\":\"nutritional_sup\",\"kind\":\"BuyResearch\",\"event\":\"send\",\"mode\":\"single\"},\"5\":{\"time\":262.9262956000166,\"event\":\"up\"},\"4\":{\"time\":262.90714739996477,\"id\":\"nutritional_sup\",\"kind\":\"BuyResearch\",\"event\":\"send\",\"mode\":\"single\"},\"6\":{\"time\":262.9263187999604,\"event\":\"activated-Enum.UserInputType.MouseButton1\"}}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "single-native-click-trace",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"events\":{\"1\":{\"time\":284.72436110000128,\"event\":\"down\"},\"4\":{\"time\":284.8592301000608,\"event\":\"activated-Enum.UserInputType.MouseButton1\"},\"3\":{\"time\":284.8591733999783,\"event\":\"up\"},\"2\":{\"time\":284.7246618999634,\"id\":\"nutritional_sup\",\"kind\":\"BuyResearch\",\"event\":\"send\",\"mode\":\"single\"}}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "native-infrastructure-purchases",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"menus\":{\"HabitatsMenuButton\":true,\"ShopMenuButton\":false,\"ResearchMenuButton\":true,\"CalendarMenuButton\":true,\"RightDock\":true,\"VehiclesMenuButton\":true,\"PrestigeMenuButton\":false,\"TutorialObjectiveCard\":true},\"cash\":\"2024.0232929870176\",\"habitats\":{\"1\":{\"population\":\"250\",\"nextHabitatId\":\"SHACK\",\"slotId\":1,\"capacity\":\"250\",\"upgradePrice\":\"466.66887875775001\",\"habitatIndex\":0,\"reservedInTransit\":\"0\"},\"4\":{\"population\":\"0\",\"capacity\":\"0\",\"reservedInTransit\":\"0\",\"upgradePrice\":\"56.3652940972351\",\"slotId\":4,\"nextHabitatId\":\"COOP\"},\"3\":{\"population\":\"0\",\"capacity\":\"0\",\"reservedInTransit\":\"0\",\"upgradePrice\":\"56.3652940972351\",\"slotId\":3,\"nextHabitatId\":\"COOP\"},\"2\":{\"population\":\"0\",\"nextHabitatId\":\"SHACK\",\"slotId\":2,\"capacity\":\"250\",\"upgradePrice\":\"466.66887875775001\",\"habitatIndex\":0,\"reservedInTransit\":\"0\"}},\"widgets\":{\"1\":{\"visible\":true,\"path\":\"Players.Player1.PlayerGui.HatchTheEggHUD.CalendarMenuButton\",\"active\":true,\"text\":\"\",\"w\":68,\"y\":96,\"x\":16,\"name\":\"CalendarMenuButton\",\"h\":68}},\"fleet\":{\"slotLimit\":4,\"shippingPerMinute\":\"10000\",\"vehicles\":{\"1\":{\"slotId\":1,\"vehicleIndex\":0},\"2\":{\"slotId\":2,\"vehicleIndex\":0}},\"upgrades\":{\"1\":{\"price\":\"544.53872961534864\",\"slotId\":1,\"nextVehicleId\":\"TRANSIT VAN\",\"available\":true},\"4\":{\"price\":\"40.341352406742288\",\"slotId\":4,\"nextVehicleId\":\"TRIKE\",\"available\":true},\"3\":{\"price\":\"40.341352406742288\",\"slotId\":3,\"nextVehicleId\":\"TRIKE\",\"available\":true},\"2\":{\"price\":\"544.53872961534864\",\"slotId\":2,\"nextVehicleId\":\"TRANSIT VAN\",\"available\":true}}}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "FAIL-native-rewards-entry-chat-overlap",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"viewport\":{\"y\":712,\"x\":858},\"calendarVisible\":false,\"hit\":{\"1\":{\"visible\":true,\"path\":\"Players.Player1.PlayerGui.Chat.Frame.ChatChannelParentFrame.Frame_MessageLogDisplay.Scroller\",\"z\":1,\"active\":true},\"3\":{\"visible\":true,\"path\":\"Players.Player1.PlayerGui.Chat.Frame.ChatChannelParentFrame\",\"z\":1,\"active\":false},\"2\":{\"visible\":true,\"path\":\"Players.Player1.PlayerGui.Chat.Frame.ChatChannelParentFrame.Frame_MessageLogDisplay\",\"z\":1,\"active\":false},\"5\":{\"visible\":true,\"path\":\"Players.Player1.PlayerGui.HatchTheEggHUD.CalendarMenuButton.ButtonIcon\",\"z\":1,\"active\":false},\"4\":{\"visible\":true,\"path\":\"Players.Player1.PlayerGui.Chat.Frame\",\"z\":1,\"active\":false},\"6\":{\"visible\":true,\"path\":\"Players.Player1.PlayerGui.HatchTheEggHUD.CalendarMenuButton\",\"z\":1,\"active\":true}}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "native-calendar-claim-after-diagnostic-open",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"badge\":false,\"menus\":{\"HabitatsMenuButton\":true,\"ShopMenuButton\":true,\"ResearchMenuButton\":true,\"CalendarMenuButton\":true,\"RightDock\":true,\"VehiclesMenuButton\":true,\"PrestigeMenuButton\":true,\"TutorialObjectiveCard\":false},\"claimActive\":true,\"lastCalendarDay\":20761,\"claimText\":\"✓ TODAY'S REWARD CLAIMED (Come back tomorrow!)\",\"calendarVisible\":true,\"numDaily\":1,\"mystery\":\"🎁 Mystery\",\"GE\":\"202\"}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "FAIL-multiplayer-world-labels-and-natural-prestige-before",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"cash\":\"4247.6045429870128\",\"GE\":\"202\",\"farm\":{\"1\":{\"population\":\"250\",\"habitatIndex\":0,\"nextHabitatId\":\"SHACK\",\"capacity\":\"250\",\"upgradePrice\":\"466.66887875775001\",\"slotId\":1,\"reservedInTransit\":\"0\"},\"4\":{\"population\":\"0\",\"nextHabitatId\":\"COOP\",\"capacity\":\"0\",\"upgradePrice\":\"56.3652940972351\",\"slotId\":4,\"reservedInTransit\":\"0\"},\"3\":{\"population\":\"0\",\"nextHabitatId\":\"COOP\",\"capacity\":\"0\",\"upgradePrice\":\"56.3652940972351\",\"slotId\":3,\"reservedInTransit\":\"0\"},\"2\":{\"population\":\"0\",\"habitatIndex\":0,\"nextHabitatId\":\"SHACK\",\"capacity\":\"250\",\"upgradePrice\":\"466.66887875775001\",\"slotId\":2,\"reservedInTransit\":\"0\"}},\"SE\":\"0\",\"worldSlot2\":\"Buy on adjacent pad!\",\"prestigeVisible\":true,\"worldPopulation\":\"0 / 250 🐔\",\"pendingSE\":\"3.5163098853401107\"}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "native-natural-prestige-after",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"time\":1793813433813,\"players\":{\"1\":{\"egg\":0,\"stock\":\"250\",\"commonLevels\":[],\"id\":\"1001\",\"GE\":\"202\",\"SE\":\"3.5194819102155974\",\"population\":0,\"prestige\":\"1\",\"name\":\"Player1\",\"position\":{\"y\":3.7964446544647219,\"x\":0.5830166935920715,\"z\":27.383230209350587},\"inTransit\":0,\"common\":[],\"sequence\":\"250\",\"cash\":\"0\"},\"2\":{\"egg\":0,\"stock\":\"250\",\"commonLevels\":[],\"id\":\"1002\",\"GE\":\"10\",\"SE\":\"0\",\"population\":0,\"prestige\":\"0\",\"name\":\"Player2\",\"position\":{\"y\":3.8965437412261965,\"x\":0.03515678644180298,\"z\":22.921735763549806},\"inTransit\":0,\"common\":[],\"sequence\":\"0\",\"cash\":\"4.3942422387037814\"}}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "natural-gift-candidates",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"gifts\":{\"1001\":{\"cash\":\"0\",\"collected\":0,\"pending\":{\"1\":{\"expires\":1793813464739,\"landed\":1793813449739,\"position\":{\"y\":1.15,\"x\":-12,\"z\":18},\"id\":\"gift-1-1793813447237-33\",\"owner\":\"1001\",\"reward\":{\"formattedAmount\":\"$2.97\",\"type\":\"Cash\",\"amount\":\"2.9703939227630531\"}}},\"GE\":\"202\"},\"1002\":{\"cash\":\"4.3942422387037814\",\"collected\":2,\"pending\":[],\"GE\":\"10\"}},\"time\":1793813461913}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "native-egg-prompt-and-insufficient-FV",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"visible\":true,\"labels\":{\"WindowTitle\":\"EGG RESEARCH STATION\",\"CurrentFvLabel\":\"💰 Your Farm Value: $74.26K\",\"WarningLabel\":\"Ascending will reset current cash, habitats, and vehicles.\\nPets, Diamonds, and Epic Research will be kept!\",\"RequiredFvLabel\":\"🎯 Required Farm Value: $250M\",\"CurrentEggLabel\":\"🥚 Current Egg: Regular ($1)\",\"MultiplierLabel\":\"📈 Value Multiplier: 3.0x\",\"NextEggLabel\":\"✨ Next Egg: Duck ($3)\"},\"buttonText\":\"HIGHER FARM VALUE REQUIRED\",\"active\":false}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "fixture-1e12-cash-earnings-buyMax-native-max-purchase",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"homeFV\":\"74259.846962518379\",\"status\":\"RESYNCING\",\"research\":{\"effects\":{\"1\":{\"current\":\"1\",\"stat\":\"eggValueMult\",\"next\":\"1.25\"}},\"researchId\":\"nutritional_sup\",\"level\":0,\"available\":true},\"buyMax\":true,\"cash\":\"1000000000000\"}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "native-egg-upgrade-with-explicit-SE-fixture",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"time\":1793813692037,\"players\":{\"1\":{\"egg\":0,\"stock\":\"250\",\"commonLevels\":{\"nutritional_sup\":40},\"id\":\"1001\",\"GE\":\"202\",\"SE\":\"1000000\",\"population\":0,\"prestige\":\"1\",\"name\":\"Player1\",\"position\":{\"y\":6.6963911056518559,\"x\":12.00457763671875,\"z\":31.210437774658204},\"inTransit\":0,\"common\":{\"nutritional_sup\":40},\"sequence\":\"250\",\"cash\":\"999935572836.32678\"},\"2\":{\"egg\":0,\"stock\":\"250\",\"commonLevels\":[],\"id\":\"1002\",\"GE\":\"25\",\"SE\":\"0\",\"population\":0,\"prestige\":\"0\",\"name\":\"Player2\",\"position\":{\"y\":3.8965437412261965,\"x\":0.03515678644180298,\"z\":22.921735763549806},\"inTransit\":0,\"common\":[],\"sequence\":\"0\",\"cash\":\"63.716512461204829\"}}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "native-egg-upgrade-settled",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"time\":1793813700953,\"players\":{\"1\":{\"egg\":1,\"stock\":\"250\",\"commonLevels\":[],\"id\":\"1001\",\"GE\":\"202\",\"SE\":\"1000000\",\"population\":0,\"prestige\":\"1\",\"name\":\"Player1\",\"position\":{\"y\":6.6963911056518559,\"x\":12.00457763671875,\"z\":31.210437774658204},\"inTransit\":0,\"common\":[],\"sequence\":\"250\",\"cash\":\"0\"},\"2\":{\"egg\":0,\"stock\":\"250\",\"commonLevels\":[],\"id\":\"1002\",\"GE\":\"25\",\"SE\":\"0\",\"population\":0,\"prestige\":\"0\",\"name\":\"Player2\",\"position\":{\"y\":3.8965437412261965,\"x\":0.03515678644180298,\"z\":22.921735763549806},\"inTransit\":0,\"common\":[],\"sequence\":\"0\",\"cash\":\"63.716512461204829\"}}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "name": "post-egg-hatching",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"time\":1793813721836,\"players\":{\"1\":{\"egg\":1,\"stock\":\"57.789000000000065\",\"commonLevels\":[],\"id\":\"1001\",\"GE\":\"202\",\"SE\":\"1000000\",\"population\":250,\"prestige\":\"1\",\"name\":\"Player1\",\"position\":{\"y\":3.971740245819092,\"x\":0.6025482416152954,\"z\":36.53083038330078},\"inTransit\":0,\"common\":[],\"sequence\":\"500\",\"cash\":\"28634536.342499997\"},\"2\":{\"egg\":0,\"stock\":\"250\",\"commonLevels\":[],\"id\":\"1002\",\"GE\":\"25\",\"SE\":\"0\",\"population\":0,\"prestige\":\"0\",\"name\":\"Player2\",\"position\":{\"y\":3.8965437412261965,\"x\":0.03515678644180298,\"z\":22.921735763549806},\"inTransit\":0,\"common\":[],\"sequence\":\"0\",\"cash\":\"63.716512461204829\"}}}"
+          }
+        ],
+        "isError": false
+      }
+    }
+  ],
+  "cleanup": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"sources\":48,\"probes\":[],\"mismatches\":[],\"mode\":false,\"memory\":true,\"http\":true}"
+      }
+    ],
+    "isError": false
+  },
+  "logs": {
+    "88fe2a03-2bec-4a41-ab29-aa5bdc30ef9c": {
+      "content": [
+        {
+          "type": "text",
+          "text": "[HatchTheEgg Server] Explicit Studio memory mode: no persistence; platform purchases disabled."
+        }
+      ],
+      "isError": false
+    },
+    "8cd3b0c7-d196-468d-9c84-e1655fdb6cde": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Players.Player1.PlayerScripts.ChatScript:116: Error calling SetCore CoreGuiChatConnections: SetCore: CoreGuiChatConnections has not been registered by the CoreScripts\nStack Begin\nScript 'Players.Player1.PlayerScripts.ChatScript', Line 116 - function SetCoreGuiChatConnections\nScript 'Players.Player1.PlayerScripts.ChatScript', Line 104 - function DoEverything\nScript 'Players.Player1.PlayerScripts.ChatScript', Line 133\nStack End"
+        }
+      ],
+      "isError": false
+    },
+    "235a6d58-51dc-4093-9817-2f109d477386": {
+      "content": [
+        {
+          "type": "text",
+          "text": ""
+        }
+      ],
+      "isError": false
+    }
+  }
+}
