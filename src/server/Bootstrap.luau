@@ -405,6 +405,7 @@ function ServerBootstrap.new(deps)
 		repository = repository,
 		gateway = gateway,
 		players = {},
+		waitForSession = deps.waitForSession or (if type(task)=="table" then task.wait else nil),
 		depsRouteProvider = deps.routeProvider,
   liveEvents = data.copy(deps.liveEvents or {}),
   -- Test fixture only: no production hatch prices/chances have been approved.
@@ -1222,54 +1223,58 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 	}
 end
 
-function ServerBootstrap:playerLeaving(playerId)
-	local pId = tostring(playerId)
-	local playerSession = self.players[pId]
-	if not playerSession then
-		return false, "PLAYER_NOT_FOUND"
+-- Lifecycle callers must join an existing yielding writer, never discard its actor.
+function ServerBootstrap:_waitForSession(predicate, deadline)
+	while not predicate() do
+		if self.clock.elapsedNowSeconds() >= deadline or not self.waitForSession then return false end
+		self.waitForSession(0.05)
 	end
-
-	-- A disconnect stops plate counting before the final checkpoint can advance it.
-	clearPlatePresence(playerSession)
-
-	local coordinator = playerSession.coordinator
-
-	-- 1. Execute checkpoint
-	local nowMs = self.clock.utcNowMs()
-
-	-- Proactively renew lease if near expiration so checkpoint is guaranteed to commit
-	if playerSession.handle and playerSession.handle.endsAtMs and (nowMs >= playerSession.handle.endsAtMs - 45000) then
-		coordinator.renew()
-		coordinator.drain()
-	end
-
-	local snapshots = coordinator.snapshots()
-	local currentRev = (snapshots.durable and snapshots.durable.meta and snapshots.durable.meta.revision) or "0"
-
-	local cpOp = {
-		operationId = "checkpoint-" .. pId .. "-" .. tostring(nowMs),
-		kind = "Checkpoint",
-		expectedRevision = currentRev,
-		args = {},
-	}
-	coordinator.checkpoint(cpOp)
-	coordinator.drain()
-
-	-- 2. Release session in repository
-	coordinator.release()
-	coordinator.drain()
-
-	-- 3. Unregister from gateway
-	self.gateway:unregisterPlayer(pId)
-	if self.farmActions.forgetPlayer then self.farmActions.forgetPlayer(pId) end
-
-	-- 4. Clean up local session
-	self.players[pId] = nil
-
 	return true
 end
 
-function ServerBootstrap:checkpointPlayer(playerId)
+function ServerBootstrap:playerLeaving(playerId, deadline)
+	local pId = tostring(playerId)
+	local playerSession = self.players[pId]
+	if not playerSession then
+		return false, "PLAYER_NOT_FOUND"
+	end
+	deadline=deadline or self.clock.elapsedNowSeconds()+25
+
+	if playerSession.closing then
+		if not self:_waitForSession(function()return not playerSession.closing end,playerSession.closeDeadline) then
+			return false,"SESSION_CLOSE_TIMEOUT"
+		end
+		return playerSession.closeResult.ok,playerSession.closeResult.result
+	end
+	playerSession.closing=true
+	playerSession.departing=true
+	playerSession.closeDeadline=deadline
+	playerSession.closeResult=nil
+	-- Stop production/input admission while the final writer is being joined.
+	clearPlatePresence(playerSession)
+	local coordinator = playerSession.coordinator
+	local ran,ok,result=pcall(function()
+		if self.clock.elapsedNowSeconds()>=deadline then return false,"SESSION_CLOSE_TIMEOUT" end
+		local saved,saveResult=self:checkpointPlayer(pId,playerSession.closeDeadline)
+		if not saved then return false,saveResult end
+		local admission=coordinator.release()
+		if admission.status~="PENDING" then return false,admission end
+		local drained=coordinator.drain()
+		local released=false
+		for _,row in drained.results or {} do if row.status=="RELEASED" then released=true end end
+		if not released then return false,drained end
+		self.gateway:unregisterPlayer(pId)
+		if self.farmActions.forgetPlayer then self.farmActions.forgetPlayer(pId) end
+		if self.players[pId]==playerSession then self.players[pId]=nil end
+		return true,{status="RELEASED",checkpoint=saveResult}
+	end)
+	if not ran then result={status="UNKNOWN",errorCode=tostring(ok)};ok=false end
+	playerSession.closeResult={ok=ok,result=result}
+	playerSession.closing=false
+	return ok,result
+end
+
+function ServerBootstrap:checkpointPlayer(playerId, deadline)
 	local pId = tostring(playerId)
 	local playerSession = self.players[pId]
 	if not playerSession then
@@ -1277,27 +1282,36 @@ function ServerBootstrap:checkpointPlayer(playerId)
 	end
 
 	local coordinator = playerSession.coordinator
-	local nowMs = self.clock.utcNowMs()
-
-	if playerSession.handle and playerSession.handle.endsAtMs and (nowMs >= playerSession.handle.endsAtMs - 45000) then
-		coordinator.renew()
+	deadline=deadline or self.clock.elapsedNowSeconds()+25
+	if not self:_waitForSession(function()
+		return not playerSession.checkpointing and not coordinator.snapshots().busy
+	end,deadline) then return false,"SESSION_CLOSE_TIMEOUT" end
+	playerSession.checkpointing=true
+	local ran,ok,result=pcall(function()
+		-- Finish already admitted jobs before capturing the expected revision.
 		coordinator.drain()
-	end
-
-	local snapshots = coordinator.snapshots()
-	local currentRev = (snapshots.durable and snapshots.durable.meta and snapshots.durable.meta.revision) or "0"
-
-	local cpOp = {
-		operationId = "checkpoint-" .. pId .. "-" .. tostring(nowMs),
-		kind = "Checkpoint",
-		expectedRevision = currentRev,
-		args = {},
-	}
-	coordinator.checkpoint(cpOp)
-	coordinator.drain()
-
-	local res = coordinator.resultOf(cpOp.operationId)
-	return true, res
+		local nowMs=self.clock.utcNowMs()
+		if playerSession.handle and nowMs>=playerSession.handle.endsAtMs-45000 then
+			local renewal=coordinator.renew()
+			if renewal.status~="PENDING" then return false,renewal end
+			local drained=coordinator.drain()
+			local renewed=false
+			for _,row in drained.results or {} do if row.status=="RENEWED" then renewed=true end end
+			if not renewed then return false,drained end
+		end
+		local snapshots=coordinator.snapshots()
+		self._checkpointSerial=(self._checkpointSerial or 0)+1
+		local cpOp={operationId="checkpoint-"..pId.."-"..tostring(nowMs).."-"..self._checkpointSerial,
+			kind="Checkpoint",expectedRevision=snapshots.durable.meta.revision,args={}}
+		local admission=coordinator.checkpoint(cpOp)
+		if admission.status~="PENDING" then return false,admission end
+		coordinator.drain()
+		local res=coordinator.resultOf(cpOp.operationId)
+		return res.status=="APPLIED" or (res.status=="REPLAYED" and res.terminalStatus=="APPLIED"),res
+	end)
+	playerSession.checkpointing=false
+	if not ran then return false,{status="UNKNOWN",errorCode=tostring(ok)} end
+	return ok,result
 end
 
 function ServerBootstrap:checkpointAll()
@@ -1310,13 +1324,15 @@ function ServerBootstrap:checkpointAll()
 end
 
 function ServerBootstrap:close()
+	self.closing=true
+	local deadline=self.clock.elapsedNowSeconds()+25
 	local pIds = {}
 	for pId, _ in pairs(self.players) do
 		table.insert(pIds, pId)
 	end
 	local results = {}
 	for _, pId in ipairs(pIds) do
-		local ok, res = self:playerLeaving(pId)
+		local ok, res = self:playerLeaving(pId,deadline)
 		results[pId] = { ok = ok, result = res }
 	end
 	return results
@@ -1650,6 +1666,7 @@ function ServerBootstrap:togglePetLock(playerId, petUid, locked)
 end
 
 function ServerBootstrap:tick(dtSeconds, nowMs)
+	if self.closing then return end
 	if dtSeconds ~= nil and type(self.clock.advance) == "function" then
 		self.clock.advance(dtSeconds)
 	elseif nowMs ~= nil and type(self.clock.set) == "function" then
@@ -1660,7 +1677,7 @@ function ServerBootstrap:tick(dtSeconds, nowMs)
 
 	for playerId, playerSession in pairs(self.players) do
 		local coordinator = playerSession.coordinator
-		if coordinator then
+		if coordinator and not playerSession.departing then
 			if playerSession.handle and playerSession.handle.endsAtMs and (currentNowMs >= playerSession.handle.endsAtMs - 45000) then
 				coordinator.renew()
 			end
@@ -1701,6 +1718,10 @@ function ServerBootstrap:getRepository()
 end
 
 function ServerBootstrap:dispatch(playerId, message)
+	local active=self.players[tostring(playerId)]
+	if self.closing or (active and active.departing) then
+		return {protocolVersion=1,kind="Admission",requestId=message.requestId,admission="NOT_ACCEPTED",errorCode="SESSION_CLOSING"}
+	end
 	local result = self.gateway:handleRequest(playerId, message)
 	local session = self.players[tostring(playerId)]
 	if session then self:_reconcileReset(session) end

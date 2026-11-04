@@ -1,5 +1,9 @@
 # Bieżący kontekst — 04.11.2026
 
+**QA-DATA-01/02 naprawione — 04.11.2026:** [regresje i ponowny odbiór chmury](workflow/session_lifecycle_fixes_2026_11_04.md). Potwierdzane zamknięcie sesji i odroczony handshake; 58 suit Lune PASS, prywatne QA wersja 5. Długi powrót sam osiąga READY; Stop zachowuje saldo i zwalnia lease. Ceny i balans bez zmian. Poniższy wcześniejszy raport opisuje historyczne FAIL, nie bieżący wynik tych dwóch poprawek.
+
+**Prywatne QA / rzeczywisty DataStore — 04.11.2026:** [wyniki i dwa blokery](workflow/private_qa_datastore_2026_11_04.md). Osobny universe 10774701473, limit 4 zapisany w Creator Hub, runtime PERSISTENT. Zapis i offline F2P mają dowody chmury; pierwszy Stop nie zwolnił sesji (QA-DATA-01), a dłuższy reconnect pozostawił klienta CONNECTING (QA-DATA-02). Krótki reconnect po czystym wyjściu PASS. Bez zmiany kodu, cen i balansu; brak akceptacji wydania.
+
 **Mobilne UI — 04.11.2026:** [tutorial i UI w pionie/poziomie](workflow/mobile_ui_2026_11_04.md). Emulator iPhone XR: oba tutoriale ukończone, poprawione obracanie, badania, sklep, układ HUD i dotykowe przewijanie. Ceny i balans bez zmian; ograniczenia fizycznego urządzenia i chmury w raporcie.
 
 **Cztery wyspy i blokery Studio — 04.11.2026:** [naprawa i ponowny test dwóch klientów](workflow/farm_islands_2026_11_04.md). Osobna farma/spawn dla każdego z maksymalnie czterech właścicieli, wspólna wyspa centralna, Rewards w prawym przewijanym panelu. Obaj gracze ukończyli tutorial natywnie; stan modeli farm, cudza płyta, respawn i zwolnienie działki sprawdzone w lokalnym Studio. Ceny i balans bez zmian; kod, testy i dokumentacja objęte wspólnym commitem na zlecenie użytkownika, bez publikacji Roblox. Ograniczenia i dowody w raporcie.

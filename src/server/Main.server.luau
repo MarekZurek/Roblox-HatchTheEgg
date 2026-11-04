@@ -118,6 +118,7 @@ local function giftPosition(id)
  return {x=p.X-plot.origin.x,y=p.Y-plot.origin.y,z=p.Z-plot.origin.z}
 end
 local server = ServerBootstrap.new({
+	waitForSession = task.wait,
     giftDrops={observe=giftPosition},
     storageMode = storageMode,
     isStudio = studio,
@@ -132,6 +133,21 @@ local server = ServerBootstrap.new({
 
 
 local joining, pendingBootstrap, refusedPlayers = {}, {}, {}
+
+local function flushPendingBootstrap(pId,player)
+    local boot=pendingBootstrap[pId]
+    local coordinator=server:getCoordinator(pId)
+    if not boot or not coordinator or not coordinator.snapshots().ready then return end
+    pendingBootstrap[pId]=nil
+    local response=server:dispatch(pId,boot)
+    if response then
+        serverToClient:FireClient(player,response)
+        if response.view and response.view.farm then
+            local plot=farmWorld:get(pId)
+            if plot then plot:updateFromFarmView(response.view.farm,server.catalog) end
+        end
+    end
+end
 
 local function syncWorldAndDelta(pId, playerObj)
 	local delta = server:createPlayerDelta(pId)
@@ -196,12 +212,7 @@ local function onPlayerAdded(player)
     activePlayerObjects[pId] = player
     player:SetAttribute('FarmSlot',slot)
     player.RespawnLocation=plot.spawnLocation
-    local boot = pendingBootstrap[pId]
-    pendingBootstrap[pId] = nil
-    if boot then
-        local response = server:dispatch(pId,boot)
-        if response then serverToClient:FireClient(player,response) end
-    end
+    flushPendingBootstrap(pId,player)
 
     task.spawn(refreshPolicy,player)
     -- Position character on the Farm SpawnLocation when character loads
@@ -247,7 +258,8 @@ local function onPlayerRemoving(player)
     pendingBootstrap[pId] = nil
     if policyByPlayer[pId] and policyByPlayer[pId].player==player then policyByPlayer[pId]=nil end
 	if refusedPlayers[pId]==player then refusedPlayers[pId]=nil end
-	server:playerLeaving(pId)
+    local saved,result=server:playerLeaving(pId)
+    if not saved and result~="PLAYER_NOT_FOUND" then warn('[HatchTheEgg Server] Session close not confirmed for '..pId..': '..tostring(result)) end
     farmWorld:release(pId)
 end
 
@@ -273,6 +285,11 @@ clientToServer.OnServerEvent:Connect(function(player, message)
         return
     end
 
+    if (message.kind=="Bootstrap" or message.kind=="RefreshState") and server.protocol.validateClient(message) then
+        pendingBootstrap[pId]=message
+        flushPendingBootstrap(pId,player)
+        return
+    end
     local valid=server.protocol.validateClient(message)
     local needsPolicy=valid and server.purchasesEnabled and (
         (message.kind=="PurchaseProduct" and message.args.productId=="pro_permit" and configuredProducts.pro_permit~=nil)
@@ -399,6 +416,7 @@ task.spawn(function()
          if player and player.Parent==Players then serverToClient:FireClient(player,{kind='DroneRewardPopup',droneId=notice.id,reward=notice.reward}) end
         end
 		for pId, playerObj in pairs(activePlayerObjects) do
+			flushPendingBootstrap(pId,playerObj)
 			syncWorldAndDelta(pId, playerObj)
 		end
 	end
@@ -456,6 +474,10 @@ end)
 -- 9. Safe server shutdown via BindToClose
 game:BindToClose(function()
 	print("[HatchTheEgg Server] BindToClose triggered. Safely flushing and releasing all active player sessions...")
-	server:close()
-	print("[HatchTheEgg Server] All player sessions saved and released.")
+	local results=server:close()
+	local confirmed=true
+	for id,result in results do
+		if not result.ok then confirmed=false;warn('[HatchTheEgg Server] Shutdown save/release not confirmed for '..id..': '..tostring(result.result)) end
+	end
+	if confirmed then print("[HatchTheEgg Server] All player sessions saved and released.") end
 end)

@@ -22,6 +22,7 @@ function GiftDrops.new(options: any): any
   local now=server.clock.utcNowMs()
   for id,row in self.rows do if server.players[id]~=row.session then self.rows[id]=nil end end
   for id,session in server.players do
+   if session.departing or server.closing then continue end
    local snapshots=session.coordinator.snapshots()
    if not snapshots.ready then continue end
    local profile=snapshots.working or snapshots.durable

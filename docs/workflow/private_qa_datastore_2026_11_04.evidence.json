@@ -1,0 +1,3814 @@
+{
+  "baseCommit": "db557b18fdaa869c20322aec34bb8ba3896ef788",
+  "place": 110937489000525,
+  "universe": 10774701473,
+  "events": [
+    {
+      "name": "first-join",
+      "result": {
+        "players": {
+          "11647593962": {
+            "busy": false,
+            "working": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "0",
+                "numericCodecVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "calculationVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793819473907,
+                "ownerToken": "session-token-1",
+                "generation": "1"
+              },
+              "farm": {
+                "cash": "0",
+                "eggIndex": 0,
+                "common": [],
+                "hatchGroupSequence": "0",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "0",
+                "currentFarmCash": "0",
+                "prestigeExtraEarnings": "0",
+                "lastCashEarned": "0",
+                "prestigeSessionArchivedCash": "0"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "shellScripts": "0",
+                "hyperloop": false,
+                "SE": "0",
+                "epic": [],
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "settledWallThrough": 1793819361489,
+                "integrationCheckpoint": false
+              },
+              "operationCount": 0,
+              "researchOperations": {}
+            },
+            "ready": true,
+            "queued": 0,
+            "durable": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "0",
+                "numericCodecVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "calculationVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793819473907,
+                "ownerToken": "session-token-1",
+                "generation": "1"
+              },
+              "farm": {
+                "cash": "0",
+                "eggIndex": 0,
+                "common": [],
+                "hatchGroupSequence": "0",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "0",
+                    "typeIndex": 0,
+                    "assignedInTransit": "0",
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "typeIndex": -1,
+                    "assignedInTransit": "0",
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "typeIndex": -1,
+                    "assignedInTransit": "0",
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "typeIndex": -1,
+                    "assignedInTransit": "0",
+                    "fractionalIHR": "0"
+                  }
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "0",
+                "currentFarmCash": "0",
+                "prestigeExtraEarnings": "0",
+                "prestigeSessionArchivedCash": "0",
+                "lastCashEarned": "0"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "settledWallThrough": 1793819353907
+              },
+              "operationCount": 0,
+              "researchOperations": {}
+            }
+          }
+        },
+        "mode": "PERSISTENT",
+        "utc": 1793819361808
+      }
+    },
+    {
+      "name": "after-native-hatching",
+      "state": {
+        "players": {
+          "11647593962": {
+            "busy": false,
+            "working": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "2",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793819473907,
+                "ownerToken": "session-token-1",
+                "generation": "1"
+              },
+              "farm": {
+                "cash": "214.65136666666672",
+                "eggIndex": 0,
+                "common": [],
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "212.83470000000005",
+                "currentFarmCash": "214.65136666666672",
+                "prestigeExtraEarnings": "0",
+                "lastCashEarned": "214.65136666666672",
+                "prestigeSessionArchivedCash": "0"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "settledWallThrough": 1793819403189,
+                "integrationCheckpoint": false
+              },
+              "operationCount": 2,
+              "researchOperations": {}
+            },
+            "ready": true,
+            "queued": 0,
+            "durable": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "2",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793819473907,
+                "ownerToken": "session-token-1",
+                "generation": "1"
+              },
+              "farm": {
+                "cash": "126.74303333333334",
+                "eggIndex": 0,
+                "common": [],
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "124.97636666666668",
+                "currentFarmCash": "126.74303333333334",
+                "prestigeExtraEarnings": "0",
+                "prestigeSessionArchivedCash": "0",
+                "lastCashEarned": "126.74303333333334"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "settledWallThrough": 1793819392640,
+                "integrationCheckpoint": false
+              },
+              "operationCount": 2,
+              "researchOperations": {}
+            }
+          }
+        },
+        "mode": "PERSISTENT",
+        "utc": 1793819403623
+      }
+    },
+    {
+      "name": "native-research-purchase",
+      "state": {
+        "players": {
+          "11647593962": {
+            "busy": false,
+            "working": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "5",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793819549368,
+                "ownerToken": "session-token-1",
+                "generation": "1"
+              },
+              "farm": {
+                "cash": "867.42234323373009",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "867.31594999999902",
+                "currentFarmCash": "869.57636666666565",
+                "prestigeExtraEarnings": "0",
+                "lastCashEarned": "869.57636666666565",
+                "prestigeSessionArchivedCash": "0"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": false,
+                "settledWallThrough": 1793819478636
+              },
+              "operationCount": 5,
+              "researchOperations": {
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "level": 1,
+                    "researchId": "nutritional_sup",
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                }
+              }
+            },
+            "ready": true,
+            "queued": 0,
+            "durable": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "5",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793819549368,
+                "ownerToken": "session-token-1",
+                "generation": "1"
+              },
+              "farm": {
+                "cash": "736.42234323373043",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "738.50969999999927",
+                "currentFarmCash": "738.57636666666599",
+                "prestigeExtraEarnings": "0",
+                "prestigeSessionArchivedCash": "0",
+                "lastCashEarned": "738.57636666666599"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": false,
+                "settledWallThrough": 1793819466060
+              },
+              "operationCount": 5,
+              "researchOperations": {
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "level": 1,
+                    "researchId": "nutritional_sup",
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "mode": "PERSISTENT",
+        "utc": 1793819478887
+      }
+    },
+    {
+      "name": "before-first-disconnect",
+      "state": {
+        "players": {
+          "11647593962": {
+            "busy": false,
+            "working": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "6",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793819625017,
+                "ownerToken": "session-token-1",
+                "generation": "1"
+              },
+              "farm": {
+                "cash": "1366.703593233731",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "1366.5971999999999",
+                "currentFarmCash": "1368.8576166666667",
+                "prestigeExtraEarnings": "0",
+                "lastCashEarned": "1368.8576166666667",
+                "prestigeSessionArchivedCash": "0"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": false,
+                "settledWallThrough": 1793819526567
+              },
+              "operationCount": 6,
+              "researchOperations": {
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "level": 1,
+                    "researchId": "nutritional_sup",
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                }
+              }
+            },
+            "ready": true,
+            "queued": 0,
+            "durable": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "6",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793819625017,
+                "ownerToken": "session-token-1",
+                "generation": "1"
+              },
+              "farm": {
+                "cash": "915.84942656706346",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "915.74303333333239",
+                "currentFarmCash": "918.00344999999902",
+                "prestigeExtraEarnings": "0",
+                "prestigeSessionArchivedCash": "0",
+                "lastCashEarned": "918.00344999999902"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": false,
+                "settledWallThrough": 1793819483285
+              },
+              "operationCount": 6,
+              "researchOperations": {
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "researchId": "nutritional_sup",
+                    "level": 1,
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "mode": "PERSISTENT",
+        "utc": 1793819526952
+      }
+    },
+    {
+      "name": "cloud-read-after-stop",
+      "state": {
+        "profile": {
+          "meta": {
+            "playerId": "11647593962",
+            "revision": "6",
+            "calculationVersion": 1,
+            "configRevision": "first-farm-neutral:1",
+            "mode": "INTERNAL_TEST_ONLY",
+            "schemaVersion": 1,
+            "numericCodecVersion": 1
+          },
+          "ownership": {
+            "endsAtMs": 1793819625017,
+            "ownerToken": "session-token-1",
+            "generation": "1"
+          },
+          "farm": {
+            "cash": "915.84942656706346",
+            "eggIndex": 0,
+            "common": {
+              "nutritional_sup": 1
+            },
+            "hatchGroupSequence": "250",
+            "runningCount": "0",
+            "habitats": [
+              {
+                "population": "250",
+                "assignedInTransit": "0",
+                "capacity": "250",
+                "typeIndex": 0,
+                "fractionalIHR": "0"
+              },
+              {
+                "population": "0",
+                "assignedInTransit": "0",
+                "capacity": "0",
+                "typeIndex": -1,
+                "fractionalIHR": "0"
+              },
+              {
+                "population": "0",
+                "assignedInTransit": "0",
+                "capacity": "0",
+                "typeIndex": -1,
+                "fractionalIHR": "0"
+              },
+              {
+                "population": "0",
+                "assignedInTransit": "0",
+                "capacity": "0",
+                "typeIndex": -1,
+                "fractionalIHR": "0"
+              }
+            ],
+            "vehicleTypes": [
+              0
+            ]
+          },
+          "accounting": {
+            "lastBaseEarnings": "915.74303333333239",
+            "currentFarmCash": "918.00344999999902",
+            "prestigeExtraEarnings": "0",
+            "prestigeSessionArchivedCash": "0",
+            "lastCashEarned": "918.00344999999902"
+          },
+          "permanent": {
+            "prestigeCount": "0",
+            "hyperloop": false,
+            "shellScripts": "0",
+            "SE": "0",
+            "epic": [],
+            "totalGESpent": "0",
+            "PE": "0",
+            "GE": "10"
+          },
+          "entitlements": [],
+          "timeline": {
+            "selectionState": "63420747",
+            "integrationCheckpoint": false,
+            "settledWallThrough": 1793819483285
+          },
+          "operationCount": 6,
+          "researchOperations": {
+            "op-shop-stream-11647593962-g1-2-1": {
+              "kind": "BuyResearch",
+              "status": "APPLIED",
+              "revision": "5",
+              "result": {
+                "researchId": "nutritional_sup",
+                "level": 1,
+                "terminalStatus": "APPLIED",
+                "actionKind": "BuyResearch"
+              }
+            }
+          }
+        },
+        "readUtc": 1793819528428,
+        "version": "08DF3AA71D33BE81.0000000009.08DF3AA7772D9D69.01",
+        "updated": 1793819504332
+      }
+    },
+    {
+      "name": "second-cloud-read-after-stop",
+      "result": {
+        "ownership": {
+          "endsAtMs": 1793819625017,
+          "ownerToken": "session-token-1",
+          "generation": "1"
+        },
+        "revision": "6",
+        "now": 1793819544931,
+        "timeline": {
+          "selectionState": "63420747",
+          "integrationCheckpoint": false,
+          "settledWallThrough": 1793819483285
+        },
+        "updated": 1793819504332,
+        "cash": "915.84942656706346"
+      }
+    },
+    {
+      "name": "immediate-reconnect-failed",
+      "result": {
+        "text": "[HatchTheEgg Server] Session unavailable: SESSION_BUSY\nServer Kick Message: Save data is temporarily unavailable. Please try again later.; Metadata: ",
+        "isError": false
+      }
+    },
+    {
+      "name": "reconnect-after-expiry",
+      "result": {
+        "text": "Server datamodel is not available in Edit mode",
+        "isError": true
+      }
+    },
+    {
+      "name": "successful-reconnect-after-expiry",
+      "state": {
+        "players": {
+          "11647593962": {
+            "busy": false,
+            "working": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "6",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793819757650,
+                "ownerToken": "session-token-1",
+                "generation": "2"
+              },
+              "farm": {
+                "cash": "1150.2244265670633",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "1150.815949999999",
+                "currentFarmCash": "1152.378449999999",
+                "prestigeExtraEarnings": "0",
+                "lastCashEarned": "1152.378449999999",
+                "prestigeSessionArchivedCash": "0"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": {
+                  "version": 1,
+                  "payload": {
+                    "startInstantMs": {
+                      "__hteTimelineReal64": "1793819483285"
+                    },
+                    "targetInstantMs": {
+                      "__hteTimelineReal64": "1793819638358"
+                    },
+                    "elapsedSeconds": {
+                      "__hteTimelineReal64": "44.999999999999929"
+                    },
+                    "remainingSeconds": {
+                      "__hteTimelineReal64": "110.07299999999915"
+                    },
+                    "productionSeconds": {
+                      "__hteTimelineReal64": "155.07300000000001"
+                    },
+                    "mode": "AWAY",
+                    "done": false,
+                    "config": {
+                      "siloCapacityLevel": {
+                        "__hteTimelineReal64": "0"
+                      },
+                      "liveEvents": [],
+                      "revision": "first-farm-neutral:1",
+                      "pro": false,
+                      "double_cash": false
+                    }
+                  }
+                },
+                "settledWallThrough": 1793819483285
+              },
+              "operationCount": 6,
+              "researchOperations": {
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "researchId": "nutritional_sup",
+                    "level": 1,
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                }
+              }
+            },
+            "ready": false,
+            "queued": 0,
+            "durable": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "6",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793819757650,
+                "ownerToken": "session-token-1",
+                "generation": "2"
+              },
+              "farm": {
+                "cash": "915.84942656706346",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "915.74303333333239",
+                "currentFarmCash": "918.00344999999902",
+                "prestigeExtraEarnings": "0",
+                "prestigeSessionArchivedCash": "0",
+                "lastCashEarned": "918.00344999999902"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": false,
+                "settledWallThrough": 1793819483285
+              },
+              "operationCount": 6,
+              "researchOperations": {
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "researchId": "nutritional_sup",
+                    "level": 1,
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "mode": "PERSISTENT",
+        "utc": 1793819639903
+      }
+    },
+    {
+      "name": "offline-settlement-ready-check",
+      "state": {
+        "players": {
+          "11647593962": {
+            "busy": false,
+            "working": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "6",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793819757650,
+                "ownerToken": "session-token-1",
+                "generation": "2"
+              },
+              "farm": {
+                "cash": "1813.5004682337294",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "1813.3940749999983",
+                "currentFarmCash": "1815.6544916666651",
+                "prestigeExtraEarnings": "0",
+                "lastCashEarned": "1815.6544916666651",
+                "prestigeSessionArchivedCash": "0"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": false,
+                "settledWallThrough": 1793819646996
+              },
+              "operationCount": 6,
+              "researchOperations": {
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "researchId": "nutritional_sup",
+                    "level": 1,
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                }
+              }
+            },
+            "ready": true,
+            "queued": 0,
+            "durable": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "6",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793819757650,
+                "ownerToken": "session-token-1",
+                "generation": "2"
+              },
+              "farm": {
+                "cash": "915.84942656706346",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "915.74303333333239",
+                "currentFarmCash": "918.00344999999902",
+                "prestigeExtraEarnings": "0",
+                "prestigeSessionArchivedCash": "0",
+                "lastCashEarned": "918.00344999999902"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": false,
+                "settledWallThrough": 1793819483285
+              },
+              "operationCount": 6,
+              "researchOperations": {
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "researchId": "nutritional_sup",
+                    "level": 1,
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "mode": "PERSISTENT",
+        "utc": 1793819647180
+      }
+    },
+    {
+      "name": "client-after-reconnect",
+      "result": {
+        "CashLabel": {
+          "text": "$0",
+          "path": "Players.theZuraz.PlayerGui.HatchTheEggHUD.BottomLeftCluster.CashLabel"
+        },
+        "StatusLabel": {
+          "text": "CONNECTING",
+          "path": "Players.theZuraz.PlayerGui.HatchTheEggHUD.SessionBanner.StatusLabel"
+        }
+      }
+    },
+    {
+      "name": "settlement-complete-before-checkpoint",
+      "state": {
+        "players": {
+          "11647593962": {
+            "busy": false,
+            "working": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "8",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793819757650,
+                "ownerToken": "session-token-1",
+                "generation": "2"
+              },
+              "farm": {
+                "cash": "2226.8338015670615",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "2226.831574999997",
+                "currentFarmCash": "2228.987824999997",
+                "prestigeExtraEarnings": "0",
+                "lastCashEarned": "2228.987824999997",
+                "prestigeSessionArchivedCash": "0"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": false,
+                "settledWallThrough": 1793819686676
+              },
+              "operationCount": 8,
+              "researchOperations": {
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "researchId": "nutritional_sup",
+                    "level": 1,
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                }
+              }
+            },
+            "ready": true,
+            "queued": 0,
+            "durable": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "8",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793819757650,
+                "ownerToken": "session-token-1",
+                "generation": "2"
+              },
+              "farm": {
+                "cash": "2074.2400515670633",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "2074.1336583333323",
+                "currentFarmCash": "2076.3940749999988",
+                "prestigeExtraEarnings": "0",
+                "prestigeSessionArchivedCash": "0",
+                "lastCashEarned": "2076.3940749999988"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": false,
+                "settledWallThrough": 1793819672027
+              },
+              "operationCount": 8,
+              "researchOperations": {
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "researchId": "nutritional_sup",
+                    "level": 1,
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "mode": "PERSISTENT",
+        "utc": 1793819686970
+      }
+    },
+    {
+      "name": "manual-checkpoint-existing-server-method",
+      "state": {
+        "before": {
+          "busy": false,
+          "working": {
+            "meta": {
+              "playerId": "11647593962",
+              "revision": "9",
+              "calculationVersion": 1,
+              "configRevision": "first-farm-neutral:1",
+              "mode": "INTERNAL_TEST_ONLY",
+              "schemaVersion": 1,
+              "numericCodecVersion": 1
+            },
+            "ownership": {
+              "endsAtMs": 1793819833068,
+              "ownerToken": "session-token-1",
+              "generation": "2"
+            },
+            "farm": {
+              "cash": "2543.6775515670611",
+              "eggIndex": 0,
+              "common": {
+                "nutritional_sup": 1
+              },
+              "hatchGroupSequence": "250",
+              "runningCount": "0",
+              "habitats": [
+                {
+                  "population": "250",
+                  "assignedInTransit": "0",
+                  "capacity": "250",
+                  "typeIndex": 0,
+                  "fractionalIHR": "0"
+                },
+                {
+                  "population": "0",
+                  "assignedInTransit": "0",
+                  "capacity": "0",
+                  "typeIndex": -1,
+                  "fractionalIHR": "0"
+                },
+                {
+                  "population": "0",
+                  "assignedInTransit": "0",
+                  "capacity": "0",
+                  "typeIndex": -1,
+                  "fractionalIHR": "0"
+                },
+                {
+                  "population": "0",
+                  "assignedInTransit": "0",
+                  "capacity": "0",
+                  "typeIndex": -1,
+                  "fractionalIHR": "0"
+                }
+              ],
+              "vehicleTypes": [
+                0
+              ]
+            },
+            "accounting": {
+              "lastBaseEarnings": "2543.560741666663",
+              "currentFarmCash": "2545.8315749999965",
+              "prestigeExtraEarnings": "0",
+              "lastCashEarned": "2545.8315749999965",
+              "prestigeSessionArchivedCash": "0"
+            },
+            "permanent": {
+              "prestigeCount": "0",
+              "shellScripts": "0",
+              "hyperloop": false,
+              "SE": "0",
+              "epic": [],
+              "totalGESpent": "0",
+              "PE": "0",
+              "GE": "10"
+            },
+            "entitlements": [],
+            "timeline": {
+              "selectionState": "63420747",
+              "integrationCheckpoint": false,
+              "settledWallThrough": 1793819717093
+            },
+            "operationCount": 9,
+            "researchOperations": {
+              "op-shop-stream-11647593962-g1-2-1": {
+                "kind": "BuyResearch",
+                "status": "APPLIED",
+                "revision": "5",
+                "result": {
+                  "level": 1,
+                  "researchId": "nutritional_sup",
+                  "terminalStatus": "APPLIED",
+                  "actionKind": "BuyResearch"
+                }
+              }
+            }
+          },
+          "ready": true,
+          "queued": 0,
+          "durable": {
+            "meta": {
+              "playerId": "11647593962",
+              "revision": "9",
+              "calculationVersion": 1,
+              "configRevision": "first-farm-neutral:1",
+              "mode": "INTERNAL_TEST_ONLY",
+              "schemaVersion": 1,
+              "numericCodecVersion": 1
+            },
+            "ownership": {
+              "endsAtMs": 1793819833068,
+              "ownerToken": "session-token-1",
+              "generation": "2"
+            },
+            "farm": {
+              "cash": "2345.2400515670606",
+              "eggIndex": 0,
+              "common": {
+                "nutritional_sup": 1
+              },
+              "hatchGroupSequence": "250",
+              "runningCount": "0",
+              "habitats": [
+                {
+                  "population": "250",
+                  "assignedInTransit": "0",
+                  "capacity": "250",
+                  "typeIndex": 0,
+                  "fractionalIHR": "0"
+                },
+                {
+                  "population": "0",
+                  "assignedInTransit": "0",
+                  "capacity": "0",
+                  "typeIndex": -1,
+                  "fractionalIHR": "0"
+                },
+                {
+                  "population": "0",
+                  "assignedInTransit": "0",
+                  "capacity": "0",
+                  "typeIndex": -1,
+                  "fractionalIHR": "0"
+                },
+                {
+                  "population": "0",
+                  "assignedInTransit": "0",
+                  "capacity": "0",
+                  "typeIndex": -1,
+                  "fractionalIHR": "0"
+                }
+              ],
+              "vehicleTypes": [
+                0
+              ]
+            },
+            "accounting": {
+              "lastBaseEarnings": "2345.1440749999961",
+              "currentFarmCash": "2347.3940749999961",
+              "prestigeExtraEarnings": "0",
+              "prestigeSessionArchivedCash": "0",
+              "lastCashEarned": "2347.3940749999961"
+            },
+            "permanent": {
+              "prestigeCount": "0",
+              "SE": "0",
+              "epic": [],
+              "shellScripts": "0",
+              "hyperloop": false,
+              "totalGESpent": "0",
+              "PE": "0",
+              "GE": "10"
+            },
+            "entitlements": [],
+            "timeline": {
+              "selectionState": "63420747",
+              "integrationCheckpoint": false,
+              "settledWallThrough": 1793819698043
+            },
+            "operationCount": 9,
+            "researchOperations": {
+              "op-shop-stream-11647593962-g1-2-1": {
+                "kind": "BuyResearch",
+                "status": "APPLIED",
+                "revision": "5",
+                "result": {
+                  "researchId": "nutritional_sup",
+                  "level": 1,
+                  "terminalStatus": "APPLIED",
+                  "actionKind": "BuyResearch"
+                }
+              }
+            }
+          }
+        },
+        "after": {
+          "busy": false,
+          "working": {
+            "meta": {
+              "playerId": "11647593962",
+              "revision": "10",
+              "calculationVersion": 1,
+              "configRevision": "first-farm-neutral:1",
+              "mode": "INTERNAL_TEST_ONLY",
+              "schemaVersion": 1,
+              "numericCodecVersion": 1
+            },
+            "ownership": {
+              "endsAtMs": 1793819833068,
+              "ownerToken": "session-token-1",
+              "generation": "2"
+            },
+            "farm": {
+              "cash": "2543.6775515670611",
+              "eggIndex": 0,
+              "common": {
+                "nutritional_sup": 1
+              },
+              "hatchGroupSequence": "250",
+              "runningCount": "0",
+              "habitats": [
+                {
+                  "population": "250",
+                  "assignedInTransit": "0",
+                  "capacity": "250",
+                  "typeIndex": 0,
+                  "fractionalIHR": "0"
+                },
+                {
+                  "population": "0",
+                  "assignedInTransit": "0",
+                  "capacity": "0",
+                  "typeIndex": -1,
+                  "fractionalIHR": "0"
+                },
+                {
+                  "population": "0",
+                  "assignedInTransit": "0",
+                  "capacity": "0",
+                  "typeIndex": -1,
+                  "fractionalIHR": "0"
+                },
+                {
+                  "population": "0",
+                  "assignedInTransit": "0",
+                  "capacity": "0",
+                  "typeIndex": -1,
+                  "fractionalIHR": "0"
+                }
+              ],
+              "vehicleTypes": [
+                0
+              ]
+            },
+            "accounting": {
+              "lastBaseEarnings": "2543.560741666663",
+              "currentFarmCash": "2545.8315749999965",
+              "prestigeExtraEarnings": "0",
+              "lastCashEarned": "2545.8315749999965",
+              "prestigeSessionArchivedCash": "0"
+            },
+            "permanent": {
+              "prestigeCount": "0",
+              "shellScripts": "0",
+              "hyperloop": false,
+              "SE": "0",
+              "epic": [],
+              "totalGESpent": "0",
+              "PE": "0",
+              "GE": "10"
+            },
+            "entitlements": [],
+            "timeline": {
+              "selectionState": "63420747",
+              "integrationCheckpoint": false,
+              "settledWallThrough": 1793819717093
+            },
+            "operationCount": 10,
+            "researchOperations": {
+              "checkpoint-11647593962-1793819717593": {
+                "kind": "Checkpoint",
+                "status": "APPLIED",
+                "revision": "10",
+                "result": {
+                  "checkpoint": true
+                }
+              },
+              "op-shop-stream-11647593962-g1-2-1": {
+                "kind": "BuyResearch",
+                "status": "APPLIED",
+                "revision": "5",
+                "result": {
+                  "level": 1,
+                  "researchId": "nutritional_sup",
+                  "terminalStatus": "APPLIED",
+                  "actionKind": "BuyResearch"
+                }
+              }
+            }
+          },
+          "ready": true,
+          "queued": 1,
+          "durable": {
+            "meta": {
+              "playerId": "11647593962",
+              "revision": "10",
+              "calculationVersion": 1,
+              "configRevision": "first-farm-neutral:1",
+              "mode": "INTERNAL_TEST_ONLY",
+              "schemaVersion": 1,
+              "numericCodecVersion": 1
+            },
+            "ownership": {
+              "endsAtMs": 1793819833068,
+              "ownerToken": "session-token-1",
+              "generation": "2"
+            },
+            "farm": {
+              "cash": "2543.6775515670611",
+              "eggIndex": 0,
+              "common": {
+                "nutritional_sup": 1
+              },
+              "hatchGroupSequence": "250",
+              "runningCount": "0",
+              "habitats": [
+                {
+                  "population": "250",
+                  "assignedInTransit": "0",
+                  "capacity": "250",
+                  "typeIndex": 0,
+                  "fractionalIHR": "0"
+                },
+                {
+                  "population": "0",
+                  "assignedInTransit": "0",
+                  "capacity": "0",
+                  "typeIndex": -1,
+                  "fractionalIHR": "0"
+                },
+                {
+                  "population": "0",
+                  "assignedInTransit": "0",
+                  "capacity": "0",
+                  "typeIndex": -1,
+                  "fractionalIHR": "0"
+                },
+                {
+                  "population": "0",
+                  "assignedInTransit": "0",
+                  "capacity": "0",
+                  "typeIndex": -1,
+                  "fractionalIHR": "0"
+                }
+              ],
+              "vehicleTypes": [
+                0
+              ]
+            },
+            "accounting": {
+              "lastBaseEarnings": "2543.560741666663",
+              "currentFarmCash": "2545.8315749999965",
+              "prestigeExtraEarnings": "0",
+              "prestigeSessionArchivedCash": "0",
+              "lastCashEarned": "2545.8315749999965"
+            },
+            "permanent": {
+              "prestigeCount": "0",
+              "SE": "0",
+              "epic": [],
+              "shellScripts": "0",
+              "hyperloop": false,
+              "totalGESpent": "0",
+              "PE": "0",
+              "GE": "10"
+            },
+            "entitlements": [],
+            "timeline": {
+              "selectionState": "63420747",
+              "integrationCheckpoint": false,
+              "settledWallThrough": 1793819717093
+            },
+            "operationCount": 10,
+            "researchOperations": {
+              "checkpoint-11647593962-1793819717593": {
+                "kind": "Checkpoint",
+                "status": "APPLIED",
+                "revision": "10",
+                "result": {
+                  "checkpoint": true
+                }
+              },
+              "op-shop-stream-11647593962-g1-2-1": {
+                "kind": "BuyResearch",
+                "status": "APPLIED",
+                "revision": "5",
+                "result": {
+                  "researchId": "nutritional_sup",
+                  "level": 1,
+                  "terminalStatus": "APPLIED",
+                  "actionKind": "BuyResearch"
+                }
+              }
+            }
+          }
+        },
+        "utc": 1793819718026,
+        "result": {
+          "status": "APPLIED",
+          "resultRevision": "10",
+          "result": {
+            "checkpoint": true
+          }
+        },
+        "ok": true
+      }
+    },
+    {
+      "name": "client-stuck-connecting-before-diagnostic",
+      "result": {
+        "before": "CONNECTING",
+        "state": {
+          "status": "CONNECTING"
+        },
+        "status": "CONNECTING"
+      }
+    },
+    {
+      "name": "client-after-diagnostic-bootstrap",
+      "state": {
+        "before": "READY",
+        "state": {
+          "status": "READY",
+          "streamId": "stream-11647593962-g2-2",
+          "commitRevision": "11",
+          "serverObservedAt": 1793819742727,
+          "farm": {
+            "cash": "2810.6775515670602",
+            "cashIncomePerSecond": "10.416666666666668",
+            "habitats": [
+              {
+                "population": "250",
+                "nextHabitatId": "SHACK",
+                "habitatIndex": 0,
+                "capacity": "250",
+                "upgradePrice": "466.66887875775001",
+                "slotId": 1,
+                "reservedInTransit": "0"
+              },
+              {
+                "population": "0",
+                "capacity": "0",
+                "reservedInTransit": "0",
+                "upgradePrice": "29.12425183994392",
+                "slotId": 2,
+                "nextHabitatId": "COOP"
+              },
+              {
+                "population": "0",
+                "capacity": "0",
+                "reservedInTransit": "0",
+                "upgradePrice": "29.12425183994392",
+                "slotId": 3,
+                "nextHabitatId": "COOP"
+              },
+              {
+                "population": "0",
+                "capacity": "0",
+                "reservedInTransit": "0",
+                "upgradePrice": "29.12425183994392",
+                "slotId": 4,
+                "nextHabitatId": "COOP"
+              }
+            ],
+            "common": [
+              {
+                "available": true,
+                "level": 1,
+                "researchId": "nutritional_sup",
+                "effects": [
+                  {
+                    "current": "1.25",
+                    "stat": "eggValueMult",
+                    "next": "1.5"
+                  }
+                ]
+              }
+            ],
+            "GE": "10"
+          }
+        },
+        "status": "READY"
+      }
+    },
+    {
+      "name": "before-native-disconnect",
+      "state": {
+        "players": {
+          "11647593962": {
+            "busy": false,
+            "working": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "12",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793819833068,
+                "ownerToken": "session-token-1",
+                "generation": "2"
+              },
+              "farm": {
+                "cash": "2945.0421349003923",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "2944.9357416666612",
+                "currentFarmCash": "2947.1961583333277",
+                "prestigeExtraEarnings": "0",
+                "lastCashEarned": "2947.1961583333277",
+                "prestigeSessionArchivedCash": "0"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "shellScripts": "0",
+                "hyperloop": false,
+                "SE": "0",
+                "epic": [],
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": false,
+                "settledWallThrough": 1793819755624
+              },
+              "operationCount": 12,
+              "researchOperations": {
+                "checkpoint-11647593962-1793819717593": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "10",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "level": 1,
+                    "researchId": "nutritional_sup",
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                }
+              }
+            },
+            "ready": true,
+            "queued": 0,
+            "durable": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "12",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793819833068,
+                "ownerToken": "session-token-1",
+                "generation": "2"
+              },
+              "farm": {
+                "cash": "2945.0421349003923",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "2944.9357416666612",
+                "currentFarmCash": "2947.1961583333277",
+                "prestigeExtraEarnings": "0",
+                "prestigeSessionArchivedCash": "0",
+                "lastCashEarned": "2947.1961583333277"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": false,
+                "settledWallThrough": 1793819755624
+              },
+              "operationCount": 12,
+              "researchOperations": {
+                "checkpoint-11647593962-1793819717593": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "10",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "researchId": "nutritional_sup",
+                    "level": 1,
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "mode": "PERSISTENT",
+        "utc": 1793819756876
+      }
+    },
+    {
+      "name": "cloud-read-after-native-disconnect",
+      "state": {
+        "profile": {
+          "meta": {
+            "playerId": "11647593962",
+            "revision": "13",
+            "calculationVersion": 1,
+            "configRevision": "first-farm-neutral:1",
+            "mode": "INTERNAL_TEST_ONLY",
+            "schemaVersion": 1,
+            "numericCodecVersion": 1
+          },
+          "ownership": {
+            "endsAtMs": 0,
+            "ownerToken": "",
+            "generation": "2"
+          },
+          "farm": {
+            "cash": "2969.3546349003923",
+            "eggIndex": 0,
+            "common": {
+              "nutritional_sup": 1
+            },
+            "hatchGroupSequence": "250",
+            "runningCount": "0",
+            "habitats": [
+              {
+                "population": "250",
+                "assignedInTransit": "0",
+                "capacity": "250",
+                "typeIndex": 0,
+                "fractionalIHR": "0"
+              },
+              {
+                "population": "0",
+                "assignedInTransit": "0",
+                "capacity": "0",
+                "typeIndex": -1,
+                "fractionalIHR": "0"
+              },
+              {
+                "population": "0",
+                "assignedInTransit": "0",
+                "capacity": "0",
+                "typeIndex": -1,
+                "fractionalIHR": "0"
+              },
+              {
+                "population": "0",
+                "assignedInTransit": "0",
+                "capacity": "0",
+                "typeIndex": -1,
+                "fractionalIHR": "0"
+              }
+            ],
+            "vehicleTypes": [
+              0
+            ]
+          },
+          "accounting": {
+            "lastBaseEarnings": "2969.2378249999942",
+            "currentFarmCash": "2971.5086583333277",
+            "prestigeExtraEarnings": "0",
+            "prestigeSessionArchivedCash": "0",
+            "lastCashEarned": "2971.5086583333277"
+          },
+          "permanent": {
+            "prestigeCount": "0",
+            "hyperloop": false,
+            "shellScripts": "0",
+            "SE": "0",
+            "epic": [],
+            "totalGESpent": "0",
+            "PE": "0",
+            "GE": "10"
+          },
+          "entitlements": [],
+          "timeline": {
+            "selectionState": "63420747",
+            "integrationCheckpoint": false,
+            "settledWallThrough": 1793819757958
+          },
+          "operationCount": 13,
+          "researchOperations": {
+            "op-shop-stream-11647593962-g1-2-1": {
+              "kind": "BuyResearch",
+              "status": "APPLIED",
+              "revision": "5",
+              "result": {
+                "researchId": "nutritional_sup",
+                "level": 1,
+                "terminalStatus": "APPLIED",
+                "actionKind": "BuyResearch"
+              }
+            },
+            "checkpoint-11647593962-1793819757964": {
+              "kind": "Checkpoint",
+              "status": "APPLIED",
+              "revision": "13",
+              "result": {
+                "checkpoint": true
+              }
+            },
+            "checkpoint-11647593962-1793819717593": {
+              "kind": "Checkpoint",
+              "status": "APPLIED",
+              "revision": "10",
+              "result": {
+                "checkpoint": true
+              }
+            }
+          }
+        },
+        "readUtc": 1793819775940,
+        "version": "08DF3AA71D33BE81.0000000013.08DF3AA80E34C7E3.01",
+        "updated": 1793819757715
+      }
+    },
+    {
+      "name": "short-reconnect-after-clean-leave",
+      "state": {
+        "players": {
+          "11647593962": {
+            "busy": false,
+            "working": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "13",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793819911085,
+                "ownerToken": "session-token-1",
+                "generation": "3"
+              },
+              "farm": {
+                "cash": "3320.7817182337253",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "3321.5086583333277",
+                "currentFarmCash": "3322.9357416666608",
+                "prestigeExtraEarnings": "0",
+                "lastCashEarned": "3322.9357416666608",
+                "prestigeSessionArchivedCash": "0"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": false,
+                "settledWallThrough": 1793819791695
+              },
+              "operationCount": 13,
+              "researchOperations": {
+                "checkpoint-11647593962-1793819757964": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "13",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "checkpoint-11647593962-1793819717593": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "10",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "researchId": "nutritional_sup",
+                    "level": 1,
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                }
+              }
+            },
+            "ready": true,
+            "queued": 0,
+            "durable": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "13",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793819911085,
+                "ownerToken": "session-token-1",
+                "generation": "3"
+              },
+              "farm": {
+                "cash": "2969.3546349003923",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "2969.2378249999942",
+                "currentFarmCash": "2971.5086583333277",
+                "prestigeExtraEarnings": "0",
+                "prestigeSessionArchivedCash": "0",
+                "lastCashEarned": "2971.5086583333277"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": false,
+                "settledWallThrough": 1793819757958
+              },
+              "operationCount": 13,
+              "researchOperations": {
+                "checkpoint-11647593962-1793819757964": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "13",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "checkpoint-11647593962-1793819717593": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "10",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "researchId": "nutritional_sup",
+                    "level": 1,
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "mode": "PERSISTENT",
+        "utc": 1793819793134
+      }
+    },
+    {
+      "name": "clean-leave-before-long-offline",
+      "state": {
+        "profile": {
+          "meta": {
+            "playerId": "11647593962",
+            "revision": "14",
+            "calculationVersion": 1,
+            "configRevision": "first-farm-neutral:1",
+            "mode": "INTERNAL_TEST_ONLY",
+            "schemaVersion": 1,
+            "numericCodecVersion": 1
+          },
+          "ownership": {
+            "endsAtMs": 0,
+            "ownerToken": "",
+            "generation": "3"
+          },
+          "farm": {
+            "cash": "3421.0733849003914",
+            "eggIndex": 0,
+            "common": {
+              "nutritional_sup": 1
+            },
+            "hatchGroupSequence": "250",
+            "runningCount": "0",
+            "habitats": [
+              {
+                "population": "250",
+                "assignedInTransit": "0",
+                "capacity": "250",
+                "typeIndex": 0,
+                "fractionalIHR": "0"
+              },
+              {
+                "population": "0",
+                "assignedInTransit": "0",
+                "capacity": "0",
+                "typeIndex": -1,
+                "fractionalIHR": "0"
+              },
+              {
+                "population": "0",
+                "assignedInTransit": "0",
+                "capacity": "0",
+                "typeIndex": -1,
+                "fractionalIHR": "0"
+              },
+              {
+                "population": "0",
+                "assignedInTransit": "0",
+                "capacity": "0",
+                "typeIndex": -1,
+                "fractionalIHR": "0"
+              }
+            ],
+            "vehicleTypes": [
+              0
+            ]
+          },
+          "accounting": {
+            "lastBaseEarnings": "3420.9774083333268",
+            "currentFarmCash": "3423.2274083333268",
+            "prestigeExtraEarnings": "0",
+            "prestigeSessionArchivedCash": "0",
+            "lastCashEarned": "3423.2274083333268"
+          },
+          "permanent": {
+            "prestigeCount": "0",
+            "hyperloop": false,
+            "shellScripts": "0",
+            "SE": "0",
+            "epic": [],
+            "totalGESpent": "0",
+            "PE": "0",
+            "GE": "10"
+          },
+          "entitlements": [],
+          "timeline": {
+            "selectionState": "63420747",
+            "integrationCheckpoint": false,
+            "settledWallThrough": 1793819801323
+          },
+          "operationCount": 14,
+          "researchOperations": {
+            "op-shop-stream-11647593962-g1-2-1": {
+              "kind": "BuyResearch",
+              "status": "APPLIED",
+              "revision": "5",
+              "result": {
+                "researchId": "nutritional_sup",
+                "level": 1,
+                "terminalStatus": "APPLIED",
+                "actionKind": "BuyResearch"
+              }
+            },
+            "checkpoint-11647593962-1793819757964": {
+              "kind": "Checkpoint",
+              "status": "APPLIED",
+              "revision": "13",
+              "result": {
+                "checkpoint": true
+              }
+            },
+            "checkpoint-11647593962-1793819717593": {
+              "kind": "Checkpoint",
+              "status": "APPLIED",
+              "revision": "10",
+              "result": {
+                "checkpoint": true
+              }
+            },
+            "checkpoint-11647593962-1793819801609": {
+              "kind": "Checkpoint",
+              "status": "APPLIED",
+              "revision": "14",
+              "result": {
+                "checkpoint": true
+              }
+            }
+          }
+        },
+        "readUtc": 1793819809605,
+        "version": "08DF3AA71D33BE81.0000000016.08DF3AA82896F8C8.01",
+        "updated": 1793819801979
+      }
+    },
+    {
+      "name": "clean-long-offline-first-frame",
+      "state": {
+        "players": {
+          "11647593962": {
+            "busy": false,
+            "working": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "14",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793820004228,
+                "ownerToken": "session-token-1",
+                "generation": "4"
+              },
+              "farm": {
+                "cash": "3655.4483849003914",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "3656.0399083333268",
+                "currentFarmCash": "3657.6024083333268",
+                "prestigeExtraEarnings": "0",
+                "lastCashEarned": "3657.6024083333268",
+                "prestigeSessionArchivedCash": "0"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": {
+                  "version": 1,
+                  "payload": {
+                    "startInstantMs": {
+                      "__hteTimelineReal64": "1793819801323"
+                    },
+                    "targetInstantMs": {
+                      "__hteTimelineReal64": "1793819884811"
+                    },
+                    "elapsedSeconds": {
+                      "__hteTimelineReal64": "44.999999999999929"
+                    },
+                    "remainingSeconds": {
+                      "__hteTimelineReal64": "38.488000000000426"
+                    },
+                    "productionSeconds": {
+                      "__hteTimelineReal64": "83.488"
+                    },
+                    "mode": "AWAY",
+                    "done": false,
+                    "config": {
+                      "siloCapacityLevel": {
+                        "__hteTimelineReal64": "0"
+                      },
+                      "liveEvents": [],
+                      "revision": "first-farm-neutral:1",
+                      "pro": false,
+                      "double_cash": false
+                    }
+                  }
+                },
+                "settledWallThrough": 1793819801323
+              },
+              "operationCount": 14,
+              "researchOperations": {
+                "checkpoint-11647593962-1793819757964": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "13",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "checkpoint-11647593962-1793819801609": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "14",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "checkpoint-11647593962-1793819717593": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "10",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "researchId": "nutritional_sup",
+                    "level": 1,
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                }
+              }
+            },
+            "ready": false,
+            "queued": 0,
+            "durable": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "14",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793820004228,
+                "ownerToken": "session-token-1",
+                "generation": "4"
+              },
+              "farm": {
+                "cash": "3421.0733849003914",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "3420.9774083333268",
+                "currentFarmCash": "3423.2274083333268",
+                "prestigeExtraEarnings": "0",
+                "prestigeSessionArchivedCash": "0",
+                "lastCashEarned": "3423.2274083333268"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": false,
+                "settledWallThrough": 1793819801323
+              },
+              "operationCount": 14,
+              "researchOperations": {
+                "checkpoint-11647593962-1793819757964": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "13",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "checkpoint-11647593962-1793819801609": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "14",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "checkpoint-11647593962-1793819717593": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "10",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "researchId": "nutritional_sup",
+                    "level": 1,
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "mode": "PERSISTENT",
+        "utc": 1793819886854
+      }
+    },
+    {
+      "name": "clean-long-offline-complete",
+      "state": {
+        "players": {
+          "11647593962": {
+            "busy": false,
+            "working": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "15",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793820004228,
+                "ownerToken": "session-token-1",
+                "generation": "4"
+              },
+              "farm": {
+                "cash": "4085.6879682337249",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "4085.5711583333268",
+                "currentFarmCash": "4087.8419916666603",
+                "prestigeExtraEarnings": "0",
+                "lastCashEarned": "4087.8419916666603",
+                "prestigeSessionArchivedCash": "0"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": false,
+                "settledWallThrough": 1793819906870
+              },
+              "operationCount": 15,
+              "researchOperations": {
+                "checkpoint-11647593962-1793819757964": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "13",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "checkpoint-11647593962-1793819801609": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "14",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "checkpoint-11647593962-1793819717593": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "10",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "researchId": "nutritional_sup",
+                    "level": 1,
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                }
+              }
+            },
+            "ready": true,
+            "queued": 0,
+            "durable": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "15",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793820004228,
+                "ownerToken": "session-token-1",
+                "generation": "4"
+              },
+              "farm": {
+                "cash": "3998.1983849003927",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "3998.0711583333282",
+                "currentFarmCash": "4000.3524083333282",
+                "prestigeExtraEarnings": "0",
+                "prestigeSessionArchivedCash": "0",
+                "lastCashEarned": "4000.3524083333282"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": false,
+                "settledWallThrough": 1793819898471
+              },
+              "operationCount": 15,
+              "researchOperations": {
+                "checkpoint-11647593962-1793819757964": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "13",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "checkpoint-11647593962-1793819801609": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "14",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "checkpoint-11647593962-1793819717593": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "10",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "researchId": "nutritional_sup",
+                    "level": 1,
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "mode": "PERSISTENT",
+        "utc": 1793819907369
+      }
+    },
+    {
+      "name": "clean-long-offline-client",
+      "result": {
+        "CashLabel": "$0",
+        "StatusLabel": "CONNECTING"
+      }
+    },
+    {
+      "name": "persisted-after-clean-offline-session",
+      "state": {
+        "profile": {
+          "meta": {
+            "playerId": "11647593962",
+            "revision": "16",
+            "calculationVersion": 1,
+            "configRevision": "first-farm-neutral:1",
+            "mode": "INTERNAL_TEST_ONLY",
+            "schemaVersion": 1,
+            "numericCodecVersion": 1
+          },
+          "ownership": {
+            "endsAtMs": 0,
+            "ownerToken": "",
+            "generation": "4"
+          },
+          "farm": {
+            "cash": "4273.8546349003936",
+            "eggIndex": 0,
+            "common": {
+              "nutritional_sup": 1
+            },
+            "hatchGroupSequence": "250",
+            "runningCount": "0",
+            "habitats": [
+              {
+                "population": "250",
+                "assignedInTransit": "0",
+                "capacity": "250",
+                "typeIndex": 0,
+                "fractionalIHR": "0"
+              },
+              {
+                "population": "0",
+                "assignedInTransit": "0",
+                "capacity": "0",
+                "typeIndex": -1,
+                "fractionalIHR": "0"
+              },
+              {
+                "population": "0",
+                "assignedInTransit": "0",
+                "capacity": "0",
+                "typeIndex": -1,
+                "fractionalIHR": "0"
+              },
+              {
+                "population": "0",
+                "assignedInTransit": "0",
+                "capacity": "0",
+                "typeIndex": -1,
+                "fractionalIHR": "0"
+              }
+            ],
+            "vehicleTypes": [
+              0
+            ]
+          },
+          "accounting": {
+            "lastBaseEarnings": "4273.8003249999965",
+            "currentFarmCash": "4276.0086583333295",
+            "prestigeExtraEarnings": "0",
+            "prestigeSessionArchivedCash": "0",
+            "lastCashEarned": "4276.0086583333295"
+          },
+          "permanent": {
+            "prestigeCount": "0",
+            "hyperloop": false,
+            "shellScripts": "0",
+            "SE": "0",
+            "epic": [],
+            "totalGESpent": "0",
+            "PE": "0",
+            "GE": "10"
+          },
+          "entitlements": [],
+          "timeline": {
+            "selectionState": "63420747",
+            "integrationCheckpoint": false,
+            "settledWallThrough": 1793819924934
+          },
+          "operationCount": 16,
+          "researchOperations": {
+            "op-shop-stream-11647593962-g1-2-1": {
+              "kind": "BuyResearch",
+              "status": "APPLIED",
+              "revision": "5",
+              "result": {
+                "researchId": "nutritional_sup",
+                "level": 1,
+                "terminalStatus": "APPLIED",
+                "actionKind": "BuyResearch"
+              }
+            },
+            "checkpoint-11647593962-1793819757964": {
+              "kind": "Checkpoint",
+              "status": "APPLIED",
+              "revision": "13",
+              "result": {
+                "checkpoint": true
+              }
+            },
+            "checkpoint-11647593962-1793819925204": {
+              "kind": "Checkpoint",
+              "status": "APPLIED",
+              "revision": "16",
+              "result": {
+                "checkpoint": true
+              }
+            },
+            "checkpoint-11647593962-1793819717593": {
+              "kind": "Checkpoint",
+              "status": "APPLIED",
+              "revision": "10",
+              "result": {
+                "checkpoint": true
+              }
+            },
+            "checkpoint-11647593962-1793819801609": {
+              "kind": "Checkpoint",
+              "status": "APPLIED",
+              "revision": "14",
+              "result": {
+                "checkpoint": true
+              }
+            }
+          }
+        },
+        "readUtc": 1793819934434,
+        "version": "08DF3AA71D33BE81.000000001A.08DF3AA87256A5EC.01",
+        "updated": 1793819925709
+      }
+    },
+    {
+      "name": "quick-reconnect-no-double-offline",
+      "state": {
+        "players": {
+          "11647593962": {
+            "busy": false,
+            "working": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "16",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793820056376,
+                "ownerToken": "session-token-1",
+                "generation": "5"
+              },
+              "farm": {
+                "cash": "4501.2817182337285",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "4501.1857416666644",
+                "currentFarmCash": "4503.4357416666644",
+                "prestigeExtraEarnings": "0",
+                "lastCashEarned": "4503.4357416666644",
+                "prestigeSessionArchivedCash": "0"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "shellScripts": "0",
+                "hyperloop": false,
+                "SE": "0",
+                "epic": [],
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": false,
+                "settledWallThrough": 1793819946767
+              },
+              "operationCount": 16,
+              "researchOperations": {
+                "checkpoint-11647593962-1793819757964": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "13",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "checkpoint-11647593962-1793819801609": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "14",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "checkpoint-11647593962-1793819925204": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "16",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "checkpoint-11647593962-1793819717593": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "10",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "level": 1,
+                    "researchId": "nutritional_sup",
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                }
+              }
+            },
+            "ready": true,
+            "queued": 0,
+            "durable": {
+              "meta": {
+                "playerId": "11647593962",
+                "revision": "16",
+                "calculationVersion": 1,
+                "configRevision": "first-farm-neutral:1",
+                "mode": "INTERNAL_TEST_ONLY",
+                "schemaVersion": 1,
+                "numericCodecVersion": 1
+              },
+              "ownership": {
+                "endsAtMs": 1793820056376,
+                "ownerToken": "session-token-1",
+                "generation": "5"
+              },
+              "farm": {
+                "cash": "4273.8546349003936",
+                "eggIndex": 0,
+                "common": {
+                  "nutritional_sup": 1
+                },
+                "hatchGroupSequence": "250",
+                "runningCount": "0",
+                "habitats": [
+                  {
+                    "population": "250",
+                    "assignedInTransit": "0",
+                    "capacity": "250",
+                    "typeIndex": 0,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  },
+                  {
+                    "population": "0",
+                    "assignedInTransit": "0",
+                    "capacity": "0",
+                    "typeIndex": -1,
+                    "fractionalIHR": "0"
+                  }
+                ],
+                "vehicleTypes": [
+                  0
+                ]
+              },
+              "accounting": {
+                "lastBaseEarnings": "4273.8003249999965",
+                "currentFarmCash": "4276.0086583333295",
+                "prestigeExtraEarnings": "0",
+                "prestigeSessionArchivedCash": "0",
+                "lastCashEarned": "4276.0086583333295"
+              },
+              "permanent": {
+                "prestigeCount": "0",
+                "SE": "0",
+                "epic": [],
+                "shellScripts": "0",
+                "hyperloop": false,
+                "totalGESpent": "0",
+                "PE": "0",
+                "GE": "10"
+              },
+              "entitlements": [],
+              "timeline": {
+                "selectionState": "63420747",
+                "integrationCheckpoint": false,
+                "settledWallThrough": 1793819924934
+              },
+              "operationCount": 16,
+              "researchOperations": {
+                "checkpoint-11647593962-1793819757964": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "13",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "checkpoint-11647593962-1793819717593": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "10",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "op-shop-stream-11647593962-g1-2-1": {
+                  "kind": "BuyResearch",
+                  "status": "APPLIED",
+                  "revision": "5",
+                  "result": {
+                    "researchId": "nutritional_sup",
+                    "level": 1,
+                    "terminalStatus": "APPLIED",
+                    "actionKind": "BuyResearch"
+                  }
+                },
+                "checkpoint-11647593962-1793819925204": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "16",
+                  "result": {
+                    "checkpoint": true
+                  }
+                },
+                "checkpoint-11647593962-1793819801609": {
+                  "kind": "Checkpoint",
+                  "status": "APPLIED",
+                  "revision": "14",
+                  "result": {
+                    "checkpoint": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "mode": "PERSISTENT",
+        "utc": 1793819947268
+      }
+    },
+    {
+      "name": "quick-reconnect-client",
+      "result": {
+        "CashLabel": "$4.51K",
+        "StatusLabel": "READY"
+      }
+    }
+  ],
+  "limit": {
+    "value": 4,
+    "persistedAfterReload": true,
+    "url": "https://create.roblox.com/dashboard/creations/experiences/10774701473/places/110937489000525/access"
+  },
+  "offlineComparison": {
+    "ready": true,
+    "awaySeconds": 83.488,
+    "rate": 10.416666666666668,
+    "expectedOfflineIncome": 434.83333333333337,
+    "onlineIncomeAfterSettlement": 229.78125000000003,
+    "expectedCash": 4085.687968233725,
+    "actualCash": 4085.687968233725,
+    "error": 0
+  },
+  "quickReconnectComparison": {
+    "elapsedSeconds": 21.833,
+    "expectedCash": 4501.281718233727,
+    "actualCash": 4501.2817182337285,
+    "error": 1.8189894035458565e-12,
+    "ready": true
+  },
+  "cleanup": {
+    "ownership": {
+      "endsAtMs": 0,
+      "ownerToken": "",
+      "generation": "5"
+    },
+    "revision": "19",
+    "place": 110937489000525,
+    "timeline": {
+      "selectionState": "63420747",
+      "integrationCheckpoint": false,
+      "settledWallThrough": 1793819979769
+    },
+    "universe": 10774701473,
+    "version": "08DF3AA71D33BE81.000000001F.08DF3AA89312B0F8.01",
+    "memory": false,
+    "mode": "Edit",
+    "utc": 1793819989135,
+    "cash": "4845.0525515670652"
+  },
+  "sourceCleanup": {
+    "scripts": 50,
+    "mismatch": [],
+    "probes": [],
+    "editRemotes": []
+  },
+  "status": "FAIL_RELEASE_BLOCKERS_QA_DATA_01_02",
+  "diagnosticErrors": [
+    "StatusLabel addressed at root instead of SessionBanner; corrected using descendant names",
+    "ClientStateStore:getView does not exist; corrected to getState",
+    "A read after Kick targeted Server after Studio already returned to Edit; repeated in Edit",
+    "Final cleanup query tried runtime-created Remotes in Edit; repeated with descendant scan",
+    "One reconnect was attempted 4.686s before lease expiry; rejected and repeated after actual expiry"
+  ],
+  "note": "Evidence intentionally keeps relevant state fields and operations; omitted reward payloads are not a complete ledger audit.",
+  "sourceSha256": {
+    "src/client/AudioController.luau": "d9c01f699c111b825ac30749f5f81fb413114ac36cf88b81842cdcfb999ba2e3",
+    "src/client/Bootstrap.luau": "fcf58bbd167830ad4651b6821bcb543d0e5e01e278e0bc7e17f8bfdb81e806b7",
+    "src/client/ClientStateStore.luau": "9328112e68048d19c0d0e84cee0003f686d4ec77da643ec1044c23d3c7829694",
+    "src/client/ClientTransport.luau": "e17d513ff9c08fc76f927b6927562b1b08edf8b3400433e1849014f6ab183c23",
+    "src/client/HUD.luau": "27fec2326defd59a3fc3f46304af4e6913f5ab5c5f5cafd1b092f782ed18cbea",
+    "src/client/IntentControllers.luau": "2a94003cd116ee2aa87dd3cae808ea8995251e6ed8e071063b5847f6ceeb53a1",
+    "src/client/Main.client.luau": "4e32fa363bb08463edd04f69a443455f0a55a184a063de4dcd013ec5489e26ba",
+    "src/client/onboarding/TutorialController.luau": "3c3eda398a7c6221a23e863bbad91ea35d803eb3fde0376f3cb37fac4e9083e4",
+    "src/client/RoutePresentation.luau": "e11e43b3866e93d82829a525fdcb7485fe2f841eca9564848041a1b1814d99cd",
+    "src/client/ui/HoldToBuy.luau": "5b219358fca44218279ec12beec5269faeec06182b13ef36540dbc3b0cd8c0a7",
+    "src/client/ui/MobileLayout.luau": "73fd8c4f18f9b594a88dd80f8946f059f734c1da20efe4e31f659933ab8b2c8d",
+    "src/client/ui/StudUi.luau": "1d02deab7b0f1cf9fcf161f056348b41375bd83d0c08777989d5895adb4384a3",
+    "src/client/ui/UiAssets.luau": "c5bbbb55f392190689b8f2c84737082777bf06d86a42b2ee5300937d95e0971b",
+    "src/server/ActionReferenceData.luau": "6aa552755a7bb7d0ab05fe80a17637107b165f730644156b6e9d117d8c90bd0a",
+    "src/server/Bootstrap.luau": "bf1e997d76c9b55ebb9184822b01f5e5fa3338d3ff62aec28002c46cd4a9b566",
+    "src/server/CatalogRegistry/Data.luau": "01ea357fe64008fd54e5dafb0cb1a6c2baf356a8aa8e280568eed63dea1b3f39",
+    "src/server/CatalogRegistry/init.luau": "6d9a70f59c0616343b96b3572d0ae4c164cb2e07ac7aaf91dfb86f8e6f24729c",
+    "src/server/EffectsManager.luau": "96351605b979d099d44bf1b7787dff8e6772be78e0746fc03578876fe7c770ec",
+    "src/server/EpicPurchases.luau": "bd454e0b16f0d3ad29964743c2791e9d830e01348e55c6b6e310eab84630a515",
+    "src/server/FarmActions.luau": "779e96cf1f74d5907a33eaae0a4e2ef2be64e6dc182304119a79bbb48a7af4d0",
+    "src/server/FarmMath/fv_se.luau": "a1f6e2e975cabaa39bda6618469cd162eb3c5be34721d5f9130df873988eb2ae",
+    "src/server/FarmMath/hatching_rcb.luau": "b87ff673979640cd0a9b6426605e9912152b6fa7d6b487897964137de946f3e4",
+    "src/server/FarmMath/ihr.luau": "346314f4264d96aa69244ab22ad29481c1cded2e342ba0849c23b4d0b1840ffd",
+    "src/server/FarmMath/PopulationMath.luau": "d69246b2db2cbca2a3a49f8133a8895489ca3901bf66373c32cabe4246e3f527",
+    "src/server/FarmMath/production_research.luau": "8efe10e2668b5b39f4e68ce5a4762a9e9568e4da56f6a215243f9cb2c4c59988",
+    "src/server/GiftDrops.luau": "6e138fdfe453f20369645caf00156c33772abc659aef2de7e553f5bad510e227",
+    "src/server/Main.server.luau": "49270dded5fcc9c4c5e25d08cafb62684f2a8c21cd1f5d1514a74c951ce1f3d0",
+    "src/server/NetworkGateway.luau": "1ababdfc8425a8e03c8e43a3c486626ee65d4f215442e26186894ae3bb97a8d2",
+    "src/server/onboarding/manager.luau": "4115c5ee3e66665d2a35a774c6f86781b8eb2b73d2319cd7a0dd2543ce98c000",
+    "src/server/PersistenceData.luau": "9009b448dfae5311b69339b07e274688451d2dcf2c3d73501a9b743957afaa48",
+    "src/server/pets/equipment.luau": "bedd7dc2d34de16663000cf75a5a89cdca1843a02ec5e6a36d3530bf3af095e2",
+    "src/server/pets/fusion.luau": "80db419efe0dc516ea377f5b0987abef71cf49859730b1d2484d63442541a0da",
+    "src/server/platform/products.luau": "2ef7e7d032ada35e6f6805272ce0e0139823fcf9d6970c5cc027753e6bb94f1e",
+    "src/server/PlayerCoordinator.luau": "ff4cf7da056f0f3b9eacfed7fc817e3f6cfe4c643a49e452b0a29d3c5f45a686",
+    "src/server/ProfileSchema.luau": "4ed88c95420fd512148e3114c1fe67002e503811b7ff377139d17002c641785c",
+    "src/server/ProgressActions.luau": "009f08340412046f5a7475ff0ee5c12435d09b800e598e529736da011a0e4726",
+    "src/server/rewards/calendar.luau": "060e451b228bdf66844a7fa6a4ddd6a9bb54e7506759aba90e07358447364e2b",
+    "src/server/rewards/drones.luau": "0c5cb4183ccefab16f4210fbd94e54bd2bf545a169e9e0e5f2f7af54afc828eb",
+    "src/server/rewards/offers.luau": "c40c70874ce12cdc1dd9200a3197a73d1274125e0f716c61343d6a32d25b0d74",
+    "src/server/rewards/trophies.luau": "86f38c2652b8761c4cca6817baa386b6dae95e41456c2408dd823dc4d36a78b2",
+    "src/server/RobloxDataStorePort.luau": "0a85ea4bc3aa0c87a290c915f7cdfe42a0a84d3d0128d5a3f750d0360d8af902",
+    "src/server/SessionRepository.luau": "15098c50ea2ad62bea94956b10d048cf127be2a32922fafac07c067959431343",
+    "src/server/TimelineSimulation.luau": "9e7af5602f210b66a593ea4b8c043116205d40abb09c4ed49ebf008182c88825",
+    "src/server/ViewProjector.luau": "c14feb774aafe2cf636ce8394c03389ffcd8db2276166448b6a7cc915c16805d",
+    "src/server/world/FarmPlotBuilder.luau": "4ddc4ecc598da51219999dea305f559219e6bd9d0b3f11a910df02ce3970f9c8",
+    "src/server/world/FarmWorld.luau": "171d8e85beccb6645404d6b588bf73df25580bc69e9211406d0b124665b9e93f",
+    "src/shared/EpicPricing.luau": "26d78b6eb639eadb5ddb412b88075f38fd8a003fa77fcead90c573de28838cc9",
+    "src/shared/FeatureAvailability.luau": "0479d2ead7f3565a6e924bf388ebf3af8cc1b57d61055552386aec1c956cfd63",
+    "src/shared/NumericCodec.luau": "f9c97ced4fe8e3a1c59f085b7fa8b153921f0716e34779958e11dc3b06261074",
+    "src/shared/ProtocolSchemas.luau": "a3d96640f1078ac5e678b4662f30c58f81a80af3bbe37124ce43f25976e40378"
+  },
+  "documentationChecks": {
+    "checklistTests": 3,
+    "passed": true,
+    "gitDiffCheck": "PASS",
+    "gameCodeChanged": false,
+    "pricesAndBalanceChanged": false
+  }
+}

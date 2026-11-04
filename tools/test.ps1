@@ -59,6 +59,9 @@ try {
     $taskSuite = 'upgrade_previews'
     & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
     if ($LASTEXITCODE -ne 0) { throw 'Upgrade preview regressions failed.' }
+    $taskSuite = 'session_lifecycle'
+    & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run tests/session_lifecycle/run.luau
+    if ($LASTEXITCODE -ne 0) { throw 'Session lifecycle regressions failed.' }
     $taskSuite = 'mobile_ui'
     & (Join-Path $taskRoot ('.tools/lune-' + $taskManifest.lune.version + '/lune.exe')) run ('tests/' + $taskSuite + '/run.luau')
     if ($LASTEXITCODE -ne 0) { throw 'Mobile UI regressions failed.' }

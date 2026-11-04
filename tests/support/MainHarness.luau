@@ -15,7 +15,7 @@ end
 local function runMain(options)
  options=options or {}
  local eq=options.assertEqual or function(a,b,label)assert(a==b,(label or "").." expected "..tostring(b).." got "..tostring(a))end
- local h={reads=0,writes=0,opens=0,constructs=0,worldBuilds=0,kicks=0,elapsed=0,jobs={},messages={},records=options.records or {},warnings={}}
+ local h={reads=0,writes=0,opens=0,constructs=0,worldBuilds=0,kicks=0,elapsed=0,jobs={},messages={},records=options.records or {},warnings={},logs={}}
  local services={};h.services=services
  local function node(class)
   local n={Name=class,ClassName=class,children={}}
@@ -85,9 +85,10 @@ local function runMain(options)
   game=gameObject,script=scriptObject,Enum={ProductPurchaseDecision={NotProcessedYet='NotProcessedYet',PurchaseGranted='PurchaseGranted'}},
   DateTime={now=function()return {UnixTimestampMillis=options.nowMs or 1000000}end},os={clock=function()return h.elapsed end},
   typeof=function(v)return if v==gameObject then 'Instance' else typeof(v)end,
-  Instance={new=node},warn=function(message)table.insert(h.warnings,message)end,print=function()end,
+  Instance={new=node},warn=function(message)table.insert(h.warnings,message)end,print=function(message)table.insert(h.logs,message)end,
   task={spawn=function(fn,...)table.insert(h.jobs,{fn=fn,args=table.pack(...)})end,defer=function(fn,...)table.insert(h.jobs,{fn=fn,args=table.pack(...)})end,wait=function(seconds)
     h.waitCalls=(h.waitCalls or 0)+1
+    if options.onWait then local handled=options.onWait(h,seconds);if handled then return seconds end end
     if options.loopSeconds and seconds and seconds<=1 and options.loopSeconds>=seconds then
      options.loopSeconds-=seconds;h.elapsed+=seconds;return seconds
     end

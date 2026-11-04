@@ -2,6 +2,8 @@
 
 Stan sprawdzony z kodem: **04.11.2026**. Lista czynności przed publikacją; odhaczenie punktów wymaga dowodu z docelowego środowiska. Dokument nie zatwierdza wydania ani nowych cen. Dotychczasowe propozycje cen zachowano bez zmian; końcowa cena jest widoczna w oknie Roblox.
 
+**Prywatne QA:** limit 4 potwierdzony w Creator Hub; rzeczywisty zapis, zwolnienie sesji i automatyczny reconnect po offline ponownie sprawdzone po naprawie QA-DATA-01/02 ([dowody](workflow/session_lifecycle_fixes_2026_11_04.md)). Nie zamyka to kontroli płatności, hostowanych serwerów ani konfiguracji finalnego publicznego miejsca.
+
 ---
 
 ## 1. Podstawowe Informacje (Experience Overview & Basic Info)
@@ -114,7 +116,7 @@ W *Creator Hub -> Experience Settings -> Security* lub *Roblox Studio -> Game Se
 W *Creator Hub -> Places -> Start Place -> Configuration*:
 
 * [ ] **Limit graczy na serwerze (Max Players):**
-  * Dotychczasowa propozycja do pomiaru: **8–12 graczy** (maksymalnie 15). Nie jest to wynik wykonanego profilu wydajności.
+  * Obecna mapa obsługuje **4 graczy** (cztery farmy). Prywatne QA ma limit **4**, zapisany i potwierdzony w Creator Hub 04.11.2026; osobno potwierdzić ustawienie finalnego miejsca wydania. [Dowody i blokery DataStore/reconnect](workflow/private_qa_datastore_2026_11_04.md).
   * *Uzasadnienie wydajnościowe:* Każdy gracz posiada osobną trójwymiarową farmę z 4 kurnikami, stanowiskami floty transportowej, animacjami do 32 biegających kurczaków oraz inkubatorami. To propozycja limitu, nie gwarancja 60 FPS; wymaga pomiaru na docelowych urządzeniach mobilnych przy pełnym serwerze.
 * [ ] **Wypełnianie serwerów (Server Fill):**
   * Ustawić na: **Roblox optimizes server fill** (rekomendowane dla symulatorów, sprzyja spotykaniu innych graczy).
