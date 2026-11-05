@@ -1,5 +1,7 @@
 # Bieżący kontekst — 04.11.2026
 
+**Monetyzacja Bety — 04.11.2026:** użytkownik zatwierdził dziewięć cen i zakres Epic 50–900 Diamonds. Oferty utworzone i podłączone, natywne testy sześciu developer products oraz zapis/reconnect wykonane; naprawiono format potwierdzeń i wyścig rewizji. Zakup passów przez konto bez uprawnień pozostaje otwarty. Bez zmian balansu petów. [Dowody i ograniczenia](workflow/monetization_beta_validation_2026_11_04.md).
+
 **QA-DATA-01/02 naprawione — 04.11.2026:** [regresje i ponowny odbiór chmury](workflow/session_lifecycle_fixes_2026_11_04.md). Potwierdzane zamknięcie sesji i odroczony handshake; 58 suit Lune PASS, prywatne QA wersja 5. Długi powrót sam osiąga READY; Stop zachowuje saldo i zwalnia lease. Ceny i balans bez zmian. Poniższy wcześniejszy raport opisuje historyczne FAIL, nie bieżący wynik tych dwóch poprawek.
 
 **Prywatne QA / rzeczywisty DataStore — 04.11.2026:** [wyniki i dwa blokery](workflow/private_qa_datastore_2026_11_04.md). Osobny universe 10774701473, limit 4 zapisany w Creator Hub, runtime PERSISTENT. Zapis i offline F2P mają dowody chmury; pierwszy Stop nie zwolnił sesji (QA-DATA-01), a dłuższy reconnect pozostawił klienta CONNECTING (QA-DATA-02). Krótki reconnect po czystym wyjściu PASS. Bez zmiany kodu, cen i balansu; brak akceptacji wydania.

@@ -2263,19 +2263,19 @@ function HUD:_buildShopProducts(container)
 			fill = { 54, 148, 238 },
 			top = { 118, 196, 255 },
 			border = { 28, 96, 178 },
-			desc = "Quick boost of 💎 for epic research and boosts",
+			desc = "1,000 Diamonds for available Epic Research",
 			btnText = "1,000 💎",
 			icon = "rbxassetid://123463156806216",
 		},
 		{
 			id = "ge_pack_large",
 			title = "10,000 Diamonds",
-			badge = "Best value (+50%)",
+			badge = "Best value (+23.9% per R$)",
 			badgeFill = { 218, 132, 18 },
 			fill = { 236, 162, 34 },
 			top = { 255, 214, 86 },
 			border = { 168, 98, 14 },
-			desc = "Huge stash of Diamonds 💎 (+50% Bonus)",
+			desc = "10,000 Diamonds. 23.9% more per R$ than the small pack.",
 			btnText = "10,000 💎",
 			isBestValue = true,
 			icon = "rbxassetid://123463156806216",
@@ -4619,7 +4619,8 @@ function HUD:_updateEpicResearchModal(farm)
 				local offer=self._epicRobuxOffers[item.id]
                 cardData.buyRobuxBtn.Visible = not isEpicUnsupported(item.id) and curLvl<maxLvl
                 cardData.buyRobuxBtn.Active = offer~=nil and offer.configured
-                cardData.buyRobuxBtn.Text = if not offer or not offer.configured then "SOON" elseif offer.credits~="0" then "USE" else tostring(offer.nominalPriceRobux).." R$*"
+                local directProduct=EpicPricing.product((item.prices and item.prices[curLvl+1]) or item.basePriceGE)
+                cardData.buyRobuxBtn.Text = if not directProduct then "DIAMONDS ONLY" elseif not offer or not offer.configured then "UNAVAILABLE" elseif offer.credits~="0" then "USE" else tostring(offer.nominalPriceRobux).." R$*"
 			end
 
 			if isEpicUnsupported(item.id) then

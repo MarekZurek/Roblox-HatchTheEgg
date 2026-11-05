@@ -1,0 +1,75 @@
+{
+  "status": "APPROVED_IMPLEMENTED_PRIVATE_BETA",
+  "scope": "Nine monetization offers only; no farm progression, pet economy or GE research-cost changes",
+  "universeId": 10774701473,
+  "placeId": 110937489000525,
+  "experienceName": "HatchTheEgg - Beta",
+  "products": {
+    "pro_permit": {
+      "priceRobux": 499,
+      "type": "gamepass",
+      "platformId": 2069996186
+    },
+    "buy_max": {
+      "priceRobux": 149,
+      "type": "gamepass",
+      "platformId": 2070469851
+    },
+    "double_cash": {
+      "priceRobux": 299,
+      "type": "gamepass",
+      "platformId": 2067026331
+    },
+    "ge_pack_small": {
+      "priceRobux": 99,
+      "diamonds": 1000,
+      "type": "developer_product",
+      "platformId": 3728329433
+    },
+    "ge_pack_large": {
+      "priceRobux": 799,
+      "diamonds": 10000,
+      "type": "developer_product",
+      "platformId": 3728329472
+    },
+    "epic_upgrade_9": {
+      "priceRobux": 9,
+      "type": "developer_product",
+      "maxCostGE": 100,
+      "platformId": 3728320227
+    },
+    "epic_upgrade_19": {
+      "priceRobux": 19,
+      "type": "developer_product",
+      "maxCostGE": 200,
+      "platformId": 3728329222
+    },
+    "epic_upgrade_39": {
+      "priceRobux": 39,
+      "type": "developer_product",
+      "maxCostGE": 450,
+      "platformId": 3728329301
+    },
+    "epic_upgrade_79": {
+      "priceRobux": 79,
+      "type": "developer_product",
+      "maxCostGE": 900,
+      "platformId": 3728329363
+    }
+  },
+  "minimumDirectEpicCostGE": 50,
+  "targets": {
+    "directEpicCannotUndercutBestDiamondRate": true,
+    "maximumDirectEpicPremiumOverBestDiamondRate": 2.5
+  },
+  "cloudChangesAlreadyMade": {
+    "renamed": true,
+    "allNineCreated": true,
+    "basePricesConfigured": true,
+    "managedPricingEnabled": false,
+    "runtimeMapping": "src/server/BetaProducts.luau",
+    "publicationVerified": true,
+    "publishedVersion": 8
+  },
+  "approvedAt": "2026-11-04"
+}

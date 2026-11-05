@@ -1,5 +1,7 @@
 # Bieżąca specyfikacja i status ustaleń
 
+**R — Monetyzacja Bety, 04.11.2026:** PRO 499, MAX 149, 2x Cash 299 R$; 1 000 Diamonds/99 R$, 10 000/799 R$. Bezpośredni Epic: 50–100 Diamonds/9 R$, 101–200/19 R$, 201–450/39 R$, 451–900/79 R$; poza zakresem zakup za Diamonds. Zachować opłacone kredyty i oczekujące rozliczenia. Bez zmiany kosztów badań ani balansu petów. [Decyzja](workflow/monetization_balance_2026_11_04.md), [wdrożenie i testy](workflow/monetization_beta_validation_2026_11_04.md).
+
 > **R — układ farm 04.11.2026:** na zlecenie użytkownika cztery identyczne wyspy farm wokół jednej wyspy centralnej. Każdy gracz otrzymuje osobną farmę i spawn; stan modeli oraz płyta wylęgu odnoszą się do właściciela. Przesunięcie sceny nie zmienia lokalnych tras, czasu dotarcia, cen ani balansu. [Implementacja i ograniczony odbiór Studio](workflow/farm_islands_2026_11_04.md).
 
 > **R — doprecyzowanie 04.11.2026:** Dzień 28 pozostaje w UI jako „Mystery”, z dotychczasową nagrodą i jej księgowaniem (PE w pierwszych 24 cyklach, następnie dotychczasowe GE). Nie wprowadzać nagrody zastępczej ani nowej kwoty diamentów. Trofea i nowe zakupy `prophecy_bonus` pozostają zablokowane do v1.2; zachować już zapisane PE i poziomy badań.

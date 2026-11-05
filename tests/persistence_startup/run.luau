@@ -102,10 +102,11 @@ do
  eq(nextServer.records['player:1'].permanent.GE,'1010')
 end
 
--- REPLAYED is not sufficient: a durable rejection is never a purchase grant.
+-- REPLAYED is not sufficient: a durable domain rejection is never a purchase grant.
+-- Revision drift on trusted receipts is now rebased; use an unavailable product.
 do
  local h=runMain({attributes={ge_pack_small_PlatformId=987654321}});h.join()
- local receipt={PlayerId=1,ProductId=987654321,PurchaseId='rejected'}
+ local receipt={PlayerId=1,ProductId=987654320,PurchaseId='rejected'}
  local c=h.server:getCoordinator('1')
  c.submit({operationId='receipt-rejected',kind='PlatformPurchase',expectedRevision='999',args={purchaseToken='rejected',receiptInfo=receipt}})
  c.drain();eq(c.resultOf('receipt-rejected').status,'REJECTED')

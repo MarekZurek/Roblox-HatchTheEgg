@@ -42,6 +42,7 @@ function E.prepare(p: any, id: string, catalog: any, products: any): (boolean, a
  local level=E.level(p,id)+1
  if level>row.maxLevel then return false,"MAX_LEVEL" end
  local productId,nominal=Pricing.product(row.prices[level])
+ if not productId then return false,"DIAMONDS_ONLY" end
  local spec=products[productId]
  if not spec then return false,"PRODUCT_NOT_CONFIGURED" end
  local platformId=spec.platformId
@@ -79,6 +80,7 @@ function E.offers(p: any,catalog: any,products: any): any
   local row=catalog.getEpic(id);local level=E.level(p,id)+1
   if level>row.maxLevel then continue end
   local product,price=Pricing.product(row.prices[level])
+  if not product then continue end
   table.insert(rows,{researchId=id,productId=product,nominalPriceRobux=price,configured=products[product]~=nil,
    credits=if saved then saved.credits[product] or "0" else "0"})
  end

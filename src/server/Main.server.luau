@@ -97,8 +97,9 @@ local farmWorld = FarmWorld.new():build()
 
 -- 4. Initialize Authoritative ServerBootstrap
 local configuredProducts={}
+local betaProducts=require(script.Parent.BetaProducts).forPlace(game.GameId,game.PlaceId)
 for _,catalogId in {"pro_permit","buy_max","double_cash","ge_pack_small","ge_pack_large","epic_upgrade_9","epic_upgrade_19","epic_upgrade_39","epic_upgrade_79"} do
-    local id=script:GetAttribute(catalogId.."_PlatformId")
+    local id=if betaProducts then betaProducts[catalogId].platformId else script:GetAttribute(catalogId.."_PlatformId")
     if type(id)=="number" and id>0 and id%1==0 then
         if not string.match(catalogId,"^epic_upgrade_") then Products.registerProductId(id,catalogId) end
         configuredProducts[catalogId]={platformId=id}
@@ -375,7 +376,12 @@ local function processReceipt(receiptInfo)
 		return Enum.ProductPurchaseDecision.NotProcessedYet
 	end
 
-	local success, result = server:applyPurchase(pId, receiptInfo)
+	-- Native receipts contain EnumItems (CurrencyType) and platform metadata.
+	-- Only stable identity enters the JSON-shaped durable operation/fingerprint.
+	-- Reward amounts always come from our server catalog, never receipt metadata.
+	local success, result = server:applyPurchase(pId, {
+        PlayerId=receiptInfo.PlayerId,ProductId=receiptInfo.ProductId,PurchaseId=receiptInfo.PurchaseId,
+    })
 	if success then
 		local playerObj = Players:GetPlayerByUserId(playerId)
 		if playerObj then

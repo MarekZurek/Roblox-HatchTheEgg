@@ -923,6 +923,7 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
             end
             return outcome
 		elseif op.kind == "PlatformPurchase" or op.kind == "ConfirmPurchase" then
+			local beforePurchase=self.data.copy(candidateProfile)
 			local pToken = (op.args and op.args.purchaseToken) or op.operationId
 			local receiptInfo = op.args and op.args.receiptInfo
 			local nowMs = self.clock.utcNowMs()
@@ -937,7 +938,7 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
 				ok,res=Products.confirmPurchase(candidateProfile, pToken, receiptInfo, nowMs, isPiggyEnabled,{paidRandomAllowed=Products.readPaidRandomPolicy(self.paidRandomAllowed,playerId)})
 			end
 			return {
-				profile = candidateProfile,
+				profile = if ok then candidateProfile else beforePurchase,
 				result = res,
 				terminalStatus = if ok then "APPLIED" else "REJECTED",
 				validate = function() return ok, if not ok then res.error else nil end,
@@ -1360,8 +1361,17 @@ function ServerBootstrap:applyPurchase(playerId, receiptInfo)
 	local snapshots = coordinator.snapshots()
 	local currentRev = (snapshots.durable and snapshots.durable.meta and snapshots.durable.meta.revision) or "0"
 
+	-- Recover receipts rejected by older builds solely because a concurrent write
+	-- advanced the revision. Preserve that immutable record; the receipt-token
+	-- ledger still prevents a previously fulfilled purchase from paying twice.
+	local receiptOperationId="receipt-"..purchaseToken
+	local oldReceipt=snapshots.durable and snapshots.durable.operations[receiptOperationId]
+	if oldReceipt and oldReceipt.kind=="PlatformPurchase" and oldReceipt.terminalStatus=="REJECTED"
+		and oldReceipt.result and oldReceipt.result.errorCode=="STALE_REVISION" then
+		receiptOperationId="receipt-recovery-"..purchaseToken
+	end
 	local op = {
-		operationId = "receipt-" .. purchaseToken,
+		operationId = receiptOperationId,
 		kind = "PlatformPurchase",
 		expectedRevision = currentRev,
 		args = {

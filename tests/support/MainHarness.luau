@@ -77,10 +77,10 @@ local function runMain(options)
   if h.policyFailure then error("policy unavailable")end
   return h.policyResponse and D.copy(h.policyResponse)
  end}
- local gameObject={GetService=function(_self,name)assert(services[name],name);return services[name]end,BindToClose=function(_self,fn)h.close=fn end}
+ local gameObject={GameId=options.gameId,PlaceId=options.placeId,GetService=function(_self,name)assert(services[name],name);return services[name]end,BindToClose=function(_self,fn)h.close=fn end}
  local attrs=options.attributes or {}
  attrs.UseLocalMemoryStore=options.localMemory
- local scriptObject={Parent={Bootstrap='bootstrap',RobloxDataStorePort='port',platform={products='products'},world={FarmPlotBuilder='world',FarmWorld='farms'}},GetAttribute=function(_self,name)return attrs[name]end}
+ local scriptObject={Parent={Bootstrap='bootstrap',BetaProducts='betaProducts',RobloxDataStorePort='port',platform={products='products'},world={FarmPlotBuilder='world',FarmWorld='farms'}},GetAttribute=function(_self,name)return attrs[name]end}
  local runtime={
   game=gameObject,script=scriptObject,Enum={ProductPurchaseDecision={NotProcessedYet='NotProcessedYet',PurchaseGranted='PurchaseGranted'}},
   DateTime={now=function()return {UnixTimestampMillis=options.nowMs or 1000000}end},os={clock=function()return h.elapsed end},
@@ -101,6 +101,7 @@ local function runMain(options)
    end}
    elseif module=='port' then return Port
    elseif module=='products' then return Products
+   elseif module=='betaProducts' then return require('../../src/server/BetaProducts')
    elseif module=='world' then return {SPAWN_LOCATION_POS={x=0,y=0,z=0},new=function()return {build=function()h.worldBuilds+=1 end,updateFromFarmView=function()end}end}
    elseif module=='farms' then return {new=function()
     local w=FarmWorld.new({factory=function(deps)

@@ -1,9 +1,11 @@
 # Roblox Creator Hub — Kompletna Checklist Przedpublikacyjna (HatchTheEgg)
 
-Stan sprawdzony z kodem: **04.11.2026**. Lista czynności przed publikacją; odhaczenie punktów wymaga dowodu z docelowego środowiska. Dokument nie zatwierdza wydania ani nowych cen. Dotychczasowe propozycje cen zachowano bez zmian; końcowa cena jest widoczna w oknie Roblox.
+Stan sprawdzony z kodem: **04.11.2026**. Lista czynności przed publikacją; odhaczenie punktów wymaga dowodu z docelowego środowiska. Dokument nie zatwierdza wydania. Ceny dziewięciu ofert i zakres Epic 50–900 Diamonds zatwierdził użytkownik 04.11.2026; końcowa cena konta jest widoczna w oknie Roblox.
 
 **Prywatne QA:** limit 4 potwierdzony w Creator Hub; rzeczywisty zapis, zwolnienie sesji i automatyczny reconnect po offline ponownie sprawdzone po naprawie QA-DATA-01/02 ([dowody](workflow/session_lifecycle_fixes_2026_11_04.md)). Nie zamyka to kontroli płatności, hostowanych serwerów ani konfiguracji finalnego publicznego miejsca.
 
+
+**Monetyzacja Bety — 04.11.2026:** dziewięć ofert utworzonych i podłączonych; natywne testowe zakupy sześciu developer products, anulowanie oraz reconnect z realnym DataStore wykonane. Konto właściciela posiada wszystkie passy, więc zakup/anulowanie passów przez nowego nabywcę pozostaje otwarte. [Wyniki, ID i ograniczenia](workflow/monetization_beta_validation_2026_11_04.md).
 ---
 
 ## 1. Podstawowe Informacje (Experience Overview & Basic Info)
@@ -46,32 +48,34 @@ Tworzyć i włączać tylko produkty z aktualnej listy poniżej. Stałe uprawnie
 
 ### 3.1. Przepustki Jednorazowe (Game Passes)
 
-| Identyfikator w kodzie | Nazwa dla gracza | Dotychczasowa propozycja ceny | Działająca korzyść |
+| Identyfikator w kodzie | Nazwa dla gracza | Zatwierdzona cena bazowa Bety | Działająca korzyść |
 |---|---|---|---|
-| `pro_permit` | **PRO Permit** | **399–799 R$** | 18h zamiast 6h offline, 100% zamiast 50% dochodu offline, 5 zamiast 2 aktywnych boostów. Fuzja i jej bonus +10 punktów procentowych są niedostępne w tej wersji. |
-| `buy_max` | **Buy MAX Research** | **149–299 R$** | Zakup maksymalnej dostępnej liczby poziomów badań jednym kliknięciem; poziomy nadal kosztują gotówkę gracza. Osobny pass poza PRO. |
-| `double_cash` | **2x Cash** | **299–499 R$** | Stały mnożnik ×2 dochodu ze sprzedaży jaj. |
+| `pro_permit` | **PRO Permit** | **499 R$** | 18h zamiast 6h offline, 100% zamiast 50% dochodu offline, 5 zamiast 2 aktywnych boostów. Fuzja i jej bonus +10 punktów procentowych są niedostępne w tej wersji. |
+| `buy_max` | **Buy MAX Research** | **149 R$** | Zakup maksymalnej dostępnej liczby poziomów badań jednym kliknięciem; poziomy nadal kosztują gotówkę gracza. Osobny pass poza PRO. |
+| `double_cash` | **2x Cash** | **299 R$** | Stały mnożnik ×2 dochodu ze sprzedaży jaj. |
 
 ### 3.2. Produkty Dewelopera — Zakupy Wielokrotne
 
-| Identyfikator w kodzie | Nazwa / zawartość | Zachowana cena lub propozycja |
+| Identyfikator w kodzie | Nazwa / zawartość | Zatwierdzona cena bazowa Bety |
 |---|---|---|
-| `ge_pack_small` | **Diamond Pack — 1,000 Diamonds** | propozycja **99 R$** |
-| `ge_pack_large` | **Large Diamond Pack — 10,000 Diamonds** | propozycja **799 R$** |
-| `epic_upgrade_9` | Jednostka ulepszenia Epic z pierwszego pasma cenowego | cena próbna **9 R$** |
-| `epic_upgrade_19` | Jednostka ulepszenia Epic z drugiego pasma cenowego | cena próbna **19 R$** |
-| `epic_upgrade_39` | Jednostka ulepszenia Epic z trzeciego pasma cenowego | cena próbna **39 R$** |
-| `epic_upgrade_79` | Jednostka ulepszenia Epic z czwartego pasma cenowego | cena próbna **79 R$** |
+| `ge_pack_small` | **Diamond Pack — 1,000 Diamonds** | **99 R$** |
+| `ge_pack_large` | **Large Diamond Pack — 10,000 Diamonds** | **799 R$** |
+| `epic_upgrade_9` | Jednostka ulepszenia Epic o koszcie **50–100 Diamonds** | **9 R$** |
+| `epic_upgrade_19` | Jednostka ulepszenia Epic o koszcie **101–200 Diamonds** | **19 R$** |
+| `epic_upgrade_39` | Jednostka ulepszenia Epic o koszcie **201–450 Diamonds** | **39 R$** |
+| `epic_upgrade_79` | Jednostka ulepszenia Epic o koszcie **451–900 Diamonds** | **79 R$** |
 
-- [ ] Nie dodawać hasła „+50% bonus” do dużego pakietu: nie wynika ono z podanych ilości i proponowanych cen.
-- [ ] Ceny próbne Epic pochodzą z `src/shared/EpicPricing.luau`. Nie przywracać wycofanych 19/49/99/199 R$ ze starej listy tierów. Uzgodnienie relacji cen Epic do pakietów diamentów pozostaje odłożone; ten przegląd nie zmienia cen ani balansu.
+- [x] Opis dużego pakietu: **23,9% więcej Diamonds na Robuxa przy cenach bazowych**, bez błędnego „+50% bonus”.
+- [x] `EpicPricing.luau` dobiera pasmo po koszcie Diamonds. Poza 50–900 Diamonds zakup tylko za Diamonds; zachować historyczne opłacone kredyty i intencje. Audyt wszystkich 485 aktywnych poziomów przeszedł.
 - [ ] Zakup boostów za diamenty pozostaje oznaczony SOON; aktywowanie posiadanych boostów nadal działa.
 - [ ] Dzień 28 pozostaje „Mystery” z dotychczasową wypłatą według decyzji 04.11.2026. Trofea i zakup `prophecy_bonus` są zablokowane do v1.2; nie reklamować ich jako aktywnych.
 
 ### 3.3. Podłączenie ID produktów
 
-- [ ] Utworzyć produkty we właściwym doświadczeniu, zapisać ich rzeczywiste numeryczne ID i sprawdzić typ każdego produktu.
-- [ ] Na skrypcie **`ServerScriptService.HatchTheEgg.Main`** ustawić atrybuty typu **Number**, każdy z dodatnim całkowitym ID Roblox:
+- [x] **Prywatna Beta:** utworzono dziewięć ofert, ID/typy/ceny w `src/server/BetaProducts.luau`; natywne API potwierdziło dostępność. Inne miejsca wymagają własnych ID.
+**Beta:** Main używa `BetaProducts.forPlace(game.GameId, game.PlaceId)` wyłącznie dla universe 10774701473 i place 110937489000525. Mapowanie jest częścią builda; nie wymaga ręcznych atrybutów.
+
+- [ ] **Inne środowiska:** na skrypcie **`ServerScriptService.HatchTheEgg.Main`** ustawić atrybuty typu **Number**, każdy z dodatnim całkowitym ID Roblox:
 
 | Atrybut skryptu Main | Typ produktu |
 |---|---|
@@ -85,15 +89,15 @@ Tworzyć i włączać tylko produkty z aktualnej listy poniżej. Stałe uprawnie
 | `epic_upgrade_39_PlatformId` | Developer product |
 | `epic_upgrade_79_PlatformId` | Developer product |
 
-- [ ] Każde ID musi być unikalne. `Main.server.luau` czyta atrybuty przy starcie; samo edytowanie domyślnych map w `products.luau` nie konfiguruje ofert. Domyślne ID 1001/2001 itd. to wartości fixture'ów, nie ID do wdrożenia.
-- [ ] Utrwalić atrybuty w procesie przygotowania miejsca i sprawdzić je po synchronizacji/buildzie. Obecny `default.project.json` nie zapisuje tych wartości; nie zakładać, że sam build Rojo zawiera konfigurację płatności.
-- [ ] Uruchomić ponownie serwer po konfiguracji. Brak atrybutu pozostawia produkt nieskonfigurowany; nie omijać tej blokady.
+- [ ] Każde ID musi być unikalne. `Main.server.luau` w innych środowiskach czyta atrybuty przy starcie; samo edytowanie domyślnych map w `products.luau` nie konfiguruje ofert. Domyślne ID 1001/2001 itd. to wartości fixture'ów, nie ID do wdrożenia.
+- [ ] Utrwalić atrybuty w procesie przygotowania miejsca i sprawdzić je po synchronizacji/buildzie. Poza mapowaniem Bety obecny `default.project.json` nie zapisuje tych atrybutów; nie zakładać, że sam build Rojo zawiera konfigurację płatności.
+- [ ] Uruchomić ponownie serwer po konfiguracji. Poza Betą brak atrybutu pozostawia produkt nieskonfigurowany; nie omijać tej blokady.
 
 ### 3.4. Kontrola zakupów przed publikacją
 
 - [ ] W izolowanym środowisku z trwałym zapisem sprawdzić podgląd produktu, finalną cenę w oknie Roblox, anulowanie i ponowne wejście gracza.
 - [ ] Dla developer products sprawdzić jednokrotną wypłatę oraz ponowienie `ProcessReceipt` po utracie odpowiedzi. Samo zamknięcie okna zakupu nie potwierdza wypłaty.
-- [ ] Dla Epic sprawdzić otrzymanie jednej jednostki, wykorzystanie jej tylko raz oraz zachowanie niewykorzystanej jednostki po reconnect.
+- [x] **Studio testowe + prawdziwy DataStore:** cztery kredyty Epic otrzymane, jeden zużyty na poziom; trzy zachowane po reconnect. Replay i utrata odpowiedzi sprawdzone dodatkowo w Lune. Hostowana dostawa potwierdzeń pozostaje do sprawdzenia.
 - [ ] Dla passów sprawdzić posiadanie po reconnect oraz brak ponownego zakupu już posiadanego passa.
 - [ ] Dla Buy MAX sprawdzić odrzucenie komendy bez passa i zakup za gotówkę z passem.
 - [ ] Nie uznawać trybu `STUDIO_MEMORY` za test płatności lub chmury — zakupy platformowe są w nim wyłączone.

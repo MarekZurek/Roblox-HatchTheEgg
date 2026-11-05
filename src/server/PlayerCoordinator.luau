@@ -170,6 +170,11 @@ function Coordinator.new(deps)
 		end
 		if not ready and job.kind~="checkpoint" then return answer("NOT_APPLIED","SESSION_NOT_READY") end
 		local op=job.op
+		-- These two kinds are admitted only by trusted server adapters, never remotes.
+		-- A platform fact applies to the latest profile, even after a queued write.
+		if op.kind=="PlatformPurchase" or op.kind=="GrantEntitlement" then
+			op.expectedRevision=h.snapshot.meta.revision
+		end
 		local candidate,complete=working,true
 		local outcome
 		if op.expectedRevision~=h.snapshot.meta.revision then

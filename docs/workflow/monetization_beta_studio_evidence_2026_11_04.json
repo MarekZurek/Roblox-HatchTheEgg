@@ -1,0 +1,170 @@
+{
+  "environment": {
+    "universeId": 10774701473,
+    "placeId": 110937489000525,
+    "userId": 11647593962,
+    "clients": 1,
+    "mode": "Studio native test purchases + real DataStore",
+    "robuxSpent": 0
+  },
+  "successfulPacks": {
+    "receipts": {
+      "c9166e4e17d4757bac33b23bf63d40d6": {
+        "fulfilledAtMs": 1793827566623,
+        "productId": "ge_pack_small"
+      },
+      "391f70b7809a2a22d3649645fa019295": {
+        "fulfilledAtMs": 1793827592134,
+        "productId": "ge_pack_large"
+      }
+    },
+    "GE": "11010"
+  },
+  "allFourCredits": {
+    "logs": [],
+    "credits": {
+      "credits": {
+        "epic_upgrade_19": "1",
+        "epic_upgrade_9": "1",
+        "epic_upgrade_79": "1",
+        "epic_upgrade_39": "1"
+      }
+    },
+    "receipts": {
+      "391f70b7809a2a22d3649645fa019295": {
+        "fulfilledAtMs": 1793827592134,
+        "productId": "ge_pack_large"
+      },
+      "7b9fe75144216987473068e4030ac00c": {
+        "fulfilledAtMs": 1793827863774,
+        "productId": "epic_upgrade_79"
+      },
+      "fb2113f19d8c7daf18f6b0d40b573e42": {
+        "fulfilledAtMs": 1793827797816,
+        "productId": "epic_upgrade_9"
+      },
+      "bb4c77bc0ca65c12a8857d80317b2e9f": {
+        "fulfilledAtMs": 1793827844357,
+        "productId": "epic_upgrade_39"
+      },
+      "c9166e4e17d4757bac33b23bf63d40d6": {
+        "fulfilledAtMs": 1793827566623,
+        "productId": "ge_pack_small"
+      },
+      "ea47083bcfc9ffc6ebf653a5a39989fe": {
+        "fulfilledAtMs": 1793827821543,
+        "productId": "epic_upgrade_19"
+      }
+    },
+    "GE": "11010"
+  },
+  "redeemedCredit": {
+    "epic": {
+      "epic_clucking": 1
+    },
+    "revision": "123",
+    "credits": {
+      "credits": {
+        "epic_upgrade_19": "1",
+        "epic_upgrade_9": "0",
+        "epic_upgrade_39": "1",
+        "epic_upgrade_79": "1"
+      }
+    },
+    "GE": "11010"
+  },
+  "finalReconnect": {
+    "logs": [
+      {
+        "message": "Odrzucono zapis miejsca. Sprawdź połączenie sieciowe i spróbuj ponownie później.",
+        "timestamp": 1793828059.964,
+        "messageType": null
+      },
+      {
+        "message": "ContentId: rbxassetid://507766388 failed due to: HttpError: Timedout",
+        "timestamp": 1793828073.348,
+        "messageType": null
+      }
+    ],
+    "entitlements": {
+      "double_cash": true,
+      "pro_permit_effective_at": 1793827227909,
+      "pro_permit": true,
+      "buy_max_effective_at": 1793828048627,
+      "double_cash_effective_at": 1793828047111,
+      "buy_max": true,
+      "pro_plus10_enabled": true
+    },
+    "revision": "133",
+    "GE": "11010",
+    "epic": {
+      "epic_clucking": 1
+    },
+    "credits": {
+      "epic_upgrade_19": "1",
+      "epic_upgrade_9": "0",
+      "epic_upgrade_39": "1",
+      "epic_upgrade_79": "1"
+    },
+    "receipts": 6,
+    "ready": true
+  },
+  "finalShutdownUncached": {
+    "GE": "11010",
+    "epic": {
+      "epic_clucking": 1
+    },
+    "credits": {
+      "epic_upgrade_9": "0",
+      "epic_upgrade_19": "1",
+      "epic_upgrade_39": "1",
+      "epic_upgrade_79": "1"
+    },
+    "ownership": {
+      "ownerToken": "",
+      "endsAtMs": 0,
+      "generation": "15"
+    }
+  },
+  "creatorHub": {
+    "publishedVersion": 8,
+    "localDateTime": "2026-11-04 22:36 Europe/Warsaw",
+    "private": true,
+    "maxPlayers": 4,
+    "nineOffersOnSale": true,
+    "managedPricingEnabled": false
+  },
+  "automatedValidation": {
+    "runner": "tools/test.ps1 -PythonExecutable C:/Users/Marek/AppData/Local/Python/pythoncore-3.14-64/python.exe",
+    "exitCode": 0,
+    "luneSuites": 59,
+    "betaAssertions": 122,
+    "epicAssertions": 138,
+    "buildModules": 49,
+    "buildEntrypoints": 2,
+    "independentReview": false
+  },
+  "sourceBaseCommit": "aed15619f195d493870d26731d68246e65ec09c0",
+  "sourceSha256": {
+    "src/server/BetaProducts.luau": "601a59b7c39886b380e69ac9877635f650f38aef50440f39a0906d2d6e2280a3",
+    "src/server/Main.server.luau": "fd2623985d550bb335e3da5f5bcdf8c4f37943c329261d1340541a5f5d2b8399",
+    "src/server/Bootstrap.luau": "959a01b9fef6e5922d19f4826fe6ff23e5bbc2aa0a7b04a50eeea2f4129c032f",
+    "src/server/EpicPurchases.luau": "495861acad9bf68eecfc69921bb3022a57fe5d9e6f2ab9e2eb70e7a9fbec9f9e",
+    "src/server/PlayerCoordinator.luau": "3df784492be90c6917c8ccd051a5f997f9a48a6b1b29064d426a1b50dd666eb6",
+    "src/shared/EpicPricing.luau": "e98e05f9c3c87388d899d15faec4210e371562ac3fd52480d46ae1ef3b59e01e",
+    "src/client/HUD.luau": "306aa940fe519635798c7d83cdd6e43d0599a4856f84dbee90a1edabc8903560"
+  },
+  "limitations": [
+    "Native pass purchase/cancellation with non-owner not run",
+    "No charged Robux transactions",
+    "No hosted Roblox Player payment test",
+    "No independent review",
+    "Initial long-offline settling latency remains"
+  ],
+  "finalSourceVerification": {
+    "comparedLuaSourceContainers": 51,
+    "mismatches": 0,
+    "temporaryQAArtifacts": 0,
+    "mode": "Edit"
+  }
+}
