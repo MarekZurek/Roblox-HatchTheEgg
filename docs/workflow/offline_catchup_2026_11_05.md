@@ -81,4 +81,40 @@ Końcowy plik `TimelineSimulation.luau` ma SHA256
 
 Pomiar dotyczy kontrolowanej farmy i serwera Studio z prawdziwym
 DataStore. Czas rozliczania rozwijających się farm zależy od ich stanu
-i aktywnych efektów. Pomiar hostowanej wersji pozostaje osobnym etapem.
+i aktywnych efektów.
+
+## Prywatna Beta v9 · serwer hostowany
+
+Opublikowano `999fd47` w miejscu `110937489000525` (universe
+`10774701473`). Przed publikacją 51 źródeł w Studio porównano z repozytorium.
+Creator Hub potwierdził opublikowaną wersję 9 i prywatny dostęp, a strona
+Roblox potwierdziła pojemność 4. Konsola serwera zwróciła `PlaceVersion=9`
+i `IsStudio()=false`.
+
+Na tym serwerze uruchomiono osobną instancję opublikowanego `Bootstrap`
+z tym samym adapterem DataStore, osobnym zakresem i kontrolowanym zegarem.
+Pętla wywoływała tick co 0,5 s. Pomiar od rozpoczęcia wczytywania profilu
+do pierwszego rozliczonego `StateSnapshot` obejmuje zapis blokady i pracę
+serwera. Nie obejmuje połączenia klienta, ładowania świata ani renderowania
+HUD. Każdy przypadek użył farmy ze 100 Cash i 250 kurczakami.
+
+| Próba | Przerwa | Należny okres | Pierwszy snapshot | Snapshot po reconnect | Saldo Cash w obu wejściach |
+|---|---:|---:|---:|---:|---:|
+| F2P 83 min | 4 980 s | 4 980 s | 0,869 s | 0,852 s | 20 849,999999993506 |
+| Limit F2P | 21 601 s | 21 600 s | 1,804 s | 0,802 s | 90 100,000000120883 |
+| Limit PRO | 64 801 s | 64 800 s | 3,953 s | 0,802 s | 540 099,99999787787 |
+
+Saldo snapshotu zgadzało się z niebuforowanym odczytem DataStore. Przy
+stałym zegarze ponowne wejście zachowało dokładnie tę samą reprezentację
+salda i kursor rozliczenia; generacja wzrosła z 1 do 2. Po każdym wyjściu
+blokada była zwolniona i nie było oczekującego checkpointu. Niezależny
+odczyt potwierdził usunięcie trzech tymczasowych profili.
+
+Osobny test przez klienta Roblox w przeglądarce objął naturalny powrót
+konta PRO po 9 h 55 min 39 s i ponowne wejście. Trwałe saldo wzrosło
+z `82645.690949992655` do `3805464.1284528375`, zgodnie ze stawką farmy
+około 104,17 Cash/s. Między zapisami przed i po reconnect minęło 24,244 s,
+a przyrost wyniósł `2525.4166666665114` Cash, zgodnie z bieżącą produkcją.
+Na klatce po 12,3 s od otwarcia klient jeszcze ładował grę, a po 16,34 s
+HUD był już gotowy. To przedział obserwacji całego reconnectu; osobnego
+czasu pierwszego długiego wejścia w kliencie nie zmierzono.
