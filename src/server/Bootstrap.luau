@@ -834,7 +834,7 @@ function ServerBootstrap:playerJoined(playerId, initialProfileFixture)
             elseif op.kind=="BuyEpicRobux" then
                 if not self.purchasesEnabled then code="LOCAL_PAYMENTS_DISABLED"
                 else
-                    local prepared,preview=EpicPurchases.prepare(draft,args.researchId,self.catalog,self.platformProducts)
+                    local prepared,preview=EpicPurchases.prepare(draft,args.researchId,self.catalog,self.platformProducts,args.mode=="use")
                     ok=prepared
                     if ok then for k,v in preview do result[k]=v end else code=preview end
                 end

@@ -50,9 +50,12 @@ do -- Historical paid intent remains fulfillable even when outside new bands.
  p.permanent.epicPurchases={credits={},pending={researchId='hold_to_hatch',level=1,productId='epic_upgrade_9',platformId=7001}}
  local receipt={PlayerId=1,ProductId=7001}
  eq(E.receive(p,'legacy-paid',receipt,products,1001),true,'legacy receipt accepted')
- eq(p.permanent.epic.hold_to_hatch,1,'legacy intent delivers promised level')
+ eq(p.permanent.epic.hold_to_hatch,nil,'legacy receipt does not automatically apply the level')
  eq(E.receive(p,'legacy-paid',receipt,products,1002),true,'legacy replay acknowledged')
- eq(p.permanent.epic.hold_to_hatch,1,'legacy replay cannot duplicate')
+ eq(p.permanent.epicPurchases.credits.epic_upgrade_9,'1','legacy replay cannot duplicate the credit')
+ eq(E.offers(p,catalog,products)[1].credits,'1','legacy credit is visible on the promised level outside current bands')
+ eq(E.prepare(p,'hold_to_hatch',catalog,products,true),true,'explicit USE honors legacy selection outside current bands')
+ eq(p.permanent.epic.hold_to_hatch,1,'legacy USE delivers promised level')
  eq(p.permanent.epicPurchases.credits.epic_upgrade_9,'0','legacy paid unit consumed once')
 end
 do -- A canceled prompt has no receipt and grants nothing; saved unused credit survives choice.

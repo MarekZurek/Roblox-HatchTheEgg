@@ -60,13 +60,15 @@ Tworzyć i włączać tylko produkty z aktualnej listy poniżej. Stałe uprawnie
 |---|---|---|
 | `ge_pack_small` | **Diamond Pack — 1,000 Diamonds** | **99 R$** |
 | `ge_pack_large` | **Large Diamond Pack — 10,000 Diamonds** | **799 R$** |
-| `epic_upgrade_9` | Jednostka ulepszenia Epic o koszcie **50–100 Diamonds** | **9 R$** |
-| `epic_upgrade_19` | Jednostka ulepszenia Epic o koszcie **101–200 Diamonds** | **19 R$** |
-| `epic_upgrade_39` | Jednostka ulepszenia Epic o koszcie **201–450 Diamonds** | **39 R$** |
-| `epic_upgrade_79` | Jednostka ulepszenia Epic o koszcie **451–900 Diamonds** | **79 R$** |
+| `epic_upgrade_9` | Epic Credit I — jeden poziom za **50–100 Diamonds** | **9 R$** |
+| `epic_upgrade_19` | Epic Credit II — jeden poziom za **101–200 Diamonds** | **19 R$** |
+| `epic_upgrade_39` | Epic Credit III — jeden poziom za **201–450 Diamonds** | **39 R$** |
+| `epic_upgrade_79` | Epic Credit IV — jeden poziom za **451–900 Diamonds** | **79 R$** |
 
 - [x] Opis dużego pakietu: **23,9% więcej Diamonds na Robuxa przy cenach bazowych**, bez błędnego „+50% bonus”.
-- [x] `EpicPricing.luau` dobiera pasmo po koszcie Diamonds. Poza 50–900 Diamonds zakup tylko za Diamonds; zachować historyczne opłacone kredyty i intencje. Audyt wszystkich 485 aktywnych poziomów przeszedł.
+- [x] `EpicPricing.luau` dobiera pasmo po koszcie Diamonds. Nowe zakupy za Robuxy są dostępne dla poziomów 50–900 Diamonds. Audyt wszystkich 485 aktywnych poziomów przeszedł.
+- [x] Potwierdzenie zakupu Epic zapisuje jeden kredyt w odpowiednim przedziale. Dopiero `USE` zużywa kredyt i daje poziom wybranego badania. Starszy zapis wyboru poza aktualnymi pasmami zachowuje możliwość ręcznego użycia odpowiedniego kredytu.
+- [x] **Prywatna Beta v10 — `[Beta] Hatch An Egg!`:** nazwy i opisy czterech produktów Epic zapisane i sprawdzone w Creator Hub. Opisy podają przedział, jeden kredyt i ręczne użycie przez `USE`. Ceny bazowe 9/19/39/79 R$ potwierdzone po zapisie.
 - [ ] Zakup boostów za diamenty pozostaje oznaczony SOON; aktywowanie posiadanych boostów nadal działa.
 - [ ] Dzień 28 pozostaje „Mystery” z dotychczasową wypłatą według decyzji 04.11.2026. Trofea i zakup `prophecy_bonus` są zablokowane do v1.2; nie reklamować ich jako aktywnych.
 
@@ -98,6 +100,8 @@ Tworzyć i włączać tylko produkty z aktualnej listy poniżej. Stałe uprawnie
 - [ ] W izolowanym środowisku z trwałym zapisem sprawdzić podgląd produktu, finalną cenę w oknie Roblox, anulowanie i ponowne wejście gracza.
 - [ ] Dla developer products sprawdzić jednokrotną wypłatę oraz ponowienie `ProcessReceipt` po utracie odpowiedzi. Samo zamknięcie okna zakupu nie potwierdza wypłaty.
 - [x] **Studio testowe + prawdziwy DataStore:** cztery kredyty Epic otrzymane, jeden zużyty na poziom; trzy zachowane po reconnect. Replay i utrata odpowiedzi sprawdzone dodatkowo w Lune. Hostowana dostawa potwierdzeń pozostaje do sprawdzenia.
+- [x] **Hostowana Beta v10:** klient dołączył do gry, a serwer zgłosił v10 i limit 4. Na osobnym profilu z prawdziwym DataStore podane ręcznie testowe potwierdzenie Epic I zapisało jeden kredyt bez zmiany poziomów. Powtórzenie przed i po reconnect zachowało jeden kredyt. `USE` zmieniło tylko wybrany poziom z 3 na 4 i zużyło kredyt. Ponowne `USE` i replay nie dały kolejnego poziomu. Profil testowy usunięty.
+- [ ] Pełny odbiór panelu Epic w kliencie po ukończeniu tutorialu oraz natywna dostawa potwierdzenia płatności na hostowanym serwerze. Próba v10 użyła testowego potwierdzenia podanego do kodu serwera. Starszym instancjom pozostawiono naturalne wygaszenie.
 - [ ] Dla passów sprawdzić posiadanie po reconnect oraz brak ponownego zakupu już posiadanego passa.
 - [ ] Dla Buy MAX sprawdzić odrzucenie komendy bez passa i zakup za gotówkę z passem.
 - [ ] Nie uznawać trybu `STUDIO_MEMORY` za test płatności lub chmury — zakupy platformowe są w nim wyłączone.

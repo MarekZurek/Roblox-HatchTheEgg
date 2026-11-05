@@ -1880,7 +1880,7 @@ function HUD:_buildEpicResearchModal(root)
 		name = "EpicResearchModalFrame",
 		family = "shop",
 		title = "EPIC RESEARCH",
-		subtitle = "Diamonds or Robux. *Final price in Roblox window.",
+		subtitle = "Buy with Diamonds or buy an Epic credit. Tap USE on an eligible research. *Final price in Roblox window.",
 		designWidth = 920,
 		designHeight = 640,
 	})
@@ -2018,7 +2018,10 @@ function HUD:_buildEpicResearchModal(root)
 			onClick = function()
 				if isEpicUnsupported(item.id) then return end
                 local offer=self._epicRobuxOffers and self._epicRobuxOffers[item.id]
-                if offer and offer.configured and type(self.onBuyEpicRobux)=="function" then self.onBuyEpicRobux(item.id) end
+                if offer and type(self.onBuyEpicRobux)=="function" then
+                    if offer.credits~="0" then self.onBuyEpicRobux(item.id,"use")
+                    elseif offer.configured then self.onBuyEpicRobux(item.id,"buy") end
+                end
 			end,
 		})
 
@@ -3579,8 +3582,18 @@ end
 function HUD:onActionResult(response)
     self.lastActionResult=response
     local result=response.result
-    local text=if result and result.terminalStatus=="APPLIED" then (if result.actionKind=="PurchaseProduct" then "Opening purchase — waiting for platform" elseif result.outcome=="FAILURE" then "Fusion failed — base pet preserved" else "Operation confirmed by server")
-        else response.errorCode or (result and result.errorCode) or response.status or "Waiting for server"
+    local text=response.errorCode or (result and result.errorCode) or response.status or "Waiting for server"
+    if result and result.terminalStatus=="APPLIED" then
+        if result.actionKind=="BuyEpicRobux" then
+            text=if result.granted then "Epic credit used. Research upgraded." else "Review the Epic credit purchase."
+        elseif result.actionKind=="PurchaseProduct" then
+            text="Opening purchase — waiting for platform"
+        elseif result.outcome=="FAILURE" then
+            text="Fusion failed — base pet preserved"
+        else
+            text="Operation confirmed by server"
+        end
+    end
     if self.actionStatusLabel then self.actionStatusLabel.Text=text end
 end
 function HUD:update()
@@ -4618,9 +4631,10 @@ function HUD:_updateEpicResearchModal(farm)
 			if cardData.buyRobuxBtn then
 				local offer=self._epicRobuxOffers[item.id]
                 cardData.buyRobuxBtn.Visible = not isEpicUnsupported(item.id) and curLvl<maxLvl
-                cardData.buyRobuxBtn.Active = offer~=nil and offer.configured
+                local hasCredit=offer~=nil and offer.credits~="0"
+                cardData.buyRobuxBtn.Active = offer~=nil and (offer.configured or hasCredit)
                 local directProduct=EpicPricing.product((item.prices and item.prices[curLvl+1]) or item.basePriceGE)
-                cardData.buyRobuxBtn.Text = if not directProduct then "DIAMONDS ONLY" elseif not offer or not offer.configured then "UNAVAILABLE" elseif offer.credits~="0" then "USE" else tostring(offer.nominalPriceRobux).." R$*"
+                cardData.buyRobuxBtn.Text = if hasCredit then "USE" elseif not directProduct then "DIAMONDS ONLY" elseif not offer or not offer.configured then "UNAVAILABLE" else tostring(offer.nominalPriceRobux).." R$*"
 			end
 
 			if isEpicUnsupported(item.id) then

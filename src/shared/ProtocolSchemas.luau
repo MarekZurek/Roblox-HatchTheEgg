@@ -130,7 +130,7 @@ function ProtocolSchemas.new(codec)
         ActivateBoost = record({ boostId = id }),
         PurchaseProduct = record({ productId = id }),
         BuyEpicResearch = record({ researchId = id }),
-        BuyEpicRobux = record({ researchId = id }),
+        BuyEpicRobux = record({ researchId = id }, { mode = enum({ buy = true, use = true }) }),
 	}
 	local function target(value)
 		record({ kind = action, args = function(args) if type(value.kind) ~= "string" then fail() end; local check = targetSchemas[value.kind]; if not check then fail() end; check(args) end })(value)

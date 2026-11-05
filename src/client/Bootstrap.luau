@@ -168,7 +168,7 @@ function ClientBootstrap.new(deps)
 		if hud.onBuyEpicResearch == nil then
 			hud.onBuyEpicResearch = function(researchId) self:buyEpicResearch(researchId) end
 		end
-		hud.onBuyEpicRobux = function(researchId) self:buyEpicRobux(researchId) end
+		hud.onBuyEpicRobux = function(researchId, mode) self:buyEpicRobux(researchId, mode) end
 		if hud.onActivateBoost == nil then hud.onActivateBoost = function(boostId) self:activateBoost(boostId) end end
 	end
 
@@ -337,9 +337,6 @@ function ClientBootstrap:_command(kind,args,callback)
                     self.hud:showPurchasePreview(response.result,function()
                         local farm=self.stateStore:getFarm()
                         local p=farm and farm.progress
-                        if response.result.actionKind=="BuyEpicRobux" and p and p.epic and (p.epic[response.result.researchId] or 0)>=response.result.level then
-                            self.transport:sendRefreshState();return
-                        end
                         -- Account eligibility and a currently available product benefit are separate.
                         local disclosedPolicy = response.result.paidRandomAllowed
                         if disclosedPolicy == nil then disclosedPolicy = response.result.paidBonusAvailable end
@@ -366,7 +363,7 @@ function ClientBootstrap:activateBoost(boostId,callback) return self:_command("A
 function ClientBootstrap:purchaseProduct(productId,callback) return self:_command("PurchaseProduct",{productId=productId},callback) end
 function ClientBootstrap:prestige(callback) return self:_command("Prestige",{},callback) end
 function ClientBootstrap:buyEpicResearch(researchId,callback) return self:_command("BuyEpicResearch",{researchId=researchId},callback) end
-function ClientBootstrap:buyEpicRobux(researchId,callback) return self:_command("BuyEpicRobux",{researchId=researchId},callback) end
+function ClientBootstrap:buyEpicRobux(researchId,mode,callback) return self:_command("BuyEpicRobux",{researchId=researchId,mode=mode},callback) end
 
 function ClientBootstrap:hitDrone(droneId, callback)
 	if type(self.onHitDrone) == "function" then

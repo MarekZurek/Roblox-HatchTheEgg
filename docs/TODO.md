@@ -1,6 +1,8 @@
 # TODO — stan 26.10.2026
 
 - [x] Zatwierdzony balans i podłączenie dziewięciu ofert prywatnej Bety; natywne testowe zakupy developer products, anulowanie i reconnect z DataStore ([raport](workflow/monetization_beta_validation_2026_11_04.md)).
+- [x] Rozdzielić zakup kredytu Epic od użycia go na badaniu. Potwierdzenie zapisuje kredyt, a `USE` podnosi poziom wybranego badania.
+- [x] Prywatna Beta v10 `[Beta] Hatch An Egg!`: wdrożone ręczne użycie Epic, zaktualizowane cztery oferty, potwierdzone kredyt, replay, reconnect i `USE` na hostowanym serwerze z testowym potwierdzeniem. [Checklista](ROBLOX_CREATOR_DASHBOARD_CHECKLIST.md#34-kontrola-zakupów-przed-publikacją)
 - [ ] Test zakupu/anulowania passów na koncie bez uprawnień oraz dostawy potwierdzeń na hostowanym serwerze; obecny właściciel ma wszystkie passy.
 - [x] Przyspieszyć CONNECTING po offline. Powrót po 83 minutach i przy limitach 6 h F2P oraz 18 h PRO zweryfikowany w Studio prywatnej Bety z DataStore, z kontrolą salda i ponownego wejścia. [Wyniki](workflow/offline_catchup_2026_11_05.md).
 - [x] Prywatna Beta v9 (`999fd47`): pomiar pierwszego rozliczonego snapshotu dla 83 min i obu limitów na hoście Roblox; saldo zgodne i brak podwójnego naliczenia. Osobno potwierdzony READY w kliencie przy naturalnym powrocie PRO i reconnect ([raport](workflow/offline_catchup_2026_11_05.md#prywatna-beta-v9--serwer-hostowany)).
