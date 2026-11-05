@@ -627,7 +627,7 @@ function ServerBootstrap:_simulationAdvance(playerSession, profile, request)
 	self:_plateLane(playerSession, profile, cp)
 
 	if cp.mode=="AWAY" then playerSession.hatchingRuntime.held=false;playerSession.hatchingRuntime.holdElapsed=0 end
-	cp = self.timeline.advance(cp, budget)
+	cp = self.timeline.advance(cp, budget, request.offlineCatchup)
     if cp.hold and cp.hold.sessionKey==profile.ownership.generation..":"..playerSession.hatchingRuntime.streamId then playerSession.hatchingRuntime=self.data.copy(cp.hold.runtime) end
     local plateLane=cp.plate
     if plateLane~=nil and plateLane.sessionKey==profile.ownership.generation..":"..playerSession.platePresence.streamId then
@@ -1696,6 +1696,7 @@ function ServerBootstrap:tick(dtSeconds, nowMs)
 				dtSeconds = dtSeconds,
 				targetMs = currentNowMs,
 				budget = 100,
+				offlineCatchup = true,
 			})
 			coordinator.drain()
 			self:_reconcileReset(playerSession)

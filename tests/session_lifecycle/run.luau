@@ -79,10 +79,14 @@ scenario('failed checkpoint never reports saved or releases ownership',function(
  for _,message in h.logs do check(not string.find(message,'All player sessions saved',1,true),'no false shutdown success')end
 end)
 scenario('bootstrap is delivered after offline settlement without client retry',function()
- local profile=S.createReference('1',900000)
+ local profile=S.createReference('1',1000000)
  profile.farm.habitats[1].population='250'
  local h=H.new({records={['player:1']=profile},loopSeconds=3})
- h.join();h.server:tick(0.5,1000000)
+ h.join()
+ h.elapsed=61
+ local coordinator=h.server:getCoordinator('1')
+ coordinator.tick({kind='TimeAdvance',targetMs=1061000,budget=100})
+ coordinator.drain()
  eq(h.server:getCoordinator('1').snapshots().ready,false,'offline work really exceeds one budget')
  local boot={protocolVersion=1,kind='Bootstrap',requestId='original-handshake'}
  h.remote(boot)
@@ -97,6 +101,29 @@ scenario('bootstrap is delivered after offline settlement without client retry',
   end
  end
  eq(delivered,1,'one original bootstrap must finish without a second request')
+end)
+scenario('first join snapshot cannot precede offline settlement',function()
+ local profile=S.createReference('1',6000000-4980*1000)
+ profile.farm.habitats[1].population='250'
+ local h=H.new({records={['player:1']=profile},nowMs=6000000,loopSeconds=4})
+ h.join()
+ h.remote({protocolVersion=1,kind='Bootstrap',requestId='cold-handshake'})
+ local function countSnapshots()
+  local count=0
+  for _,row in h.messages do
+   if row.message.kind=='StateSnapshot' and row.message.requestId=='cold-handshake' then
+    count+=1
+    check(tonumber(row.message.view.farm.cash)>20749,'first snapshot has the 83-minute payout')
+   end
+  end
+  return count
+ end
+ local count=countSnapshots()
+ if count==0 then
+  pcall(function()h.runJob(2)end)
+  count=countSnapshots()
+ end
+ eq(count,1,'cold handshake publishes exactly one settled snapshot')
 end)
 if #failures>0 then for _,failure in failures do print('FAIL '..failure)end;error('Session lifecycle regressions failed: '..#failures)end
 print('Session lifecycle regressions PASS: '..n..' assertions')

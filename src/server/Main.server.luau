@@ -138,7 +138,13 @@ local joining, pendingBootstrap, refusedPlayers = {}, {}, {}
 local function flushPendingBootstrap(pId,player)
     local boot=pendingBootstrap[pId]
     local coordinator=server:getCoordinator(pId)
-    if not boot or not coordinator or not coordinator.snapshots().ready then return end
+    if not boot or not coordinator then return end
+    local snapshots=coordinator.snapshots()
+    if not snapshots.ready or not snapshots.working then return end
+    -- PlayerAdded can precede the first periodic tick. Keep that tick's
+    -- settlement target and withhold READY until it has caught up.
+    local timeline=snapshots.working.timeline
+    if timeline.integrationCheckpoint or serverClock.utcNowMs()-timeline.settledWallThrough>60000 then return end
     pendingBootstrap[pId]=nil
     local response=server:dispatch(pId,boot)
     if response then

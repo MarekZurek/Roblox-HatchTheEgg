@@ -20,6 +20,9 @@ local Timeline = {}
 -- The plate lane is advanced from server-observed presence only; the Epic hold lane keeps
 -- its research-driven rate and its client-owned start/refresh/stop lifecycle.
 Timeline.PLATE_HATCH_RATE = 30
+local OFFLINE_SLICE_SECONDS = 0.006
+local OFFLINE_GENERAL_PHASES = 4096
+local OFFLINE_STEADY_STEPS = 32768
 function Timeline.new(codec, production, hatching, ihr, data, options)
  assert(options and options.mode == "INTERNAL_TEST_ONLY", "Timeline/TEST_MODE_REQUIRED")
  local A,R,U=codec.BigAmount,codec.Real64,codec.ExactUInt
@@ -124,13 +127,85 @@ function Timeline.new(codec, production, hatching, ihr, data, options)
   local high,low=nextWord(),nextWord();cp.selectionState=x;cp.state.selectionState=x
   return U.encode(U.fromParts(high,low))
  end
- function api.advance(checkpoint,maxPhases)
+ -- Only reuse a production step when there can be no population or effect
+ -- transition. This still performs each individual binary64 accumulation.
+ local function advanceSteadyAway(cp, farm, pets, research, deadline)
+  if cp.phase~="BETWEEN_STEPS" or next(farm.groups)~=nil
+   or (cp.config.liveEvents and next(cp.config.liveEvents)~=nil)
+   or (cp.state.effects and cp.state.effects.boosts and next(cp.state.effects.boosts)~=nil) then
+   return false
+  end
+  local habitatTypes,populations={},{}
+  for index,habitat in farm.habitats do
+   if habitat.fractionalIHR~=0 then return false end
+   local built=habitat.typeIndex~=-1
+   if built and research.internalHatcheryPerHabPerMinute~=0
+    and U.compare(U.decode(habitat.population),U.decode(habitat.capacity))<0 then
+    return false
+   end
+   habitatTypes[index]=if built then habitat.typeIndex else false
+   populations[index]=habitat.population
+  end
+  local productionInput={commonLevels=farm.commonLevels,habitatTypes=habitatTypes,
+   settledPopulation=populations,vehicleTypes=farm.vehicleTypes,eggIndex=farm.eggIndex,
+   permanent=cp.state.permanent,petMultipliers=pets,permitExistingPopulation=true}
+  local offlineMultiplier=if cp.config.pro then 1 else 0.5
+  local doubleCash=(cp.state.entitlements and cp.state.entitlements.double_cash==true) or cp.config.double_cash==true
+  local function incomeFor(dt)
+   local income=A.multiply(production.productionStep(productionInput,dt).cashIncome,offlineMultiplier)
+   return if doubleCash then A.multiply(income,2) else income
+  end
+  local income=incomeFor(math.min(cp.remainingSeconds,0.3))
+  local extraRate=math.max(0,pets.prestigeEarningsMult-1)
+  local extraIncome=A.multiply(income,extraRate)
+  local accounting=cp.state.accounting
+  local cash,current,earned,extra=farm.cash,accounting.currentFarmCash,accounting.lastCashEarned,accounting.prestigeExtraEarnings
+  local elapsed,remaining,steps=cp.elapsedSeconds,cp.remainingSeconds,cp.stepIndex
+  local previousCurrent=current
+  for index=1,OFFLINE_STEADY_STEPS do
+   local dt=math.min(remaining,0.3)
+   if dt~=0.3 then
+    income=incomeFor(dt)
+    extraIncome=A.multiply(income,extraRate)
+   end
+   previousCurrent=current
+   cash+=income
+   current+=income
+   earned+=income
+   if extraRate>0 then extra+=extraIncome end
+   if farm.hatcheryStock~=research.hatcheryCapacity then
+    farm.hatcheryStock=hatching.refill(farm.hatcheryStock,research.hatcheryCapacity,research.refillPerSecond,dt)
+   end
+   local nextElapsed=elapsed+dt
+   assert(nextElapsed>elapsed,"Timeline/TIME_STALL")
+   elapsed=nextElapsed
+   remaining-=dt
+   steps+=1
+   if remaining==0 or (index%256==0 and os.clock()>=deadline) then break end
+  end
+  -- All increments are nonnegative. Validate the results before returning the slice.
+  farm.cash=A.validate(cash)
+  accounting.currentFarmCash=A.validate(current)
+  accounting.lastCashEarned=A.validate(earned)
+  accounting.prestigeExtraEarnings=A.validate(extra)
+  accounting.lastBaseEarnings=A.add(accounting.prestigeSessionArchivedCash,previousCurrent)
+  cp.elapsedSeconds,cp.remainingSeconds,cp.stepIndex=elapsed,remaining,steps
+  if remaining==0 then cp.done=true;cp.state.settledWallThrough=cp.targetInstantMs end
+  return true
+ end
+ function api.advance(checkpoint,maxPhases,offlineCatchup)
   local cp=data.copy(checkpoint);validateCheckpoint(cp);integer(maxPhases)
   local f=cp.state.farm
   local pets=Equipment.calculatePetMultipliers(cp.state.inventory,f)
   local research=production.productionContext(f.commonLevels,f.eggIndex,cp.state.permanent,pets)
-  for _=1,maxPhases do
+  local deadline=if offlineCatchup and maxPhases>0 and cp.mode=="AWAY" and not cp.done then os.clock()+OFFLINE_SLICE_SECONDS else nil
+  if deadline and advanceSteadyAway(cp,f,pets,research,deadline) then return cp end
+  local phaseLimit=if deadline then math.max(maxPhases,OFFLINE_GENERAL_PHASES) else maxPhases
+  for phase=1,phaseLimit do
    if cp.done then break end
+   -- The deadline limits extra work. Complex farms still get the original
+   -- phase budget, even when those phases already take longer than the target.
+   if deadline and phase>maxPhases and cp.phase=="BETWEEN_STEPS" and os.clock()>=deadline then break end
    local dt=if cp.phase=="AFTER_PRODUCTION" then cp.stepDt else math.min(cp.remainingSeconds,0.3)
    if cp.phase=="BETWEEN_STEPS" and cp.mode=="ONLINE" and cp.plate then
     -- A presence transition splits production too: newly running chickens cannot

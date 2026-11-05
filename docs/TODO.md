@@ -2,7 +2,8 @@
 
 - [x] Zatwierdzony balans i podłączenie dziewięciu ofert prywatnej Bety; natywne testowe zakupy developer products, anulowanie i reconnect z DataStore ([raport](workflow/monetization_beta_validation_2026_11_04.md)).
 - [ ] Test zakupu/anulowania passów na koncie bez uprawnień oraz dostawy potwierdzeń na hostowanym serwerze; obecny właściciel ma wszystkie passy.
-- [ ] Skrócić długie CONNECTING podczas odtwarzania dużej zaległości offline; poprawny wynik po kilku minutach nie oznacza dobrego UX.
+- [x] Przyspieszyć CONNECTING po offline. Powrót po 83 minutach i przy limitach 6 h F2P oraz 18 h PRO zweryfikowany w Studio prywatnej Bety z DataStore, z kontrolą salda i ponownego wejścia. [Wyniki](workflow/offline_catchup_2026_11_05.md).
+- [ ] Po wdrożeniu poprawki zmierzyć czas do READY na hostowanym serwerze przed premierą.
 
 - [x] Prywatne QA: osobny universe 10774701473, limit 4 w Creator Hub, rzeczywiste próby zapisu/reconnect/offline ([raport](workflow/private_qa_datastore_2026_11_04.md)); wykonanie testu nie oznacza PASS całego odbioru.
 - [x] **QA-DATA-01:** potwierdzany checkpoint/release, oczekiwanie na writera i wspólny wynik zamknięcia; regresje przeplotów oraz rzeczywisty Stop w prywatnym QA ([dowody](workflow/session_lifecycle_fixes_2026_11_04.md)).

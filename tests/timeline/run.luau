@@ -45,6 +45,51 @@ eq(all(away.state,61001).state.farm.cash,10)
 local limited=all(state(),1000+25000*1000);eq(limited.mode,"AWAY");eq(limited.productionSeconds,21600);eq(limited.state.settledWallThrough,1000+25000*1000)
 local pro=all(state(),62000,cfg(true));local free=all(state(),62000,cfg(false))
 eq((pro.state.farm.cash-10)>(free.state.farm.cash-10),true)
+-- The tick catch-up budget may process more phases without changing the 0.3 s grid.
+-- A full first habitat with default research earns 250/30 Cash per second,
+-- constrained by the first vehicle to 500/60 eggs per second, at egg value 1.
+for _,case in {{4980,false,4980},{21601,false,21600},{64801,true,64800}} do
+ local duration,isPro,seconds=table.unpack(case)
+ local initial=state("250")
+ local target=1000+duration*1000
+ local pending=T.begin(initial,target,cfg(isPro))
+ local slices=0
+ repeat
+  pending=T.advance(pending,100,true)
+  slices+=1
+ until pending.done or slices==32
+ assert(pending.done,"bounded fast catch-up must finish in 32 slices: "..duration)
+ local remaining,expected,steps=seconds,10,0
+ while remaining>0 do
+  local dt=math.min(remaining,.3)
+  expected+=math.min((250*(1/30))*dt,(500/60)*dt)*(if isPro then 1 else .5)
+  remaining-=dt
+  steps+=1
+ end
+ eq(pending.state.farm.cash,expected)
+ eq(pending.stepIndex,steps)
+ eq(pending.state.settledWallThrough,target)
+ eq(T.advance(T.begin(pending.state,target,cfg(isPro)),100,true).state.farm.cash,expected)
+end
+-- The normal phase runner remains an oracle for short intervals with state changes.
+-- Resume from a persisted half-step to exercise switching paths at slice boundaries.
+for _,hasGrowth in {false,true} do
+ local initial=state(if hasGrowth then "100" else "250")
+ local config=cfg(true)
+ config.double_cash=true
+ if hasGrowth then
+  initial.farm.commonLevels.internal_hatchery1=1
+  initial.farm.habitats[1].fractionalIHR=.99
+  config.liveEvents={{type="earnings",multiplier=2,startTimeMs=1577,deadlineMs=3500}}
+ end
+ local target=66123
+ local expected=all(initial,target,config)
+ local partial=T.advance(T.begin(initial,target,config),1)
+ local actual=T.decodeCheckpoint(T.encodeCheckpoint(partial))
+ repeat actual=T.advance(actual,100,true) until actual.done
+ eq(D.fingerprint(actual),D.fingerprint(expected))
+ eq(expected.state.farm.habitats[1].population,if hasGrowth then "103" else "250")
+end
 -- Already-ready groups settle before first production; within-step arrivals occur only after production.
 local function grouped(due)
  local s=state("0");s.farm.runningCount="1";s.farm.hatchGroupSequence="1";s.farm.habitats[1].assignedInTransit="1"
